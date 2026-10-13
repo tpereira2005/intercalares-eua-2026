@@ -1,0 +1,43 @@
+// Configuração do Worker. Não contém segredos: tokens e identificadores de
+// conta vivem nos segredos do GitHub e da Cloudflare (ver docs/implantacao.md).
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "intercalares-eua-2026",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // O site é o export estático do Next.js. Pedidos a ficheiros estáticos são
+  // gratuitos e ilimitados; só /api/* passa pelo código do Worker.
+  "assets": {
+    "directory": "../web/out",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/api/*"],
+  },
+
+  // Snapshots correntes. O database_id real é preenchido quando a conta
+  // Cloudflare for criada (Fase 0); este valor é um marcador.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "intercalares-eua-2026",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations",
+    },
+  ],
+
+  // Watchdog: a cada minuto confirma que os workflows de recolha correm.
+  "triggers": {
+    "crons": ["* * * * *"],
+  },
+
+  "vars": {
+    "AMBIENTE": "producao",
+  },
+
+  "observability": {
+    "enabled": true,
+  },
+}
