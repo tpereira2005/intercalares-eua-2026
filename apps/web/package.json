@@ -9,7 +9,8 @@
     "build": "next build",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "dados:obter": "node scripts/obter-dados.mjs"
+    "dados:obter": "node scripts/obter-dados.mjs",
+    "auditar": "node scripts/auditar-acessibilidade.mjs"
   },
   "dependencies": {
     "@fontsource-variable/public-sans": "^5.3.0",
@@ -27,6 +28,8 @@
     "@types/node": "^22.20.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "axe-core": "^4.14.0",
+    "playwright-core": "~1.56.1",
     "tailwindcss": "^4.3.0",
     "typescript": "~6.0.3",
     "vitest": "^4.1.0"

@@ -10,11 +10,7 @@ export function Cabecalho() {
   return (
     <header className="border-b border-rule bg-sheet">
       <div className="contentor flex flex-wrap items-center gap-x-[22px] gap-y-3.5 py-3">
-        <Link
-          href="/"
-          aria-label={t("site.inicioAria")}
-          className="mr-auto flex items-center gap-2.5 no-underline"
-        >
+        <Link href="/" className="mr-auto flex items-center gap-2.5 no-underline">
           <span
             aria-hidden="true"
             className="relative h-4 w-[26px] flex-none rounded-[50%] border-2 border-ink after:absolute after:inset-0.5 after:rounded-[50%] after:bg-signal after:content-['']"

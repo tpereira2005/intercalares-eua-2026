@@ -404,12 +404,14 @@ function BarraCategorias({
       <dl className="grid grid-cols-[repeat(auto-fill,minmax(118px,1fr))] gap-x-3 gap-y-1 text-[12.5px]">
         {CATEGORIAS.map((c) => (
           <div key={c} className="flex items-center gap-1.5">
-            <span
-              aria-hidden="true"
-              className={`inline-block size-3 shrink-0 rounded-[2px] ${ESTILO_CATEGORIA[c].className}`}
-              style={ESTILO_CATEGORIA[c].style}
-            />
-            <dt className="text-ink-2">{t(`previsao.categorias.${c}`)}</dt>
+            <dt className="flex items-center gap-1.5 text-ink-2">
+              <span
+                aria-hidden="true"
+                className={`inline-block size-3 shrink-0 rounded-[2px] ${ESTILO_CATEGORIA[c].className}`}
+                style={ESTILO_CATEGORIA[c].style}
+              />
+              {t(`previsao.categorias.${c}`)}
+            </dt>
             <dd className="ml-auto font-mono font-semibold">{contagem[c]}</dd>
           </div>
         ))}

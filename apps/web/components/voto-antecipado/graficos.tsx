@@ -151,14 +151,24 @@ export function BarrasIdade({
               const ativa = linha.faixa === faixaAtiva;
               const referencia = linha.referencias.find((r) => r.ano === anoComparar);
               const valor = formatarPercentagem(linha.valor, decimais);
+              const diferenca = referencia
+                ? formatarPontos(linha.valor - referencia.valor, decimais)
+                : null;
               return (
                 <g
                   key={linha.faixa}
                   {...linhaEscolhivel(
-                    t("votoAntecipado.graficos.linhaFaixa", {
-                      faixa: rotuloFaixa(linha.faixa),
-                      valor,
-                    }),
+                    referencia && diferenca !== null
+                      ? t("votoAntecipado.graficos.linhaFaixaComparada", {
+                          faixa: rotuloFaixa(linha.faixa),
+                          valor,
+                          diferenca,
+                          ano: referencia.ano,
+                        })
+                      : t("votoAntecipado.graficos.linhaFaixa", {
+                          faixa: rotuloFaixa(linha.faixa),
+                          valor,
+                        }),
                     aoEscolher
                       ? () => {
                           aoEscolher(linha.faixa);
@@ -206,7 +216,7 @@ export function BarrasIdade({
                       y={centro + 4}
                       className="fill-ink-2 font-mono text-[11.5px]"
                     >
-                      {formatarPontos(linha.valor - referencia.valor, decimais)}
+                      {diferenca}
                     </text>
                   ) : null}
                 </g>
@@ -258,15 +268,24 @@ export function BarrasMomento({
           ] as const;
           const novos = formatarPercentagem(linha.novos, 0);
           const daBase = base?.linhas.find((l) => l.faixa === linha.faixa);
+          const rotulo = t("votoAntecipado.graficos.linhaMomento", {
+            faixa: rotuloFaixa(linha.faixa),
+            habituais: formatarPercentagem(linha.habituais, 0),
+            antecipacao: formatarPercentagem(linha.antecipacao, 0),
+            novos,
+          });
           let x = ROTULO;
           return (
             <g
               key={linha.faixa}
               {...linhaEscolhivel(
-                t("votoAntecipado.graficos.linhaFaixa", {
-                  faixa: rotuloFaixa(linha.faixa),
-                  valor: t("votoAntecipado.graficos.novosValor", { valor: novos }),
-                }),
+                base && daBase
+                  ? t("votoAntecipado.graficos.linhaMomentoBase", {
+                      linha: rotulo,
+                      ano: base.ano,
+                      valor: formatarPercentagem(daBase.novos, 0),
+                    })
+                  : rotulo,
                 () => {
                   aoEscolher(linha.faixa);
                 },
@@ -730,10 +749,18 @@ export function Cruzamento({
             <g
               key={linha.faixa}
               {...linhaEscolhivel(
-                t("votoAntecipado.graficos.linhaFaixa", {
-                  faixa: rotuloFaixa(linha.faixa),
-                  valor: resumo,
-                }),
+                modo === "partido" && linha.variacaoDemRep !== null
+                  ? t("votoAntecipado.graficos.linhaDemRep", {
+                      linha: t("votoAntecipado.graficos.linhaFaixa", {
+                        faixa: rotuloFaixa(linha.faixa),
+                        valor: resumo,
+                      }),
+                      valor: formatarPontos(linha.variacaoDemRep, 0).replace(" pp", ""),
+                    })
+                  : t("votoAntecipado.graficos.linhaFaixa", {
+                      faixa: rotuloFaixa(linha.faixa),
+                      valor: resumo,
+                    }),
                 () => {
                   aoEscolher(linha.faixa);
                 },

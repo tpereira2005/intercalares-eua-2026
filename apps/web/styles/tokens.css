@@ -31,8 +31,12 @@
   --up: #178272;
   --down: #7759a6;
 
-  --f-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
-  --f-body: "Public Sans Variable", "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-display:
+    "Big Shoulders Display", "Reserva Display Arial", "Reserva Display Roboto", "Arial Narrow",
+    sans-serif;
+  --f-body:
+    "Public Sans Variable", "Public Sans", "Reserva Corpo Arial", "Reserva Corpo Roboto", system-ui,
+    -apple-system, "Segoe UI", sans-serif;
   --f-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --r-sm: 3px;
@@ -81,4 +85,38 @@
   --up: #4bbea9;
   --down: #a68ad5;
   color-scheme: dark;
+}
+
+/*
+ * Letras de reserva com a largura ajustada às do site, para que o texto ocupe o
+ * mesmo espaço antes e depois de as letras chegarem (sem deslocamentos, CLS).
+ * Razões medidas no Chromium com texto do site: a Big Shoulders Display (800)
+ * tem 74,7% da largura da Arial negrito e 79,3% da Roboto negrito; a Public Sans
+ * tem 102% da Arial e 104,5% da Roboto. A Arial cobre Windows, macOS e iOS (e a
+ * Liberation Sans, com as mesmas métricas, o Linux); a Roboto cobre o Android.
+ */
+@font-face {
+  font-family: "Reserva Display Arial";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
+  font-weight: 100 900;
+  size-adjust: 74.7%;
+}
+
+@font-face {
+  font-family: "Reserva Display Roboto";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 100 900;
+  size-adjust: 79.3%;
+}
+
+@font-face {
+  font-family: "Reserva Corpo Arial";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  size-adjust: 102%;
+}
+
+@font-face {
+  font-family: "Reserva Corpo Roboto";
+  src: local("Roboto"), local("Roboto-Regular");
+  size-adjust: 104.5%;
 }

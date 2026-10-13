@@ -204,11 +204,13 @@ export default function Inicio() {
             acessorio={<CodigoDia dias={dias} />}
             metodo={t("inicio.metodo")}
           >
-            <div className="flex flex-wrap items-end gap-4">
+            {/* Sem quebra de linha entre o número e a etiqueta: com a letra de reserva, mais larga,
+                a etiqueta quebra dentro da sua coluna e a altura não muda quando a letra chega (CLS). */}
+            <div className="flex items-end gap-4">
               <span className="font-display text-[clamp(76px,11vw,128px)] leading-[0.82] font-black tracking-[-0.01em]">
                 {dias}
               </span>
-              <span className="pb-1.5 font-display text-[22px] leading-[1.05] font-bold tracking-[0.03em] uppercase">
+              <span className="min-w-0 pb-1.5 font-display text-[22px] leading-[1.05] font-bold tracking-[0.03em] uppercase">
                 {dias > 0 ? t("inicio.diasParaEleicao") : t("inicio.diaDaEleicao")}
               </span>
             </div>
