@@ -105,6 +105,20 @@ def _escrever_meta(caminho: Path, descarga: Descarga) -> None:
     )
 
 
+REPETIR = frozenset({408, 425, 429, 500, 502, 503, 504})
+"""Códigos HTTP que justificam outra tentativa: excesso de pedidos e falhas temporárias do
+servidor. Os outros 4xx (403, 404) não mudam por insistir."""
+
+
+def _espera(resposta: httpx.Response | None, base: float, maxima: float) -> float:
+    """Recuo exponencial, ou o ``Retry-After`` da fonte quando o indica (em segundos),
+    sempre limitado a ``maxima`` para não atrasar o resto do ciclo."""
+    pedido = resposta.headers.get("retry-after", "") if resposta is not None else ""
+    if pedido.strip().isdigit():
+        return min(float(pedido), maxima)
+    return min(base, maxima)
+
+
 def descarregar(
     url: str,
     destino: Path,
@@ -112,11 +126,14 @@ def descarregar(
     cliente: httpx.Client | None = None,
     tentativas: int = 4,
     espera_inicial: float = 2.0,
+    espera_maxima: float = 60.0,
 ) -> Descarga:
     """Descarrega ``url`` para ``destino`` com pedido condicional e novas tentativas.
 
-    O ficheiro é escrito primeiro num temporário e só substitui o anterior quando a
-    descarga termina, para nunca deixar um ficheiro truncado no lugar de um válido.
+    Repete com recuo exponencial em falhas de rede e nos códigos de ``REPETIR`` (respeita o
+    ``Retry-After`` de um 429, até ``espera_maxima``). O ficheiro é escrito primeiro num
+    temporário e só substitui o anterior quando a descarga termina, para nunca deixar um
+    ficheiro truncado no lugar de um válido.
     """
     destino.parent.mkdir(parents=True, exist_ok=True)
     meta = _ler_meta(destino)
@@ -135,9 +152,11 @@ def descarregar(
                 return _uma_descarga(http, url, destino, cabecalhos, meta)
             except (httpx.TransportError, httpx.HTTPStatusError) as erro:
                 ultimo_erro = erro
-                if isinstance(erro, httpx.HTTPStatusError) and erro.response.status_code < 500:
+                resposta = erro.response if isinstance(erro, httpx.HTTPStatusError) else None
+                if resposta is not None and resposta.status_code not in REPETIR:
                     break
-                time.sleep(espera_inicial * (2**tentativa))
+                if tentativa + 1 < tentativas:
+                    time.sleep(_espera(resposta, espera_inicial * (2**tentativa), espera_maxima))
         msg = f"Falhou a descarga de {url}: {ultimo_erro}"
         raise ErroDescarga(msg) from ultimo_erro
     finally:

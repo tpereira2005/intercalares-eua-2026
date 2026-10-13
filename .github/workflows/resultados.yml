@@ -26,6 +26,9 @@ on:
       ate:
         description: Hora UTC (AAAA-MM-DDTHH:MM) até à qual a recolha se volta a lançar
         default: ""
+      estados:
+        description: Estados a recolher na noite (os bloqueados no Actions ficam de fora)
+        default: "NC,FL,GA,AK,TX"
 
 permissions:
   contents: read
@@ -134,9 +137,10 @@ jobs:
           GH_REPO: ${{ github.repository }}
           DATA: ${{ inputs.data }}
           DURACAO: ${{ inputs.duracao }}
+          ESTADOS: ${{ inputs.estados }}
         run: >-
           uv run python -m pipeline.jobs.resultados
-          --data "$DATA" --duracao "$DURACAO" --publicar "$ETIQUETA"
+          --data "$DATA" --duracao "$DURACAO" --estados "$ESTADOS" --publicar "$ETIQUETA"
       - name: Guardar os retratos da noite
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -152,8 +156,10 @@ jobs:
           ATE: ${{ inputs.ate }}
           DATA: ${{ inputs.data }}
           DURACAO: ${{ inputs.duracao }}
+          ESTADOS: ${{ inputs.estados }}
         run: |
           if [ "$(date -u +%Y-%m-%dT%H:%M)" \< "$ATE" ]; then
             gh workflow run resultados.yml --ref "$GITHUB_REF_NAME" \
-              -f modo=noite -f data="$DATA" -f duracao="$DURACAO" -f ate="$ATE"
+              -f modo=noite -f data="$DATA" -f duracao="$DURACAO" -f ate="$ATE" \
+              -f estados="$ESTADOS"
           fi
