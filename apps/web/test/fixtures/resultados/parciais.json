@@ -1,0 +1,67 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-11-04T02:30:05Z",
+    "fontes": [
+      {
+        "nome": "Ficheiro sintético de teste",
+        "url": "https://example.org/sintetico",
+        "licenca": null,
+        "obtida_em": "2026-11-04T02:30:00Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "instante": "2026-11-04T02:30:00Z",
+  "reconstruido": false,
+  "unidades": [
+    {
+      "corrida": "NC-01",
+      "unidade": "37001",
+      "votos_d": 1200,
+      "votos_r": 1000,
+      "votos_outros": 50,
+      "por_modo": [],
+      "percentagem_contada": null,
+      "seccoes_reportadas": 10,
+      "seccoes_totais": 20,
+      "atualizado_em": "2026-11-04T02:20:00Z"
+    },
+    {
+      "corrida": "NC-01",
+      "unidade": "37183",
+      "votos_d": 800,
+      "votos_r": 1500,
+      "votos_outros": 50,
+      "por_modo": [],
+      "percentagem_contada": null,
+      "seccoes_reportadas": 5,
+      "seccoes_totais": 30,
+      "atualizado_em": "2026-11-04T02:25:00Z"
+    },
+    {
+      "corrida": "IA-S",
+      "unidade": "19153",
+      "votos_d": 3000,
+      "votos_r": 2000,
+      "votos_outros": 0,
+      "por_modo": [],
+      "percentagem_contada": null,
+      "seccoes_reportadas": null,
+      "seccoes_totais": null,
+      "atualizado_em": null
+    },
+    {
+      "corrida": "GA-S",
+      "unidade": "total",
+      "votos_d": 0,
+      "votos_r": 0,
+      "votos_outros": 0,
+      "por_modo": [],
+      "percentagem_contada": null,
+      "seccoes_reportadas": 0,
+      "seccoes_totais": 159,
+      "atualizado_em": "2026-11-04T00:01:00Z"
+    }
+  ]
+}

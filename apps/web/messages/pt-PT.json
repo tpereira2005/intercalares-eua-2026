@@ -110,7 +110,7 @@
     },
     "resultados": {
       "titulo": "Noite eleitoral",
-      "descricao": "Margem contada, projeção e voto que falta por modalidade, atualizados a cada 30 segundos."
+      "descricao": "Contagem oficial por corrida nos estados com dados abertos, ao lado da previsão congelada a 1 de novembro."
     },
     "metodologia": {
       "titulo": "Metodologia",
@@ -517,5 +517,64 @@
     },
     "semComparacao": "Ainda não há ano de referência para este estado: a série começa com as nossas próprias recolhas.",
     "documentacao": "Metodologia dos estados sem ficheiro de eleitores"
+  },
+  "resultados": {
+    "sobrelinha": "3 de novembro de 2026",
+    "titulo": "Noite eleitoral",
+    "lede": "Votos contados por corrida, tal como cada estado os publica, ao lado da previsão congelada. A margem contada não é uma projeção: o voto por correspondência pode chegar depois de todas as secções.",
+    "retrato": "Retrato das {hora} (hora de Nova Iorque)",
+    "ensaio": "Ensaio",
+    "ensaioAviso": "Estes números são de um ensaio com a noite de {ano}, com a ordem de chegada dos condados reconstruída. Não são resultados de 2026 e não se comparam com a previsão.",
+    "kpis": {
+      "corridas": "Corridas com votos contados",
+      "corridasDetalhe": "{n} acompanhadas ao vivo",
+      "estados": "Estados com dados ao vivo",
+      "estadosDetalhe": "de {n} com recolha prevista",
+      "atualizacao": "Última atualização da fonte",
+      "atualizacaoDetalhe": "retrato publicado a {hora}"
+    },
+    "aoVivo": {
+      "sobrelinha": "Contagem",
+      "titulo": "Corridas com dados ao vivo",
+      "texto": "Senado primeiro; na Câmara, do distrito mais renhido na previsão para o menos renhido.",
+      "metodo": "soma dos votos de cada condado (ou do total, na Geórgia) publicados pela fonte; margem contada = (D − R) / total de votos. Sem projeções nem chamadas de vencedor.",
+      "legenda": "Corridas com contagem oficial ao vivo",
+      "vazio": "Ainda não há votos contados nas corridas acompanhadas."
+    },
+    "semDados": {
+      "sobrelinha": "Sem dados ao vivo",
+      "titulo": "Restantes corridas a seguir",
+      "texto": "Estes estados não publicam resultados numa fonte oficial aberta a pedidos automáticos, ou a recolha ainda não os cobre. Mostramos só a previsão congelada; não há contagem ao vivo no site para estas corridas.",
+      "metodo": "todas as corridas ao Senado e os distritos da Câmara que a previsão não dá como sólidos (abaixo de 95% para um dos lados).",
+      "legenda": "Corridas sem dados ao vivo, com a previsão congelada",
+      "nota": "Sem dados ao vivo",
+      "fonte": "Previsão do Escrutínio"
+    },
+    "tabela": {
+      "corrida": "Corrida",
+      "contagem": "Margem contada",
+      "previsao": "Previsão",
+      "votos": "{n} votos",
+      "seccoes": "{reportadas} de {totais} secções",
+      "condados": "{reportadas} de {totais} condados",
+      "soTotal": "só o total do estado",
+      "semSeccoes": "apuramento não indicado",
+      "semVotos": "sem votos",
+      "semPrevisao": "fora da previsão",
+      "mais": "Ver as outras {n} corridas",
+      "menos": "Mostrar só as primeiras"
+    },
+    "cobertura": {
+      "titulo": "Cobertura ao vivo",
+      "texto": "Estados cujos feeds oficiais de resultados são recolhidos a cada 30 segundos.",
+      "comDados": "{n} corridas · {hora}",
+      "comDadosSemHora": "{n} corridas",
+      "aEspera": "à espera de dados",
+      "soTotal": "só o total, sem condados",
+      "fora": "Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada e Alasca recusam pedidos automáticos ou não responderam; não contornamos esses bloqueios.",
+      "documentacao": "Fontes, definições e limites dos resultados"
+    },
+    "previsaoNota": "Previsão de {data}, congelada a 1 de novembro.",
+    "previsaoNotaProvisoria": "Previsão de {data}; congela a 1 de novembro."
   }
 }
