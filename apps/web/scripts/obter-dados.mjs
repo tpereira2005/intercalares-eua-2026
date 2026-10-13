@@ -1,12 +1,15 @@
 /**
- * Descarrega os agregados publicados pelo pipeline para apps/web/dados/, antes
- * do build. Por omissão lista a Release pública fixa do repositório e obtém
- * cada ficheiro de estado (`nc.json`, `ga.json`, ...). Uma variável de ambiente
- * permite indicar outras origens, separadas por vírgulas (endereços ou
- * ficheiros locais).
+ * Descarrega os ficheiros publicados pelo pipeline para apps/web/dados/, antes
+ * do build:
+ * - voto antecipado: lista a Release pública `dados-voto-antecipado` e obtém
+ *   cada ficheiro de estado (`nc.json`, `ga.json`, ...);
+ * - previsão: `previsao-2026.json` e `historico-previsao-2026.json` da Release
+ *   `dados-previsao`, gravados como dados/previsao/2026.json e historico-2026.json.
+ * Variáveis de ambiente permitem indicar outras origens (endereços ou ficheiros locais).
  *
  * Uso: pnpm --filter @intercalares/web dados:obter
  *   URL_DADOS_VOTO_ANTECIPADO=https://.../nc.json,caminho/local/ga.json
+ *   URL_DADOS_PREVISAO=caminho/2026.json  URL_HISTORICO_PREVISAO=caminho/historico.json
  *   GITHUB_TOKEN (opcional) evita o limite de pedidos anónimos à API.
  *
  * Sem rede ou sem Release, o script avisa e termina sem erro: as páginas mostram
@@ -19,8 +22,19 @@ import { fileURLToPath } from "node:url";
 
 const RAIZ_WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PASTA = path.join(RAIZ_WEB, "dados", "voto-antecipado");
+const PASTA_PREVISAO = path.join(RAIZ_WEB, "dados", "previsao");
 const REPOSITORIO = "tpereira2005/intercalares-eua-2026";
 const ETIQUETA = "dados-voto-antecipado";
+const ETIQUETA_PREVISAO = "dados-previsao";
+/** Ficheiro local, asset da Release e variável de ambiente de cada ficheiro da previsão. */
+const FICHEIROS_PREVISAO = [
+  { destino: "2026.json", asset: "previsao-2026.json", variavel: "URL_DADOS_PREVISAO" },
+  {
+    destino: "historico-2026.json",
+    asset: "historico-previsao-2026.json",
+    variavel: "URL_HISTORICO_PREVISAO",
+  },
+];
 const LIMITE_BYTES = 20 * 1024 * 1024;
 const NOME_ESTADO = /^[a-z]{2}\.json$/;
 const AGENTE = `Escrutinio/0.1 (+https://github.com/${REPOSITORIO})`;
@@ -52,10 +66,8 @@ async function origensDaRelease() {
   return release.assets.filter((a) => NOME_ESTADO.test(a.name)).map((a) => a.browser_download_url);
 }
 
-async function obterUm(origem) {
-  const nome = path.basename(new URL(origem, "file:///").pathname);
-  if (!NOME_ESTADO.test(nome)) throw new Error(`${origem} não tem nome de estado (xx.json)`);
-  const destino = path.join(PASTA, nome);
+/** Copia ou descarrega uma origem para `destino`, confirmando que é JSON e não é enorme. */
+async function gravar(origem, destino) {
   if (!/^https?:\/\//.test(origem)) {
     await copyFile(path.resolve(origem), destino);
     return destino;
@@ -65,6 +77,29 @@ async function obterUm(origem) {
   JSON.parse(corpo.toString("utf-8"));
   await writeFile(destino, corpo);
   return destino;
+}
+
+async function obterUm(origem) {
+  const nome = path.basename(new URL(origem, "file:///").pathname);
+  if (!NOME_ESTADO.test(nome)) throw new Error(`${origem} não tem nome de estado (xx.json)`);
+  return gravar(origem, path.join(PASTA, nome));
+}
+
+async function obterPrevisao() {
+  // Pasta limpa: sem previsão publicada, a página volta a "em preparação".
+  await rm(PASTA_PREVISAO, { recursive: true, force: true });
+  await mkdir(PASTA_PREVISAO, { recursive: true });
+  for (const { destino, asset, variavel } of FICHEIROS_PREVISAO) {
+    const origem =
+      process.env[variavel] ??
+      `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA_PREVISAO}/${asset}`;
+    try {
+      const gravado = await gravar(origem, path.join(PASTA_PREVISAO, destino));
+      console.log(`Previsão em ${path.relative(process.cwd(), gravado)}`);
+    } catch (erro) {
+      console.warn(`Sem ${asset} (${String(erro)}).`);
+    }
+  }
 }
 
 async function obter() {
@@ -97,4 +132,10 @@ try {
   await obter();
 } catch (erro) {
   console.warn(`Sem dados do voto antecipado (${String(erro)}); as páginas ficam em preparação.`);
+}
+
+try {
+  await obterPrevisao();
+} catch (erro) {
+  console.warn(`Sem previsão (${String(erro)}); a página fica em preparação.`);
 }

@@ -317,31 +317,150 @@
     "pendentes": "Boletins pedidos por devolver"
   },
   "previsao": {
-    "sobrelinha": "Modelo Escrutínio · em construção",
-    "lede": "Simulação com erros correlacionados entre estados, testada de forma simétrica em anos bons para cada partido. O modelo congela a 1 de novembro e fica público para avaliação depois da eleição.",
-    "metodo": "Sem números até o modelo passar os testes retrospetivos de 2018, 2020, 2022 e 2024.",
-    "paineis": {
-      "camara": {
-        "sobrelinha": "Câmara dos Representantes",
-        "titulo": "Distribuição de lugares",
-        "descricao": "Probabilidade de cada partido conquistar a maioria dos 435 lugares, com a distribuição completa das simulações."
+    "sobrelinha": "Modelo Escrutínio · {ano}",
+    "lede": "{simulacoes} simulações da eleição, com erros correlacionados entre corridas. Mostra-se a probabilidade de cada partido controlar cada câmara e a incerteza à volta dela. As margens contam-se sempre Democrata menos Republicano.",
+    "selos": {
+      "diaria": "Atualização diária",
+      "congelada": "Versão congelada"
+    },
+    "corte": "Dados até {data}",
+    "congela": "Congela a 1 de novembro",
+    "partidos": {
+      "D": "Democratas",
+      "R": "Republicanos"
+    },
+    "semPrevisao": {
+      "titulo": "A primeira previsão ainda não foi publicada",
+      "texto": "O modelo corre todos os dias no GitHub Actions e publica um ficheiro que o site valida antes de o mostrar. Assim que existir, esta página passa a ter as probabilidades de controlo, a distribuição de lugares e as corridas.",
+      "metodo": "O modelo só é publicado depois de passar os testes retrospetivos de 2018, 2022 e 2024."
+    },
+    "kpis": {
+      "camara": "Câmara: probabilidade de maioria",
+      "senado": "Senado: probabilidade de maioria",
+      "detalhe": "{outro} {prob} · mediana de {lugares} lugares D",
+      "ambiente": "Voto genérico (ambiente nacional)",
+      "ambienteDetalhe": "Intervalo de 80%: {de} a {ate}"
+    },
+    "lugares": {
+      "sobrelinha": {
+        "camara": "Câmara dos Representantes",
+        "senado": "Senado"
       },
-      "senado": {
-        "sobrelinha": "Senado",
-        "titulo": "Quem fica com a maioria",
-        "descricao": "Lugares em disputa e probabilidade de maioria, contando o voto de desempate do vice-presidente."
+      "titulo": {
+        "camara": "Lugares na Câmara",
+        "senado": "Lugares no Senado"
       },
-      "corridas": {
-        "sobrelinha": "Corridas a seguir",
-        "titulo": "Probabilidade de vitória",
-        "descricao": "As corridas mais renhidas da Câmara, do Senado e dos governadores, com o intervalo de margem de cada uma."
+      "texto": {
+        "camara": "Probabilidade de cada número de lugares democratas entre os 435. A maioria são {maioria} lugares.",
+        "senado": "Probabilidade de cada número de lugares democratas entre os 100, contando os {foraD} democratas e independentes e os {foraR} republicanos que não vão a votos. Com 50-50 desempata o vice-presidente, republicano."
       },
-      "sondagens": {
-        "sobrelinha": "Auditoria das sondagens",
-        "titulo": "O eleitorado que as sondagens assumem",
-        "descricao": "Composição etária do eleitor provável nas sondagens, comparada com a composição projetada a partir de quem já votou."
-      }
-    }
+      "controlo": "Probabilidade de controlo",
+      "intervalo": "Intervalo de 80%",
+      "maioria": "Maioria: {lugares}",
+      "resumo": "Lugares democratas: mediana {mediana}, intervalo de 80% de {de} a {ate}. Lugares republicanos: mediana {medianaR}, de {deR} a {ateR}.",
+      "independentes": "Independentes eleitos, em média: {valor}.",
+      "aria": "Distribuição dos lugares democratas na {camara}: mediana {mediana}, intervalo de 80% de {de} a {ate}, maioria a partir de {maioria}.",
+      "legendaD": "Maioria democrata",
+      "legendaR": "Maioria republicana",
+      "metodo": "Percentis das {simulacoes} simulações. O intervalo de 80% vai do percentil 10 ao 90."
+    },
+    "camaraNome": {
+      "camara": "Câmara",
+      "senado": "Senado"
+    },
+    "limiares": {
+      "sobrelinha": "Voto genérico",
+      "titulo": "Quanto precisa cada partido",
+      "texto": "Margem nacional no voto para a Câmara a partir da qual o lado democrata passa a favorito ao controlo. Abaixo do limiar, o favorito é o lado republicano.",
+      "previsto": "Ambiente previsto",
+      "intervalo": "Intervalo de 80%",
+      "agregador": "Agregador",
+      "limiar": "Limiar da {camara}",
+      "semLimiar": "O favorito à {camara} não muda em nenhuma simulação.",
+      "leitura": "{camara}: o lado democrata é favorito com o voto genérico acima de {limiar}; o ambiente previsto é {ambiente}.",
+      "aria": "Ambiente nacional previsto {ambiente}, intervalo de 80% de {de} a {ate}. Limiar da Câmara {camara}; limiar do Senado {senado}.",
+      "agregadores": "Agregadores usados",
+      "fonteAmbiente": {
+        "agregadores": "média dos agregadores publicados",
+        "media_sondagens_voto_generico": "média própria das sondagens do voto genérico",
+        "sondagens_senado": "leitura implícita nas sondagens do Senado"
+      },
+      "metodo": "Ambiente: {fonte}. Erro nacional com caudas pesadas (t de Student com 5 graus de liberdade) e desvio de {desvio} pontos, o erro histórico das médias do voto genérico. O limiar é o valor em que a probabilidade de controlo cruza 50% nas simulações."
+    },
+    "senado": {
+      "sobrelinha": "Senado",
+      "titulo": "As {n} corridas ao Senado",
+      "texto": "Probabilidade de vitória em cada estado com eleição. Quanto mais forte a cor, mais provável a vitória desse lado.",
+      "aria": "Mapa das corridas ao Senado: cor por probabilidade de vitória de cada partido.",
+      "semEleicao": "Sem eleição",
+      "metodo": "Média ponderada entre fundamentos (PVI, incumbência, ambiente nacional) e média das sondagens, com o peso das sondagens a crescer com o número de institutos.",
+      "especial": "eleição especial",
+      "legendaD": "Vitória democrata mais provável",
+      "legendaR": "Vitória republicana mais provável",
+      "legendaTabela": "Corridas ao Senado, da mais renhida para a menos renhida"
+    },
+    "tabela": {
+      "corrida": "Corrida",
+      "margem": "Margem prevista",
+      "favorito": "Favorito",
+      "sondagens": "Sondagens",
+      "semSondagens": "sem sondagens",
+      "institutos": "{margem} · {n} institutos",
+      "incumbente": "incumbente",
+      "independente": "independente",
+      "decidida": "decidida",
+      "semCandidato": "sem candidato",
+      "a": "a",
+      "variacao": "{valor} numa semana",
+      "notaVariacao": "Variação da probabilidade face à previsão de {data}, quando passa de 1 pp.",
+      "menos": "Mostrar só os mais renhidos",
+      "instituto": "{margem} · 1 instituto"
+    },
+    "camara": {
+      "sobrelinha": "Câmara dos Representantes",
+      "titulo": "Os 435 distritos",
+      "texto": "Distritos agrupados pela probabilidade de vitória. A tabela mostra os distritos em que nenhum lado passa dos 95%, do mais renhido para o menos renhido.",
+      "categoriasAria": "Distritos por categoria: {lista}.",
+      "competitivos": "{n} distritos competitivos",
+      "mais": "Ver os outros {n} distritos competitivos",
+      "metodo": "Fundamentos por distrito (PVI, incumbência e ambiente nacional), com erros partilhados por ano, região e corrida. Não há sondagens por distrito.",
+      "categoriasNota": "Categorias só de leitura: sólida a partir de 95%, provável de 80% a 95%, inclinada de 60% a 80% e renhida entre 40% e 60%."
+    },
+    "categorias": {
+      "solidaD": "Sólida D",
+      "provavelD": "Provável D",
+      "inclinadaD": "Inclinada D",
+      "renhida": "Renhida",
+      "inclinadaR": "Inclinada R",
+      "provavelR": "Provável R",
+      "solidaR": "Sólida R"
+    },
+    "evolucao": {
+      "sobrelinha": "Evolução diária",
+      "titulo": "Como a previsão mudou",
+      "texto": "Probabilidade de controlo de cada câmara em cada atualização, desde {de} ({n} atualizações).",
+      "umDia": "Só há uma atualização publicada. A evolução aparece a partir da segunda, com uma entrada por dia.",
+      "aria": "Probabilidade de maioria democrata na {camara}: de {de} na primeira atualização para {ate} na mais recente.",
+      "lugares": "Mediana de lugares D: {de} a {data}, {ate} agora.",
+      "metodo": "Uma atualização por dia até ao congelamento, a 1 de novembro. Cada ponto usa só os dados disponíveis até essa data."
+    },
+    "backtests": {
+      "sobrelinha": "Testes retrospetivos",
+      "titulo": "O mesmo modelo em eleições passadas",
+      "texto": "O código de 2026 aplicado a 2018, 2022 e 2024, só com os dados disponíveis dois dias antes de cada eleição.",
+      "ano": "Ano",
+      "ambiente": "Ambiente previsto / real",
+      "controlo": "P(controlo de quem ganhou)",
+      "erradas": "Corridas erradas",
+      "errados": "{n} de {total}",
+      "brier": "Brier",
+      "cobertura": "Cobertura 80%",
+      "metodo": "Brier: erro quadrático médio das probabilidades por corrida (0 é perfeito). Cobertura: fração das margens reais dentro do intervalo de 80%; o ideal é 80%.",
+      "lugares": "Lugares D: mediana [80%] · reais",
+      "lugaresValor": "{mediana} [{de}, {ate}] · {reais}"
+    },
+    "notas": "Notas do modelo",
+    "documentacao": "Ler a metodologia completa da previsão"
   },
   "agregado": {
     "titulo": "{estado}, voto antecipado",

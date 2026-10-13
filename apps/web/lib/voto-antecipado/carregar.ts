@@ -11,50 +11,20 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import type { VotoAntecipadoAgregado, VotoAntecipadoEstado } from "@intercalares/contratos";
-import Ajv2020, { type ValidateFunction } from "ajv/dist/2020.js";
-import adicionarFormatos from "ajv-formats";
+import { DadosInvalidos, obterValidador, type NomeContrato } from "../validacao.ts";
 import { construirVistaAgregada, type VistaAgregada } from "./agregado.ts";
 import { construirVista, type VistaVotoAntecipado } from "./vista.ts";
+
+export { DadosInvalidos } from "../validacao.ts";
 
 /** Pasta dos ficheiros, relativa a apps/web; a variável de ambiente substitui-a. */
 export const PASTA_POR_OMISSAO = "dados/voto-antecipado";
 export const VARIAVEL_PASTA = "DADOS_VOTO_ANTECIPADO";
 
-const ESQUEMA = "../../schemas/json/contratos.schema.json";
-
 /** Resumo nacional publicado ao lado dos estados; o site calcula o seu a partir dos estados. */
 const IGNORADOS = new Set(["nacional.json"]);
 
-type Contrato = "VotoAntecipadoEstado" | "VotoAntecipadoAgregado";
-
-let ajv: Ajv2020 | undefined;
-let id = "";
-const validadores = new Map<Contrato, ValidateFunction>();
-
-function obterValidador(contrato: Contrato): ValidateFunction {
-  if (!ajv) {
-    const esquema = JSON.parse(readFileSync(path.resolve(process.cwd(), ESQUEMA), "utf-8")) as {
-      $id: string;
-    };
-    ajv = new Ajv2020({ allErrors: true, strict: false });
-    adicionarFormatos(ajv);
-    ajv.addSchema(esquema);
-    id = esquema.$id;
-  }
-  let validador = validadores.get(contrato);
-  if (!validador) {
-    validador = ajv.compile({ $ref: `${id}#/$defs/${contrato}` });
-    validadores.set(contrato, validador);
-  }
-  return validador;
-}
-
-export class DadosInvalidos extends Error {
-  constructor(caminho: string, contrato: Contrato, detalhe: unknown) {
-    super(`O ficheiro ${caminho} não cumpre o contrato ${contrato}: ${JSON.stringify(detalhe)}`);
-    this.name = "DadosInvalidos";
-  }
-}
+type Contrato = Extract<NomeContrato, "VotoAntecipadoEstado" | "VotoAntecipadoAgregado">;
 
 export type FicheiroEstado =
   | { contrato: "VotoAntecipadoEstado"; dados: VotoAntecipadoEstado }

@@ -1,0 +1,1244 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-10-13T18:04:16.223277Z",
+    "fontes": [
+      {
+        "nome": "Wikipédia: 2026 United States House of Representatives elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-13T18:04:16.223277Z"
+      },
+      {
+        "nome": "Wikipédia: 2026 United States Senate elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_Senate_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-13T18:04:16.223277Z"
+      },
+      {
+        "nome": "FiveThirtyEight: raw_polls.csv (sondagens e resultados até 2022)",
+        "url": "https://raw.githubusercontent.com/fivethirtyeight/data/master/pollster-ratings/raw_polls.csv",
+        "licenca": "CC BY 4.0",
+        "obtida_em": "2026-10-13T18:04:16.223277Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "data_eleicao": "2026-11-03",
+  "corte": "2026-10-13",
+  "congelada": false,
+  "simulacoes": 20000,
+  "semente": 2026,
+  "ambiente": {
+    "margem": 8.440000000000001,
+    "desvio_padrao": 3.241612757261052,
+    "fonte": "agregadores",
+    "agregadores": [
+      {
+        "nome": "Decision Desk HQ",
+        "margem": 8.5
+      },
+      {
+        "nome": "FiftyPlusOne",
+        "margem": 7.8
+      },
+      {
+        "nome": "NBC News",
+        "margem": 9.0
+      },
+      {
+        "nome": "RealClearPolitics",
+        "margem": 7.9
+      },
+      {
+        "nome": "Silver Bulletin",
+        "margem": 9.0
+      }
+    ]
+  },
+  "camara": {
+    "camara": "camara",
+    "lugares_total": 435,
+    "maioria": 218,
+    "prob_controlo_d": 0.9675,
+    "prob_controlo_r": 0.0325,
+    "lugares_d_media": 243.30805,
+    "lugares_d_p5": 220,
+    "lugares_d_p10": 225,
+    "lugares_d_mediana": 242,
+    "lugares_d_p90": 263,
+    "lugares_d_p95": 270,
+    "lugares_independentes_media": 0.0786,
+    "lugares_fora_de_jogo_d": 0,
+    "lugares_fora_de_jogo_r": 0,
+    "limiar_nacional": 1.0096139595468225,
+    "distribuicao": [
+      {
+        "lugares": 89,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 163,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 168,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 170,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 184,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 185,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 186,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 187,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 188,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 189,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 190,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 191,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 192,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 193,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 194,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 196,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 197,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 198,
+        "probabilidade": 0.0003
+      },
+      {
+        "lugares": 199,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 200,
+        "probabilidade": 0.00035
+      },
+      {
+        "lugares": 201,
+        "probabilidade": 0.00045
+      },
+      {
+        "lugares": 202,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 203,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 204,
+        "probabilidade": 0.0004
+      },
+      {
+        "lugares": 205,
+        "probabilidade": 0.00075
+      },
+      {
+        "lugares": 206,
+        "probabilidade": 0.0008
+      },
+      {
+        "lugares": 207,
+        "probabilidade": 0.00105
+      },
+      {
+        "lugares": 208,
+        "probabilidade": 0.00085
+      },
+      {
+        "lugares": 209,
+        "probabilidade": 0.0017
+      },
+      {
+        "lugares": 210,
+        "probabilidade": 0.00145
+      },
+      {
+        "lugares": 211,
+        "probabilidade": 0.00195
+      },
+      {
+        "lugares": 212,
+        "probabilidade": 0.00215
+      },
+      {
+        "lugares": 213,
+        "probabilidade": 0.00275
+      },
+      {
+        "lugares": 214,
+        "probabilidade": 0.0031
+      },
+      {
+        "lugares": 215,
+        "probabilidade": 0.00335
+      },
+      {
+        "lugares": 216,
+        "probabilidade": 0.0034
+      },
+      {
+        "lugares": 217,
+        "probabilidade": 0.0056
+      },
+      {
+        "lugares": 218,
+        "probabilidade": 0.0058
+      },
+      {
+        "lugares": 219,
+        "probabilidade": 0.0063
+      },
+      {
+        "lugares": 220,
+        "probabilidade": 0.00775
+      },
+      {
+        "lugares": 221,
+        "probabilidade": 0.0082
+      },
+      {
+        "lugares": 222,
+        "probabilidade": 0.0115
+      },
+      {
+        "lugares": 223,
+        "probabilidade": 0.011
+      },
+      {
+        "lugares": 224,
+        "probabilidade": 0.01195
+      },
+      {
+        "lugares": 225,
+        "probabilidade": 0.0126
+      },
+      {
+        "lugares": 226,
+        "probabilidade": 0.0163
+      },
+      {
+        "lugares": 227,
+        "probabilidade": 0.01705
+      },
+      {
+        "lugares": 228,
+        "probabilidade": 0.01835
+      },
+      {
+        "lugares": 229,
+        "probabilidade": 0.0188
+      },
+      {
+        "lugares": 230,
+        "probabilidade": 0.02245
+      },
+      {
+        "lugares": 231,
+        "probabilidade": 0.01985
+      },
+      {
+        "lugares": 232,
+        "probabilidade": 0.0225
+      },
+      {
+        "lugares": 233,
+        "probabilidade": 0.0236
+      },
+      {
+        "lugares": 234,
+        "probabilidade": 0.02425
+      },
+      {
+        "lugares": 235,
+        "probabilidade": 0.0268
+      },
+      {
+        "lugares": 236,
+        "probabilidade": 0.0268
+      },
+      {
+        "lugares": 237,
+        "probabilidade": 0.0277
+      },
+      {
+        "lugares": 238,
+        "probabilidade": 0.0275
+      },
+      {
+        "lugares": 239,
+        "probabilidade": 0.0285
+      },
+      {
+        "lugares": 240,
+        "probabilidade": 0.02875
+      },
+      {
+        "lugares": 241,
+        "probabilidade": 0.02815
+      },
+      {
+        "lugares": 242,
+        "probabilidade": 0.0263
+      },
+      {
+        "lugares": 243,
+        "probabilidade": 0.02805
+      },
+      {
+        "lugares": 244,
+        "probabilidade": 0.02755
+      },
+      {
+        "lugares": 245,
+        "probabilidade": 0.0264
+      },
+      {
+        "lugares": 246,
+        "probabilidade": 0.02405
+      },
+      {
+        "lugares": 247,
+        "probabilidade": 0.0252
+      },
+      {
+        "lugares": 248,
+        "probabilidade": 0.02365
+      },
+      {
+        "lugares": 249,
+        "probabilidade": 0.02385
+      },
+      {
+        "lugares": 250,
+        "probabilidade": 0.02145
+      },
+      {
+        "lugares": 251,
+        "probabilidade": 0.0198
+      },
+      {
+        "lugares": 252,
+        "probabilidade": 0.01885
+      },
+      {
+        "lugares": 253,
+        "probabilidade": 0.018
+      },
+      {
+        "lugares": 254,
+        "probabilidade": 0.0189
+      },
+      {
+        "lugares": 255,
+        "probabilidade": 0.01865
+      },
+      {
+        "lugares": 256,
+        "probabilidade": 0.01555
+      },
+      {
+        "lugares": 257,
+        "probabilidade": 0.01425
+      },
+      {
+        "lugares": 258,
+        "probabilidade": 0.0138
+      },
+      {
+        "lugares": 259,
+        "probabilidade": 0.01275
+      },
+      {
+        "lugares": 260,
+        "probabilidade": 0.0123
+      },
+      {
+        "lugares": 261,
+        "probabilidade": 0.0103
+      },
+      {
+        "lugares": 262,
+        "probabilidade": 0.01
+      },
+      {
+        "lugares": 263,
+        "probabilidade": 0.0101
+      },
+      {
+        "lugares": 264,
+        "probabilidade": 0.0091
+      },
+      {
+        "lugares": 265,
+        "probabilidade": 0.0077
+      },
+      {
+        "lugares": 266,
+        "probabilidade": 0.00675
+      },
+      {
+        "lugares": 267,
+        "probabilidade": 0.0056
+      },
+      {
+        "lugares": 268,
+        "probabilidade": 0.006
+      },
+      {
+        "lugares": 269,
+        "probabilidade": 0.0056
+      },
+      {
+        "lugares": 270,
+        "probabilidade": 0.0047
+      },
+      {
+        "lugares": 271,
+        "probabilidade": 0.0048
+      },
+      {
+        "lugares": 272,
+        "probabilidade": 0.00405
+      },
+      {
+        "lugares": 273,
+        "probabilidade": 0.0044
+      },
+      {
+        "lugares": 274,
+        "probabilidade": 0.00305
+      },
+      {
+        "lugares": 275,
+        "probabilidade": 0.00295
+      },
+      {
+        "lugares": 276,
+        "probabilidade": 0.00285
+      },
+      {
+        "lugares": 277,
+        "probabilidade": 0.00235
+      },
+      {
+        "lugares": 278,
+        "probabilidade": 0.0017
+      },
+      {
+        "lugares": 279,
+        "probabilidade": 0.0026
+      },
+      {
+        "lugares": 280,
+        "probabilidade": 0.00155
+      },
+      {
+        "lugares": 281,
+        "probabilidade": 0.00145
+      },
+      {
+        "lugares": 282,
+        "probabilidade": 0.0011
+      },
+      {
+        "lugares": 283,
+        "probabilidade": 0.00135
+      },
+      {
+        "lugares": 284,
+        "probabilidade": 0.00125
+      },
+      {
+        "lugares": 285,
+        "probabilidade": 0.001
+      },
+      {
+        "lugares": 286,
+        "probabilidade": 0.0008
+      },
+      {
+        "lugares": 287,
+        "probabilidade": 0.00105
+      },
+      {
+        "lugares": 288,
+        "probabilidade": 0.00105
+      },
+      {
+        "lugares": 289,
+        "probabilidade": 0.00085
+      },
+      {
+        "lugares": 290,
+        "probabilidade": 0.00095
+      },
+      {
+        "lugares": 291,
+        "probabilidade": 0.00055
+      },
+      {
+        "lugares": 292,
+        "probabilidade": 0.00055
+      },
+      {
+        "lugares": 293,
+        "probabilidade": 0.00065
+      },
+      {
+        "lugares": 294,
+        "probabilidade": 0.00065
+      },
+      {
+        "lugares": 295,
+        "probabilidade": 0.0004
+      },
+      {
+        "lugares": 296,
+        "probabilidade": 0.00035
+      },
+      {
+        "lugares": 297,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 298,
+        "probabilidade": 0.0005
+      },
+      {
+        "lugares": 299,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 300,
+        "probabilidade": 0.00055
+      },
+      {
+        "lugares": 301,
+        "probabilidade": 0.00025
+      },
+      {
+        "lugares": 302,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 303,
+        "probabilidade": 0.00065
+      },
+      {
+        "lugares": 304,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 305,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 306,
+        "probabilidade": 0.00025
+      },
+      {
+        "lugares": 307,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 308,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 309,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 310,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 311,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 312,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 313,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 314,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 315,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 316,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 317,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 320,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 323,
+        "probabilidade": 0.0002
+      },
+      {
+        "lugares": 324,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 326,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 327,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 329,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 340,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 341,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 344,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 345,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 349,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 361,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 362,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 367,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 369,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 380,
+        "probabilidade": 0.00005
+      }
+    ]
+  },
+  "senado": {
+    "camara": "senado",
+    "lugares_total": 100,
+    "maioria": 51,
+    "prob_controlo_d": 0.789,
+    "prob_controlo_r": 0.211,
+    "lugares_d_media": 52.65385,
+    "lugares_d_p5": 48,
+    "lugares_d_p10": 49,
+    "lugares_d_mediana": 53,
+    "lugares_d_p90": 56,
+    "lugares_d_p95": 57,
+    "lugares_independentes_media": 0.27535,
+    "lugares_fora_de_jogo_d": 34,
+    "lugares_fora_de_jogo_r": 31,
+    "limiar_nacional": 3.8150308695037647,
+    "distribuicao": [
+      {
+        "lugares": 36,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 41,
+        "probabilidade": 0.00005
+      },
+      {
+        "lugares": 42,
+        "probabilidade": 0.00015
+      },
+      {
+        "lugares": 43,
+        "probabilidade": 0.00045
+      },
+      {
+        "lugares": 44,
+        "probabilidade": 0.0008
+      },
+      {
+        "lugares": 45,
+        "probabilidade": 0.00295
+      },
+      {
+        "lugares": 46,
+        "probabilidade": 0.0076
+      },
+      {
+        "lugares": 47,
+        "probabilidade": 0.01925
+      },
+      {
+        "lugares": 48,
+        "probabilidade": 0.03505
+      },
+      {
+        "lugares": 49,
+        "probabilidade": 0.0598
+      },
+      {
+        "lugares": 50,
+        "probabilidade": 0.08485
+      },
+      {
+        "lugares": 51,
+        "probabilidade": 0.1132
+      },
+      {
+        "lugares": 52,
+        "probabilidade": 0.13675
+      },
+      {
+        "lugares": 53,
+        "probabilidade": 0.1472
+      },
+      {
+        "lugares": 54,
+        "probabilidade": 0.142
+      },
+      {
+        "lugares": 55,
+        "probabilidade": 0.11325
+      },
+      {
+        "lugares": 56,
+        "probabilidade": 0.0702
+      },
+      {
+        "lugares": 57,
+        "probabilidade": 0.03825
+      },
+      {
+        "lugares": 58,
+        "probabilidade": 0.0168
+      },
+      {
+        "lugares": 59,
+        "probabilidade": 0.00635
+      },
+      {
+        "lugares": 60,
+        "probabilidade": 0.00315
+      },
+      {
+        "lugares": 61,
+        "probabilidade": 0.0008
+      },
+      {
+        "lugares": 62,
+        "probabilidade": 0.0005
+      },
+      {
+        "lugares": 63,
+        "probabilidade": 0.0003
+      },
+      {
+        "lugares": 64,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 65,
+        "probabilidade": 0.0001
+      },
+      {
+        "lugares": 66,
+        "probabilidade": 0.00005
+      }
+    ]
+  },
+  "corridas": [
+    {
+      "id": "TX-18",
+      "camara": "camara",
+      "estado": "TX",
+      "candidato_d": "Christian Menefee",
+      "candidato_r": "Ronald Whitfield",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": "D",
+      "pvi": 29.0,
+      "decidida": null,
+      "margem_fundamentos": 68.36593674533331,
+      "margem_sondagens": null,
+      "institutos": 0,
+      "peso_sondagens": 0.0,
+      "margem_prevista": 68.38242280234478,
+      "margem_p10": 57.570213942349056,
+      "margem_p90": 79.18619374632299,
+      "prob_d": 1.0
+    },
+    {
+      "id": "AK-00",
+      "camara": "camara",
+      "estado": "AK",
+      "candidato_d": "Eric Hafner",
+      "candidato_r": "Nick Begich III",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": "R",
+      "pvi": -6.0,
+      "decidida": null,
+      "margem_fundamentos": -3.404038991020549,
+      "margem_sondagens": null,
+      "institutos": 0,
+      "peso_sondagens": 0.0,
+      "margem_prevista": -3.4410447583350057,
+      "margem_p10": -14.37897656992916,
+      "margem_p90": 7.47260003633294,
+      "prob_d": 0.34375
+    },
+    {
+      "id": "CA-11",
+      "camara": "camara",
+      "estado": "CA",
+      "candidato_d": "Connie Chan",
+      "candidato_r": null,
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": null,
+      "pvi": 36.0,
+      "decidida": "D",
+      "margem_fundamentos": 100.0,
+      "margem_sondagens": null,
+      "institutos": 0,
+      "peso_sondagens": 0.0,
+      "margem_prevista": 100.0,
+      "margem_p10": 100.0,
+      "margem_p90": 100.0,
+      "prob_d": 1.0
+    },
+    {
+      "id": "MI-04",
+      "camara": "camara",
+      "estado": "MI",
+      "candidato_d": "Sean McCann",
+      "candidato_r": "Bill Huizenga",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": "R",
+      "pvi": -3.0,
+      "decidida": null,
+      "margem_fundamentos": 0.26290568462038255,
+      "margem_sondagens": null,
+      "institutos": 0,
+      "peso_sondagens": 0.0,
+      "margem_prevista": 0.19157606193214205,
+      "margem_p10": -10.7683822725329,
+      "margem_p90": 11.080719092110982,
+      "prob_d": 0.51085
+    },
+    {
+      "id": "NC-01",
+      "camara": "camara",
+      "estado": "NC",
+      "candidato_d": "Don Davis",
+      "candidato_r": "Laurie Buckhout",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": "D",
+      "pvi": -5.0,
+      "decidida": null,
+      "margem_fundamentos": 6.976841275187615,
+      "margem_sondagens": null,
+      "institutos": 0,
+      "peso_sondagens": 0.0,
+      "margem_prevista": 6.896986175175867,
+      "margem_p10": -3.791288773125617,
+      "margem_p90": 17.78623588057457,
+      "prob_d": 0.79455
+    },
+    {
+      "id": "PA-07",
+      "camara": "camara",
+      "estado": "PA",
+      "candidato_d": "Bob Brooks",
+      "candidato_r": "Ryan Mackenzie",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": "R",
+      "pvi": -1.0,
+      "decidida": null,
+      "margem_fundamentos": -0.10894544491517943,
+      "margem_sondagens": null,
+      "institutos": 0,
+      "peso_sondagens": 0.0,
+      "margem_prevista": -0.10001843755780822,
+      "margem_p10": -10.995295195245188,
+      "margem_p90": 10.72658461172211,
+      "prob_d": 0.49775
+    },
+    {
+      "id": "TX-S",
+      "camara": "senado",
+      "estado": "TX",
+      "candidato_d": "James Talarico",
+      "candidato_r": "Ken Paxton",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": null,
+      "pvi": -6.0,
+      "decidida": null,
+      "margem_fundamentos": 0.31286532148436486,
+      "margem_sondagens": 2.5913955158973554,
+      "institutos": 22,
+      "peso_sondagens": 0.8345819811031605,
+      "margem_prevista": 2.2426197805363524,
+      "margem_p10": -3.6448631086720513,
+      "margem_p90": 8.066042374124494,
+      "prob_d": 0.68675
+    },
+    {
+      "id": "FL-S-especial",
+      "camara": "senado",
+      "estado": "FL",
+      "candidato_d": "Angie Nixon",
+      "candidato_r": "Ashley Moody",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": "R",
+      "pvi": -5.0,
+      "decidida": null,
+      "margem_fundamentos": -4.05832853151391,
+      "margem_sondagens": -6.596976501010623,
+      "institutos": 8,
+      "peso_sondagens": 0.7718968825210929,
+      "margem_prevista": -6.036625790647125,
+      "margem_p10": -12.35916896371354,
+      "margem_p90": 0.2269418656788382,
+      "prob_d": 0.1086
+    },
+    {
+      "id": "IA-S",
+      "camara": "senado",
+      "estado": "IA",
+      "candidato_d": "Josh Turek",
+      "candidato_r": "Ashley Hinson",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": null,
+      "pvi": -6.0,
+      "decidida": null,
+      "margem_fundamentos": 0.31286532148436486,
+      "margem_sondagens": 0.6987701590703316,
+      "institutos": 16,
+      "peso_sondagens": 0.8203070284024947,
+      "margem_prevista": 0.5878790152840786,
+      "margem_p10": -5.346952241682441,
+      "margem_p90": 6.561874073291376,
+      "prob_d": 0.5532
+    },
+    {
+      "id": "WY-S",
+      "camara": "senado",
+      "estado": "WY",
+      "candidato_d": "James W. Byrd",
+      "candidato_r": "Harriet Hageman",
+      "lado_d_independente": false,
+      "lado_r_independente": false,
+      "incumbente_recandidato": null,
+      "pvi": -23.0,
+      "decidida": null,
+      "margem_fundamentos": -27.961093128451786,
+      "margem_sondagens": null,
+      "institutos": 0,
+      "peso_sondagens": 0.0,
+      "margem_prevista": -28.07179642950291,
+      "margem_p10": -39.19250412416008,
+      "margem_p90": -16.929868569394646,
+      "prob_d": 0.00095
+    }
+  ],
+  "fundamentos": [
+    {
+      "camara": "camara",
+      "anos_treino": [2012, 2014, 2016, 2018, 2020, 2022, 2024],
+      "observacoes": 2663,
+      "intercepto": 1.1595885552401397,
+      "inclinacao_pvi": 0.9027808157374367,
+      "incumbencia": 6.4050608773218425,
+      "persistencia": 0.529171875695563,
+      "desvio_ano": 1.5283157350465937,
+      "desvio_regiao": 1.630539670593823,
+      "desvio_corrida": 7.59805614152589
+    },
+    {
+      "camara": "senado",
+      "anos_treino": [2012, 2014, 2016, 2018, 2020, 2022, 2024],
+      "observacoes": 191,
+      "intercepto": 1.8519094802853584,
+      "inclinacao_pvi": 0.8315870132334163,
+      "incumbencia": 6.0343678794651066,
+      "persistencia": 0.0,
+      "desvio_ano": 1.885432514674495,
+      "desvio_regiao": 2.0032221676457183,
+      "desvio_corrida": 7.670931837474199
+    }
+  ],
+  "erro_sondagens": {
+    "observacoes": 421,
+    "erro_base": 2.8967460842582797,
+    "erro_por_instituto": 8.484152201408458,
+    "desvio_ano": 3.200390043335883,
+    "ligacao_nacional": 0.4906946956461971
+  },
+  "peso_voto_antecipado": 0.0,
+  "backtests": [
+    {
+      "ano": 2018,
+      "camara": "camara",
+      "corte": "2018-11-04",
+      "ambiente_previsto": 7.610044310807997,
+      "ambiente_real": 8.6,
+      "fonte_ambiente": "media_sondagens_voto_generico",
+      "prob_controlo_d": 0.7248,
+      "prob_controlo_r": 0.2752,
+      "controlo_real": "D",
+      "lugares_d_mediana": 224,
+      "lugares_d_p10": 210,
+      "lugares_d_p90": 240,
+      "lugares_d_reais": 235,
+      "corridas_avaliadas": 412,
+      "corridas_erradas": [
+        "CA-45",
+        "CA-48",
+        "GA-06",
+        "IA-01",
+        "IA-03",
+        "IL-06",
+        "IL-14",
+        "KS-03",
+        "MI-08",
+        "MN-01",
+        "MN-02",
+        "MN-07",
+        "MN-08",
+        "NJ-03",
+        "NM-02",
+        "NY-11",
+        "NY-19",
+        "NY-22",
+        "OK-05",
+        "SC-01",
+        "TX-07",
+        "TX-23",
+        "TX-32",
+        "UT-04",
+        "VA-02",
+        "VA-07",
+        "WI-01"
+      ],
+      "brier": 0.04493034734830097,
+      "vies_competitivas": -3.3629667359031434,
+      "erro_absoluto_competitivas": 6.3876021030010435,
+      "cobertura_80": 0.8786407766990292
+    },
+    {
+      "ano": 2018,
+      "camara": "senado",
+      "corte": "2018-11-04",
+      "ambiente_previsto": 7.610044310807997,
+      "ambiente_real": 8.6,
+      "fonte_ambiente": "media_sondagens_voto_generico",
+      "prob_controlo_d": 0.0969,
+      "prob_controlo_r": 0.9031,
+      "controlo_real": "R",
+      "lugares_d_mediana": 48,
+      "lugares_d_p10": 44,
+      "lugares_d_p90": 50,
+      "lugares_d_reais": 47,
+      "corridas_avaliadas": 34,
+      "corridas_erradas": ["FL-S", "IN-S"],
+      "brier": 0.05034011389705882,
+      "vies_competitivas": 1.1486808628832879,
+      "erro_absoluto_competitivas": 3.2218213389296504,
+      "cobertura_80": 0.9117647058823529
+    },
+    {
+      "ano": 2022,
+      "camara": "camara",
+      "corte": "2022-11-06",
+      "ambiente_previsto": -0.7191082359508858,
+      "ambiente_real": -2.7,
+      "fonte_ambiente": "media_sondagens_voto_generico",
+      "prob_controlo_d": 0.34315,
+      "prob_controlo_r": 0.65685,
+      "controlo_real": "R",
+      "lugares_d_mediana": 213,
+      "lugares_d_p10": 198,
+      "lugares_d_p90": 227,
+      "lugares_d_reais": 213,
+      "corridas_avaliadas": 412,
+      "corridas_erradas": [
+        "CA-13",
+        "CA-22",
+        "CA-27",
+        "IA-03",
+        "ME-02",
+        "NC-13",
+        "NJ-07",
+        "NM-02",
+        "NY-03",
+        "NY-04",
+        "NY-17",
+        "NY-19",
+        "NY-22",
+        "OH-01",
+        "OH-13",
+        "OR-05",
+        "VA-02",
+        "WA-03"
+      ],
+      "brier": 0.0290260066565534,
+      "vies_competitivas": 1.2292642818861508,
+      "erro_absoluto_competitivas": 5.504149151934123,
+      "cobertura_80": 0.912621359223301
+    },
+    {
+      "ano": 2022,
+      "camara": "senado",
+      "corte": "2022-11-06",
+      "ambiente_previsto": -0.7191082359508858,
+      "ambiente_real": -2.7,
+      "fonte_ambiente": "media_sondagens_voto_generico",
+      "prob_controlo_d": 0.4853,
+      "prob_controlo_r": 0.5147,
+      "controlo_real": "D",
+      "lugares_d_mediana": 49,
+      "lugares_d_p10": 47,
+      "lugares_d_p90": 53,
+      "lugares_d_reais": 51,
+      "corridas_avaliadas": 33,
+      "corridas_erradas": ["NV-S", "PA-S"],
+      "brier": 0.030147612651515155,
+      "vies_competitivas": -0.9296876351600698,
+      "erro_absoluto_competitivas": 3.5704152484234055,
+      "cobertura_80": 0.7575757575757576
+    },
+    {
+      "ano": 2024,
+      "camara": "camara",
+      "corte": "2024-11-03",
+      "ambiente_previsto": 1.9732979552684986,
+      "ambiente_real": -2.6,
+      "fonte_ambiente": "sondagens_senado",
+      "prob_controlo_d": 0.4911,
+      "prob_controlo_r": 0.5089,
+      "controlo_real": "R",
+      "lugares_d_mediana": 217,
+      "lugares_d_p10": 201,
+      "lugares_d_p90": 234,
+      "lugares_d_reais": 215,
+      "corridas_avaliadas": 406,
+      "corridas_erradas": [
+        "CA-13",
+        "CA-22",
+        "CA-45",
+        "CO-08",
+        "NY-17",
+        "NY-19",
+        "OR-05",
+        "PA-07",
+        "PA-08"
+      ],
+      "brier": 0.017491477130541874,
+      "vies_competitivas": 2.385143122524051,
+      "erro_absoluto_competitivas": 4.706507963478227,
+      "cobertura_80": 0.916256157635468
+    },
+    {
+      "ano": 2024,
+      "camara": "senado",
+      "corte": "2024-11-03",
+      "ambiente_previsto": 1.9732979552684986,
+      "ambiente_real": -2.6,
+      "fonte_ambiente": "sondagens_senado",
+      "prob_controlo_d": 0.1279,
+      "prob_controlo_r": 0.7257,
+      "controlo_real": "R",
+      "lugares_d_mediana": 48,
+      "lugares_d_p10": 45,
+      "lugares_d_p90": 51,
+      "lugares_d_reais": 47,
+      "corridas_avaliadas": 33,
+      "corridas_erradas": ["PA-S"],
+      "brier": 0.033197591212121215,
+      "vies_competitivas": 2.706863723188889,
+      "erro_absoluto_competitivas": 3.353306832061407,
+      "cobertura_80": 0.9696969696969697
+    }
+  ],
+  "notas": [
+    "Margens em pontos percentuais, sempre Democrata menos Republicano (D−R).",
+    "Os parâmetros estimam-se só com eleições anteriores ao ano previsto; os backtests usam exatamente o mesmo código com os dados disponíveis dois dias antes de cada eleição.",
+    "Nenhuma correção de sinal é aplicada ao voto genérico: o erro histórico entra só como dimensão da incerteza, igual para os dois lados.",
+    "O voto antecipado não altera a previsão (peso 0): três ciclos de um só estado não chegam para calibrar um peso. Mostra-se à parte como diagnóstico."
+  ]
+}

@@ -1,0 +1,242 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-10-13T18:08:15.654656Z",
+    "fontes": [
+      {
+        "nome": "Wikipédia: 2026 United States House of Representatives elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-13T18:08:15.654656Z"
+      },
+      {
+        "nome": "Wikipédia: 2026 United States Senate elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_Senate_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-13T18:08:15.654656Z"
+      },
+      {
+        "nome": "FiveThirtyEight: raw_polls.csv (sondagens e resultados até 2022)",
+        "url": "https://raw.githubusercontent.com/fivethirtyeight/data/master/pollster-ratings/raw_polls.csv",
+        "licenca": "CC BY 4.0",
+        "obtida_em": "2026-10-13T18:08:15.654656Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "dias": [
+    {
+      "corte": "2026-09-29",
+      "congelada": false,
+      "ambiente_margem": 8.44,
+      "camara": {
+        "prob_controlo_d": 0.9675,
+        "prob_controlo_r": 0.0325,
+        "lugares_d_mediana": 242,
+        "lugares_d_p10": 225,
+        "lugares_d_p90": 263
+      },
+      "senado": {
+        "prob_controlo_d": 0.7955,
+        "prob_controlo_r": 0.2044,
+        "lugares_d_mediana": 53,
+        "lugares_d_p10": 49,
+        "lugares_d_p90": 56
+      },
+      "corridas": [
+        {
+          "id": "TX-18",
+          "prob_d": 1.0,
+          "margem_prevista": 68.38
+        },
+        {
+          "id": "AK-00",
+          "prob_d": 0.3438,
+          "margem_prevista": -3.44
+        },
+        {
+          "id": "CA-11",
+          "prob_d": 1.0,
+          "margem_prevista": 100.0
+        },
+        {
+          "id": "MI-04",
+          "prob_d": 0.5109,
+          "margem_prevista": 0.19
+        },
+        {
+          "id": "NC-01",
+          "prob_d": 0.7945,
+          "margem_prevista": 6.9
+        },
+        {
+          "id": "PA-07",
+          "prob_d": 0.4978,
+          "margem_prevista": -0.1
+        },
+        {
+          "id": "TX-S",
+          "prob_d": 0.6556,
+          "margem_prevista": 1.84
+        },
+        {
+          "id": "FL-S-especial",
+          "prob_d": 0.1709,
+          "margem_prevista": -4.94
+        },
+        {
+          "id": "IA-S",
+          "prob_d": 0.6381,
+          "margem_prevista": 1.68
+        },
+        {
+          "id": "WY-S",
+          "prob_d": 0.0009,
+          "margem_prevista": -28.07
+        }
+      ]
+    },
+    {
+      "corte": "2026-10-06",
+      "congelada": false,
+      "ambiente_margem": 8.44,
+      "camara": {
+        "prob_controlo_d": 0.9675,
+        "prob_controlo_r": 0.0325,
+        "lugares_d_mediana": 242,
+        "lugares_d_p10": 225,
+        "lugares_d_p90": 263
+      },
+      "senado": {
+        "prob_controlo_d": 0.7968,
+        "prob_controlo_r": 0.2031,
+        "lugares_d_mediana": 53,
+        "lugares_d_p10": 49,
+        "lugares_d_p90": 56
+      },
+      "corridas": [
+        {
+          "id": "TX-18",
+          "prob_d": 1.0,
+          "margem_prevista": 68.38
+        },
+        {
+          "id": "AK-00",
+          "prob_d": 0.3438,
+          "margem_prevista": -3.44
+        },
+        {
+          "id": "CA-11",
+          "prob_d": 1.0,
+          "margem_prevista": 100.0
+        },
+        {
+          "id": "MI-04",
+          "prob_d": 0.5109,
+          "margem_prevista": 0.19
+        },
+        {
+          "id": "NC-01",
+          "prob_d": 0.7945,
+          "margem_prevista": 6.9
+        },
+        {
+          "id": "PA-07",
+          "prob_d": 0.4978,
+          "margem_prevista": -0.1
+        },
+        {
+          "id": "TX-S",
+          "prob_d": 0.7101,
+          "margem_prevista": 2.52
+        },
+        {
+          "id": "FL-S-especial",
+          "prob_d": 0.102,
+          "margem_prevista": -6.22
+        },
+        {
+          "id": "IA-S",
+          "prob_d": 0.5613,
+          "margem_prevista": 0.7
+        },
+        {
+          "id": "WY-S",
+          "prob_d": 0.0009,
+          "margem_prevista": -28.07
+        }
+      ]
+    },
+    {
+      "corte": "2026-10-13",
+      "congelada": false,
+      "ambiente_margem": 8.44,
+      "camara": {
+        "prob_controlo_d": 0.9675,
+        "prob_controlo_r": 0.0325,
+        "lugares_d_mediana": 242,
+        "lugares_d_p10": 225,
+        "lugares_d_p90": 263
+      },
+      "senado": {
+        "prob_controlo_d": 0.789,
+        "prob_controlo_r": 0.211,
+        "lugares_d_mediana": 53,
+        "lugares_d_p10": 49,
+        "lugares_d_p90": 56
+      },
+      "corridas": [
+        {
+          "id": "TX-18",
+          "prob_d": 1.0,
+          "margem_prevista": 68.38
+        },
+        {
+          "id": "AK-00",
+          "prob_d": 0.3438,
+          "margem_prevista": -3.44
+        },
+        {
+          "id": "CA-11",
+          "prob_d": 1.0,
+          "margem_prevista": 100.0
+        },
+        {
+          "id": "MI-04",
+          "prob_d": 0.5109,
+          "margem_prevista": 0.19
+        },
+        {
+          "id": "NC-01",
+          "prob_d": 0.7945,
+          "margem_prevista": 6.9
+        },
+        {
+          "id": "PA-07",
+          "prob_d": 0.4978,
+          "margem_prevista": -0.1
+        },
+        {
+          "id": "TX-S",
+          "prob_d": 0.6867,
+          "margem_prevista": 2.24
+        },
+        {
+          "id": "FL-S-especial",
+          "prob_d": 0.1086,
+          "margem_prevista": -6.04
+        },
+        {
+          "id": "IA-S",
+          "prob_d": 0.5532,
+          "margem_prevista": 0.59
+        },
+        {
+          "id": "WY-S",
+          "prob_d": 0.0009,
+          "margem_prevista": -28.07
+        }
+      ]
+    }
+  ]
+}
