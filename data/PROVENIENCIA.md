@@ -2,8 +2,9 @@
 
 Todos os ficheiros de dados versionados neste repositório estão registados aqui, com a origem, a licença e a data de obtenção. Um ficheiro sem entrada nesta tabela não deve ser integrado.
 
-| Ficheiro | Origem | Licença | Obtido em | Notas |
-| -------- | ------ | ------- | --------- | ----- |
-|          |        |         |           |       |
+| Ficheiro                                                 | Origem                                                                                                                                                                                                       | Licença                                      | Obtido em  | Notas                                                                                                                                             |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reference/nc/cubo_demografico_{2018,2022,2024}.parquet` | Agregado pelo pipeline (`pipeline.jobs.referencia_voto_antecipado_nc`) a partir de `absentee_<data>.zip`, `VR_Snapshot_<data>.zip`, `ncvhis_Statewide.zip` e `ncvoter_Statewide.zip` da NCSBE (dl.ncsbe.gov) | Registo público (N.C. G.S. 132-1, 163-82.10) | 2026-10-13 | Contagens de eleitores por faixa etária, partido, raça, etnia, género, grupo histórico, modalidade e dias antes da eleição. Sem dados individuais |
+| `reference/nc/cubo_geografico_{2018,2022,2024}.parquet`  | Idem                                                                                                                                                                                                         | Registo público (N.C. G.S. 132-1, 163-82.10) | 2026-10-13 | Contagens por condado (FIPS), distrito do mapa de 2026, faixa etária, partido, modalidade e dias antes da eleição. Sem dados individuais          |
 
 Ficheiros individuais de eleitores nunca são versionados: são processados no pipeline e só os agregados são publicados.

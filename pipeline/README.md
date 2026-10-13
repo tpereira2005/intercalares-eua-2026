@@ -27,6 +27,31 @@ pipeline/
 - Ficheiros descarregados vão para `data/brutos/` ou `data/cache/` na raiz (ignorados pelo git). Os ficheiros individuais de eleitores nunca são versionados; os ficheiros de exemplo nos testes são sintéticos ou anonimizados.
 - Dependências novas acrescentam-se em `pipeline/pyproject.toml` com `uv add --package pipeline <pacote>`, que atualiza o `uv.lock` da raiz.
 
+## Voto antecipado
+
+Metodologia completa em [`docs/metodologia/voto-antecipado.md`](../docs/metodologia/voto-antecipado.md).
+
+```
+src/pipeline/
+├── comum/                       # categorias, faixas etárias, calendário, leitura e descarga
+├── connectors/early_vote/nc/    # Carolina do Norte: boletins, recenseamento, histórico
+├── transform/early_vote/        # painel → cubos → indicadores → ficheiro publicado
+└── jobs/
+    ├── voto_antecipado_nc.py              # atualização de 2026 (a cada 2 h)
+    └── referencia_voto_antecipado_nc.py   # cubos de 2018, 2022 e 2024 (uma vez)
+```
+
+O fluxo é igual para todos os estados e anos: o conector produz um **painel** (uma linha por eleitor recenseado, só em memória ou em `data/cache/`), que se agrega em **cubos** de contagens sem dados pessoais. Os indicadores (composição, participação, decomposição, esperado, histórico, reserva, geografia e cruzamentos) calculam-se sobre os cubos, e o resultado é validado pelo contrato `VotoAntecipadoEstado`.
+
+Os cubos dos anos de referência estão versionados em `data/reference/nc/` (ver `data/PROVENIENCIA.md`). Para os reconstruir é preciso descarregar cerca de 5 GB:
+
+```sh
+uv run python -m pipeline.jobs.referencia_voto_antecipado_nc --anos 2018 2022 2024
+uv run python -m pipeline.jobs.voto_antecipado_nc --saida data/publicado/voto-antecipado/nc.json
+```
+
+`--sem-descarga` reutiliza os ficheiros já presentes em `data/brutos/nc/`.
+
 ## Comandos
 
 ```sh
