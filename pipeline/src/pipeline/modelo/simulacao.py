@@ -79,9 +79,12 @@ class ResultadoCamara:
     nacional_simulado: npt.NDArray[np.float64] = field(repr=False)
 
 
-def _t_unitario(rng: np.random.Generator, n: int) -> npt.NDArray[np.float64]:
-    t = rng.standard_t(GRAUS_LIBERDADE, size=n)
-    return np.asarray(t / np.sqrt(GRAUS_LIBERDADE / (GRAUS_LIBERDADE - 2)), dtype=np.float64)
+def _t_unitario(
+    rng: np.random.Generator, n: int, graus: int = GRAUS_LIBERDADE
+) -> npt.NDArray[np.float64]:
+    """t de Student com ``graus`` graus de liberdade, reescalada para variância 1."""
+    t = rng.standard_t(graus, size=n)
+    return np.asarray(t / np.sqrt(graus / (graus - 2)), dtype=np.float64)
 
 
 def _limiar(nacional: npt.NDArray[np.float64], controlo: npt.NDArray[np.bool_]) -> float | None:
@@ -108,10 +111,14 @@ class Choques:
 
 
 def sortear_choques(
-    rng: np.random.Generator, n: int, ambiente: Ambiente, sd_regiao: float
+    rng: np.random.Generator,
+    n: int,
+    ambiente: Ambiente,
+    sd_regiao: float,
+    graus_liberdade: int = GRAUS_LIBERDADE,
 ) -> Choques:
     return Choques(
-        nacional=ambiente.sd * _t_unitario(rng, n),
+        nacional=ambiente.sd * _t_unitario(rng, n, graus_liberdade),
         regioes={r: rng.normal(0.0, sd_regiao, n) for r in REGIOES},
     )
 

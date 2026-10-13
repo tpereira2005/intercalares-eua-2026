@@ -4,6 +4,10 @@ name: Previsão
 # A previsão congela com os dados até 31 de outubro (corte a 1 de novembro de 2026): a
 # execução de 1 de novembro é a última a publicar, para que a versão congelada não mude
 # com edições posteriores das páginas de origem.
+#
+# Se a execução de 1 de novembro falhar, uma execução à mão depois dessa data ainda
+# publica a versão congelada (o corte fica em 1 de novembro), mas só enquanto a Release
+# não tiver uma previsão congelada: uma versão congelada nunca é substituída depois do dia.
 on:
   schedule:
     - cron: "41 6 * * *"
@@ -30,12 +34,22 @@ jobs:
     steps:
       - name: Verificar a janela de publicação
         id: janela
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENTO: ${{ github.event_name }}
         run: |
-          if [[ "$(date -u +%F)" > "$ULTIMO_DIA" ]]; then
+          if [[ ! "$(date -u +%F)" > "$ULTIMO_DIA" ]]; then
+            echo "ativo=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$EVENTO" == "workflow_dispatch" ]] && ! (
+            gh release download dados-previsao --pattern previsao-2026.json --output - \
+              2> /dev/null | jq -e '.congelada' > /dev/null
+          ); then
+            echo "Depois do congelamento sem versão congelada publicada: publica-se a de $ULTIMO_DIA."
+            echo "ativo=true" >> "$GITHUB_OUTPUT"
+          else
             echo "Previsão já congelada: nada a fazer."
             echo "ativo=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "ativo=true" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: steps.janela.outputs.ativo == 'true'
@@ -95,11 +109,16 @@ jobs:
     steps:
       - name: Descarregar o resultado
         run: gh run download "$GITHUB_RUN_ID" --name previsao --dir resultado
+      # A partir do último dia, só se publica a versão congelada.
       - name: Validar
         run: |
           jq -e '.ano == 2026 and (.corridas | length) > 400 and (.backtests | length) == 6' \
             resultado/2026.json
           jq -e '.ano == 2026 and (.dias | length) > 0' resultado/historico-previsao-2026.json
+          if [[ ! "$(date -u +%F)" < "$ULTIMO_DIA" ]]; then
+            jq -e --arg dia "$ULTIMO_DIA" '.congelada and .corte == $dia' resultado/2026.json
+            jq -e '.dias[-1].congelada' resultado/historico-previsao-2026.json
+          fi
       - name: Substituir o asset da Release
         run: |
           cp resultado/2026.json previsao-2026.json
