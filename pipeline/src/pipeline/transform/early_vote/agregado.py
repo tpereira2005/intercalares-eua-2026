@@ -24,6 +24,7 @@ from contratos.base import Fonte, Metadados
 from contratos.estados import CodigoEstado
 from contratos.voto_antecipado_agregado import (
     CicloAgregado,
+    Granularidade,
     LinhaComparacaoAgregada,
     LinhaGeografiaAgregada,
     LinhaPedidos,
@@ -89,6 +90,76 @@ def cubos(boletins: pl.DataFrame, eleicao: EleicaoGeral) -> CubosAgregados:
         .sort(list(DIMENSOES_PEDIDOS), nulls_last=True)
     )
     return CubosAgregados(eleicao, votos, pedidos)
+
+
+def cubos_de_retratos(retratos: pl.DataFrame, eleicao: EleicaoGeral) -> CubosAgregados:
+    """Cubos a partir de totais acumulados publicados pela fonte (estados sem um registo
+    por boletim, como o Iowa).
+
+    ``retratos`` tem ``dados_ate``, ``distrito`` (Int8), ``partido``, ``tipo`` e ``n``, com
+    ``tipo`` em ``correio``, ``presencial`` (votos recebidos) e ``pedidos``. Cada dia com
+    relatório recebe a diferença face ao relatório anterior, por isso a soma até um dia do
+    ciclo reproduz o acumulado publicado nesse dia (ou no último dia com relatório). Uma
+    diferença pode ser negativa quando a fonte corrige números: fica, para os acumulados
+    baterem certo com a fonte. Os relatórios posteriores à eleição não entram.
+    """
+    base = retratos.filter(pl.col("dados_ate") <= eleicao.data).with_columns(
+        _dias(eleicao, "dados_ate").alias("dias_antes")
+    )
+
+    def incrementos(tabela: pl.DataFrame, chaves: list[str]) -> pl.DataFrame:
+        return tabela.sort("dados_ate").with_columns(
+            (pl.col("n") - pl.col("n").shift(1).over(chaves).fill_null(0)).alias("n")
+        )
+
+    votos = (
+        incrementos(
+            base.filter(pl.col("tipo").is_in(["correio", "presencial"])),
+            ["distrito", "partido", "tipo"],
+        )
+        .select(
+            pl.lit("desconhecida").alias("faixa"),
+            "partido",
+            pl.col("tipo").alias("modalidade"),
+            pl.lit(None, pl.String).alias("fips_condado"),
+            pl.col("distrito").cast(pl.Int8),
+            "dias_antes",
+            pl.col("n").cast(pl.Int64),
+        )
+        .group_by(list(DIMENSOES_VOTOS))
+        .agg(pl.col("n").sum())
+        .sort(list(DIMENSOES_VOTOS), nulls_last=True)
+    )
+    # Pedidos: cada dia, os recebidos novos (devolvidos nesse dia) e o resto dos pedidos
+    # novos (por devolver). Assim, até cada dia, pedidos e devolvidos batem com a fonte.
+    por_dia = base.group_by("dados_ate", "dias_antes", "partido").agg(
+        pl.col("n").filter(pl.col("tipo") == "pedidos").sum().alias("pedidos"),
+        pl.col("n").filter(pl.col("tipo").is_in(["correio", "presencial"])).sum().alias("votos"),
+    )
+    por_dia = por_dia.sort("dados_ate").with_columns(
+        (pl.col(c) - pl.col(c).shift(1).over("partido").fill_null(0)).alias(c)
+        for c in ("pedidos", "votos")
+    )
+    devolvidos = por_dia.select(
+        "partido",
+        pl.col("dias_antes").alias("dias_pedido"),
+        "dias_antes",
+        pl.col("votos").alias("n"),
+    )
+    por_devolver = por_dia.select(
+        "partido",
+        pl.col("dias_antes").alias("dias_pedido"),
+        pl.lit(None, pl.Int16).alias("dias_antes"),
+        (pl.col("pedidos") - pl.col("votos")).alias("n"),
+    )
+    pedidos_ = (
+        pl.concat([devolvidos, por_devolver])
+        .with_columns(pl.lit("desconhecida").alias("faixa"), pl.col("n").cast(pl.Int64))
+        .group_by(list(DIMENSOES_PEDIDOS))
+        .agg(pl.col("n").sum())
+        .sort(list(DIMENSOES_PEDIDOS), nulls_last=True)
+    )
+    return CubosAgregados(eleicao, votos, pedidos_)
 
 
 def _ate(cubo: pl.DataFrame, d: int) -> pl.DataFrame:
@@ -226,8 +297,10 @@ def montar(
     nomes_condados: Mapping[str, str],
     avisos: Sequence[str] = (),
     gerado_em: datetime | None = None,
+    granularidade: Granularidade = "boletim",
 ) -> VotoAntecipadoAgregado:
-    """Monta o ficheiro publicado de um estado com granularidade ``boletim``."""
+    """Monta o ficheiro publicado de um estado (``granularidade`` diz de onde vêm os cubos:
+    um registo por boletim ou totais publicados pela fonte)."""
     d = atual.eleicao.dias_antes(dados_ate)
     if d < 0:
         msg = f"Os dados ({dados_ate}) são posteriores à eleição ({atual.eleicao.data})"
@@ -302,7 +375,7 @@ def montar(
         ano=atual.eleicao.ano,
         dados_ate=dados_ate,
         dias_antes=d,
-        granularidade="boletim",
+        granularidade=granularidade,
         dimensoes=tuple(dimensoes),
         modalidades=tuple(modalidades),
         ciclos=tuple(ciclos),
