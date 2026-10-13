@@ -18,8 +18,8 @@ import {
   formatarVariacao,
 } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
-import { carregarVistas } from "@/lib/voto-antecipado/carregar.ts";
-import { resumirEstado, type ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
+import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
+import { resumirEstado, resumirTodos, type ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 import type { VistaVotoAntecipado } from "@/lib/voto-antecipado/vista.ts";
 
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px] hover:decoration-ink-3";
@@ -44,22 +44,22 @@ function narrativa(resumo: ResumoEstado): string | null {
 }
 
 function Indicadores({
-  vistas,
+  vista,
+  principal,
   resumos,
 }: {
-  vistas: readonly VistaVotoAntecipado[];
+  /** Estado com ficheiro de eleitores, de onde vêm os indicadores por idade. */
+  vista: VistaVotoAntecipado | undefined;
+  principal: ResumoEstado | undefined;
   resumos: readonly ResumoEstado[];
 }) {
-  const principal = resumos[0];
-  if (!principal) return null;
-  const anoBase = principal.anoBase;
-  // Variação conjunta: soma dos votos de hoje sobre a soma dos votos no mesmo dia do ano base.
-  const comBase = vistas.flatMap((v) => {
-    const c = v.comparacoes.find((x) => x.anoBase === anoBase);
-    return c ? [c] : [];
-  });
-  const votosBase = comBase.reduce((s, c) => s + c.votosBase, 0);
-  const votos = comBase.reduce((s, c) => s + c.votos, 0);
+  const anoBase = principal?.anoBase ?? resumos.find((r) => r.anoBase !== null)?.anoBase ?? null;
+  if (resumos.length === 0) return null;
+  // Variação conjunta: só os estados com comparação no mesmo ano de referência,
+  // cada um no seu próprio dia do ciclo. Não é um total nacional.
+  const comBase = resumos.filter((r) => r.anoBase === anoBase && r.votosBase !== null);
+  const votosBase = comBase.reduce((s, r) => s + (r.votosBase ?? 0), 0);
+  const votos = comBase.reduce((s, r) => s + r.votos, 0);
   const variacao = votosBase > 0 ? votos / votosBase - 1 : null;
   const total = resumos.reduce((s, r) => s + r.votos, 0);
   return (
@@ -71,9 +71,9 @@ function Indicadores({
           ? {}
           : {
               detalhe:
-                resumos.length > 1
+                comBase.length > 1
                   ? t("inicio.kpis.votosDetalhe", {
-                      n: resumos.length,
+                      n: comBase.length,
                       variacao: formatarVariacao(variacao),
                       ano: anoBase,
                     })
@@ -83,45 +83,56 @@ function Indicadores({
                     }),
             })}
       />
-      {principal.quota65 === null || principal.quota65Base === null ? null : (
-        <Kpi
-          rotulo={`${t("votoAntecipado.kpis.quota65")} · ${principal.estado}`}
-          valor={formatarPercentagem(principal.quota65)}
-          detalhe={t("votoAntecipado.kpis.quota65Detalhe", {
-            pontos: formatarPontos(principal.quota65 - principal.quota65Base),
-            ano: anoBase ?? "",
-          })}
-        />
-      )}
-      {principal.desvio.jovens === null ? null : (
-        <Kpi
-          rotulo={`${t("votoAntecipado.kpis.desvioJovens")} · ${principal.estado}`}
-          valor={formatarVariacao(principal.desvio.jovens)}
-          detalhe={t("votoAntecipado.kpis.desvioJovensDetalhe", { ano: anoBase ?? "" })}
-        />
-      )}
-      {principal.restantes === null ? null : (
-        <Kpi
-          rotulo={`${t("votoAntecipado.kpis.reserva")} · ${principal.estado}`}
-          valor={formatarCompacto(principal.restantes)}
-          detalhe={t("votoAntecipado.kpis.reservaDetalhe", {
-            ano: vistas[0]?.anoReferenciaHistorico ?? anoBase ?? "",
-            atual: vistas[0]?.ano ?? "",
-          })}
-        />
-      )}
+      {principal ? (
+        <>
+          {principal.quota65 === null || principal.quota65Base === null ? null : (
+            <Kpi
+              rotulo={`${t("votoAntecipado.kpis.quota65")} · ${principal.estado}`}
+              valor={formatarPercentagem(principal.quota65)}
+              detalhe={t("votoAntecipado.kpis.quota65Detalhe", {
+                pontos: formatarPontos(principal.quota65 - principal.quota65Base),
+                ano: anoBase ?? "",
+              })}
+            />
+          )}
+          {principal.desvio.jovens === null ? null : (
+            <Kpi
+              rotulo={`${t("votoAntecipado.kpis.desvioJovens")} · ${principal.estado}`}
+              valor={formatarVariacao(principal.desvio.jovens)}
+              detalhe={t("votoAntecipado.kpis.desvioJovensDetalhe", { ano: anoBase ?? "" })}
+            />
+          )}
+          {principal.restantes === null ? null : (
+            <Kpi
+              rotulo={`${t("votoAntecipado.kpis.reserva")} · ${principal.estado}`}
+              valor={formatarCompacto(principal.restantes)}
+              detalhe={t("votoAntecipado.kpis.reservaDetalhe", {
+                ano: vista?.anoReferenciaHistorico ?? anoBase ?? "",
+                atual: vista?.ano ?? "",
+              })}
+            />
+          )}
+        </>
+      ) : null}
     </FaixaKpis>
   );
 }
 
-function EstadosAcompanhados({ resumos }: { resumos: readonly ResumoEstado[] }) {
+function EstadosAcompanhados({
+  resumos,
+  comPagina,
+}: {
+  resumos: readonly ResumoEstado[];
+  /** Estados com página própria. */
+  comPagina: ReadonlySet<string>;
+}) {
   const anoBase = resumos[0]?.anoBase ?? 2022;
   return (
     <Painel
       sobrelinha={t("inicio.estados.sobrelinha")}
       titulo={t("inicio.estados.titulo")}
       descricao={t("inicio.estados.texto", { ano: anoBase })}
-      metodo={t("votoAntecipado.metodo.desvio", { ano: anoBase })}
+      metodo={t("inicio.estados.metodo", { ano: anoBase })}
     >
       <ol className="flex flex-col">
         {resumos.map((r) => (
@@ -129,12 +140,16 @@ function EstadosAcompanhados({ resumos }: { resumos: readonly ResumoEstado[] }) 
             key={r.estado}
             className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-t border-rule-2 py-2.5 text-sm first:border-t-0"
           >
-            <Link href={caminhoEstado(r.estado)} className={LIGACAO}>
-              {nomeEstado(r.estado)}
-            </Link>
+            {comPagina.has(r.estado) ? (
+              <Link href={caminhoEstado(r.estado)} className={LIGACAO}>
+                {nomeEstado(r.estado)}
+              </Link>
+            ) : (
+              <span>{nomeEstado(r.estado)}</span>
+            )}
             <QualidadeDados nivel={r.qualidade} />
             <span className="font-mono text-[13px] font-medium">
-              {r.desvio.todos === null ? t("comum.semDados") : formatarVariacao(r.desvio.todos)}
+              {r.variacaoVotos === null ? t("comum.semDados") : formatarVariacao(r.variacaoVotos)}
             </span>
           </li>
         ))}
@@ -171,10 +186,11 @@ function OQueVemAi() {
 export default function Inicio() {
   // Calculado no momento do build; o site é reconstruído a cada atualização de dados.
   const dias = diasAteEleicao(new Date());
-  const vistas = carregarVistas();
-  const resumos = vistas.map(resumirEstado);
-  const principal = vistas[0];
-  const resumoPrincipal = resumos[0];
+  const todas = carregarTodas();
+  const resumos = resumirTodos(todas);
+  // A narrativa e "Quem já votou" usam o estado com ficheiro de eleitores e mais votos.
+  const principal = todas.individuais[0];
+  const resumoPrincipal = principal ? resumirEstado(principal) : undefined;
   const frase = resumoPrincipal ? narrativa(resumoPrincipal) : null;
 
   return (
@@ -229,7 +245,7 @@ export default function Inicio() {
           </Painel>
         </div>
 
-        <Indicadores vistas={vistas} resumos={resumos} />
+        <Indicadores vista={principal} principal={resumoPrincipal} resumos={resumos} />
 
         <div className="grid gap-4 min-[860px]:grid-cols-2">
           {principal ? (
@@ -249,7 +265,14 @@ export default function Inicio() {
               </p>
             </Painel>
           ) : null}
-          {resumos.length > 0 ? <EstadosAcompanhados resumos={resumos} /> : <OQueVemAi />}
+          {resumos.length > 0 ? (
+            <EstadosAcompanhados
+              resumos={resumos}
+              comPagina={new Set(todas.individuais.map((v) => v.estado))}
+            />
+          ) : (
+            <OQueVemAi />
+          )}
         </div>
       </div>
     </>

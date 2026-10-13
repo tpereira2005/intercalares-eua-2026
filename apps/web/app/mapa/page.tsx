@@ -2,16 +2,19 @@ import type { Metadata } from "next";
 import { MapaEstados } from "@/components/mapa/MapaEstados.tsx";
 import { caminhoEstado } from "@/components/voto-antecipado/PaginaEstado.tsx";
 import { t } from "@/lib/mensagens.ts";
-import { carregarVistas } from "@/lib/voto-antecipado/carregar.ts";
-import { resumirEstado } from "@/lib/voto-antecipado/resumo.ts";
+import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
+import { resumirTodos } from "@/lib/voto-antecipado/resumo.ts";
 
 export const metadata: Metadata = { title: t("seccoes.mapa.titulo") };
 
 export default function Pagina() {
   // Os estados sem ficheiro aparecem a tracejado: o mapa fica pronto para vários estados.
-  const resumos = carregarVistas().map(resumirEstado);
+  const todas = carregarTodas();
+  const resumos = resumirTodos(todas);
   const anoBase = resumos.find((r) => r.anoBase !== null)?.anoBase ?? 2022;
-  const caminhos = Object.fromEntries(resumos.map((r) => [r.estado, caminhoEstado(r.estado)]));
+  const caminhos = Object.fromEntries(
+    todas.individuais.map((v) => [v.estado, caminhoEstado(v.estado)]),
+  );
   return (
     <div className="flex flex-col gap-4">
       <header className="min-w-0">

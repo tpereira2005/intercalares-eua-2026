@@ -80,7 +80,7 @@
     },
     "kpis": {
       "votos": "Votos antecipados nos estados acompanhados",
-      "votosDetalhe": "{n} estados · {variacao} face ao mesmo dia de {ano}",
+      "votosDetalhe": "{n} estados · {variacao} face ao mesmo dia de {ano} · não é um total nacional",
       "votosDetalheUm": "{variacao} face ao mesmo dia de {ano}"
     },
     "quemVotou": {
@@ -91,8 +91,9 @@
     "estados": {
       "sobrelinha": "Voto antecipado",
       "titulo": "Estados acompanhados",
-      "texto": "Participação face ao esperado, ao ritmo de {ano} no mesmo dia.",
-      "ligacao": "Ver o mapa"
+      "texto": "Votos antecipados face ao mesmo dia do ciclo de {ano}.",
+      "ligacao": "Ver o mapa",
+      "metodo": "votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1, em cada estado com a sua própria data. A soma é só dos estados acompanhados, não é um total nacional."
     }
   },
   "seccoes": {
@@ -285,10 +286,11 @@
   },
   "mapa": {
     "sobrelinha": "Voto antecipado · 50 estados e DC",
-    "titulo": "Participação face ao esperado",
-    "lede": "Cada quadrado é um estado. A cor compara os votos antecipados com os esperados ao ritmo de {ano} no mesmo dia do ciclo. Os estados a tracejado ainda não têm dados no site.",
+    "titulo": "Voto antecipado por estado",
+    "lede": "Cada quadrado é um estado. Por omissão, a cor compara os votos antecipados com os do mesmo dia do ciclo em {ano}. Onde há ficheiro de eleitores, também se vê a participação face ao esperado. Os estados a tracejado ainda não têm dados no site.",
     "indicador": "Indicador",
     "indicadores": {
+      "ritmo": "Ritmo",
       "todos": "Todos",
       "mais65": "65+",
       "jovens": "18–29"
@@ -306,8 +308,13 @@
       "mais65": "Participação 65+ face ao esperado",
       "jovens": "Participação 18–29 face ao esperado"
     },
-    "abrirAnalise": "Abrir a análise por idade",
-    "estadoSemDados": "Ainda não há dados de voto antecipado deste estado no site. Os estados entram à medida que o pipeline os acrescenta, sempre com fontes oficiais gratuitas."
+    "abrirAnalise": "Abrir a análise do estado",
+    "estadoSemDados": "Ainda não há dados de voto antecipado deste estado no site. Os estados entram à medida que o pipeline os acrescenta, sempre com fontes oficiais gratuitas.",
+    "quadradoSemValor": "{estado}: sem comparação para este indicador",
+    "semValor": "sem comparação",
+    "metodoRitmo": "Método: votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1. Mede o ritmo, não a participação: as regras e os hábitos de voto mudam entre ciclos.",
+    "soIndividuais": "A participação face ao esperado só existe nos estados com ficheiro de eleitores; os outros ficam sem cor.",
+    "pendentes": "Boletins pedidos por devolver"
   },
   "previsao": {
     "sobrelinha": "Modelo Escrutínio · em construção",

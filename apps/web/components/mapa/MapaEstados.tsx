@@ -15,7 +15,11 @@ import {
 import { t } from "@/lib/mensagens.ts";
 import type { ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 
-type Indicador = "todos" | "mais65" | "jovens";
+type Indicador = "ritmo" | "todos" | "mais65" | "jovens";
+
+function valorDe(r: ResumoEstado, indicador: Indicador): number | null {
+  return indicador === "ritmo" ? r.variacaoVotos : r.desvio[indicador];
+}
 
 const ESPACO = 4;
 
@@ -37,11 +41,11 @@ export function MapaEstados({
   /** Endereço da análise de cada estado com dados. */
   caminhos: Readonly<Record<string, string>>;
 }) {
-  const [indicador, setIndicador] = useState<Indicador>("todos");
+  const [indicador, setIndicador] = useState<Indicador>("ritmo");
   const [escolhido, setEscolhido] = useState<string>(resumos[0]?.estado ?? "NC");
   const porEstado = new Map(resumos.map((r) => [r.estado, r]));
   const valores = resumos.flatMap((r) => {
-    const v = r.desvio[indicador];
+    const v = valorDe(r, indicador);
     return v === null ? [] : [Math.abs(v)];
   });
   const extremo = escala(Math.max(0.1, ...valores)).maximo;
@@ -58,6 +62,7 @@ export function MapaEstados({
             valor={indicador}
             aoMudar={setIndicador}
             opcoes={[
+              { valor: "ritmo", rotulo: t("mapa.indicadores.ritmo") },
               { valor: "todos", rotulo: t("mapa.indicadores.todos") },
               { valor: "mais65", rotulo: t("mapa.indicadores.mais65") },
               { valor: "jovens", rotulo: t("mapa.indicadores.jovens") },
@@ -83,6 +88,13 @@ export function MapaEstados({
             />
             {t("mapa.semDados")}
           </span>
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-2">
+            <span
+              aria-hidden="true"
+              className="inline-block size-3 rounded-[2px] border border-rule bg-sheet"
+            />
+            {t("mapa.semValor")}
+          </span>
         </div>
       </div>
 
@@ -103,7 +115,7 @@ export function MapaEstados({
                 const x = deslocamento + e.coluna * (lado + ESPACO);
                 const y = e.linha * (lado + ESPACO);
                 const r = porEstado.get(e.codigo);
-                const valor = r ? r.desvio[indicador] : null;
+                const valor = r ? valorDe(r, indicador) : null;
                 const cor = valor === null ? null : preenchimento(valor, extremo);
                 const ativo = e.codigo === escolhido;
                 const texto = cor?.forte ? "fill-sheet" : "fill-ink";
@@ -111,9 +123,11 @@ export function MapaEstados({
                   <g
                     key={e.codigo}
                     {...linhaEscolhivel(
-                      valor === null
+                      !r
                         ? t("mapa.quadradoSemDados", { estado: e.nome })
-                        : t("mapa.quadrado", { estado: e.nome, valor: formatarVariacao(valor) }),
+                        : valor === null
+                          ? t("mapa.quadradoSemValor", { estado: e.nome })
+                          : t("mapa.quadrado", { estado: e.nome, valor: formatarVariacao(valor) }),
                       () => {
                         setEscolhido(e.codigo);
                       },
@@ -129,7 +143,13 @@ export function MapaEstados({
                       strokeDasharray={r ? undefined : "3 2"}
                       style={cor ? { fill: cor.fill } : undefined}
                       className={`${cor ? "" : "fill-sheet"} ${
-                        ativo ? "stroke-signal" : r ? "stroke-transparent" : "stroke-ink-3"
+                        ativo
+                          ? "stroke-signal"
+                          : r
+                            ? cor
+                              ? "stroke-transparent"
+                              : "stroke-rule"
+                            : "stroke-ink-3"
                       }`}
                     />
                     <text
@@ -162,7 +182,14 @@ export function MapaEstados({
             }}
           </Grafico>
           <footer className="flex flex-wrap justify-between gap-x-3.5 gap-y-1.5 border-t border-rule-2 pt-2 font-mono text-[11px] leading-snug text-ink-3">
-            <span>{t("mapa.metodo", { ano: anoBase })}</span>
+            <span>
+              {indicador === "ritmo"
+                ? t("mapa.metodoRitmo", { ano: anoBase })
+                : t("mapa.metodo", { ano: anoBase })}
+            </span>
+            {indicador !== "ritmo" && resumos.some((r) => r.desvio.todos === null) ? (
+              <span>{t("mapa.soIndividuais")}</span>
+            ) : null}
           </footer>
         </section>
 
@@ -192,6 +219,12 @@ export function MapaEstados({
                     <dd className="text-right font-semibold">
                       {formatarVariacao(resumo.variacaoVotos)}
                     </dd>
+                  </>
+                )}
+                {resumo.pendentes === null ? null : (
+                  <>
+                    <dt className="text-ink-2">{t("mapa.pendentes")}</dt>
+                    <dd className="text-right font-semibold">{formatarNumero(resumo.pendentes)}</dd>
                   </>
                 )}
                 {(["todos", "mais65", "jovens"] as const).map((chave) => {
