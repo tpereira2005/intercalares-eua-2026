@@ -11,7 +11,11 @@ import adicionarFormatos from "ajv-formats";
 const ESQUEMA = "../../schemas/json/contratos.schema.json";
 
 export type NomeContrato =
-  "VotoAntecipadoEstado" | "VotoAntecipadoAgregado" | "PrevisaoCongresso" | "HistoricoPrevisao";
+  | "VotoAntecipadoEstado"
+  | "VotoAntecipadoAgregado"
+  | "PrevisaoCongresso"
+  | "HistoricoPrevisao"
+  | "ResultadosParciais";
 
 let ajv: Ajv2020 | undefined;
 let id = "";

@@ -95,3 +95,19 @@ export function formatarDataCurta(data: Date, fuso: string = FUSO_ELEICAO): stri
 export function formatarMargemPontos(pontos: number, casasDecimais = 1): string {
   return formatarMargem(pontos / 100, casasDecimais);
 }
+
+/** Dia e hora na costa leste, por exemplo "3 de novembro, 21:34". */
+export function formatarDataHora(data: Date, fuso: string = FUSO_ELEICAO): string {
+  const dia = new Intl.DateTimeFormat(LOCALE, {
+    day: "numeric",
+    month: "long",
+    timeZone: fuso,
+  }).format(data);
+  const hora = new Intl.DateTimeFormat(LOCALE, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone: fuso,
+  }).format(data);
+  return `${dia}, ${hora}`;
+}

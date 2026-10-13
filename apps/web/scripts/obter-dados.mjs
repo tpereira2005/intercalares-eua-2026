@@ -5,11 +5,14 @@
  *   cada ficheiro de estado (`nc.json`, `ga.json`, ...);
  * - previsão: `previsao-2026.json` e `historico-previsao-2026.json` da Release
  *   `dados-previsao`, gravados como dados/previsao/2026.json e historico-2026.json.
+ * - resultados: `parciais.json` da Release `resultados-2026` (contrato ResultadosParciais),
+ *   gravado como dados/resultados/parciais.json.
  * Variáveis de ambiente permitem indicar outras origens (endereços ou ficheiros locais).
  *
  * Uso: pnpm --filter @intercalares/web dados:obter
  *   URL_DADOS_VOTO_ANTECIPADO=https://.../nc.json,caminho/local/ga.json
  *   URL_DADOS_PREVISAO=caminho/2026.json  URL_HISTORICO_PREVISAO=caminho/historico.json
+ *   URL_DADOS_RESULTADOS=caminho/parciais.json
  *   GITHUB_TOKEN (opcional) evita o limite de pedidos anónimos à API.
  *
  * Sem rede ou sem Release, o script avisa e termina sem erro: as páginas mostram
@@ -35,6 +38,8 @@ const FICHEIROS_PREVISAO = [
     variavel: "URL_HISTORICO_PREVISAO",
   },
 ];
+const PASTA_RESULTADOS = path.join(RAIZ_WEB, "dados", "resultados");
+const ETIQUETA_RESULTADOS = "resultados-2026";
 const LIMITE_BYTES = 20 * 1024 * 1024;
 const NOME_ESTADO = /^[a-z]{2}\.json$/;
 const AGENTE = `Escrutinio/0.1 (+https://github.com/${REPOSITORIO})`;
@@ -102,6 +107,21 @@ async function obterPrevisao() {
   }
 }
 
+async function obterResultados() {
+  // Pasta limpa: sem contagem publicada, a página volta a "em preparação".
+  await rm(PASTA_RESULTADOS, { recursive: true, force: true });
+  await mkdir(PASTA_RESULTADOS, { recursive: true });
+  const origem =
+    process.env.URL_DADOS_RESULTADOS ??
+    `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA_RESULTADOS}/parciais.json`;
+  try {
+    const gravado = await gravar(origem, path.join(PASTA_RESULTADOS, "parciais.json"));
+    console.log(`Resultados em ${path.relative(process.cwd(), gravado)}`);
+  } catch (erro) {
+    console.warn(`Sem parciais.json (${String(erro)}).`);
+  }
+}
+
 async function obter() {
   const indicadas = process.env.URL_DADOS_VOTO_ANTECIPADO;
   const origens = indicadas
@@ -138,4 +158,10 @@ try {
   await obterPrevisao();
 } catch (erro) {
   console.warn(`Sem previsão (${String(erro)}); a página fica em preparação.`);
+}
+
+try {
+  await obterResultados();
+} catch (erro) {
+  console.warn(`Sem resultados (${String(erro)}); a página fica em preparação.`);
 }

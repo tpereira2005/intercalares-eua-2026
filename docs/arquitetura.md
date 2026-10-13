@@ -50,6 +50,18 @@ A página `/previsao/` lê dois ficheiros da Release `dados-previsao`, que o wor
 
 A implantação corre depois de cada execução bem-sucedida do workflow Previsão, para o site mostrar a atualização do dia. As tabelas de corridas são componentes de cliente para o HTML levar só os dados de cada linha; os distritos além dos 25 mais renhidos só se desenham quando se pedem.
 
+### Noite eleitoral no site
+
+A página `/resultados/` lê o retrato da contagem que a recolha da noite publica na Release `resultados-2026` (asset `parciais.json`, contrato `ResultadosParciais`; ver `docs/metodologia/resultados.md`):
+
+1. `dados:obter` descarrega-o para `apps/web/dados/resultados/parciais.json`. `URL_DADOS_RESULTADOS` aceita outra origem; `DADOS_RESULTADOS` muda o ficheiro lido no build.
+2. `lib/resultados/carregar.ts` valida-o contra o esquema. Sem ficheiro, a página mostra "em preparação"; um ficheiro inválido faz falhar o build.
+3. `lib/resultados/vista.ts` soma os votos das unidades de cada corrida e calcula a margem contada, (D − R) / total, e as secções apuradas quando todas as unidades as indicam. Não há projeções nem chamadas de vencedor. Cada corrida aparece ao lado da previsão do mesmo identificador.
+4. Cobertura ao vivo prevista: Carolina do Norte, Florida, Geórgia (só o total), Carolina do Sul e Iowa. As restantes corridas ao Senado e os distritos não sólidos aparecem numa tabela à parte, só com a previsão e a nota "sem dados ao vivo".
+5. Um ficheiro de ensaio (`reconstruido: true`, ou de um ano diferente do da previsão) leva o selo "Ensaio" e um aviso, e não se cruza com a previsão de 2026.
+
+As probabilidades ao vivo do estimador do modelo entram quando o seu contrato existir no `main`. A forma de atualizar a página durante a noite (a cada 30 segundos) está por decidir: hoje, a página só muda quando o site é reconstruído.
+
 ## Limites do plano gratuito
 
 | Recurso                              | Limite                                                 | Comportamento ao exceder                |

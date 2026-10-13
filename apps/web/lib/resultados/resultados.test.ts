@@ -1,0 +1,144 @@
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import type { ResultadosParciais } from "@intercalares/contratos";
+import { describe, expect, it } from "vitest";
+import { lerPrevisao } from "../previsao/carregar.ts";
+import { construirVistaPrevisao } from "../previsao/vista.ts";
+import { DadosInvalidos } from "../validacao.ts";
+import { lerParciais } from "./carregar.ts";
+import { construirVistaResultados, contarCorridas } from "./vista.ts";
+
+const PARCIAIS = "test/fixtures/resultados/parciais.json";
+
+function exemplo(): ResultadosParciais {
+  return JSON.parse(readFileSync(PARCIAIS, "utf-8")) as ResultadosParciais;
+}
+
+function previsao() {
+  const dados = lerPrevisao("test/fixtures/previsao/2026.json");
+  if (!dados) throw new Error("Falta a previsão de teste");
+  return construirVistaPrevisao(dados);
+}
+
+function gravar(dados: unknown): string {
+  const caminho = path.join(mkdtempSync(path.join(tmpdir(), "resultados-")), "parciais.json");
+  writeFileSync(caminho, JSON.stringify(dados));
+  return caminho;
+}
+
+describe("lerParciais", () => {
+  it("aceita um ficheiro que cumpre o contrato", () => {
+    expect(lerParciais(PARCIAIS)?.unidades).toHaveLength(4);
+  });
+
+  it("devolve null quando o ficheiro não existe", () => {
+    expect(lerParciais("nao-existe/parciais.json")).toBeNull();
+  });
+
+  it("rejeita votos negativos", () => {
+    const dados = exemplo();
+    const primeira = dados.unidades[0];
+    if (!primeira) throw new Error("Exemplo vazio");
+    primeira.votos_d = -1;
+    expect(() => lerParciais(gravar(dados))).toThrow(DadosInvalidos);
+  });
+});
+
+describe("contarCorridas", () => {
+  it("soma as unidades de cada corrida e calcula a margem contada", () => {
+    const nc = contarCorridas(exemplo()).find((c) => c.id === "NC-01");
+    expect(nc).toMatchObject({
+      estado: "NC",
+      votosD: 2000,
+      votosR: 2500,
+      votosOutros: 100,
+      total: 4600,
+      seccoes: { reportadas: 15, totais: 50 },
+      soTotal: false,
+      atualizadoEm: "2026-11-04T02:25:00Z",
+    });
+    expect(nc?.margem).toBeCloseTo(-500 / 4600);
+  });
+
+  it("não inventa o apuramento quando a fonte não dá secções", () => {
+    const ia = contarCorridas(exemplo()).find((c) => c.id === "IA-S");
+    expect(ia?.seccoes).toBeNull();
+    expect(ia?.atualizadoEm).toBeNull();
+  });
+
+  it("sem votos, a margem fica por calcular", () => {
+    const ga = contarCorridas(exemplo()).find((c) => c.id === "GA-S");
+    expect(ga?.margem).toBeNull();
+    expect(ga?.soTotal).toBe(true);
+    expect(ga?.seccoes).toEqual({ reportadas: 0, totais: 159 });
+  });
+
+  it("trocar os rótulos dos partidos troca a margem e nada mais", () => {
+    const original = exemplo();
+    const trocado: ResultadosParciais = {
+      ...original,
+      unidades: original.unidades.map((u) => ({ ...u, votos_d: u.votos_r, votos_r: u.votos_d })),
+    };
+    const a = contarCorridas(original);
+    const b = contarCorridas(trocado);
+    for (const [i, c] of a.entries()) {
+      const d = b[i];
+      expect(d?.total).toBe(c.total);
+      expect(d?.seccoes).toEqual(c.seccoes);
+      expect(d?.margem ?? 0).toBeCloseTo(-(c.margem ?? 0));
+    }
+  });
+});
+
+describe("construirVistaResultados", () => {
+  it("põe o Senado primeiro e liga cada corrida à previsão congelada", () => {
+    const vista = construirVistaResultados(exemplo(), previsao());
+    expect(vista.ensaio).toBe(false);
+    expect(vista.aoVivo.map((l) => l.id)).toEqual(["IA-S", "GA-S", "NC-01"]);
+    expect(vista.aoVivo.find((l) => l.id === "IA-S")?.previsao?.probD).toBeCloseTo(0.55, 2);
+    expect(vista.aoVivo.find((l) => l.id === "GA-S")?.previsao).toBeNull();
+  });
+
+  it("lista sem dados ao vivo o Senado e os distritos não sólidos que faltam", () => {
+    const vista = construirVistaResultados(exemplo(), previsao());
+    const ids = vista.semDados.map((l) => l.id);
+    expect(ids).toContain("TX-S");
+    expect(ids).toContain("PA-07");
+    expect(ids).not.toContain("IA-S");
+    expect(ids).not.toContain("NC-01");
+    // Distritos sólidos (probabilidade acima de 95% para um lado) ficam de fora.
+    expect(ids).not.toContain("CA-11");
+    expect(vista.semDados.every((l) => l.contagem === null)).toBe(true);
+  });
+
+  it("resume a cobertura por estado", () => {
+    const vista = construirVistaResultados(exemplo(), previsao());
+    expect(vista.cobertura.map((c) => [c.estado, c.corridas])).toEqual([
+      ["NC", 1],
+      ["FL", 0],
+      ["GA", 1],
+      ["SC", 0],
+      ["IA", 1],
+    ]);
+    expect(vista.cobertura.find((c) => c.estado === "GA")?.soTotal).toBe(true);
+  });
+
+  it("um ensaio reconstruído não se cruza com a previsão de 2026", () => {
+    const vista = construirVistaResultados({ ...exemplo(), reconstruido: true }, previsao());
+    expect(vista.ensaio).toBe(true);
+    expect(vista.aoVivo.every((l) => l.previsao === null)).toBe(true);
+  });
+
+  it("um ficheiro de outro ano é tratado como ensaio", () => {
+    const vista = construirVistaResultados({ ...exemplo(), ano: 2022 }, previsao());
+    expect(vista.ensaio).toBe(true);
+  });
+
+  it("funciona sem previsão", () => {
+    const vista = construirVistaResultados(exemplo(), null);
+    expect(vista.aoVivo).toHaveLength(3);
+    expect(vista.semDados).toEqual([]);
+    expect(vista.previsaoCongelada).toBeNull();
+  });
+});
