@@ -761,6 +761,19 @@ export interface LinhaReserva {
   restantes: number;
 }
 /**
+ * Parâmetros da média de sondagens, para o site os poder explicar.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "MetodoMedia".
+ */
+export interface MetodoMedia {
+  amostra_maxima: number;
+  amostra_referencia: number;
+  janela_dias: number;
+  meia_vida_dias: number;
+  peso_partidaria: number;
+}
+/**
  * Erro histórico das médias de sondagens do Senado.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -805,6 +818,18 @@ export interface PontoDistribuicao {
   probabilidade: number;
 }
 /**
+ * Média de sondagens de uma corrida num dia.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoMedia".
+ */
+export interface PontoMedia {
+  data: string;
+  institutos: number;
+  margem: number;
+  sondagens: number;
+}
+/**
  * Votos acumulados até um dia do ciclo.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -832,6 +857,28 @@ export interface PontoSerieAgregado {
   modalidade: "correio" | "presencial" | "total";
   partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
   votos: number;
+}
+/**
+ * Valores dos agregadores do voto genérico lidos num dia, e a sua média simples.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoVotoGenerico".
+ */
+export interface PontoVotoGenerico {
+  /**
+   * @minItems 1
+   */
+  agregadores: [ValorAgregador, ...ValorAgregador[]];
+  data: string;
+  margem: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ValorAgregador".
+ */
+export interface ValorAgregador {
+  margem: number;
+  nome: string;
 }
 /**
  * Previsão completa: ambiente, câmaras, corridas, parâmetros e backtests.
@@ -1115,6 +1162,72 @@ export interface UnidadeContagem {
   votos_d: number;
   votos_outros: number;
   votos_r: number;
+}
+/**
+ * Uma sondagem entre os dois candidatos da corrida.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "SondagemPublicada".
+ */
+export interface SondagemPublicada {
+  amostra: number | null;
+  /**
+   * Último dia do trabalho de campo.
+   */
+  fim: string;
+  instituto: string;
+  margem: number;
+  /**
+   * Encomendada por um partido ou campanha (de qualquer lado).
+   */
+  partidaria: boolean;
+  percentagem_d: number;
+  percentagem_r: number;
+  /**
+   * Peso relativo na média atual (os pesos das sondagens de uma corrida somam 1); 0
+   * quando a sondagem não entra (fora da janela ou substituída por outra população da
+   * mesma sondagem).
+   */
+  peso: number;
+  populacao: "lv" | "rv" | "a" | "?";
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "SondagensCongresso".
+ */
+export interface SondagensCongresso {
+  ano: number;
+  corridas: SondagensCorrida[];
+  corte: string;
+  metadados: Metadados;
+  metodo: MetodoMedia;
+  /**
+   * Por ordem cronológica (o mais recente no fim).
+   */
+  voto_generico: PontoVotoGenerico[];
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "SondagensCorrida".
+ */
+export interface SondagensCorrida {
+  camara: "camara" | "senado";
+  candidato_d: string | null;
+  candidato_r: string | null;
+  estado: CodigoEstado;
+  id: string;
+  /**
+   * Média no dia do corte (``None`` sem sondagens na janela).
+   */
+  media: PontoMedia | null;
+  /**
+   * Média dia a dia, só nos dias com sondagens na janela.
+   */
+  serie: PontoMedia[];
+  /**
+   * Da mais recente para a mais antiga.
+   */
+  sondagens: SondagemPublicada[];
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema
