@@ -79,6 +79,13 @@ O centro das simulações é a margem nacional no voto genérico:
 - nos backtests de 2018 e 2022, a nossa média das sondagens do voto genérico de `raw_polls.csv`;
 - no backtest de 2024 não há sondagens do voto genérico nesse ficheiro, por isso o ambiente lê-se das sondagens do Senado: cada corrida dá uma leitura (média − fundamentos sem ambiente) e combina-se pela precisão. A incerteza soma o erro comum das sondagens do Senado.
 
+**Decisão (13 de outubro de 2026, Tomás).** Em 2026 o ambiente vem dos agregadores e não da leitura pelas sondagens do Senado, a única alternativa disponível. A Wikipédia de 2026 não lista sondagens individuais do voto genérico, por isso não há média própria. A decisão tem dois motivos:
+
+- **Precisão.** A leitura pelo Senado é menos precisa: soma ao erro do voto genérico o erro comum das sondagens do Senado, ficando com 4,5 pontos contra 3,2. No backtest de 2024, o único em que foi usada, errou 4,6 pontos.
+- **Testes.** Não há histórico gratuito dos agregadores para os testar nos backtests. Por isso a escolha não pode ser decidida pelos resultados de 2018, 2022 e 2024, e fica a medida direta do voto genérico.
+
+Para ficar transparente, a secção 8 mostra o efeito da alternativa: D+6,6 em vez de D+8,4, com 87% em vez de 97% para o controlo democrata da Câmara e 67% em vez de 73% no Senado.
+
 O erro do ambiente é a **raiz do erro quadrático médio** das médias do voto genérico face ao resultado, de 1998 até ao ciclo anterior (3,2 pontos para 2026). **Não se corrige o sinal** do erro histórico: o desvio médio dos últimos ciclos não é estável de ciclo para ciclo, e corrigi-lo seria escolher um lado. O erro entra só como dimensão da incerteza, igual nos dois sentidos.
 
 ## 4. Sondagens do Senado
