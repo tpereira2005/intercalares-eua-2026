@@ -54,15 +54,39 @@ Um condado cujo desvio está a mais de 3 desvios-padrão da mediana pesa menos (
 
 ## 3. As câmaras
 
-O desvio de cada corrida tem três partes:
+A estrutura de erros entre corridas é **exatamente a da previsão congelada** (secção 5 de `previsao.md`), reconstruída a partir dos parâmetros publicados no próprio ficheiro da previsão. A margem final de cada corrida é
 
-- uma parte comum a todas as corridas, o desvio nacional `v` (com o desvio-padrão do ambiente da previsão);
-- uma parte da região do Census;
-- uma parte própria.
+```
+margem = centro + L · F + erro próprio
+```
 
-As corridas com votos informam `v` e as regiões por pesos de precisão. As corridas sem feed (Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada e Alasca, além das que ainda não fecharam) ficam no prior, deslocadas apenas pelo que as outras já mostraram, e **mantêm a incerteza toda** da previsão.
+`F` são os fatores comuns da previsão:
 
-Cada simulação (20 000, antitéticas) sorteia `v` e as regiões, depois o desvio de cada corrida e, por fim, a margem final. Os lugares somam-se com as corridas decididas e os lugares que não vão a votos. Um Senado 50-50 é decidido pelo partido do vice-presidente.
+- o erro nacional, uma t de Student com 5 graus de liberdade e o desvio-padrão do ambiente;
+- o erro do ano na Câmara;
+- o erro do ano nos fundamentos do Senado;
+- o erro comum das sondagens do Senado que não acompanha o voto genérico;
+- um choque por região do Census, partilhado pelas duas câmaras.
+
+As cargas `L` são as da simulação da previsão:
+
+- na Câmara, 1 no erro nacional, no erro do ano e na região;
+- no Senado, dependem do peso `w` das sondagens da corrida: `(1 − w) + w × ligação` no erro nacional, `1 − w` no erro do ano, `w` no erro das sondagens e 1 na região.
+
+O centro e o erro próprio também são os da previsão.
+
+Por isso, **antes de haver votos, a projeção é a previsão congelada**: corrida a corrida, no controlo das câmaras e na distribuição de lugares, a menos do erro de Monte Carlo. Com a previsão de 1 de novembro (ensaio de 13 de outubro), o controlo sem votos ficou entre 72,4% e 73,1% no Senado em quatro sementes, contra 72,9% da previsão; na Câmara ficou entre 96,7% e 97,0%, contra 96,8%. Por corrida, a diferença média foi de cerca de 0 e a maior foi de 1,1 pontos, o que corresponde ao ruído de duas simulações de 20 000 cenários.
+
+As corridas com votos informam os fatores comuns por pesos de precisão. As corridas sem feed (Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada e Alasca, além das que ainda não fecharam) ficam no prior, deslocadas apenas pelo que as outras já mostraram, e **mantêm a incerteza toda** da previsão.
+
+A t de Student escreve-se como uma mistura de normais com escala aleatória. Cada simulação:
+
+1. sorteia a escala do erro nacional a partir do prior;
+2. pesa a escala pela verosimilhança dos votos já contados (amostragem por importância, com reamostragem sistemática); sem votos, os pesos são iguais e cada escala sai exatamente uma vez;
+3. sorteia os fatores comuns da normal condicionada a essa escala;
+4. sorteia o desvio de cada corrida e, por fim, a margem final.
+
+São 20 000 simulações antitéticas. Os lugares somam-se com as corridas decididas e com os lugares que não vão a votos. Um Senado 50-50 é decidido pelo partido do vice-presidente.
 
 Os sorteios antitéticos tornam a simulação exatamente simétrica: trocar os partidos em todas as entradas troca exatamente todas as saídas, e há um teste que o confirma.
 
@@ -70,7 +94,7 @@ Os sorteios antitéticos tornam a simulação exatamente simétrica: trocar os p
 
 `pipeline/tests/modelo/test_noite_eleitoral.py` usa noites sintéticas com resultado conhecido e verifica que:
 
-- sem votos, a projeção é a previsão;
+- sem votos, a projeção é a previsão, corrida a corrida e no controlo das câmaras (diferença de controlo abaixo de 1,5 pontos e variação total entre as distribuições de lugares abaixo de 0,04);
 - com tudo contado e declarado completo, a projeção é o resultado;
 - trocar os partidos troca a projeção;
 - os intervalos de 80% contêm o resultado entre 72% e 95% das vezes em cada fase da contagem;
@@ -86,20 +110,22 @@ As fontes só guardam o resultado final, por isso a ordem da noite é reconstru�
 - **ensaio**: a do ensaio da recolha, em que os condados chegam inteiros por ordem aleatória;
 - **modos**: em cada condado chega primeiro o voto antecipado e por correspondência, depois o dia da eleição aos poucos e no fim os provisórios. É a mais exigente, porque cada condado passa por estados parciais com a inclinação real do voto antecipado.
 
-Nenhuma é a sequência real da noite, por isso estes números medem a coerência do modelo e não a sua calibração temporal exata. O ponto de partida é a previsão do backtest de cada ano.
+Nenhuma é a sequência real da noite, por isso estes números medem a coerência do modelo e não a sua calibração temporal exata. O ponto de partida é a previsão do backtest de cada ano. As reconstruções foram refeitas a 13 de outubro, com a estrutura de erros da previsão:
 
 | Repetição    | Brier no 1.º passo | Brier a 50–60% contado | Cobertura 80% (mín.–máx.) | Maior probabilidade dada a quem perdeu | Chamadas erradas (≥ 99%) |
 | ------------ | -----------------: | ---------------------: | ------------------------: | -------------------------------------- | -----------------------: |
-| 2022, ensaio |        0,011 (15%) |                  0,008 |                 0,89–1,00 | GA-S 0,51; NC-01 0,32                  |                        0 |
-| 2022, modos  |         0,038 (3%) |                  0,010 |                 0,94–1,00 | NC-13 0,76; GA-S 0,73                  |                        0 |
-| 2024, ensaio |        0,003 (22%) |                  0,002 |                 0,82–1,00 | NC-01 0,42; IA-01 0,34                 |                        0 |
-| 2024, modos  |        0,002 (23%) |                  0,002 |                 0,87–1,00 | IA-01 0,51; NC-01 0,32                 |                        0 |
+| 2022, ensaio |         0,023 (7%) |                  0,009 |                 0,89–1,00 | NC-13 0,67; GA-S 0,50                  |                        0 |
+| 2022, modos  |         0,024 (3%) |                  0,010 |                 0,97–1,00 | NC-13 0,67; GA-S 0,53                  |                        0 |
+| 2024, ensaio |        0,002 (10%) |                  0,002 |                 0,78–1,00 | IA-01 0,60; NC-01 0,44                 |                        0 |
+| 2024, modos  |        0,002 (23%) |                  0,002 |                 0,88–1,00 | IA-01 0,51; NC-01 0,33                 |                        0 |
+
+Com as mesmas reconstruções, a versão anterior do modelo, com um só desvio nacional normal, dava praticamente os mesmos números. O Brier diferia no máximo 0,001, não havia nenhuma chamada errada e as coberturas eram de 0,82 a 0,97 no mínimo. A mudança altera sobretudo o arranque da noite, que agora coincide com a previsão.
 
 Leitura:
 
 - **Nenhuma chamada errada.** Em nenhuma repetição o modelo chegou a dar 99% a quem acabou por perder.
-- **GA-S 2022.** O voto antecipado de Warnock (D+7) seguido do dia da eleição de Walker (R+15) fez a projeção oscilar, como seria de esperar. Nunca passou dos 73% para Walker. NC-13 já tinha o republicano como favorito na previsão.
-- **2024.** A projeção afasta-se cedo da previsão (desvio nacional de cerca de 3 pontos para o lado republicano), o que bate certo com o erro real da previsão desse ano.
+- **GA-S 2022.** O voto antecipado de Warnock (D+7) seguido do dia da eleição de Walker (R+15) fez a projeção oscilar, como seria de esperar. Nunca passou dos 53% para Walker. NC-13 já tinha o republicano como favorito na previsão.
+- **2024.** A projeção afasta-se cedo da previsão (desvio nacional de cerca de 2,5 pontos para o lado republicano no fim, além dos erros do ano e das regiões), o que bate certo com o erro real da previsão desse ano.
 - **Intervalos largos.** Estão um pouco largos (cobertura acima de 80%), o que é preferível numa noite em que as fontes falham. Os parâmetros não foram afinados com estas repetições.
 
 Durante a repetição apareceram dois problemas nos dados do ensaio da Carolina do Norte de 2022, comunicados à recolha de resultados:
@@ -139,7 +165,6 @@ Os dois ficheiros dizem ainda se partiram da previsão congelada (`prior_congela
 
 ## 7. Limitações
 
-- Antes dos primeiros votos, a projeção coincide com a previsão congelada corrida a corrida (diferença máxima de 0,8 pontos na probabilidade, com a previsão de 13 de outubro) e nos percentis de lugares. O controlo de cada câmara pode afastar-se até cerca de 2 pontos: 70,7% contra 72,9% no Senado e 97,4% contra 96,8% na Câmara. A correlação entre corridas não é exatamente a da previsão: o desvio comum é normal e limitado a 80% da variância de cada corrida, e na previsão o erro nacional é uma t de Student e as sondagens do Senado têm um erro comum próprio. Cada ficheiro traz `prob_controlo_d_prior`, o valor da previsão congelada, para o site os poder mostrar lado a lado.
 - A inclinação do voto contado primeiro é independente entre corridas. Na realidade, o correio inclina para o mesmo lado em todo o país, o que torna a incerteza das câmaras no início da noite um pouco estreita. O desvio nacional aprende com as corridas já avançadas, o que compensa em parte.
 - Sem fração do voto esperado nas fontes (nenhuma das atuais a publica), o volume do que falta depende da participação estimada e das secções. Por isso o modelo nunca dá uma unidade por completa sem a fonte o dizer.
 - Os distritos da Câmara não têm referência própria por condado (os condados são partidos pelos distritos), por isso aprendem menos com os primeiros votos do que as corridas ao Senado.
