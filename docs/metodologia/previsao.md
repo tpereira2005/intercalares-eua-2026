@@ -194,6 +194,14 @@ Por corrida ao Senado com sondagens, o ficheiro traz:
 
 Tudo se calcula com o mesmo código da previsão (`media.pesos` e `previsao.sondagens_por_corrida`), por isso a página mostra exatamente o que entra no modelo.
 
+O ficheiro inclui também os distritos competitivos da Câmara que têm sondagens. Competitivos são os que a previsão do dia dá entre 3% e 97%: 79 distritos a 13 de outubro.
+
+- **Origem:** as sondagens vêm da secção de cada distrito na página da Wikipédia de cada estado ("<ano> United States House of Representatives elections in <estado>"). Só se leem as tabelas da eleição geral com os dois candidatos.
+- **Pedidos:** uma página por estado, com a mesma pausa e cache.
+- **Uso:** servem **só para o site** e não entram no modelo. Para entrarem, teriam de passar pelos mesmos testes retrospetivos que as do Senado.
+- **Depois do congelamento:** ficam os distritos do último ficheiro publicado antes de 1 de novembro.
+- **Limitação:** a lista de distritos fica fixa a 1 de novembro. Um distrito sem sondagens nessa data não aparece, mesmo que receba sondagens depois.
+
 O voto genérico é diferente: a Wikipédia de 2026 só publica os valores atuais dos agregadores, não as sondagens individuais. A série guarda, dia a dia, os valores lidos em cada execução e a sua média simples. Recupera-se o ficheiro anterior da Release e acrescenta-se o dia, como no histórico. Para trás, a série foi reconstruída com o histórico de revisões da própria página (`pipeline.jobs.referencia_voto_generico`, ficheiro `data/reference/modelo/voto_generico_2026.csv`). Cobre de 1 de janeiro a 12 de outubro de 2026, usando para cada dia a última revisão feita até ao fim desse dia.
 
 - **Pedidos:** um de cada vez, com pausa e recuo exponencial nos 429, e em cache: uma revisão nunca é pedida duas vezes.

@@ -115,6 +115,12 @@ def executar(
         registo.info("Histórico com %d dias gravado em %s", len(novo.dias), historico)
     if ficheiro_sondagens is not None:
         linhas = [c.linha for c in previsao.senado.corridas if c.linha.certo is None]
+        minimo, maximo = publicar_sondagens.COMPETITIVA
+        competitivas = [
+            c.linha
+            for c in previsao.camara.corridas
+            if c.linha.certo is None and minimo <= c.prob_d <= maximo
+        ]
         escrever_sondagens(
             ficheiro_sondagens,
             dados=dados,
@@ -122,6 +128,8 @@ def executar(
             linhas=linhas,
             agregadores=agregadores,
             agora=agora,
+            linhas_camara=competitivas,
+            atualizar=atualizar,
         )
 
 
@@ -133,13 +141,15 @@ def escrever_sondagens(
     linhas: list[LinhaModelo],
     agregadores: list[tuple[str, float]],
     agora: datetime,
+    linhas_camara: list[LinhaModelo],
+    atualizar: bool,
 ) -> None:
     """Atualiza o ficheiro das sondagens (a série do voto genérico continua a anterior)."""
-    anterior = (
-        SondagensCongresso.model_validate_json(caminho.read_text(encoding="utf-8"))
-        if caminho.exists()
-        else None
-    )
+    anterior = ler_sondagens(caminho)
+    with httpx.Client(
+        headers={"User-Agent": wikipedia.USER_AGENT}, timeout=60.0, follow_redirects=True
+    ) as cliente:
+        sondagens_camara = carga.sondagens_camara_wikipedia(linhas_camara, cliente, atualizar)
     ficheiro = publicar_sondagens.montar(
         dados,
         carga.ANO_ATUAL,
@@ -150,6 +160,8 @@ def escrever_sondagens(
         fontes=fontes(agora),
         gerado_em=agora,
         referencia_generico=publicar_sondagens.ler_referencia_generico(),
+        linhas_camara=linhas_camara,
+        sondagens_camara=sondagens_camara,
     )
     caminho.parent.mkdir(parents=True, exist_ok=True)
     caminho.write_text(ficheiro.model_dump_json(), encoding="utf-8")
@@ -177,6 +189,10 @@ def apenas_sondagens(caminho: Path, *, atualizar: bool) -> None:
     dados = carga.carregar(atual=corridas, sondagens_atuais=sondagens, redesenho_atual=redesenhados)
     _, linhas_senado = estimar(dados, carga.ANO_ATUAL, "senado")
     linhas = [ln for ln in linhas_senado[carga.ANO_ATUAL] if ln.certo is None]
+    # Os distritos são os do último ficheiro publicado antes do congelamento.
+    anterior = ler_sondagens(caminho)
+    distritos = {c.id for c in anterior.corridas if c.camara == "camara"} if anterior else set()
+    _, linhas_c = estimar(dados, carga.ANO_ATUAL, "camara")
     escrever_sondagens(
         caminho,
         dados=dados,
@@ -184,7 +200,15 @@ def apenas_sondagens(caminho: Path, *, atualizar: bool) -> None:
         linhas=linhas,
         agregadores=agregadores,
         agora=datetime.now(UTC),
+        linhas_camara=[ln for ln in linhas_c[carga.ANO_ATUAL] if ln.id in distritos],
+        atualizar=atualizar,
     )
+
+
+def ler_sondagens(caminho: Path) -> SondagensCongresso | None:
+    if not caminho.exists():
+        return None
+    return SondagensCongresso.model_validate_json(caminho.read_text(encoding="utf-8"))
 
 
 def main() -> None:
