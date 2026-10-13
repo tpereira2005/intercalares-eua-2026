@@ -272,24 +272,37 @@ export function PaginaAgregado({
             fontes={fontes}
             metodo={t("agregado.modalidade.metodo", { ano: principal.anoBase })}
           >
-            <dl className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-x-4 gap-y-1.5 text-sm">
-              <span />
-              <span className="rotulo text-right">{t("agregado.modalidade.quota", { ano })}</span>
-              <span className="rotulo text-right">
-                {t("agregado.modalidade.ritmo", { ano: principal.anoBase })}
-              </span>
-              {modalidades.map((m) => (
-                <div key={m.categoria} className="contents">
-                  <dt className="text-ink-2">{t(`votoAntecipado.legenda.${m.categoria}`)}</dt>
-                  <dd className="text-right font-semibold">
-                    {m.quota === null ? t("comum.semDados") : formatarPercentagem(m.quota)}
-                  </dd>
-                  <dd className="text-right font-semibold">
-                    {m.ritmo === null ? t("comum.semDados") : formatarVariacao(m.ritmo)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <table className="w-full text-sm">
+              <caption className="sr-only">{t("agregado.modalidade.titulo")}</caption>
+              <thead>
+                <tr>
+                  <th scope="col" className="text-left">
+                    <span className="sr-only">{t("agregado.modalidade.sobrelinha")}</span>
+                  </th>
+                  <th scope="col" className="rotulo pb-1.5 pl-4 text-right">
+                    {t("agregado.modalidade.quota", { ano })}
+                  </th>
+                  <th scope="col" className="rotulo pb-1.5 pl-4 text-right">
+                    {t("agregado.modalidade.ritmo", { ano: principal.anoBase })}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {modalidades.map((m) => (
+                  <tr key={m.categoria}>
+                    <th scope="row" className="py-0.5 text-left font-normal text-ink-2">
+                      {t(`votoAntecipado.legenda.${m.categoria}`)}
+                    </th>
+                    <td className="py-0.5 pl-4 text-right font-semibold">
+                      {m.quota === null ? t("comum.semDados") : formatarPercentagem(m.quota)}
+                    </td>
+                    <td className="py-0.5 pl-4 text-right font-semibold">
+                      {m.ritmo === null ? t("comum.semDados") : formatarVariacao(m.ritmo)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </Painel>
         ) : null}
 

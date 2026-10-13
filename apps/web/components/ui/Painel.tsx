@@ -14,6 +14,8 @@ interface PainelProps {
   acessorio?: ReactNode;
   fontes?: readonly ReferenciaFonte[];
   metodo?: string;
+  /** "h1" quando o painel é o conteúdo principal da página (secções em preparação, 404). */
+  nivelTitulo?: "h1" | "h2";
   children?: ReactNode;
   className?: string;
 }
@@ -26,9 +28,11 @@ export function Painel({
   acessorio,
   fontes,
   metodo,
+  nivelTitulo = "h2",
   children,
   className = "",
 }: PainelProps) {
+  const Titulo = nivelTitulo;
   const temRodape = (fontes?.length ?? 0) > 0 || metodo !== undefined;
   return (
     <section
@@ -37,7 +41,7 @@ export function Painel({
       <header className="flex flex-wrap items-start justify-between gap-x-3.5 gap-y-2">
         <div className="min-w-0">
           {sobrelinha ? <p className="rotulo mb-1">{sobrelinha}</p> : null}
-          <h2 className="font-display text-[27px] leading-[1.02] font-bold">{titulo}</h2>
+          <Titulo className="font-display text-[27px] leading-[1.02] font-bold">{titulo}</Titulo>
           {descricao ? <p className="mt-1 max-w-[62ch] text-sm text-ink-2">{descricao}</p> : null}
         </div>
         {acessorio}
