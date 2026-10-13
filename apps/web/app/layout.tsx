@@ -6,15 +6,23 @@ import { PadroesSvg } from "@/components/charts/PadroesSvg.tsx";
 import { Cabecalho } from "@/components/layout/Cabecalho.tsx";
 import { Navegacao } from "@/components/layout/Navegacao.tsx";
 import { Rodape } from "@/components/layout/Rodape.tsx";
+import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
+import { URL_SITE } from "@/lib/site.ts";
 import { SCRIPT_TEMA } from "@/lib/tema.ts";
 
 export const metadata: Metadata = {
+  ...metadadosPagina({
+    titulo: null,
+    descricao: t("site.descricao"),
+    caminho: null,
+    cartao: "inicio.png",
+  }),
+  metadataBase: URL_SITE,
   title: {
     default: `${t("site.nome")} · ${t("site.subtitulo")}`,
     template: `%s · ${t("site.nome")}`,
   },
-  description: t("site.descricao"),
 };
 
 export const viewport: Viewport = {

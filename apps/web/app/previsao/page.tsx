@@ -2,13 +2,16 @@ import type { Metadata } from "next";
 import { PaginaPrevisao } from "@/components/previsao/PaginaPrevisao.tsx";
 import { Painel } from "@/components/ui/Painel.tsx";
 import { Selo } from "@/components/ui/Selo.tsx";
+import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
 import { carregarPrevisao } from "@/lib/previsao/carregar.ts";
 
-export const metadata: Metadata = {
-  title: t("seccoes.previsao.titulo"),
-  description: t("seccoes.previsao.descricao"),
-};
+export const metadata: Metadata = metadadosPagina({
+  titulo: t("seccoes.previsao.titulo"),
+  descricao: t("seccoes.previsao.descricao"),
+  caminho: "/previsao/",
+  cartao: "previsao.png",
+});
 
 export default function Pagina() {
   const dados = carregarPrevisao();

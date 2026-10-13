@@ -42,11 +42,10 @@ export function DistribuicaoLugares({ resumo }: { resumo: ResumoVista }) {
   const de = Math.min(pontos[0]?.lugares ?? resumo.p10, resumo.maioria - 1);
   const ate = Math.max(pontos.at(-1)?.lugares ?? resumo.p90, resumo.maioria);
   const maximo = Math.max(...pontos.map((p) => p.probabilidade), 1e-6);
-  const nome = t(`previsao.camaraNome.${resumo.camara}`);
   return (
     <Grafico
       titulo={t("previsao.lugares.aria", {
-        camara: nome,
+        camara: t(`previsao.camaraNa.${resumo.camara}`),
         mediana: resumo.mediana,
         de: resumo.p10,
         ate: resumo.p90,
@@ -274,7 +273,7 @@ export function LinhaLimiares({
                     className="fill-ink text-[12px] font-semibold"
                   >
                     {t("previsao.limiares.limiar", {
-                      camara: t(`previsao.camaraNome.${l.camara}`),
+                      camara: t(`previsao.camaraDa.${l.camara}`),
                     })}
                   </text>
                   <text
