@@ -80,6 +80,9 @@ class Leitura:
     tipo_unidade: UnidadeApuramento | None
     atualizado_fonte: datetime | None = None
     modalidades: pl.DataFrame | None = None
+    cobertura_condados: tuple[str, ...] = ()
+    """FIPS dos condados quando a fonte cobre só alguns condados do estado (ver
+    ``connectors.results.condados``); vazio quando cobre o estado inteiro."""
 
 
 def vazio_unidades() -> pl.DataFrame:
@@ -213,6 +216,13 @@ def montar(
                 notas=desc.notas,
             )
         )
+    parcial = bool(leitura.cobertura_condados)
+    if parcial:
+        avisos = (
+            f"Só {len(leitura.cobertura_condados)} condado(s) com fonte oficial aberta: os "
+            "totais são a soma desses condados, não o resultado do estado.",
+            *avisos,
+        )
     return ResultadosEstado(
         metadados=Metadados(gerado_em=gerado_em or datetime.now(UTC), fontes=tuple(fontes)),
         estado=estado,
@@ -220,6 +230,8 @@ def montar(
         atualizado_fonte=leitura.atualizado_fonte,
         corridas=tuple(corridas),
         avisos=tuple(avisos),
+        cobertura="condados" if parcial else "estado",
+        condados_cobertos=tuple(sorted(leitura.cobertura_condados)),
     )
 
 
@@ -285,6 +297,7 @@ def linhas_nacionais(resultados: ResultadosEstado, ficheiro: str) -> list[LinhaC
                 votos_rep=por_partido["rep"],
                 votos_outros=por_partido["outro"],
                 apuramento=apuramento,
+                cobertura=resultados.cobertura,
             )
         )
     return linhas

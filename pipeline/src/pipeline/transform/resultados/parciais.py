@@ -7,7 +7,10 @@ votos por tipo em cada condado. Regras da interface acordada com o Modelo C:
   total da corrida;
 - ``votos_d``/``votos_r`` somam os candidatos com rótulo democrata/republicano; o resto
   vai para ``votos_outros``. Os partidos são só rótulos (teste de troca de rótulos);
-- só Senado e Câmara, com os identificadores da previsão.
+- só Senado e Câmara, com os identificadores da previsão;
+- nos estados acompanhados só por alguns condados, as unidades são esses condados (nunca
+  ``total``) e o estado vem em ``cobertura_parcial``, para o Modelo C não tomar a soma
+  desses condados pelo estado inteiro.
 """
 
 from collections.abc import Sequence
@@ -16,7 +19,13 @@ from datetime import UTC, datetime
 import polars as pl
 
 from contratos.base import Fonte, Metadados
-from contratos.resultados import ContagemModo, ResultadosParciais, UnidadeContagem
+from contratos.estados import CodigoEstado
+from contratos.resultados import (
+    CoberturaParcial,
+    ContagemModo,
+    ResultadosParciais,
+    UnidadeContagem,
+)
 from pipeline.transform.resultados.montar import Leitura
 
 _LADOS = (
@@ -94,6 +103,12 @@ def _unidades_leitura(leitura: Leitura) -> list[UnidadeContagem]:
     ]
 
 
+NOTA_PARCIAL = (
+    "O site estadual recusa pedidos automáticos; só estes condados têm fonte oficial aberta. "
+    "Os outros condados não estão por apurar: estão fora da recolha."
+)
+
+
 def montar_parciais(
     leituras: Sequence[Leitura],
     *,
@@ -104,7 +119,17 @@ def montar_parciais(
     gerado_em: datetime | None = None,
 ) -> ResultadosParciais:
     unidades = [u for leitura in leituras for u in _unidades_leitura(leitura)]
+    cobertura = [
+        CoberturaParcial(
+            estado=CodigoEstado(leitura.corridas[0].id[:2]),
+            condados=tuple(sorted(leitura.cobertura_condados)),
+            nota=NOTA_PARCIAL,
+        )
+        for leitura in leituras
+        if leitura.cobertura_condados and leitura.corridas
+    ]
     return ResultadosParciais(
+        cobertura_parcial=tuple(sorted(cobertura, key=lambda c: c.estado.value)),
         metadados=Metadados(gerado_em=gerado_em or datetime.now(UTC), fontes=tuple(fontes)),
         ano=ano,
         instante=instante,
