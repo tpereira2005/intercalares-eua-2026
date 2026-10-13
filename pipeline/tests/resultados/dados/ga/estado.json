@@ -1,0 +1,234 @@
+{
+  "election": {
+    "lastUpdated": "2025-01-07T16:55:00.6358836Z",
+    "asOf": "2025-01-30T13:59:22.4956582Z"
+  },
+  "ballotItems": [
+    {
+      "id": "01000000-d884-2e72-6367-08dcda4b86b5",
+      "parentId": null,
+      "parentJurisdictionName": null,
+      "publishPublicElectionId": null,
+      "relatedIds": null,
+      "name": [{ "languageId": "en", "text": "President of the US" }],
+      "voteFor": [{ "languageId": "en", "text": "Vote for 1" }],
+      "referendum": [],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 159,
+        "totalUnits": 159,
+        "asOf": "2025-01-30T13:59:22.4956582Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 5250047,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-d884-2e72-71ff-08dcda4b86b5",
+            "nativeId": "1",
+            "name": [{ "languageId": "en", "text": "Donald J. Trump (Rep)" }],
+            "voteCount": 2663117,
+            "party": {
+              "id": "01000000-d884-2e72-6e4b-08dcda4b86b5",
+              "name": [{ "languageId": "en", "text": "Rep" }],
+              "abbreviation": "Rep",
+              "standardName": null,
+              "color": "#960018",
+              "textColor": "#000000"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-d884-2e72-7a48-08dcda4b86b5",
+            "nativeId": "2",
+            "name": [{ "languageId": "en", "text": "Kamala D. Harris (Dem)" }],
+            "voteCount": 2548017,
+            "party": {
+              "id": "01000000-d884-2e72-7705-08dcda4b86b5",
+              "name": [{ "languageId": "en", "text": "Dem" }],
+              "abbreviation": "Dem",
+              "standardName": null,
+              "color": "#255C99",
+              "textColor": "#000000"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-d884-2e72-7cf3-08dcda4b86b5",
+            "nativeId": "3",
+            "name": [{ "languageId": "en", "text": "Chase Oliver (Lib)" }],
+            "voteCount": 20684,
+            "party": {
+              "id": "01000000-d884-2e72-7a8e-08dcda4b86b5",
+              "name": [{ "languageId": "en", "text": "Lib" }],
+              "abbreviation": "Lib",
+              "standardName": null,
+              "color": "#fed000",
+              "textColor": "#000000"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-d884-2e72-7f58-08dcda4b86b5",
+            "nativeId": "4",
+            "name": [{ "languageId": "en", "text": "Jill Stein (Grn)" }],
+            "voteCount": 18229,
+            "party": {
+              "id": "01000000-d884-2e72-7d36-08dcda4b86b5",
+              "name": [{ "languageId": "en", "text": "Grn" }],
+              "abbreviation": "Grn",
+              "standardName": null,
+              "color": "#00a95c",
+              "textColor": "#FFFFFF"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "crossCounties": null,
+      "isCloseRace": null,
+      "partyName": null
+    },
+    {
+      "id": "01000000-d884-2e72-591a-08dcda4b8737",
+      "parentId": null,
+      "parentJurisdictionName": null,
+      "publishPublicElectionId": null,
+      "relatedIds": null,
+      "name": [{ "languageId": "en", "text": "US House of Representatives - District 2" }],
+      "voteFor": [{ "languageId": "en", "text": "Vote for 1" }],
+      "referendum": [],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 30,
+        "totalUnits": 30,
+        "asOf": "2025-01-30T13:59:22.4956582Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 312501,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-d884-2e72-59a4-08dcda4b8737",
+            "nativeId": "7",
+            "name": [{ "languageId": "en", "text": "A. Wayne Johnson (Rep)" }],
+            "voteCount": 136473,
+            "party": {
+              "id": "01000000-d884-2e72-6e4b-08dcda4b86b5",
+              "name": [{ "languageId": "en", "text": "Rep" }],
+              "abbreviation": "Rep",
+              "standardName": null,
+              "color": "#960018",
+              "textColor": "#000000"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-d884-2e72-59c5-08dcda4b8737",
+            "nativeId": "8",
+            "name": [{ "languageId": "en", "text": "Sanford Bishop (I) (Dem)" }],
+            "voteCount": 176028,
+            "party": {
+              "id": "01000000-d884-2e72-7705-08dcda4b86b5",
+              "name": [{ "languageId": "en", "text": "Dem" }],
+              "abbreviation": "Dem",
+              "standardName": null,
+              "color": "#255C99",
+              "textColor": "#000000"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "crossCounties": null,
+      "isCloseRace": null,
+      "partyName": null
+    },
+    {
+      "id": "01000000-d884-2e72-dbd0-08dcda4b8fe0",
+      "parentId": null,
+      "parentJurisdictionName": null,
+      "publishPublicElectionId": null,
+      "relatedIds": null,
+      "name": [{ "languageId": "en", "text": "US House of Representatives - District 13" }],
+      "voteFor": [{ "languageId": "en", "text": "Vote for 1" }],
+      "referendum": [],
+      "turnout": null,
+      "reportingStatus": {
+        "reportingUnits": 6,
+        "totalUnits": 6,
+        "asOf": "2025-01-30T13:59:22.4956582Z",
+        "reportingStatusDetails": null
+      },
+      "voteTotal": 357632,
+      "underVoteCount": null,
+      "overVoteCount": null,
+      "contestGroupId": null,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-d884-2e72-dbf5-08dcda4b8fe0",
+            "nativeId": "9",
+            "name": [{ "languageId": "en", "text": "Jonathan Chavez (Rep)" }],
+            "voteCount": 100730,
+            "party": {
+              "id": "01000000-d884-2e72-6e4b-08dcda4b86b5",
+              "name": [{ "languageId": "en", "text": "Rep" }],
+              "abbreviation": "Rep",
+              "standardName": null,
+              "color": "#960018",
+              "textColor": "#000000"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          },
+          {
+            "id": "01000000-d884-2e72-dc03-08dcda4b8fe0",
+            "nativeId": "10",
+            "name": [{ "languageId": "en", "text": "David Scott (I) (Dem)" }],
+            "voteCount": 256902,
+            "party": {
+              "id": "01000000-d884-2e72-7705-08dcda4b86b5",
+              "name": [{ "languageId": "en", "text": "Dem" }],
+              "abbreviation": "Dem",
+              "standardName": null,
+              "color": "#255C99",
+              "textColor": "#000000"
+            },
+            "isWriteIn": false,
+            "isQualifiedWriteIn": false,
+            "isWinner": null
+          }
+        ]
+      },
+      "rankedChoiceSummaryResults": null,
+      "crossCounties": null,
+      "isCloseRace": null,
+      "partyName": null
+    }
+  ]
+}

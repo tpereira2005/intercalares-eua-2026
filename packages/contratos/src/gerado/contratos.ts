@@ -248,6 +248,35 @@ export interface Backtest {
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Candidatura".
+ */
+export interface Candidatura {
+  /**
+   * Identificador estável dentro da corrida (o da fonte, ou o nome normalizado).
+   */
+  id: string;
+  nome: string;
+  partido: "dem" | "rep" | "outro";
+  /**
+   * Rótulo do partido tal como a fonte o escreve (ex.: "LIB", "Green").
+   */
+  partido_fonte: string | null;
+  /**
+   * Votos no estado por tipo de voto, quando a fonte os separa (vazio se não).
+   */
+  por_modalidade: VotosModalidade[];
+  votos: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "VotosModalidade".
+ */
+export interface VotosModalidade {
+  modalidade: "dia_eleicao" | "antecipado_presencial" | "correio" | "provisorio" | "outro";
+  votos: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
  * via the `definition` "CicloAgregado".
  */
 export interface CicloAgregado {
@@ -296,6 +325,80 @@ export interface CicloVotoAntecipado {
    * Total de votos antecipados: final nos anos anteriores, acumulado até agora em 2026.
    */
   votos_antecipados: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ContagemModo".
+ */
+export interface ContagemModo {
+  modo: "dia_eleicao" | "antecipado_presencial" | "correio" | "provisorio" | "outro";
+  votos_d: number;
+  votos_outros: number;
+  votos_r: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Corrida".
+ */
+export interface Corrida {
+  /**
+   * @minItems 1
+   */
+  candidatos: [Candidatura, ...Candidatura[]];
+  cargo: "senado" | "camara" | "governador";
+  /**
+   * Distrito da Câmara (0 nos estados com um só distrito); ``None`` nos outros cargos.
+   */
+  distrito: number | null;
+  especial: boolean;
+  estado: CodigoEstado;
+  geografia: ResultadoGeografico[];
+  /**
+   * Os mesmos identificadores da previsão (``PrevisaoCongresso``): ``NC-S``, ``PA-08``,
+   * ``AK-00``, ``OH-S-especial``; e ``XX-G`` para governador.
+   */
+  id: string;
+  /**
+   * Nome da corrida tal como a fonte o escreve.
+   */
+  nome_fonte: string;
+  notas: string[];
+  tipo_unidade: ("seccao" | "condado" | "municipio") | null;
+  /**
+   * Total de votos válidos na corrida, incluindo candidatos não nomeados (write-in).
+   */
+  total: number;
+  unidades_reportadas: number | null;
+  unidades_totais: number | null;
+}
+/**
+ * Resultado de uma corrida num condado (ou município) do estado.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ResultadoGeografico".
+ */
+export interface ResultadoGeografico {
+  /**
+   * FIPS de 5 dígitos para condados; código da fonte para municípios.
+   */
+  codigo: string;
+  nivel: "condado" | "municipio";
+  nome: string;
+  total: number;
+  unidades_reportadas: number | null;
+  unidades_totais: number | null;
+  votos: VotosCandidato[];
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "VotosCandidato".
+ */
+export interface VotosCandidato {
+  /**
+   * ``Candidatura.id``.
+   */
+  candidato: string;
+  votos: number;
 }
 /**
  * A previsão de um dia, reduzida ao necessário para desenhar a evolução.
@@ -412,6 +515,31 @@ export interface LinhaComparacaoAgregada {
   ritmo: number | null;
   votos: number;
   votos_base: number;
+}
+/**
+ * Resumo de uma corrida para o painel da noite eleitoral.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "LinhaCorridaNacional".
+ */
+export interface LinhaCorridaNacional {
+  /**
+   * Unidades reportadas / unidades totais, quando a fonte as indica.
+   */
+  apuramento: number | null;
+  atualizado_fonte: string | null;
+  cargo: "senado" | "camara" | "governador";
+  distrito: number | null;
+  estado: CodigoEstado;
+  /**
+   * Ficheiro do estado com o detalhe (ex.: ``nc.json``).
+   */
+  ficheiro: string;
+  id: string;
+  total: number;
+  votos_dem: number;
+  votos_outros: number;
+  votos_rep: number;
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -738,6 +866,79 @@ export interface PrevisaoCorrida {
    * Cook PVI em pontos (D+ positivo), tal como publicado: a margem é o dobro.
    */
   pvi: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ResultadosEstado".
+ */
+export interface ResultadosEstado {
+  /**
+   * Hora da última atualização declarada pela fonte, quando a fonte a indica.
+   */
+  atualizado_fonte: string | null;
+  avisos: string[];
+  corridas: Corrida[];
+  data_eleicao: string;
+  estado: CodigoEstado;
+  metadados: Metadados;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ResultadosNacional".
+ */
+export interface ResultadosNacional {
+  avisos: string[];
+  corridas: LinhaCorridaNacional[];
+  data_eleicao: string;
+  metadados: Metadados;
+}
+/**
+ * Um instante da contagem em todos os estados acompanhados (entrada do Modelo C).
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ResultadosParciais".
+ */
+export interface ResultadosParciais {
+  ano: number;
+  instante: string;
+  metadados: Metadados;
+  /**
+   * ``True`` no ensaio: a ordem de chegada dos condados foi reconstruída a partir do
+   * resultado final, porque as fontes não guardam os retratos intermédios.
+   */
+  reconstruido: boolean;
+  unidades: UnidadeContagem[];
+}
+/**
+ * Votos de uma corrida numa unidade geográfica, no formato do estimador ao vivo.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "UnidadeContagem".
+ */
+export interface UnidadeContagem {
+  atualizado_em: string | null;
+  /**
+   * Identificador da previsão (só Senado e Câmara).
+   */
+  corrida: string;
+  /**
+   * Só quando a fonte publica a fração do voto esperado (nenhuma das atuais o faz).
+   */
+  percentagem_contada: number | null;
+  por_modo: ContagemModo[];
+  seccoes_reportadas: number | null;
+  seccoes_totais: number | null;
+  /**
+   * FIPS do condado, código do município, ou ``total`` quando a fonte só dá o total.
+   * Um condado partido por vários distritos aparece uma vez em cada distrito.
+   */
+  unidade: string;
+  /**
+   * Candidatos com o rótulo democrata.
+   */
+  votos_d: number;
+  votos_outros: number;
+  votos_r: number;
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema

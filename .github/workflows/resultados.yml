@@ -1,0 +1,152 @@
+name: Resultados
+
+# Noite eleitoral e ensaio geral (ver pipeline/src/pipeline/jobs/resultados.py e
+# ensaio_resultados.py).
+#
+# - ensaio (todas as semanas e à mão): reconstrói as noites de 2022 e 2024 a partir dos
+#   ficheiros oficiais e confirma que as fontes respondem a partir do GitHub Actions.
+# - noite (à mão, ou pelo Worker da Cloudflare): recolhe a cada 30 s durante quase 6 h e
+#   publica na Release "resultados-2026". Antes de acabar, volta a lançar-se enquanto não
+#   chegar a hora indicada em "ate", para cobrir a noite com 2 ou 3 jobs encadeados.
+on:
+  schedule:
+    - cron: "41 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      modo:
+        type: choice
+        options: [ensaio, noite]
+        default: ensaio
+      data:
+        description: Data da eleição (AAAA-MM-DD)
+        default: "2026-11-03"
+      duracao:
+        description: Segundos de recolha neste job (máximo de um job, 6 h, menos margem)
+        default: "20700"
+      ate:
+        description: Hora UTC (AAAA-MM-DDTHH:MM) até à qual a recolha se volta a lançar
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: resultados-${{ inputs.modo || 'ensaio' }}
+  cancel-in-progress: false
+
+env:
+  UV_LOCKED: "1"
+
+jobs:
+  ensaio:
+    name: Ensaio ${{ matrix.estado }} ${{ matrix.data }}
+    if: ${{ inputs.modo != 'noite' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { estado: NC, data: "2022-11-08" }
+          - { estado: NC, data: "2024-11-05" }
+          - { estado: FL, data: "2024-11-05" }
+          - { estado: GA, data: "2022-11-08" }
+          - { estado: GA, data: "2024-11-05" }
+          - { estado: SC, data: "2022-11-08" }
+          - { estado: SC, data: "2024-11-05" }
+          - { estado: IA, data: "2024-11-05" }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Reconstruir a noite
+        run: >-
+          uv run python -m pipeline.jobs.ensaio_resultados
+          --estado ${{ matrix.estado }} --data ${{ matrix.data }}
+          --parciais ensaio/${{ matrix.estado }}-${{ matrix.data }}
+      - name: Guardar os instantes (entrada do Modelo C)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ensaio-${{ matrix.estado }}-${{ matrix.data }}
+          path: ensaio
+          retention-days: 30
+
+  # Um ciclo contra as fontes de 2026: confirma que respondem a partir do Actions. Antes
+  # de as páginas da eleição existirem, os estados sem página só deixam um aviso.
+  sondagem:
+    name: Fontes de 2026
+    if: ${{ inputs.modo != 'noite' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - run: uv run python -m pipeline.jobs.resultados --data 2026-11-03
+
+  # Este job escreve na Release a cada ciclo, por isso tem permissão de escrita enquanto
+  # corre o código do pipeline (dependências fixadas em uv.lock). O token só entra no
+  # passo da recolha e no relançamento.
+  noite:
+    name: Noite eleitoral
+    if: ${{ inputs.modo == 'noite' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    permissions:
+      contents: write
+      actions: write
+    env:
+      ETIQUETA: resultados-2026
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Garantir a Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view "$ETIQUETA" > /dev/null 2>&1 || gh release create "$ETIQUETA" \
+            --title "Resultados da noite eleitoral de 2026" --latest=false \
+            --notes "Resultados oficiais tal como publicados por cada estado; substituídos a cada recolha."
+      - name: Recolher
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          DATA: ${{ inputs.data }}
+          DURACAO: ${{ inputs.duracao }}
+        run: >-
+          uv run python -m pipeline.jobs.resultados
+          --data "$DATA" --duracao "$DURACAO" --publicar "$ETIQUETA"
+      - name: Guardar os retratos da noite
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: noite-${{ github.run_id }}
+          path: data/brutos/resultados
+          retention-days: 90
+      - name: Relançar enquanto a noite não acabar
+        if: ${{ !cancelled() && inputs.ate != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ATE: ${{ inputs.ate }}
+          DATA: ${{ inputs.data }}
+          DURACAO: ${{ inputs.duracao }}
+        run: |
+          if [ "$(date -u +%Y-%m-%dT%H:%M)" \< "$ATE" ]; then
+            gh workflow run resultados.yml --ref "$GITHUB_REF_NAME" \
+              -f modo=noite -f data="$DATA" -f duracao="$DURACAO" -f ate="$ATE"
+          fi
