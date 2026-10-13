@@ -109,7 +109,35 @@ Durante a repetição apareceram dois problemas nos dados do ensaio da Carolina 
 
 A ponderação robusta absorve o primeiro.
 
-## 6. Limitações
+## 6. Publicação na noite eleitoral
+
+O job `pipeline.jobs.projecao_noite` corre no workflow `noite.yml`, ao mesmo tempo que a recolha de resultados (workflow `resultados.yml`):
+
+1. No arranque, descarrega a previsão congelada (`previsao-2026.json`, da Release `dados-previsao`). Recusa uma previsão ainda não congelada.
+2. A cada 30 segundos, pede o `parciais.json` da Release `resultados-2026` com um pedido condicional. Só calcula quando chega um instante mais recente do que o último projetado.
+3. Calcula a projeção e verifica-a antes de publicar:
+   - estão todas as corridas da previsão;
+   - as probabilidades de controlo não somam mais de 1;
+   - a distribuição de lugares soma 1;
+   - os percentis estão por ordem.
+4. Escreve e envia para a Release `dados-noite` dois ficheiros:
+   - `projecao-noite-2026.json` (contrato `ProjecaoNoite`): o retrato completo do instante;
+   - `historico-noite-2026.json` (contrato `HistoricoNoite`): a evolução ao longo da noite. Os pontos guardados distam pelo menos 5 minutos, e o último é sempre o mais recente.
+
+Um ciclo que falha (fonte em baixo, ficheiro inválido, verificação falhada) não apaga nada: o último ficheiro válido continua publicado. Cada job dura no máximo 6 horas. Com a hora `ate`, o workflow volta a lançar-se, e o job seguinte continua o histórico já publicado.
+
+O carimbo temporal de cada ficheiro tem duas partes:
+
+- `instante`: o momento dos resultados usados;
+- `metadados.gerado_em`: o momento do cálculo.
+
+Os dois ficheiros dizem ainda se partiram da previsão congelada (`prior_congelado`) e se os resultados são uma reconstrução (`reconstruido`, verdadeiro nos ensaios). O site deve assinalar qualquer ficheiro que não seja congelado e real.
+
+**Ensaio.** Todas as segundas-feiras, o mesmo workflow reconstrói a noite de 2024 na Carolina do Norte, na Geórgia, na Carolina do Sul, no Iowa e na Florida. Depois corre o job passo a passo, a partir da previsão do backtest de 2024, e valida os ficheiros. À mão, com `publicar_ensaio`, os ficheiros de 2024 vão para a mesma Release (`projecao-noite-2024.json` e `historico-noite-2024.json`), o que permite desenvolver a página com dados reais antes da noite.
+
+**Na noite.** Lançar à mão os workflows Resultados e Projeção da noite, ambos em modo `noite` e com a mesma hora `ate` (por exemplo, `2026-11-04T12:00`).
+
+## 7. Limitações
 
 - A inclinação do voto contado primeiro é independente entre corridas. Na realidade, o correio inclina para o mesmo lado em todo o país, o que torna a incerteza das câmaras no início da noite um pouco estreita. O desvio nacional aprende com as corridas já avançadas, o que compensa em parte.
 - Sem fração do voto esperado nas fontes (nenhuma das atuais a publica), o volume do que falta depende da participação estimada e das secções. Por isso o modelo nunca dá uma unidade por completa sem a fonte o dizer.
