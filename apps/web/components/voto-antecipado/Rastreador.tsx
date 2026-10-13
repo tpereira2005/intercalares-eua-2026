@@ -13,6 +13,7 @@ import {
 } from "@/lib/voto-antecipado/vista.ts";
 import { linhasPorIdade, rotuloFaixa } from "./anos.ts";
 import { Amostra, AmostraAno, ItemLegenda, Legenda } from "./legendas.tsx";
+import { PainelGeografia } from "./PainelGeografia.tsx";
 import {
   BarrasDesvio,
   BarrasIdade,
@@ -444,6 +445,13 @@ export function Rastreador({
             />
           </Painel>
         ) : null}
+
+        <PainelGeografia
+          unidades={vista.geografia}
+          ano={ano}
+          anoBase={anoComparar}
+          fontes={fontes}
+        />
         {rodape}
       </div>
     </div>

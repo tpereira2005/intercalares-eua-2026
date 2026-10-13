@@ -8,6 +8,7 @@
  * só seleciona, agrupa e ordena.
  */
 
+import { agruparGeografia, type UnidadeGeografica } from "./geografia.ts";
 import type {
   LinhaComparacao,
   LinhaCruzamento,
@@ -132,6 +133,8 @@ export interface VistaVotoAntecipado {
   /** Ano de referência da variação D − R nos cruzamentos. */
   anoCruzamentos: number | null;
   reserva: { anoBase: number | null; partidos: ReservaPartido[] };
+  /** Votos e recenseados por faixa larga em cada condado e distrito, no mesmo dia do ciclo. */
+  geografia: UnidadeGeografica[];
 }
 
 /** Janela das curvas: o voto antecipado relevante cabe nos últimos 45 dias. */
@@ -373,5 +376,6 @@ export function construirVista(dados: VotoAntecipadoEstado): VistaVotoAntecipado
       dados.ano,
       principal !== null && anosReserva.has(principal) ? principal : null,
     ),
+    geografia: agruparGeografia(dados.geografia),
   };
 }
