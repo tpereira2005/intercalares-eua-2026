@@ -6,19 +6,25 @@ O site mostra os resultados oficiais tal como cada estado os publica, recolhidos
 
 Verificámos a 13 de outubro de 2026 os feeds oficiais de resultados dos estados prioritários e das corridas ao Senado mais disputadas.
 
-| Estado            | Fonte                                                       | Formato                     | Condados                   | Tipo de voto | 2022 e 2024 no mesmo formato |
-| ----------------- | ----------------------------------------------------------- | --------------------------- | -------------------------- | ------------ | ---------------------------- |
-| Carolina do Norte | NCSBE, `er.ncsbe.gov/enr/<data>/data/results_<n>.txt`       | JSON, estado + 100 condados | Sim                        | Sim          | Sim                          |
-| Florida           | Division of Elections, `<data>_ElecResultsFL.txt`           | Texto por tabulações        | Sim                        | Não          | 2024 (o de 2022 está a zero) |
-| Geórgia           | Secretary of State, API `results.sos.ga.gov`                | JSON                        | Só o total (159 ficheiros) | Sim          | Sim                          |
-| Carolina do Sul   | Clarity, `enr-scvotes.org`                                  | XML (`detailxml.zip`)       | Sim                        | Sim          | Sim                          |
-| Iowa              | Clarity, `results.enr.clarityelections.com/IA`              | XML (`detailxml.zip`)       | Sim                        | Sim          | 2024                         |
-| Nebraska          | `electionresults.nebraska.gov` (CSV)                        | CSV                         | ·                          | ·            | Não (a acrescentar)          |
-| De fora           | Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada, Alasca | ·                           | ·                          | ·            | ·                            |
+| Estado            | Fonte                                                         | Formato                     | Condados                   | Tipo de voto | 2022 e 2024 no mesmo formato |
+| ----------------- | ------------------------------------------------------------- | --------------------------- | -------------------------- | ------------ | ---------------------------- |
+| Carolina do Norte | NCSBE, `er.ncsbe.gov/enr/<data>/data/results_<n>.txt`         | JSON, estado + 100 condados | Sim                        | Sim          | Sim                          |
+| Florida           | Division of Elections, `<data>_ElecResultsFL.txt`             | Texto por tabulações        | Sim                        | Não          | 2024 (o de 2022 está a zero) |
+| Geórgia           | Secretary of State, API `results.sos.ga.gov`                  | JSON                        | Só o total (159 ficheiros) | Sim          | Sim                          |
+| Carolina do Sul   | Clarity, `enr-scvotes.org` (bloqueado no Actions, ver abaixo) | XML (`detailxml.zip`)       | Sim                        | Sim          | Sim                          |
+| Iowa              | Clarity, `electionresults.iowa.gov/IA` (idem)                 | XML (`detailxml.zip`)       | Sim                        | Sim          | 2024                         |
+| Nebraska          | `electionresults.nebraska.gov` (CSV)                          | CSV                         | ·                          | ·            | Não (a acrescentar)          |
+| De fora           | Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada, Alasca   | ·                           | ·                          | ·            | ·                            |
 
 Os sites de resultados dos estados "de fora" recusam pedidos automáticos (Cloudflare, Incapsula, Akamai) ou não responderam. Não contornamos esses bloqueios. Para essas corridas, o site mostra a previsão e indica que os resultados ao vivo não estão disponíveis numa fonte oficial aberta.
 
-Os identificadores das eleições de 2026 na Carolina do Sul e no Iowa (sites Clarity) só existem quando o estado cria a página; acrescentam-se em `connectors/results/clarity/conector.py`. Até lá, a recolha salta esses estados com um aviso.
+Os identificadores das eleições de 2026 na Carolina do Sul e no Iowa (sites Clarity) só existem quando o estado cria a página. O conector procura-os na lista `elections.json` que o próprio site publica (o Iowa usa-a; a Carolina do Sul devolve uma lista vazia, por isso o identificador acrescenta-se à mão em `connectors/results/clarity/conector.py`). Até lá, a recolha salta esses estados com um aviso.
+
+### Clarity e o GitHub Actions
+
+Os sites Clarity (Carolina do Sul, Iowa e os condados que o usam) estão atrás de um AWS WAF. A 13 de outubro de 2026, um diagnóstico a partir do GitHub Actions mostrou que todos os pedidos recebem `202 Accepted`, corpo vazio e o cabeçalho `x-amzn-waf-action: challenge`, com ou sem User-Agent e cabeçalhos de navegador: é um desafio anti-robô em JavaScript dirigido aos endereços do Actions. Fora do Actions, os mesmos pedidos com o nosso User-Agent identificado recebem os ficheiros normalmente.
+
+Resolver o desafio seria contornar o bloqueio, por isso não o fazemos. O pipeline passou a reconhecer estes desafios (`verificar_resposta` em `pipeline.comum.descarga`, também para o `cf-mitigated` do Cloudflare) e trata-os como `ErroBloqueio`: o estado fica sem resultados ao vivo e o registo diz porquê, em vez de um 202 vazio passar por um ficheiro válido. Os ensaios da Carolina do Sul e do Iowa continuam no workflow semanal, sem o pintar de vermelho, para se ver quando o bloqueio acaba. Os conectores e os ensaios funcionam fora do Actions (verificado a 13 de outubro com as noites de 2022 e 2024).
 
 ## 2. Ciclo de recolha
 
@@ -43,7 +49,7 @@ Um estado que falha não para os outros: o último ficheiro válido continua pub
 
 `pipeline.jobs.ensaio_resultados` descarrega os ficheiros finais de 2022 e 2024 no formato da noite e reconstrói uma noite com 20 retratos, revelando os condados por uma ordem aleatória (na Geórgia, uma fração crescente dos votos). As fontes não guardam os retratos intermédios, por isso a ordem é **reconstruída** e os ficheiros vêm marcados com `reconstruido: true`. O ensaio falha se um retrato não validar, se algum total descer, se o último retrato não coincidir com o resultado oficial ou se um passo passar de 5 segundos.
 
-A 13 de outubro de 2026, as 8 noites (NC, FL, GA, SC e IA, 2022 e 2024) passaram sem falhas, com o passo mais lento abaixo de 0,3 segundos.
+A 13 de outubro de 2026, as 8 noites (NC, FL, GA, SC e IA, 2022 e 2024) passaram sem falhas fora do Actions, com o passo mais lento abaixo de 0,3 segundos. No Actions, as da Carolina do Sul e do Iowa param no desafio do AWS WAF (secção 1).
 
 O workflow corre o ensaio todas as semanas e guarda os instantes como artefactos, para a repetição do Modelo C.
 

@@ -14,10 +14,38 @@ from pathlib import Path
 
 import httpx
 
-from pipeline.comum.erros import ErroDescarga
+from pipeline.comum.erros import ErroBloqueio, ErroDescarga
 
 USER_AGENT = "intercalares-eua-2026/0.1 (+https://github.com/tpereira2005/intercalares-eua-2026)"
 TAMANHO_BLOCO = 1 << 20
+
+
+def verificar_resposta(resposta: httpx.Response) -> None:
+    """Falha com ``ErroBloqueio`` quando a resposta é um desafio anti-robô e com
+    ``httpx.HTTPStatusError`` nos outros erros HTTP.
+
+    O AWS WAF responde ao desafio com ``202 Accepted``, corpo vazio e o cabeçalho
+    ``x-amzn-waf-action: challenge``; o Cloudflare com ``cf-mitigated: challenge``. Sem esta
+    verificação, um 202 vazio passava por um ficheiro válido sem conteúdo.
+    """
+    waf = resposta.headers.get("x-amzn-waf-action") or resposta.headers.get("cf-mitigated")
+    if waf:
+        msg = (
+            f"{resposta.url.host} recusou o pedido com um desafio anti-robô ({waf}, "
+            f"HTTP {resposta.status_code}); não o contornamos"
+        )
+        raise ErroBloqueio(msg)
+    resposta.raise_for_status()
+    if resposta.status_code == httpx.codes.ACCEPTED:
+        msg = f"{resposta.url}: HTTP 202 sem conteúdo (pedido aceite mas não servido)"
+        raise ErroDescarga(msg)
+
+
+def obter_texto(cliente: httpx.Client, url: str) -> str:
+    """Pede um URL pequeno e devolve o texto, com as verificações de ``verificar_resposta``."""
+    resposta = cliente.get(url)
+    verificar_resposta(resposta)
+    return resposta.text
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,7 +135,7 @@ def _uma_descarga(
     with http.stream("GET", url, headers=cabecalhos) as resposta:
         if resposta.status_code == httpx.codes.NOT_MODIFIED:
             return Descarga(url, destino, False, meta.get("etag"), meta.get("last_modified"), agora)
-        resposta.raise_for_status()
+        verificar_resposta(resposta)
         temporario = destino.with_name(destino.name + ".parcial")
         with temporario.open("wb") as saida:
             for bloco in resposta.iter_bytes(TAMANHO_BLOCO):

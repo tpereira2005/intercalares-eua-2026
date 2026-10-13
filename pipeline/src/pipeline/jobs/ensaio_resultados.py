@@ -31,7 +31,7 @@ import httpx
 
 from contratos.base import Fonte
 from contratos.estados import CodigoEstado
-from pipeline.comum.descarga import USER_AGENT, descarregar
+from pipeline.comum.descarga import USER_AGENT, descarregar, obter_texto
 from pipeline.connectors.results.registo import CONECTORES, DISTRITOS, nomes_geo
 from pipeline.transform.resultados import ensaio
 from pipeline.transform.resultados.montar import montar, nacional
@@ -61,9 +61,7 @@ def executar(
         ) as cliente:
 
             def obter(url: str) -> str:
-                r = cliente.get(url)
-                r.raise_for_status()
-                return r.text
+                return obter_texto(cliente, url)
 
             pedidos = conector.pedidos(data, obter)
             for p in pedidos:

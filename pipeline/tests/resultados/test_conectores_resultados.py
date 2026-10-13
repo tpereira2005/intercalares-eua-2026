@@ -13,7 +13,8 @@ import pytest
 
 from contratos.base import Fonte
 from contratos.estados import CodigoEstado
-from pipeline.connectors.results.clarity.conector import CAROLINA_DO_SUL
+from pipeline.comum.erros import ErroDescarga
+from pipeline.connectors.results.clarity.conector import CAROLINA_DO_SUL, IOWA
 from pipeline.connectors.results.comum import identificar_corrida, partido
 from pipeline.connectors.results.fl.conector import ConectorFL
 from pipeline.connectors.results.ga.conector import ConectorGA
@@ -114,6 +115,32 @@ def test_georgia_2024() -> None:
     assert {c.id for c in leitura.corridas} == {"GA-02", "GA-13"}
     assert leitura.atualizado_fonte is not None
     assert all(" (" not in n for n in leitura.votos["nome"].to_list())
+
+
+ELEICOES_IA = (
+    '[{"State":"IA","EID":"127001","ElectionName":"2026 General Election",'
+    '"Date":"11/3/2026 12:00:00 AM"},'
+    '{"State":"IA","EID":"127002","ElectionName":"2026 Special - HD 7",'
+    '"Date":"11/3/2026 12:00:00 AM"},'
+    '{"State":"IA","EID":"126082","ElectionName":"2026 Primary Election",'
+    '"Date":"6/2/2026 12:00:00 AM"}]'
+)
+
+
+def test_clarity_descobre_o_eid_na_lista_do_site() -> None:
+    respostas = {
+        "https://electionresults.iowa.gov/IA/elections.json": ELEICOES_IA,
+        "https://electionresults.iowa.gov/IA/127001/current_ver.txt": "361234\n",
+    }
+    pedidos = IOWA.pedidos(date(2026, 11, 3), respostas.__getitem__)
+    assert [p.url for p in pedidos] == [
+        "https://electionresults.iowa.gov/IA/127001/361234/reports/detailxml.zip"
+    ]
+
+
+def test_clarity_sem_eleicao_na_lista_salta_o_estado() -> None:
+    with pytest.raises(ErroDescarga, match="ainda não há página"):
+        CAROLINA_DO_SUL.pedidos(date(2026, 11, 3), lambda _url: "[]")
 
 
 def test_carolina_do_sul_2022(pasta_sc: Path) -> None:
