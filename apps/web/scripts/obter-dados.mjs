@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 const RAIZ_WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DESTINO = path.join(RAIZ_WEB, "dados", "voto-antecipado", "nc.json");
 const ORIGEM_POR_OMISSAO =
-  "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/dados/voto-antecipado-nc.json";
+  "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/dados-voto-antecipado/nc.json";
 const ORIGEM = process.env.URL_DADOS_VOTO_ANTECIPADO ?? ORIGEM_POR_OMISSAO;
 const LIMITE_BYTES = 20 * 1024 * 1024;
 
