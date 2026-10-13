@@ -22,9 +22,10 @@ from contratos.previsao import HistoricoPrevisao
 from contratos.sondagens import SondagensCongresso
 from pipeline.modelo import carregar as carga
 from pipeline.modelo import publicar_sondagens
+from pipeline.modelo.dados import LinhaModelo
 from pipeline.modelo.fontes import wikipedia
 from pipeline.modelo.historico import acrescentar
-from pipeline.modelo.previsao import corte_final, prever
+from pipeline.modelo.previsao import DATAS_ELEICAO, Dados, corte_final, estimar, prever
 from pipeline.modelo.publicar import avaliar, montar
 from pipeline.modelo.verificacoes import exigir_coerencia
 
@@ -113,35 +114,83 @@ def executar(
         historico.write_text(novo.model_dump_json(), encoding="utf-8")
         registo.info("Histórico com %d dias gravado em %s", len(novo.dias), historico)
     if ficheiro_sondagens is not None:
-        anterior_s = (
-            SondagensCongresso.model_validate_json(ficheiro_sondagens.read_text(encoding="utf-8"))
-            if ficheiro_sondagens.exists()
-            else None
-        )
         linhas = [c.linha for c in previsao.senado.corridas if c.linha.certo is None]
-        ficheiro_s = publicar_sondagens.montar(
-            dados,
-            carga.ANO_ATUAL,
-            corte,
-            linhas,
-            agregadores,
-            anterior=anterior_s,
-            fontes=fontes(agora),
-            gerado_em=agora,
-        )
-        ficheiro_sondagens.parent.mkdir(parents=True, exist_ok=True)
-        ficheiro_sondagens.write_text(ficheiro_s.model_dump_json(), encoding="utf-8")
-        registo.info(
-            "Sondagens de %d corridas e %d dias do voto genérico gravadas em %s",
-            len(ficheiro_s.corridas),
-            len(ficheiro_s.voto_generico),
+        escrever_sondagens(
             ficheiro_sondagens,
+            dados=dados,
+            corte=corte,
+            linhas=linhas,
+            agregadores=agregadores,
+            agora=agora,
         )
+
+
+def escrever_sondagens(
+    caminho: Path,
+    *,
+    dados: Dados,
+    corte: date,
+    linhas: list[LinhaModelo],
+    agregadores: list[tuple[str, float]],
+    agora: datetime,
+) -> None:
+    """Atualiza o ficheiro das sondagens (a série do voto genérico continua a anterior)."""
+    anterior = (
+        SondagensCongresso.model_validate_json(caminho.read_text(encoding="utf-8"))
+        if caminho.exists()
+        else None
+    )
+    ficheiro = publicar_sondagens.montar(
+        dados,
+        carga.ANO_ATUAL,
+        corte,
+        linhas,
+        agregadores,
+        anterior=anterior,
+        fontes=fontes(agora),
+        gerado_em=agora,
+    )
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    caminho.write_text(ficheiro.model_dump_json(), encoding="utf-8")
+    registo.info(
+        "Sondagens de %d corridas e %d dias do voto genérico gravadas em %s",
+        len(ficheiro.corridas),
+        len(ficheiro.voto_generico),
+        caminho,
+    )
+
+
+def apenas_sondagens(caminho: Path, *, atualizar: bool) -> None:
+    """Depois do congelamento: atualiza só as sondagens, até ao dia da eleição.
+
+    A previsão congelada não muda; as sondagens usam o corte de hoje (exclusive), sem o
+    limite de 1 de novembro.
+    """
+    corte = min(datetime.now(UTC).date(), DATAS_ELEICAO[carga.ANO_ATUAL])
+    with httpx.Client(
+        headers={"User-Agent": wikipedia.USER_AGENT}, timeout=60.0, follow_redirects=True
+    ) as cliente:
+        corridas, sondagens, redesenhados, (_, agregadores) = carga.dados_2026(
+            cliente, atualizar=atualizar
+        )
+    dados = carga.carregar(atual=corridas, sondagens_atuais=sondagens, redesenho_atual=redesenhados)
+    _, linhas_senado = estimar(dados, carga.ANO_ATUAL, "senado")
+    linhas = [ln for ln in linhas_senado[carga.ANO_ATUAL] if ln.certo is None]
+    escrever_sondagens(
+        caminho,
+        dados=dados,
+        corte=corte,
+        linhas=linhas,
+        agregadores=agregadores,
+        agora=datetime.now(UTC),
+    )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--saida", type=Path, required=True)
+    parser.add_argument(
+        "--saida", type=Path, help="Ficheiro da previsão (exceto com --apenas-sondagens)."
+    )
     parser.add_argument(
         "--corte",
         type=date.fromisoformat,
@@ -165,8 +214,20 @@ def main() -> None:
         default=None,
         help="Ficheiro das sondagens para o site a atualizar (criado se não existir).",
     )
+    parser.add_argument(
+        "--apenas-sondagens",
+        action="store_true",
+        help="Depois do congelamento: atualiza só o ficheiro das sondagens (até à eleição).",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    if args.apenas_sondagens:
+        if args.sondagens is None:
+            parser.error("--apenas-sondagens precisa de --sondagens")
+        apenas_sondagens(args.sondagens, atualizar=not args.sem_descarga)
+        return
+    if args.saida is None:
+        parser.error("--saida é obrigatório")
     executar(
         args.saida,
         corte=args.corte,

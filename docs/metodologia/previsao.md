@@ -189,13 +189,15 @@ Tudo se calcula com o mesmo código da previsão (`media.pesos` e `previsao.sond
 
 O voto genérico é diferente: a Wikipédia de 2026 só publica os valores atuais dos agregadores, não as sondagens individuais. A série guarda, dia a dia, os valores lidos em cada execução e a sua média simples. Recupera-se o ficheiro anterior da Release e acrescenta-se o dia, como no histórico. Por isso a série só começa no dia em que o ficheiro passou a ser publicado.
 
+As sondagens continuam a atualizar-se depois do congelamento da previsão, até ao dia da eleição. De 2 a 3 de novembro, a execução diária corre `pipeline.jobs.previsao --apenas-sondagens`, com o corte do próprio dia, e publica só `sondagens-2026.json`. A previsão congelada e o histórico nunca são reenviados.
+
 ## 10. Congelamento
 
 A previsão congela com os dados até 31 de outubro: o corte é 1 de novembro de 2026, exclusive para as sondagens. Nesse dia:
 
 1. A execução agendada (06h41 UTC) corre com corte de 1 de novembro e marca o ficheiro como `congelada`. O histórico ganha o último dia, também marcado.
 2. Antes de publicar, o workflow exige que o ficheiro do último dia seja `congelada` com corte de 1 de novembro, e que o último dia do histórico também o seja.
-3. A partir de 2 de novembro, a execução agendada não faz nada, e uma versão congelada já publicada nunca é substituída.
+3. A partir de 2 de novembro, a execução agendada só atualiza as sondagens (até 3 de novembro). Uma versão congelada já publicada nunca é substituída.
 
 Se a execução de 1 de novembro falhar (Wikipédia em baixo, por exemplo), uma execução à mão depois dessa data ainda publica a versão congelada, com o corte em 1 de novembro, mas só enquanto a Release não tiver nenhuma. Nesse caso, os agregadores do voto genérico são lidos no momento dessa execução (ver as limitações). As sondagens continuam limitadas às terminadas antes do corte.
 

@@ -8,6 +8,9 @@ name: Previsão
 # Se a execução de 1 de novembro falhar, uma execução à mão depois dessa data ainda
 # publica a versão congelada (o corte fica em 1 de novembro), mas só enquanto a Release
 # não tiver uma previsão congelada: uma versão congelada nunca é substituída depois do dia.
+#
+# As sondagens para o site continuam a atualizar-se até ao dia da eleição: depois do
+# congelamento, a execução diária publica só sondagens-2026.json.
 on:
   schedule:
     - cron: "41 6 * * *"
@@ -23,6 +26,7 @@ concurrency:
 env:
   UV_LOCKED: "1"
   ULTIMO_DIA: "2026-11-01"
+  ULTIMO_DIA_SONDAGENS: "2026-11-03"
 
 jobs:
   calcular:
@@ -30,8 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
-      ativo: ${{ steps.janela.outputs.ativo }}
+      modo: ${{ steps.janela.outputs.modo }}
     steps:
+      # modo: "previsao" (previsão, histórico e sondagens), "sondagens" (só as sondagens,
+      # depois do congelamento) ou "nada".
       - name: Verificar a janela de publicação
         id: janela
         env:
@@ -39,36 +45,40 @@ jobs:
           GH_REPO: ${{ github.repository }}
           EVENTO: ${{ github.event_name }}
         run: |
-          if [[ ! "$(date -u +%F)" > "$ULTIMO_DIA" ]]; then
-            echo "ativo=true" >> "$GITHUB_OUTPUT"
+          hoje="$(date -u +%F)"
+          if [[ ! "$hoje" > "$ULTIMO_DIA" ]]; then
+            echo "modo=previsao" >> "$GITHUB_OUTPUT"
           elif [[ "$EVENTO" == "workflow_dispatch" ]] && ! (
             gh release download dados-previsao --pattern previsao-2026.json --output - \
               2> /dev/null | jq -e '.congelada' > /dev/null
           ); then
             echo "Depois do congelamento sem versão congelada publicada: publica-se a de $ULTIMO_DIA."
-            echo "ativo=true" >> "$GITHUB_OUTPUT"
+            echo "modo=previsao" >> "$GITHUB_OUTPUT"
+          elif [[ ! "$hoje" > "$ULTIMO_DIA_SONDAGENS" ]]; then
+            echo "Previsão já congelada: atualizam-se só as sondagens."
+            echo "modo=sondagens" >> "$GITHUB_OUTPUT"
           else
-            echo "Previsão já congelada: nada a fazer."
-            echo "ativo=false" >> "$GITHUB_OUTPUT"
+            echo "Previsão congelada e eleição passada: nada a fazer."
+            echo "modo=nada" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: steps.janela.outputs.ativo == 'true'
+        if: steps.janela.outputs.modo != 'nada'
         with:
           persist-credentials: false
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-        if: steps.janela.outputs.ativo == 'true'
+        if: steps.janela.outputs.modo != 'nada'
         with:
           enable-cache: true
-      - if: steps.janela.outputs.ativo == 'true'
+      - if: steps.janela.outputs.modo != 'nada'
         run: uv sync --all-packages
-      # O histórico diário vive na mesma Release: descarrega-se, acrescenta-se o dia e volta
-      # a publicar-se. Na primeira execução ainda não existe.
+      # O histórico diário e a série do voto genérico vivem na mesma Release: descarregam-se,
+      # acrescenta-se o dia e voltam a publicar-se. Na primeira execução ainda não existem.
       - name: Recuperar o histórico e as sondagens publicados
-        if: steps.janela.outputs.ativo == 'true'
+        if: steps.janela.outputs.modo != 'nada'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        # Se o histórico já existe e a descarga falha, o passo falha: nunca se recomeça do
+        # Se um ficheiro já existe e a descarga falha, o passo falha: nunca se recomeça do
         # zero por causa de um erro de rede.
         run: |
           assets="$(gh release view dados-previsao --json assets -q '.assets[].name' 2> /dev/null || true)"
@@ -80,25 +90,30 @@ jobs:
             fi
           done
       - name: Calcular a previsão e os backtests
-        if: steps.janela.outputs.ativo == 'true'
+        if: steps.janela.outputs.modo == 'previsao'
         run: >-
           uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
           --historico data/publicado/previsao/historico-previsao-2026.json
           --sondagens data/publicado/previsao/sondagens-2026.json
+      - name: Atualizar só as sondagens
+        if: steps.janela.outputs.modo == 'sondagens'
+        run: >-
+          uv run python -m pipeline.jobs.previsao --apenas-sondagens
+          --sondagens data/publicado/previsao/sondagens-2026.json
       - name: Guardar o resultado
-        if: steps.janela.outputs.ativo == 'true'
+        if: steps.janela.outputs.modo != 'nada'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: previsao
           path: data/publicado/previsao
           retention-days: 30
 
-  # Publica o JSON num asset de uma Release fixa, substituído a cada execução, como no voto
-  # antecipado. Job separado para que só ele tenha permissão de escrita.
+  # Publica os JSON em assets de uma Release fixa, substituídos a cada execução, como no
+  # voto antecipado. Job separado para que só ele tenha permissão de escrita.
   publicar:
-    name: Publicar a previsão e o histórico
+    name: Publicar a previsão, o histórico e as sondagens
     needs: calcular
-    if: github.ref == 'refs/heads/main' && needs.calcular.outputs.ativo == 'true'
+    if: github.ref == 'refs/heads/main' && needs.calcular.outputs.modo != 'nada'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -108,27 +123,35 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
       ETIQUETA: dados-previsao
+      MODO: ${{ needs.calcular.outputs.modo }}
     steps:
       - name: Descarregar o resultado
         run: gh run download "$GITHUB_RUN_ID" --name previsao --dir resultado
-      # A partir do último dia, só se publica a versão congelada.
+      # A partir do último dia, só se publica a versão congelada. Depois dele, o modo
+      # "sondagens" nunca envia a previsão nem o histórico.
       - name: Validar
         run: |
-          jq -e '.ano == 2026 and (.corridas | length) > 400 and (.backtests | length) == 6' \
-            resultado/2026.json
-          jq -e '.ano == 2026 and (.dias | length) > 0' resultado/historico-previsao-2026.json
           jq -e '.ano == 2026 and (.corridas | length) > 0 and (.voto_generico | length) > 0' \
             resultado/sondagens-2026.json
-          if [[ ! "$(date -u +%F)" < "$ULTIMO_DIA" ]]; then
-            jq -e --arg dia "$ULTIMO_DIA" '.congelada and .corte == $dia' resultado/2026.json
-            jq -e '.dias[-1].congelada' resultado/historico-previsao-2026.json
+          if [[ "$MODO" == "previsao" ]]; then
+            jq -e '.ano == 2026 and (.corridas | length) > 400 and (.backtests | length) == 6' \
+              resultado/2026.json
+            jq -e '.ano == 2026 and (.dias | length) > 0' resultado/historico-previsao-2026.json
+            if [[ ! "$(date -u +%F)" < "$ULTIMO_DIA" ]]; then
+              jq -e --arg dia "$ULTIMO_DIA" '.congelada and .corte == $dia' resultado/2026.json
+              jq -e '.dias[-1].congelada' resultado/historico-previsao-2026.json
+            fi
           fi
-      - name: Substituir o asset da Release
+      - name: Substituir os assets da Release
         run: |
-          cp resultado/2026.json previsao-2026.json
           if ! gh release view "$ETIQUETA" > /dev/null 2>&1; then
             gh release create "$ETIQUETA" --title "Previsão da Câmara e do Senado" --latest=false \
-              --notes "Ficheiro publicado pelo workflow Previsão. Substituído todos os dias até ao congelamento a 1 de novembro de 2026."
+              --notes "Ficheiros publicados pelo workflow Previsão. A previsão é substituída todos os dias até ao congelamento a 1 de novembro de 2026; as sondagens, até 3 de novembro."
           fi
-          gh release upload "$ETIQUETA" previsao-2026.json \
-            resultado/historico-previsao-2026.json resultado/sondagens-2026.json --clobber
+          if [[ "$MODO" == "previsao" ]]; then
+            cp resultado/2026.json previsao-2026.json
+            gh release upload "$ETIQUETA" previsao-2026.json \
+              resultado/historico-previsao-2026.json resultado/sondagens-2026.json --clobber
+          else
+            gh release upload "$ETIQUETA" resultado/sondagens-2026.json --clobber
+          fi
