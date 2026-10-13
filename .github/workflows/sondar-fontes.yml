@@ -1,0 +1,44 @@
+name: Sondar fontes (temporário)
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/sondar-fontes.yml
+
+permissions:
+  contents: read
+
+jobs:
+  sondar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Pedir cada fonte
+        env:
+          UA: "Escrutinio/0.1 (+https://github.com/tpereira2005/intercalares-eua-2026)"
+        run: |
+          while read -r url; do
+            [ -z "$url" ] && continue
+            r=$(curl -sS -L -m 30 -A "$UA" -o corpo -w "%{http_code} %{size_download} %{content_type} %{url_effective}" "$url" 2>&1 || true)
+            echo "== $url"
+            echo "   $r"
+            head -c 300 corpo | tr -d '\r' | tr '\n' ' ' | cut -c1-300; echo
+          done <<'LISTA'
+          https://www.pavoterservices.pa.gov/2026%20General%20Daily%20Mail%20Ballot%20Report.xlsx
+          https://www.pa.gov/agencies/vote/elections/elections-data
+          https://elections.sos.ga.gov/Elections/voterabsenteefile.do
+          https://mvp.sos.ga.gov/s/voter-absentee-files
+          https://sos.ga.gov/page/election-data-hub-turnout
+          https://earlyvoting.texas-election.com/Elections/getElectionDetails.do
+          https://www.sos.state.tx.us/elections/historical/index.shtml
+          https://www.michigan.gov/votingdashboard
+          https://www.michigan.gov/sos/elections/research-data
+          https://www.ohiosos.gov/data
+          https://www.ohiosos.gov/elections/election-results-and-data/
+          https://azsos.gov/elections
+          https://elections.maricopa.gov/
+          https://sos.iowa.gov/elections/
+          https://www.nvsos.gov/sos/elections/election-turnout-statistics
+          https://www.maine.gov/sos/elections-voting/voter-data
+          https://electionfiles.floridados.gov/countyballotreportfiles/Stats_49894_VbmVoted.txt
+          LISTA
