@@ -66,6 +66,64 @@ export interface Contratos {
   [k: string]: unknown | undefined;
 }
 /**
+ * Valor de um agregador público do voto genérico usado no ambiente nacional.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "AgregadorVotoGenerico".
+ */
+export interface AgregadorVotoGenerico {
+  margem: number;
+  nome: string;
+}
+/**
+ * Margem nacional no voto para a Câmara (D-R) que serve de centro às simulações.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "AmbienteNacional".
+ */
+export interface AmbienteNacional {
+  agregadores: AgregadorVotoGenerico[];
+  /**
+   * Erro histórico (raiz do erro quadrático médio) das médias do voto genérico.
+   */
+  desvio_padrao: number;
+  fonte: "agregadores" | "media_sondagens_voto_generico" | "sondagens_senado";
+  margem: number;
+}
+/**
+ * O mesmo modelo aplicado a uma eleição passada, só com dados anteriores ao corte.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Backtest".
+ */
+export interface Backtest {
+  ambiente_previsto: number;
+  ambiente_real: number;
+  ano: number;
+  brier: number;
+  camara: "camara" | "senado";
+  /**
+   * Fração das margens reais dentro do intervalo de 80% (o ideal é 0,8).
+   */
+  cobertura_80: number;
+  controlo_real: "D" | "R";
+  corridas_avaliadas: number;
+  corridas_erradas: string[];
+  corte: string;
+  erro_absoluto_competitivas: number;
+  fonte_ambiente: "agregadores" | "media_sondagens_voto_generico" | "sondagens_senado";
+  lugares_d_mediana: number;
+  lugares_d_p10: number;
+  lugares_d_p90: number;
+  lugares_d_reais: number;
+  prob_controlo_d: number;
+  prob_controlo_r: number;
+  /**
+   * Média de (previsto - real) nas corridas com margem prevista abaixo de 15 pontos.
+   */
+  vies_competitivas: number;
+}
+/**
  * This interface was referenced by `Contratos`'s JSON-Schema
  * via the `definition` "CicloAgregado".
  */
@@ -366,6 +424,50 @@ export interface Metadados {
   versao_esquema: string;
 }
 /**
+ * Erro histórico das médias de sondagens do Senado.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ParametrosErroSondagens".
+ */
+export interface ParametrosErroSondagens {
+  desvio_ano: number;
+  erro_base: number;
+  erro_por_instituto: number;
+  /**
+   * Parte do erro do voto genérico que se transmite às sondagens do Senado.
+   */
+  ligacao_nacional: number;
+  observacoes: number;
+}
+/**
+ * Parâmetros da regressão de fundamentos de uma câmara (anos anteriores apenas).
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ParametrosFundamentos".
+ */
+export interface ParametrosFundamentos {
+  anos_treino: number[];
+  camara: "camara" | "senado";
+  desvio_ano: number;
+  desvio_corrida: number;
+  desvio_regiao: number;
+  inclinacao_pvi: number;
+  incumbencia: number;
+  intercepto: number;
+  observacoes: number;
+  persistencia: number;
+}
+/**
+ * Probabilidade de o lado democrata ficar com exatamente ``lugares`` lugares.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoDistribuicao".
+ */
+export interface PontoDistribuicao {
+  lugares: number;
+  probabilidade: number;
+}
+/**
  * Votos acumulados até um dia do ciclo.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -393,6 +495,123 @@ export interface PontoSerieAgregado {
   modalidade: "correio" | "presencial" | "total";
   partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
   votos: number;
+}
+/**
+ * Previsão completa: ambiente, câmaras, corridas, parâmetros e backtests.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PrevisaoCongresso".
+ */
+export interface PrevisaoCongresso {
+  ambiente: AmbienteNacional;
+  ano: number;
+  backtests: Backtest[];
+  camara: ResumoCamara;
+  /**
+   * Verdadeiro quando ``corte`` é a data final (dois dias antes da eleição).
+   */
+  congelada: boolean;
+  corridas: PrevisaoCorrida[];
+  /**
+   * Só entram dados até este dia (exclusive).
+   */
+  corte: string;
+  data_eleicao: string;
+  erro_sondagens: ParametrosErroSondagens;
+  fundamentos: ParametrosFundamentos[];
+  metadados: Metadados;
+  notas: string[];
+  /**
+   * Peso do voto antecipado na previsão (0: só diagnóstico, ver a metodologia).
+   */
+  peso_voto_antecipado: number;
+  semente: number;
+  senado: ResumoCamara;
+  simulacoes: number;
+}
+/**
+ * Controlo e distribuição de lugares de uma câmara.
+ *
+ * ``lugares_d_*`` contam o lado democrata, incluindo independentes que ocupam esse lado
+ * e, no Senado, os lugares que não vão a votos. O lado republicano é o complemento.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ResumoCamara".
+ */
+export interface ResumoCamara {
+  camara: "camara" | "senado";
+  distribuicao: PontoDistribuicao[];
+  /**
+   * Margem nacional a partir da qual o lado democrata passa a favorito ao controlo
+   * (abaixo dela o favorito é o lado republicano). ``None`` se nunca muda nas simulações.
+   */
+  limiar_nacional: number | null;
+  lugares_d_media: number;
+  lugares_d_mediana: number;
+  lugares_d_p10: number;
+  lugares_d_p5: number;
+  lugares_d_p90: number;
+  lugares_d_p95: number;
+  lugares_fora_de_jogo_d: number;
+  lugares_fora_de_jogo_r: number;
+  /**
+   * Lugares ganhos por independentes (de qualquer lado), em média.
+   */
+  lugares_independentes_media: number;
+  lugares_total: number;
+  maioria: number;
+  prob_controlo_d: number;
+  /**
+   * No Senado, 50-50 decide-se pelo partido do vice-presidente.
+   */
+  prob_controlo_r: number;
+}
+/**
+ * Previsão de uma corrida: um distrito da Câmara ou um lugar do Senado.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PrevisaoCorrida".
+ */
+export interface PrevisaoCorrida {
+  camara: "camara" | "senado";
+  /**
+   * Candidato do lado democrata (pode ser um independente, ver ``lado_d_independente``).
+   */
+  candidato_d: string | null;
+  candidato_r: string | null;
+  /**
+   * Vencedor já certo (sem candidato de um dos lados).
+   */
+  decidida: ("D" | "R" | "I") | null;
+  estado: CodigoEstado;
+  /**
+   * ``NC-01``, ``AK-00`` (distrito único), ``TX-S`` ou ``OH-S-especial``.
+   */
+  id: string;
+  /**
+   * Partido do incumbente quando se recandidata; ``None`` em lugar aberto.
+   */
+  incumbente_recandidato: ("D" | "R" | "I") | null;
+  /**
+   * Número de institutos com sondagens na média (só no Senado).
+   */
+  institutos: number;
+  lado_d_independente: boolean;
+  lado_r_independente: boolean;
+  margem_fundamentos: number;
+  margem_p10: number;
+  margem_p90: number;
+  margem_prevista: number;
+  margem_sondagens: number | null;
+  peso_sondagens: number;
+  /**
+   * Probabilidade de vitória do lado democrata.
+   */
+  prob_d: number;
+  /**
+   * Cook PVI em pontos (D+ positivo), tal como publicado: a margem é o dobro.
+   */
+  pvi: number;
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema

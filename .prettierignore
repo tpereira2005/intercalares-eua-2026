@@ -9,3 +9,5 @@ uv.lock
 packages/contratos/src/gerado/
 schemas/json/
 apps/web/test/fixtures/*.json
+# Tabelas de referência do modelo, geradas pelo pipeline.
+data/reference/modelo/
