@@ -453,6 +453,24 @@ export interface PontoHistoricoCorrida {
   prob_d: number;
 }
 /**
+ * Estado prioritário que o site não acompanha, e porquê.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "EstadoSemDados".
+ */
+export interface EstadoSemDados {
+  estado: CodigoEstado;
+  /**
+   * ``bloqueado``: a fonte oficial existe, mas recusa pedidos automáticos (não contornamos
+   * o bloqueio). ``sem_fonte_gratuita``: não há dados oficiais gratuitos.
+   */
+  motivo: "bloqueado" | "sem_fonte_gratuita";
+  /**
+   * Explicação curta em PT-PT, para mostrar no site.
+   */
+  nota: string;
+}
+/**
  * Pontos por ordem cronológica (o mais recente no fim), um por projeção guardada.
  *
  * Para o ficheiro não crescer sem limite ao longo da noite, dois pontos guardados
@@ -701,6 +719,11 @@ export interface LinhaGeografiaAgregada {
    * FIPS de cinco dígitos (condado) ou número do distrito em vigor em 2026.
    */
   codigo: string;
+  /**
+   * Faixa larga, nos estados com idade (Pensilvânia). As linhas por faixa têm
+   * ``partido = "total"``; as linhas por partido têm ``faixa = "total"``.
+   */
+  faixa: "18-29" | "30-49" | "50-64" | "65+" | "desconhecida" | "total";
   nivel: "condado" | "distrito";
   nome: string;
   partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
@@ -728,6 +751,39 @@ export interface LinhaHistorico {
     | "sem_historico";
   /**
    * Recenseados da faixa (todos os grupos).
+   */
+  registados: number;
+  votos: number;
+}
+/**
+ * Contributo de um grupo histórico para a participação de uma unidade geográfica e
+ * faixa larga até ao dia (o mesmo dia do ciclo em todos os anos, com o mapa de 2026).
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "LinhaHistoricoGeografia".
+ */
+export interface LinhaHistoricoGeografia {
+  ano: number;
+  ano_referencia: number;
+  /**
+   * FIPS de cinco dígitos (condado) ou número do distrito no mapa de 2026.
+   */
+  codigo: string;
+  /**
+   * votos / registados: a soma dos grupos dá a taxa de participação da unidade e faixa.
+   */
+  contributo: number | null;
+  faixa: "18-29" | "30-49" | "50-64" | "65+" | "desconhecida" | "total";
+  grupo:
+    | "antecipado_na_referencia"
+    | "dia_eleicao_na_referencia"
+    | "absteve_se_na_referencia"
+    | "recenseado_apos_referencia"
+    | "sem_historico";
+  nivel: "condado" | "distrito";
+  nome: string;
+  /**
+   * Recenseados da unidade e faixa (todos os grupos).
    */
   registados: number;
   votos: number;
@@ -1168,6 +1224,11 @@ export interface VotoAntecipadoEstado {
   estado: CodigoEstado;
   geografia: LinhaGeografia[];
   historico: LinhaHistorico[];
+  /**
+   * Histórico de voto (habituais, antecipação, voto novo) por condado e distrito e por
+   * faixa larga. Vazio nos anos sem histórico individual de referência.
+   */
+  historico_geografia: LinhaHistoricoGeografia[];
   metadados: Metadados;
   reserva: LinhaReserva[];
   serie: PontoSerie[];
@@ -1180,6 +1241,10 @@ export interface VotoAntecipadoNacional {
   ano: number;
   avisos: string[];
   estados: LinhaEstadoNacional[];
+  /**
+   * Estados prioritários sem ficheiro, para o site não os mostrar como "ainda sem dados".
+   */
+  estados_sem_dados: EstadoSemDados[];
   metadados: Metadados;
   /**
    * Soma dos estados acompanhados (não é um total nacional).

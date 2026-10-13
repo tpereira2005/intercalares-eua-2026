@@ -15,7 +15,7 @@ from pydantic import Field
 
 from contratos.base import Metadados, ModeloContrato
 from contratos.estados import CodigoEstado
-from contratos.voto_antecipado import Faixa, ModalidadeVoto, Partido
+from contratos.voto_antecipado import Faixa, FaixaLarga, ModalidadeVoto, Partido
 
 Contagem = Field(ge=0)
 
@@ -78,6 +78,9 @@ class LinhaGeografiaAgregada(ModeloContrato):
     nome: str
     partido: Partido
     votos: int = Contagem
+    faixa: FaixaLarga = "total"
+    """Faixa larga, nos estados com idade (Pensilvânia). As linhas por faixa têm
+    ``partido = "total"``; as linhas por partido têm ``faixa = "total"``."""
 
 
 class LinhaPedidos(ModeloContrato):
@@ -141,6 +144,18 @@ class LinhaEstadoNacional(ModeloContrato):
     quota_65_mais_base: float | None
 
 
+class EstadoSemDados(ModeloContrato):
+    """Estado prioritário que o site não acompanha, e porquê."""
+
+    estado: CodigoEstado
+    motivo: Literal["bloqueado", "sem_fonte_gratuita"]
+    """``bloqueado``: a fonte oficial existe, mas recusa pedidos automáticos (não contornamos
+    o bloqueio). ``sem_fonte_gratuita``: não há dados oficiais gratuitos."""
+
+    nota: str
+    """Explicação curta em PT-PT, para mostrar no site."""
+
+
 class VotoAntecipadoNacional(ModeloContrato):
     metadados: Metadados
     ano: int
@@ -149,3 +164,5 @@ class VotoAntecipadoNacional(ModeloContrato):
     """Soma dos estados acompanhados (não é um total nacional)."""
 
     avisos: tuple[str, ...]
+    estados_sem_dados: tuple[EstadoSemDados, ...] = ()
+    """Estados prioritários sem ficheiro, para o site não os mostrar como "ainda sem dados"."""
