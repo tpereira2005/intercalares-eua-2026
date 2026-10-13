@@ -31,6 +31,18 @@ As tabelas da Wikipédia mudam de formato entre anos (predefinições diferentes
 - **Disputas internas**: quando dois candidatos do mesmo partido têm ambos 20% ou mais (por exemplo Murkowski contra Tshibaka em 2022, ou dois Democratas na Califórnia), a margem D−R não mede a disputa entre partidos e a corrida não entra na estimação.
 - **Independentes**: um independente ocupa o lado de um partido quando esse partido não apresenta candidato e o outro sim, ou quando está numa lista explícita (Sanders, King, Osborn, McMullin, Orman e Achilles do lado democrata; Kiley do lado republicano). A regra é a mesma nos dois lados. Os lugares que ganharem contam para a bancada desse lado; as corridas com independentes não entram na estimação dos fundamentos.
 - **Corridas decididas**: sem candidato de um dos lados, o vencedor fica certo (ex.: dois Democratas na segunda volta da Califórnia).
+- **Vários candidatos do mesmo partido antes da eleição** (primárias abertas como a do Alasca, a Luisiana, homónimos): o candidato desse lado é o incumbente que se recandidata e, a seguir, quem tem artigo na Wikipédia. Depois da eleição é sempre o mais votado.
+- **Incumbência**: só conta quando o incumbente é o candidato escolhido do seu lado. Um homónimo (Mike Doyle em 2022) ou um incumbente derrotado na primária que aparece noutra linha (Crowley em 2018) não dão vantagem de incumbência.
+
+### Verificações antes de publicar
+
+Cada execução diária verifica a previsão antes de a gravar e não publica se encontrar um erro (o ficheiro anterior fica no ar):
+
+- o incumbente concorre mas o candidato escolhido do seu lado é outro;
+- a média de sondagens afasta-se mais de 25 pontos dos fundamentos (entre 15 e 25 pontos é um aviso no registo);
+- uma probabilidade acima de 99% contra fundamentos que favorecem o outro lado por mais de 3 pontos, com menos de 4 institutos (com mais é um aviso).
+
+As regras olham só para distâncias e sinais, por isso tratam os dois partidos da mesma forma.
 
 ## 2. Fundamentos
 

@@ -24,6 +24,7 @@ from pipeline.modelo.fontes import wikipedia
 from pipeline.modelo.historico import acrescentar
 from pipeline.modelo.previsao import corte_final, prever
 from pipeline.modelo.publicar import avaliar, montar
+from pipeline.modelo.verificacoes import exigir_coerencia
 
 registo = logging.getLogger(__name__)
 
@@ -85,6 +86,7 @@ def executar(
         agregadores=agregadores,
         backtests=backtests,
     )
+    exigir_coerencia(ficheiro, corridas)
     saida.parent.mkdir(parents=True, exist_ok=True)
     saida.write_text(ficheiro.model_dump_json(indent=1), encoding="utf-8")
     registo.info(
