@@ -63,7 +63,7 @@ jobs:
         run: uv sync --all-packages
       # O histórico diário vive na mesma Release: descarrega-se, acrescenta-se o dia e volta
       # a publicar-se. Na primeira execução ainda não existe.
-      - name: Recuperar o histórico publicado
+      - name: Recuperar o histórico e as sondagens publicados
         if: steps.janela.outputs.ativo == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -71,18 +71,20 @@ jobs:
         # Se o histórico já existe e a descarga falha, o passo falha: nunca se recomeça do
         # zero por causa de um erro de rede.
         run: |
-          if gh release view dados-previsao --json assets -q '.assets[].name' 2> /dev/null \
-            | grep -qx historico-previsao-2026.json; then
-            gh release download dados-previsao --pattern historico-previsao-2026.json \
-              --dir data/publicado/previsao
-          else
-            echo "Sem histórico anterior."
-          fi
+          assets="$(gh release view dados-previsao --json assets -q '.assets[].name' 2> /dev/null || true)"
+          for ficheiro in historico-previsao-2026.json sondagens-2026.json; do
+            if grep -qx "$ficheiro" <<< "$assets"; then
+              gh release download dados-previsao --pattern "$ficheiro" --dir data/publicado/previsao
+            else
+              echo "Sem $ficheiro anterior."
+            fi
+          done
       - name: Calcular a previsão e os backtests
         if: steps.janela.outputs.ativo == 'true'
         run: >-
           uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
           --historico data/publicado/previsao/historico-previsao-2026.json
+          --sondagens data/publicado/previsao/sondagens-2026.json
       - name: Guardar o resultado
         if: steps.janela.outputs.ativo == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -115,6 +117,8 @@ jobs:
           jq -e '.ano == 2026 and (.corridas | length) > 400 and (.backtests | length) == 6' \
             resultado/2026.json
           jq -e '.ano == 2026 and (.dias | length) > 0' resultado/historico-previsao-2026.json
+          jq -e '.ano == 2026 and (.corridas | length) > 0 and (.voto_generico | length) > 0' \
+            resultado/sondagens-2026.json
           if [[ ! "$(date -u +%F)" < "$ULTIMO_DIA" ]]; then
             jq -e --arg dia "$ULTIMO_DIA" '.congelada and .corte == $dia' resultado/2026.json
             jq -e '.dias[-1].congelada' resultado/historico-previsao-2026.json
@@ -127,4 +131,4 @@ jobs:
               --notes "Ficheiro publicado pelo workflow Previsão. Substituído todos os dias até ao congelamento a 1 de novembro de 2026."
           fi
           gh release upload "$ETIQUETA" previsao-2026.json \
-            resultado/historico-previsao-2026.json --clobber
+            resultado/historico-previsao-2026.json resultado/sondagens-2026.json --clobber

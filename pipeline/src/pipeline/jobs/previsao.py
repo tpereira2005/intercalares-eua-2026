@@ -19,7 +19,9 @@ import httpx
 
 from contratos.base import Fonte
 from contratos.previsao import HistoricoPrevisao
+from contratos.sondagens import SondagensCongresso
 from pipeline.modelo import carregar as carga
+from pipeline.modelo import publicar_sondagens
 from pipeline.modelo.fontes import wikipedia
 from pipeline.modelo.historico import acrescentar
 from pipeline.modelo.previsao import corte_final, prever
@@ -58,7 +60,12 @@ def fontes(agora: datetime) -> list[Fonte]:
 
 
 def executar(
-    saida: Path, *, corte: date | None, atualizar: bool, historico: Path | None = None
+    saida: Path,
+    *,
+    corte: date | None,
+    atualizar: bool,
+    historico: Path | None = None,
+    ficheiro_sondagens: Path | None = None,
 ) -> None:
     final = corte_final(carga.ANO_ATUAL)
     corte = min(corte or datetime.now(UTC).date(), final)
@@ -105,6 +112,31 @@ def executar(
         historico.parent.mkdir(parents=True, exist_ok=True)
         historico.write_text(novo.model_dump_json(), encoding="utf-8")
         registo.info("Histórico com %d dias gravado em %s", len(novo.dias), historico)
+    if ficheiro_sondagens is not None:
+        anterior_s = (
+            SondagensCongresso.model_validate_json(ficheiro_sondagens.read_text(encoding="utf-8"))
+            if ficheiro_sondagens.exists()
+            else None
+        )
+        linhas = [c.linha for c in previsao.senado.corridas if c.linha.certo is None]
+        ficheiro_s = publicar_sondagens.montar(
+            dados,
+            carga.ANO_ATUAL,
+            corte,
+            linhas,
+            agregadores,
+            anterior=anterior_s,
+            fontes=fontes(agora),
+            gerado_em=agora,
+        )
+        ficheiro_sondagens.parent.mkdir(parents=True, exist_ok=True)
+        ficheiro_sondagens.write_text(ficheiro_s.model_dump_json(), encoding="utf-8")
+        registo.info(
+            "Sondagens de %d corridas e %d dias do voto genérico gravadas em %s",
+            len(ficheiro_s.corridas),
+            len(ficheiro_s.voto_generico),
+            ficheiro_sondagens,
+        )
 
 
 def main() -> None:
@@ -127,6 +159,12 @@ def main() -> None:
         default=None,
         help="Ficheiro do histórico diário a atualizar (criado se não existir).",
     )
+    parser.add_argument(
+        "--sondagens",
+        type=Path,
+        default=None,
+        help="Ficheiro das sondagens para o site a atualizar (criado se não existir).",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     executar(
@@ -134,6 +172,7 @@ def main() -> None:
         corte=args.corte,
         atualizar=not args.sem_descarga,
         historico=args.historico,
+        ficheiro_sondagens=args.sondagens,
     )
 
 

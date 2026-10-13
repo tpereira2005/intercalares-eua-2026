@@ -175,6 +175,20 @@ Leitura:
 - **As caudas e a recência pesam pouco.** A t de Student com 3 ou 30 graus de liberdade e a meia-vida de 7 ou 28 dias mudam as probabilidades no máximo 1 ponto.
 - **Os parâmetros publicados não se afinam com estes números.** Nenhuma variante melhora o Brier dos backtests de forma consistente nas duas câmaras. As diferenças (0,036 a 0,042 no Senado) cabem no ruído de três eleições. Escolher a variante com o melhor Brier seria ajustar o modelo a 2018, 2022 e 2024. A cobertura de 88% a 90% confirma que os intervalos já são, se algo, um pouco largos.
 
+### Sondagens para o site
+
+A mesma execução publica `sondagens-2026.json` (contrato `SondagensCongresso`), para a página de sondagens.
+
+Por corrida ao Senado com sondagens, o ficheiro traz:
+
+- todas as perguntas com os dois candidatos reais, com o peso de cada uma na média do dia (0 quando fica fora da janela ou é substituída por outra população da mesma sondagem);
+- a média no dia do corte;
+- a série diária da média, nos últimos 150 dias.
+
+Tudo se calcula com o mesmo código da previsão (`media.pesos` e `previsao.sondagens_por_corrida`), por isso a página mostra exatamente o que entra no modelo.
+
+O voto genérico é diferente: a Wikipédia de 2026 só publica os valores atuais dos agregadores, não as sondagens individuais. A série guarda, dia a dia, os valores lidos em cada execução e a sua média simples. Recupera-se o ficheiro anterior da Release e acrescenta-se o dia, como no histórico. Por isso a série só começa no dia em que o ficheiro passou a ser publicado.
+
 ## 10. Congelamento
 
 A previsão congela com os dados até 31 de outubro: o corte é 1 de novembro de 2026, exclusive para as sondagens. Nesse dia:

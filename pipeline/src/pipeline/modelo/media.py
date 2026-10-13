@@ -38,13 +38,16 @@ class Media:
     sondagens: int
 
 
-def media(
+def pesos(
     sondagens: list[Sondagem], corte: date, meia_vida: float = MEIA_VIDA_DIAS
-) -> Media | None:
-    """Média das sondagens terminadas antes de ``corte`` (exclusive) e dentro da janela."""
+) -> list[tuple[Sondagem, float]]:
+    """Sondagens que entram na média em ``corte`` e o peso (não normalizado) de cada uma.
+
+    Entram as terminadas antes de ``corte`` (exclusive) e dentro da janela; da mesma
+    sondagem (instituto e data) fica só a população preferida (LV > RV > A).
+    """
     inicio = corte - timedelta(days=JANELA_DIAS)
     validas = [s for s in sondagens if inicio <= s.fim < corte]
-    # Da mesma sondagem (instituto e data) fica só a população preferida (LV > RV > A).
     melhores: dict[tuple[str, date], Sondagem] = {}
     for s in validas:
         chave = (s.instituto, s.fim)
@@ -54,11 +57,8 @@ def media(
         ):
             melhores[chave] = s
     escolhidas = list(melhores.values())
-    if not escolhidas:
-        return None
     por_instituto = Counter(s.instituto for s in escolhidas)
-    soma = 0.0
-    pesos = 0.0
+    resultado: list[tuple[Sondagem, float]] = []
     for s in escolhidas:
         idade = (corte - s.fim).days
         amostra = min(s.amostra or AMOSTRA_REFERENCIA, AMOSTRA_MAXIMA)
@@ -69,6 +69,21 @@ def media(
             * (PESO_PARTIDARIA if s.partidaria else 1.0)
             / por_instituto[s.instituto]
         )
+        resultado.append((s, peso))
+    return resultado
+
+
+def media(
+    sondagens: list[Sondagem], corte: date, meia_vida: float = MEIA_VIDA_DIAS
+) -> Media | None:
+    """Média das sondagens terminadas antes de ``corte`` (exclusive) e dentro da janela."""
+    pesadas = pesos(sondagens, corte, meia_vida)
+    if not pesadas:
+        return None
+    soma = 0.0
+    total = 0.0
+    for s, peso in pesadas:
         soma += peso * s.margem
-        pesos += peso
-    return Media(margem=soma / pesos, institutos=len(por_instituto), sondagens=len(escolhidas))
+        total += peso
+    institutos = len({s.instituto for s, _ in pesadas})
+    return Media(margem=soma / total, institutos=institutos, sondagens=len(pesadas))
