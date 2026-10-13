@@ -2,6 +2,7 @@
  * Padrões SVG partilhados pelos gráficos, ligados por omissão para leitores
  * com daltonismo: republicanos tracejado a 45°, não filiados pontilhado.
  * Usar com fill="url(#padrao-rep)" ou fill="url(#padrao-una)".
+ * padrao-antecipacao (riscas finas de tinta) marca o voto que só mudou de dia.
  */
 export function PadroesSvg() {
   return (
@@ -28,6 +29,20 @@ export function PadroesSvg() {
             style={{ fill: "color-mix(in oklab, var(--una) 30%, var(--sheet))" }}
           />
           <circle cx="2.5" cy="2.5" r="1.4" style={{ fill: "var(--una)" }} />
+        </pattern>
+        <pattern
+          id="padrao-antecipacao"
+          width="5"
+          height="5"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(-45)"
+        >
+          <rect
+            width="5"
+            height="5"
+            style={{ fill: "color-mix(in oklab, var(--ink-3) 18%, var(--sheet))" }}
+          />
+          <rect width="1.6" height="5" style={{ fill: "var(--ink-2)" }} />
         </pattern>
       </defs>
     </svg>

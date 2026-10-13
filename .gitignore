@@ -35,6 +35,9 @@ data/cache/
 *.zip
 *.gz
 
+# Agregados publicados que o site descarrega da Release antes do build.
+apps/web/dados/
+
 # Sistema
 .DS_Store
 Thumbs.db

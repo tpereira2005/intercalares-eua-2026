@@ -28,6 +28,16 @@ O Worker usa o mecanismo de ficheiros estáticos da Cloudflare com `run_worker_f
 3. Os resultados vão para a D1 (dados correntes), para o repositório ou as Releases (histórico) e, a partir da Fase 3, para o espelho.
 4. O browser lê a API com atualização periódica; as páginas em si nunca dependem da API para carregar.
 
+### Voto antecipado no site
+
+A página `/voto-antecipado` é gerada no build a partir do ficheiro `VotoAntecipadoEstado` que o pipeline publica numa Release pública fixa do repositório:
+
+1. `pnpm --filter @intercalares/web dados:obter` descarrega o ficheiro para `apps/web/dados/voto-antecipado/nc.json` (ignorado pelo git). `URL_DADOS_VOTO_ANTECIPADO` aponta para outro endereço ou para um ficheiro local.
+2. No build, `lib/voto-antecipado/carregar.ts` valida o ficheiro contra `schemas/json/contratos.schema.json`. Um ficheiro inválido faz falhar o build; sem ficheiro, a página mostra "em preparação". `DADOS_VOTO_ANTECIPADO` muda o caminho lido.
+3. `lib/voto-antecipado/vista.ts` reduz o ficheiro ao que os gráficos mostram (cerca de 70 KB), sem metodologia nova: os indicadores vêm calculados pelo pipeline (`docs/metodologia/voto-antecipado.md`).
+
+Os testes usam `apps/web/test/fixtures/voto-antecipado-sintetico.json`, gerado com eleitores aleatórios por `apps/web/test/fixtures/gerar.py`; esse ficheiro nunca é publicado no site.
+
 ## Limites do plano gratuito
 
 | Recurso                              | Limite                                                 | Comportamento ao exceder                |

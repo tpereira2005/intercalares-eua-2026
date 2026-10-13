@@ -52,7 +52,8 @@
       "oficial": "Oficial",
       "aoVivo": "Ao vivo"
     },
-    "atualizadoEm": "Atualizado a {data}"
+    "atualizadoEm": "Atualizado a {data}",
+    "semDados": "n.d."
   },
   "inicio": {
     "titulo": "Intercalares EUA 2026",
@@ -133,5 +134,130 @@
   "naoEncontrado": {
     "titulo": "Página não encontrada",
     "voltar": "Voltar ao início"
+  },
+  "votoAntecipado": {
+    "sobrelinha": "Rastreador do voto antecipado · {estado}",
+    "titulo": "{estado}, por idade",
+    "lede": "Ficheiros individuais diários com idade, partido, modalidade e histórico de voto. Comparamos sempre com o mesmo dia do ciclo, nunca com o total final.",
+    "dadosAte": "Dados até {data}",
+    "geradoEm": "Atualizado a {data}",
+    "diaDoCiclo": "Dia do ciclo",
+    "controlosAria": "Controlos do rastreador",
+    "avisosTitulo": "A ter em conta",
+    "estados": {
+      "NC": "Carolina do Norte"
+    },
+    "faixaAria": "Faixa etária",
+    "anoAtual": "{ano}",
+    "kpis": {
+      "votos": "Votos antecipados até hoje",
+      "votosDetalhe": "{variacao} face ao mesmo dia de {ano}",
+      "quota65": "Quota dos eleitores com 65 ou mais anos",
+      "quota65Detalhe": "{pontos} face a {ano}",
+      "desvioJovens": "Participação 18–29 face ao esperado",
+      "desvioJovensDetalhe": "ritmo de {ano} no mesmo dia",
+      "reserva": "Habituais que ainda não votaram",
+      "reservaDetalhe": "votaram em {ano} e ainda não em {atual}"
+    },
+    "perguntas": {
+      "rotulo": "Pergunta",
+      "composicao": "Composição",
+      "participacao": "Participação",
+      "momento": "Momento do voto",
+      "composicaoTitulo": "Que parte do voto antecipado vem de cada idade",
+      "composicaoTexto": "É o número que circula nas redes. Sozinho mistura três efeitos: há mais eleitores de uma idade recenseados, votam mais, ou apenas votam mais cedo. Os painéis seguintes separam-nos.",
+      "participacaoTitulo": "Que parte dos recenseados de cada idade já votou",
+      "participacaoTexto": "Percentagem dos eleitores recenseados de cada faixa que já votou, contra o mesmo dia dos anos de referência. Corrige o envelhecimento da população e as mudanças no recenseamento.",
+      "momentoTitulo": "Quem é habitual, quem antecipou, quem é novo",
+      "momentoTexto": "Cruzamento com o histórico individual de {referencia}. Os habituais já votavam antecipadamente; a antecipação são eleitores que votavam no dia e passaram a votar mais cedo (não é voto novo); o voto novo vem de quem não votou em {referencia} ou se recenseou depois, o verdadeiro sinal de mobilização.",
+      "momentoSemHistorico": "Sem histórico individual para este ano."
+    },
+    "comparar": {
+      "rotulo": "Comparar com"
+    },
+    "legenda": {
+      "mesmoDia": "{ano} no mesmo dia",
+      "variacaoFace": "Variação face a {ano}",
+      "habituais": "Habituais",
+      "antecipacao": "Antecipação",
+      "novos": "Voto novo",
+      "acima": "Acima",
+      "abaixo": "Abaixo",
+      "correio": "Correio",
+      "presencial": "Presencial antecipado",
+      "variacaoDemRep": "Variação de D−R face a {ano}"
+    },
+    "graficos": {
+      "composicaoAria": "Quota do voto antecipado por idade em {ano}",
+      "participacaoAria": "Participação por idade em {ano}",
+      "momentoAria": "Momento do voto por idade em {ano}",
+      "desvioAria": "Participação acima ou abaixo do esperado, por idade",
+      "decomposicaoAria": "Decomposição da variação da quota da faixa {faixa}",
+      "curvaAria": "Participação acumulada da faixa {faixa}, por ano",
+      "cruzamentoPartidoAria": "Votos de cada idade por partido de registo",
+      "cruzamentoModalidadeAria": "Votos de cada idade por modalidade",
+      "reservaAria": "Eleitores habituais de cada partido que já votaram",
+      "linhaFaixa": "{faixa}: {valor}",
+      "novosValor": "novos {valor}",
+      "novosBase": "{ano}: {valor}",
+      "correioValor": "correio {valor}",
+      "demRep": "D−R {valor}"
+    },
+    "desvio": {
+      "sobrelinha": "Participação face ao ritmo de {ano}",
+      "titulo": "Acima ou abaixo do esperado",
+      "texto": "Votos observados contra os esperados para este dia: recenseados de hoje vezes a taxa de {ano} no mesmo dia do ciclo. A distância entre as referências intercalares é a medida honesta da incerteza."
+    },
+    "decomposicao": {
+      "sobrelinha": "Quota dos {faixa} · {ano} contra {base}, {dia}",
+      "titulo": "Porque mudou a quota",
+      "texto": "A quota dos {faixa} variou {total}. O recenseamento explica {recenseamento} e a participação {participacao}.",
+      "recenseamento": "Recenseamento",
+      "participacao": "Participação",
+      "total": "Variação total"
+    },
+    "curva": {
+      "sobrelinha": "Percentagem dos recenseados que já votou",
+      "titulo": "Curva dos {faixa}",
+      "tituloTotal": "Curva de todos os eleitores",
+      "todas": "Todas",
+      "janelaAria": "Janela da curva",
+      "ateHoje": "Até hoje",
+      "cicloCompleto": "Ciclo completo"
+    },
+    "cruzamento": {
+      "sobrelinha": "Cruzamentos · {ano}",
+      "tituloPartido": "Idade × partido",
+      "tituloModalidade": "Idade × modalidade",
+      "modoAria": "Dimensão do cruzamento",
+      "partido": "Partido",
+      "modalidade": "Modalidade",
+      "nota": "Partido de registo: é uma característica do eleitor, não o seu voto."
+    },
+    "reserva": {
+      "sobrelinha": "Reserva restante",
+      "titulo": "Quanta da base habitual já votou",
+      "texto": "Eleitores que votaram em {referencia} e ainda não votaram até hoje, por partido de registo. A barra mostra a parte que já votou em {ano}; o traço, a mesma parte no mesmo dia de {base}.",
+      "restantes": "{valor} por votar",
+      "jaVotaram": "{valor} já votaram"
+    },
+    "partidos": {
+      "dem": "Democratas",
+      "rep": "Republicanos",
+      "nao_afiliado": "Não filiados",
+      "outro": "Outros"
+    },
+    "metodo": {
+      "composicao": "quota da faixa nos votos antecipados até ao dia; faixas sem idade conhecida ficam de fora do gráfico.",
+      "participacao": "votos da faixa até ao dia a dividir pelos recenseados da faixa.",
+      "momento": "cada eleitor classificado pelo que fez em {referencia}, a eleição anterior do mesmo tipo.",
+      "desvio": "observados / esperados − 1, com esperados = recenseados de hoje × taxa de {ano} no mesmo dia.",
+      "decomposicao": "valor de Shapley sobre a quota no recenseamento e a taxa de participação; a soma é exata.",
+      "curva": "votos acumulados até cada dia a dividir pelos recenseados da faixa nesse ano.",
+      "cruzamento": "quotas dos votos antecipados da faixa em {ano}.",
+      "reserva": "habituais = votaram em {referencia} por qualquer método."
+    },
+    "notasCiclos": "Notas sobre os anos de comparação",
+    "documentacao": "Metodologia completa"
   }
 }

@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   diasAteEleicao,
+  formatarCompacto,
   formatarData,
   formatarDiaCiclo,
   formatarMargem,
   formatarNumero,
   formatarPercentagem,
   formatarPontos,
+  formatarVariacao,
 } from "./formatacao.ts";
 
 describe("formatação pt-PT", () => {
@@ -44,5 +46,17 @@ describe("formatação pt-PT", () => {
     expect(formatarDiaCiclo(21)).toBe("E\u221221");
     expect(formatarDiaCiclo(0)).toBe("Dia E");
     expect(formatarDiaCiclo(-2)).toBe("E+2");
+  });
+
+  it("escreve variações relativas com sinal", () => {
+    expect(formatarVariacao(0.12)).toBe("+12%");
+    expect(formatarVariacao(-0.374)).toBe("-37%");
+    expect(formatarVariacao(0)).toBe("0%");
+  });
+
+  it("abrevia números grandes", () => {
+    expect(formatarCompacto(1_119_646)).toMatch(/^1,12\sM$/);
+    expect(formatarCompacto(29_743)).toMatch(/^29,7\smil$/);
+    expect(formatarCompacto(950)).toBe("950");
   });
 });
