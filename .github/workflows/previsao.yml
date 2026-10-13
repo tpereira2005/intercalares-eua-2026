@@ -1,0 +1,90 @@
+name: Previsão
+
+# Recalcula a previsão da Câmara e do Senado uma vez por dia até ao congelamento.
+# A previsão congela com os dados até 31 de outubro (corte a 1 de novembro de 2026): a
+# execução de 1 de novembro é a última a publicar, para que a versão congelada não mude
+# com edições posteriores das páginas de origem.
+on:
+  schedule:
+    - cron: "41 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: previsao
+  cancel-in-progress: false
+
+env:
+  UV_LOCKED: "1"
+  ULTIMO_DIA: "2026-11-01"
+
+jobs:
+  calcular:
+    name: Calcular
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      ativo: ${{ steps.janela.outputs.ativo }}
+    steps:
+      - name: Verificar a janela de publicação
+        id: janela
+        run: |
+          if [[ "$(date -u +%F)" > "$ULTIMO_DIA" ]]; then
+            echo "Previsão já congelada: nada a fazer."
+            echo "ativo=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ativo=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.janela.outputs.ativo == 'true'
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        if: steps.janela.outputs.ativo == 'true'
+        with:
+          enable-cache: true
+      - if: steps.janela.outputs.ativo == 'true'
+        run: uv sync --all-packages
+      - name: Calcular a previsão e os backtests
+        if: steps.janela.outputs.ativo == 'true'
+        run: uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
+      - name: Guardar o resultado
+        if: steps.janela.outputs.ativo == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: previsao
+          path: data/publicado/previsao
+          retention-days: 30
+
+  # Publica o JSON num asset de uma Release fixa, substituído a cada execução, como no voto
+  # antecipado. Job separado para que só ele tenha permissão de escrita.
+  publicar:
+    name: Publicar previsao-2026.json
+    needs: calcular
+    if: github.ref == 'refs/heads/main' && needs.calcular.outputs.ativo == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ETIQUETA: dados-previsao
+    steps:
+      - name: Descarregar o resultado
+        run: gh run download "$GITHUB_RUN_ID" --name previsao --dir resultado
+      - name: Validar
+        run: >-
+          jq -e '.ano == 2026 and (.corridas | length) > 400 and (.backtests | length) == 6'
+          resultado/2026.json
+      - name: Substituir o asset da Release
+        run: |
+          cp resultado/2026.json previsao-2026.json
+          if ! gh release view "$ETIQUETA" > /dev/null 2>&1; then
+            gh release create "$ETIQUETA" --title "Previsão da Câmara e do Senado" --latest=false \
+              --notes "Ficheiro publicado pelo workflow Previsão. Substituído todos os dias até ao congelamento a 1 de novembro de 2026."
+          fi
+          gh release upload "$ETIQUETA" previsao-2026.json --clobber

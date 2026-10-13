@@ -12,14 +12,14 @@ Todas as margens estão em pontos percentuais do voto total e são sempre **Demo
 
 ## 1. Dados
 
-| Dado                                                                  | Fonte                                                                                  | Anos         |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------ |
-| Corridas: distrito, Cook PVI, incumbente, candidatos e resultados     | Páginas anuais da Wikipédia ("20XX United States House/Senate elections")              | 2012 a 2026  |
-| Voto popular nacional na Câmara                                       | Caixa de informação das páginas anuais (2012 a 2024); `raw_polls.csv` (1998 a 2010)    | 1998 a 2024  |
-| Sondagens finais do Senado e do voto genérico                         | `raw_polls.csv` da FiveThirtyEight                                                     | 1998 a 2022  |
-| Sondagens do Senado de 2024 e 2026                                    | Páginas de cada corrida na Wikipédia (secções "General election" ou "Polling")         | 2024 e 2026  |
-| Voto genérico de 2026                                                 | Agregadores citados na página anual de 2026 (DDHQ, NBC, RealClearPolitics, Silver Bulletin, FiftyPlusOne) | 2026 |
-| Estados com mapa novo em 2026                                         | Tabela "Summary of mid-decade changes" da página anual de 2026                         | 2026         |
+| Dado                                                              | Fonte                                                                                                     | Anos        |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------- |
+| Corridas: distrito, Cook PVI, incumbente, candidatos e resultados | Páginas anuais da Wikipédia ("20XX United States House/Senate elections")                                 | 2012 a 2026 |
+| Voto popular nacional na Câmara                                   | Caixa de informação das páginas anuais (2012 a 2024); `raw_polls.csv` (1998 a 2010)                       | 1998 a 2024 |
+| Sondagens finais do Senado e do voto genérico                     | `raw_polls.csv` da FiveThirtyEight                                                                        | 1998 a 2022 |
+| Sondagens do Senado de 2024 e 2026                                | Páginas de cada corrida na Wikipédia (secções "General election" ou "Polling")                            | 2024 e 2026 |
+| Voto genérico de 2026                                             | Agregadores citados na página anual de 2026 (DDHQ, NBC, RealClearPolitics, Silver Bulletin, FiftyPlusOne) | 2026        |
+| Estados com mapa novo em 2026                                     | Tabela "Summary of mid-decade changes" da página anual de 2026                                            | 2026        |
 
 As tabelas dos anos terminados estão versionadas em `data/reference/modelo/` (ver `data/PROVENIENCIA.md`) e reconstroem-se com `pipeline.jobs.referencia_modelo`. Os dados de 2026 descarregam-se a cada execução, com um User-Agent identificado, espera entre pedidos e cache local.
 
@@ -49,15 +49,15 @@ margem − N_ano = efeito_ano + inclinação × PVI + incumbência × inc (+ per
 
 Valores estimados para 2026 (treino com 2012 a 2024):
 
-| Parâmetro           | Câmara | Senado |
-| ------------------- | -----: | -----: |
-| Inclinação do PVI   |   0,90 |   0,83 |
-| Incumbência (pts)   |    6,4 |    6,0 |
-| Persistência        |   0,53 |      0 |
-| Desvio do ano       |    1,5 |    1,9 |
-| Desvio da região    |    1,6 |    2,0 |
-| Desvio da corrida   |    7,6 |    7,7 |
-| Corridas no treino  |  2 663 |    191 |
+| Parâmetro          | Câmara | Senado |
+| ------------------ | -----: | -----: |
+| Inclinação do PVI  |   0,90 |   0,83 |
+| Incumbência (pts)  |    6,4 |    6,0 |
+| Persistência       |   0,53 |      0 |
+| Desvio do ano      |    1,5 |    1,9 |
+| Desvio da região   |    1,6 |    2,0 |
+| Desvio da corrida  |    7,6 |    7,7 |
+| Corridas no treino |  2 663 |    191 |
 
 ## 3. Ambiente nacional
 
@@ -107,12 +107,12 @@ O mesmo código, com o corte dois dias antes de cada eleição e parâmetros est
 
 | Ano  | Câmara | Ambiente previsto / real | P(controlo D) | Lugares D: mediana [p10, p90] | Reais | Corridas erradas | Brier | Viés nas competitivas | Cobertura 80% |
 | ---- | ------ | ------------------------ | ------------: | ----------------------------- | ----: | ---------------: | ----: | --------------------: | ------------: |
-| 2018 | Câmara | D+7,6 / D+8,6            |           72% | 224 [210, 240]                |   235 |       27 de 412  | 0,045 |                 −3,4  |           88% |
-| 2018 | Senado | D+7,6 / D+8,6            |           10% | 48 [44, 50]                   |    47 |        2 de 34   | 0,050 |                 +1,1  |           91% |
-| 2022 | Câmara | D−0,7 / R+2,7            |           34% | 213 [198, 227]                |   213 |       18 de 412  | 0,029 |                 +1,2  |           91% |
-| 2022 | Senado | D−0,7 / R+2,7            |           49% | 49 [47, 53]                   |    51 |        2 de 33   | 0,030 |                 −0,9  |           76% |
-| 2024 | Câmara | D+2,0 / R+2,6            |           49% | 217 [201, 234]                |   215 |        9 de 406  | 0,017 |                 +2,4  |           92% |
-| 2024 | Senado | D+2,0 / R+2,6            |           13% | 48 [45, 51]                   |    47 |        1 de 33   | 0,033 |                 +2,7  |           97% |
+| 2018 | Câmara | D+7,6 / D+8,6            |           72% | 224 [210, 240]                |   235 |        27 de 412 | 0,045 |                  −3,4 |           88% |
+| 2018 | Senado | D+7,6 / D+8,6            |           10% | 48 [44, 50]                   |    47 |          2 de 34 | 0,050 |                  +1,1 |           91% |
+| 2022 | Câmara | D−0,7 / R+2,7            |           34% | 213 [198, 227]                |   213 |        18 de 412 | 0,029 |                  +1,2 |           91% |
+| 2022 | Senado | D−0,7 / R+2,7            |           49% | 49 [47, 53]                   |    51 |          2 de 33 | 0,030 |                  −0,9 |           76% |
+| 2024 | Câmara | D+2,0 / R+2,6            |           49% | 217 [201, 234]                |   215 |         9 de 406 | 0,017 |                  +2,4 |           92% |
+| 2024 | Senado | D+2,0 / R+2,6            |           13% | 48 [45, 51]                   |    47 |          1 de 33 | 0,033 |                  +2,7 |           97% |
 
 Notas de leitura:
 

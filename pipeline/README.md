@@ -68,6 +68,30 @@ uv run python -m pipeline.jobs.voto_antecipado_fl --saida data/publicado/voto-an
 uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/voto-antecipado
 ```
 
+## Previsão
+
+Modelo próprio para a Câmara e o Senado (metodologia em [`docs/metodologia/previsao.md`](../docs/metodologia/previsao.md)).
+
+```
+src/pipeline/
+├── modelo/
+│   ├── fontes/        # Wikipédia (wikitexto, corridas, sondagens) e raw_polls.csv da 538
+│   ├── dados.py       # corrida → linha do modelo (lados, independentes, corridas decididas)
+│   ├── estimacao.py   # fundamentos e erro das sondagens, só com anos anteriores
+│   ├── media.py       # média ponderada de sondagens
+│   ├── simulacao.py   # Monte Carlo com erros nacionais, regionais e por corrida
+│   ├── previsao.py    # orquestração (a mesma função serve 2026 e os backtests)
+│   └── publicar.py    # contrato PrevisaoCongresso e backtests
+└── jobs/
+    ├── previsao.py            # previsão de 2026 (diária até ao congelamento a 1 de novembro)
+    └── referencia_modelo.py   # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)
+```
+
+```sh
+uv run python -m pipeline.jobs.referencia_modelo
+uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
+```
+
 ## Comandos
 
 ```sh
