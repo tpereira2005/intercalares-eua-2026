@@ -65,3 +65,21 @@ export function formatarDiaCiclo(diasParaEleicao: number): string {
   if (diasParaEleicao === 0) return "Dia E";
   return diasParaEleicao > 0 ? `E\u2212${diasParaEleicao}` : `E+${-diasParaEleicao}`;
 }
+
+/** Variação relativa com sinal explícito, por exemplo "+12%" ou "-37%". */
+export function formatarVariacao(fracao: number, casasDecimais = 0): string {
+  return new Intl.NumberFormat(LOCALE, {
+    style: "percent",
+    minimumFractionDigits: casasDecimais,
+    maximumFractionDigits: casasDecimais,
+    signDisplay: "exceptZero",
+  }).format(fracao);
+}
+
+/** Número curto para valores grandes, por exemplo "1,12 M" ou "29,7 mil". */
+export function formatarCompacto(valor: number): string {
+  return new Intl.NumberFormat(LOCALE, {
+    notation: "compact",
+    maximumSignificantDigits: 3,
+  }).format(valor);
+}

@@ -8,3 +8,4 @@ uv.lock
 .venv/
 packages/contratos/src/gerado/
 schemas/json/
+apps/web/test/fixtures/*.json
