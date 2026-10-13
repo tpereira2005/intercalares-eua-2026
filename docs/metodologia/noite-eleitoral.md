@@ -139,6 +139,7 @@ Os dois ficheiros dizem ainda se partiram da previsão congelada (`prior_congela
 
 ## 7. Limitações
 
+- Antes dos primeiros votos, a projeção coincide com a previsão congelada corrida a corrida (diferença máxima de 0,8 pontos na probabilidade, com a previsão de 13 de outubro) e nos percentis de lugares. O controlo de cada câmara pode afastar-se até cerca de 2 pontos: 70,7% contra 72,9% no Senado e 97,4% contra 96,8% na Câmara. A correlação entre corridas não é exatamente a da previsão: o desvio comum é normal e limitado a 80% da variância de cada corrida, e na previsão o erro nacional é uma t de Student e as sondagens do Senado têm um erro comum próprio. Cada ficheiro traz `prob_controlo_d_prior`, o valor da previsão congelada, para o site os poder mostrar lado a lado.
 - A inclinação do voto contado primeiro é independente entre corridas. Na realidade, o correio inclina para o mesmo lado em todo o país, o que torna a incerteza das câmaras no início da noite um pouco estreita. O desvio nacional aprende com as corridas já avançadas, o que compensa em parte.
 - Sem fração do voto esperado nas fontes (nenhuma das atuais a publica), o volume do que falta depende da participação estimada e das secções. Por isso o modelo nunca dá uma unidade por completa sem a fonte o dizer.
 - Os distritos da Câmara não têm referência própria por condado (os condados são partidos pelos distritos), por isso aprendem menos com os primeiros votos do que as corridas ao Senado.

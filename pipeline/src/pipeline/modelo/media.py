@@ -38,7 +38,9 @@ class Media:
     sondagens: int
 
 
-def media(sondagens: list[Sondagem], corte: date) -> Media | None:
+def media(
+    sondagens: list[Sondagem], corte: date, meia_vida: float = MEIA_VIDA_DIAS
+) -> Media | None:
     """Média das sondagens terminadas antes de ``corte`` (exclusive) e dentro da janela."""
     inicio = corte - timedelta(days=JANELA_DIAS)
     validas = [s for s in sondagens if inicio <= s.fim < corte]
@@ -61,7 +63,7 @@ def media(sondagens: list[Sondagem], corte: date) -> Media | None:
         idade = (corte - s.fim).days
         amostra = min(s.amostra or AMOSTRA_REFERENCIA, AMOSTRA_MAXIMA)
         peso = (
-            0.5 ** (idade / MEIA_VIDA_DIAS)
+            0.5 ** (idade / meia_vida)
             * (amostra / AMOSTRA_REFERENCIA) ** 0.5
             * PESO_POPULACAO.get(s.populacao, 0.9)
             * (PESO_PARTIDARIA if s.partidaria else 1.0)

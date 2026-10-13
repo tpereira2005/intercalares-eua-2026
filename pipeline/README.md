@@ -102,6 +102,7 @@ src/pipeline/
     ├── referencia_noite.py   # presidenciais por condado (2020 e 2024) para o Modelo C
     ├── repeticao_noite.py    # repetição das noites de 2022 e 2024 com o Modelo C
     ├── projecao_noite.py     # Modelo C na noite eleitoral (e ensaio com 2024)
+    ├── sensibilidade_previsao.py # análise de sensibilidade (uma escolha do modelo de cada vez)
     └── avaliacao_previsao.py # avaliação da previsão congelada (depois da eleição)
 ```
 

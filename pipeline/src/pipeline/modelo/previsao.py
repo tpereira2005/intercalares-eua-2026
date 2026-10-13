@@ -5,7 +5,7 @@ mudam o ano e os dados disponíveis à data de corte.
 """
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, timedelta
 
 import numpy as np
@@ -25,8 +25,9 @@ from pipeline.modelo.estimacao import (
 )
 from pipeline.modelo.fontes.corridas import Corrida
 from pipeline.modelo.fontes.sondagens import Sondagem
-from pipeline.modelo.media import Media, media
+from pipeline.modelo.media import MEIA_VIDA_DIAS, Media, media
 from pipeline.modelo.simulacao import (
+    GRAUS_LIBERDADE,
     Ambiente,
     ComposicaoSenado,
     ResultadoCamara,
@@ -74,6 +75,39 @@ class Dados:
     redesenhos: dict[int, frozenset[str]]
     independentes_d: frozenset[str] = frozenset()
     independentes_r: frozenset[str] = frozenset()
+
+
+@dataclass(frozen=True, slots=True)
+class Ajustes:
+    """Variações das escolhas do modelo, só para a análise de sensibilidade.
+
+    Os valores por omissão são o modelo publicado. Cada ajuste é simétrico entre partidos
+    (``desvio_ambiente`` testa-se sempre com os dois sinais).
+    """
+
+    desvio_ambiente: float = 0.0
+    """Pontos somados ao ambiente nacional estimado (D-R)."""
+
+    fator_sd_nacional: float = 1.0
+    """Multiplica o desvio-padrão do erro do ambiente nacional."""
+
+    fator_sd_corrida: float = 1.0
+    """Multiplica o erro próprio de cada corrida nos fundamentos (Câmara e Senado)."""
+
+    fator_erro_sondagens: float = 1.0
+    """Multiplica o erro das médias de sondagens do Senado (próprio e comum ao ano)."""
+
+    graus_liberdade: int = GRAUS_LIBERDADE
+    """Graus de liberdade da t de Student do erro nacional (caudas mais ou menos pesadas)."""
+
+    meia_vida_dias: float = MEIA_VIDA_DIAS
+    """Meia-vida do peso de uma sondagem na média."""
+
+    sem_sondagens_senado: bool = False
+    """Ignora as sondagens de cada corrida ao Senado (fica só com os fundamentos)."""
+
+
+AJUSTES_PUBLICADOS = Ajustes()
 
 
 @dataclass(frozen=True, slots=True)
@@ -145,7 +179,11 @@ def estimar(
 
 
 def _medias(
-    dados: Dados, ano: int, corte: date, linhas: list[LinhaModelo] | None = None
+    dados: Dados,
+    ano: int,
+    corte: date,
+    linhas: list[LinhaModelo] | None = None,
+    meia_vida: float = MEIA_VIDA_DIAS,
 ) -> dict[str, Media]:
     """Média de sondagens por corrida; com ``linhas``, só perguntas com os candidatos reais."""
     candidatos = {ln.id: (ln.lado_d, ln.lado_r) for ln in linhas or []}
@@ -158,7 +196,7 @@ def _medias(
         por_corrida.setdefault(s.corrida, []).append(s)
     medias = {}
     for corrida, lista in por_corrida.items():
-        m = media(lista, corte)
+        m = media(lista, corte, meia_vida)
         if m is not None:
             medias[corrida] = m
     return medias
@@ -172,13 +210,15 @@ def _mesmos_candidatos(sondagem: Sondagem, lado_d: str, lado_r: str) -> bool:
     )
 
 
-def erro_nacional(dados: Dados, ano: int) -> tuple[float, dict[int, float]]:
+def erro_nacional(
+    dados: Dados, ano: int, meia_vida: float = MEIA_VIDA_DIAS
+) -> tuple[float, dict[int, float]]:
     """Raiz do erro quadrático médio do voto genérico nos anos anteriores, e erros por ano."""
     erros: dict[int, float] = {}
     for a in sorted(DATAS_ELEICAO):
         if a >= ano or a not in dados.nacional:
             continue
-        m = _medias(dados, a, corte_final(a)).get("US")
+        m = _medias(dados, a, corte_final(a), meia_vida=meia_vida).get("US")
         if m is not None:
             erros[a] = m.margem - dados.nacional[a]
     if len(erros) < 5:
@@ -186,12 +226,14 @@ def erro_nacional(dados: Dados, ano: int) -> tuple[float, dict[int, float]]:
     return erro_quadratico_medio(list(erros.values())), erros
 
 
-def estimar_erro(dados: Dados, ano: int, erros_gb: dict[int, float]) -> ErroSondagens:
+def estimar_erro(
+    dados: Dados, ano: int, erros_gb: dict[int, float], meia_vida: float = MEIA_VIDA_DIAS
+) -> ErroSondagens:
     erros: list[tuple[int, int, float]] = []
     for a in sorted(DATAS_ELEICAO):
         if a >= ano:
             continue
-        for corrida, m in _medias(dados, a, corte_final(a)).items():
+        for corrida, m in _medias(dados, a, corte_final(a), meia_vida=meia_vida).items():
             real = dados.resultados_senado.get((a, corrida))
             if corrida != "US" and real is not None:
                 erros.append((a, m.institutos, m.margem - real))
@@ -245,16 +287,31 @@ def prever(
     corte: date | None = None,
     ambiente_publicado: tuple[float, str] | None = None,
     semente: int = 2026,
+    *,
+    ajustes: Ajustes = AJUSTES_PUBLICADOS,
 ) -> Previsao:
-    """Previsão do ano ``ano`` com os dados disponíveis em ``corte`` (exclusive)."""
+    """Previsão do ano ``ano`` com os dados disponíveis em ``corte`` (exclusive).
+
+    ``ajustes`` só serve a análise de sensibilidade; por omissão é o modelo publicado.
+    """
     corte = corte or corte_final(ano)
+    aj = ajustes
     fund_c, linhas_c = estimar(dados, ano, "camara")
     fund_s, linhas_s = estimar(dados, ano, "senado")
-    sd_nacional, erros_gb = erro_nacional(dados, ano)
-    erro = estimar_erro(dados, ano, erros_gb)
-    medias = _medias(dados, ano, corte, linhas_s[ano])
+    sd_nacional, erros_gb = erro_nacional(dados, ano, aj.meia_vida_dias)
+    erro = estimar_erro(dados, ano, erros_gb, aj.meia_vida_dias)
+    medias = _medias(dados, ano, corte, linhas_s[ano], aj.meia_vida_dias)
     if "US" not in medias:
-        medias.update({k: v for k, v in _medias(dados, ano, corte).items() if k == "US"})
+        gerais = _medias(dados, ano, corte, meia_vida=aj.meia_vida_dias)
+        medias.update({k: v for k, v in gerais.items() if k == "US"})
+    if aj != AJUSTES_PUBLICADOS:
+        sd_nacional *= aj.fator_sd_nacional
+        fund_c = replace(fund_c, sd_corrida=fund_c.sd_corrida * aj.fator_sd_corrida)
+        fund_s = replace(fund_s, sd_corrida=fund_s.sd_corrida * aj.fator_sd_corrida)
+        f = aj.fator_erro_sondagens
+        erro = replace(
+            erro, base=erro.base * f, por_instituto=erro.por_instituto * f, sd_ano=erro.sd_ano * f
+        )
 
     if ambiente_publicado is not None:
         margem, fonte = ambiente_publicado
@@ -269,12 +326,15 @@ def prever(
         # das sondagens do Senado ao erro do voto genérico.
         margem, fonte = implicito, "sondagens_senado"
         sd = math.sqrt(sd_nacional**2 + erro.sd_ano**2)
-    ambiente = Ambiente(margem=margem, sd=sd)
+    ambiente = Ambiente(margem=margem + aj.desvio_ambiente, sd=sd)
 
     rng = np.random.default_rng(semente)
-    choques = sortear_choques(rng, SIMULACOES, ambiente, fund_c.sd_regiao)
+    choques = sortear_choques(rng, SIMULACOES, ambiente, fund_c.sd_regiao, aj.graus_liberdade)
     camara = simular_camara(linhas_c[ano], fund_c, ambiente, choques, rng)
     composicao = composicao_senado(dados, ano)
+    if aj.sem_sondagens_senado:
+        # O ambiente já foi estimado; só a simulação de cada corrida fica sem sondagens.
+        medias = {k: v for k, v in medias.items() if k == "US"}
     senado = simular_senado(
         linhas_s[ano],
         fund_s,
