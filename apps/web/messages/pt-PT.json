@@ -297,7 +297,7 @@
         "distrito": "Distrito",
         "condado": "Condado"
       },
-      "distrito": "Distrito\u00a0{n}",
+      "distrito": "Distrito {n}",
       "legenda": "Quota dos {faixa} anos por {nivel}, face a {ano}",
       "quota": "Quota {ano}",
       "diferenca": "Face a {ano}",
@@ -394,7 +394,7 @@
       "maioria": "Maioria: {lugares}",
       "resumo": "Lugares democratas: mediana {mediana}, intervalo de 80% de {de} a {ate}. Lugares republicanos: mediana {medianaR}, de {deR} a {ateR}.",
       "independentes": "Independentes eleitos, em média: {valor}.",
-      "aria": "Distribuição dos lugares democratas na {camara}: mediana {mediana}, intervalo de 80% de {de} a {ate}, maioria a partir de {maioria}.",
+      "aria": "Distribuição dos lugares democratas {camara}: mediana {mediana}, intervalo de 80% de {de} a {ate}, maioria a partir de {maioria}.",
       "legendaD": "Maioria democrata",
       "legendaR": "Maioria republicana",
       "metodo": "Percentis das {simulacoes} simulações. O intervalo de 80% vai do percentil 10 ao 90."
@@ -403,6 +403,18 @@
       "camara": "Câmara",
       "senado": "Senado"
     },
+    "camaraNa": {
+      "camara": "na Câmara",
+      "senado": "no Senado"
+    },
+    "camaraDa": {
+      "camara": "da Câmara",
+      "senado": "do Senado"
+    },
+    "camaraA": {
+      "camara": "à Câmara",
+      "senado": "ao Senado"
+    },
     "limiares": {
       "sobrelinha": "Voto genérico",
       "titulo": "Quanto precisa cada partido",
@@ -410,8 +422,8 @@
       "previsto": "Ambiente previsto",
       "intervalo": "Intervalo de 80%",
       "agregador": "Agregador",
-      "limiar": "Limiar da {camara}",
-      "semLimiar": "O favorito à {camara} não muda em nenhuma simulação.",
+      "limiar": "Limiar {camara}",
+      "semLimiar": "O favorito {camara} não muda em nenhuma simulação.",
       "leitura": "{camara}: o lado democrata é favorito com o voto genérico acima de {limiar}; o ambiente previsto é {ambiente}.",
       "aria": "Ambiente nacional previsto {ambiente}, intervalo de 80% de {de} a {ate}. Limiar da Câmara {camara}; limiar do Senado {senado}.",
       "agregadores": "Agregadores usados",
@@ -475,7 +487,7 @@
       "titulo": "Como a previsão mudou",
       "texto": "Probabilidade de controlo de cada câmara em cada atualização, desde {de} ({n} atualizações).",
       "umDia": "Só há uma atualização publicada. A evolução aparece a partir da segunda, com uma entrada por dia.",
-      "aria": "Probabilidade de maioria democrata na {camara}: de {de} na primeira atualização para {ate} na mais recente.",
+      "aria": "Probabilidade de maioria democrata {camara}: de {de} na primeira atualização para {ate} na mais recente.",
       "lugares": "Mediana de lugares D: {de} a {data}, {ate} agora.",
       "metodo": "Uma atualização por dia até ao congelamento, a 1 de novembro. Cada ponto usa só os dados disponíveis até essa data."
     },
@@ -608,5 +620,29 @@
     },
     "previsaoNota": "Previsão de {data}, congelada a 1 de novembro.",
     "previsaoNotaProvisoria": "Previsão de {data}; congela a 1 de novembro."
+  },
+  "cartoes": {
+    "inicio": {
+      "titulo": "Intercalares dos EUA 2026",
+      "texto": "Voto antecipado por idade, previsão da Câmara e do Senado e resultados na noite eleitoral."
+    },
+    "votoAntecipado": {
+      "sobrelinha": "Voto antecipado · {estado}",
+      "titulo": "Quem já votou, por idade",
+      "destaque": "{votos} votos · 65+ pesam {quota}",
+      "dadosAte": "Dados até {data}",
+      "destaqueSemIdade": "{votos} votos antecipados",
+      "descricao": "Voto antecipado em {estado} nas intercalares de 2026: quem já votou por idade, partido de registo e modo de voto, comparado com as eleições anteriores no mesmo dia do ciclo."
+    },
+    "previsao": {
+      "sobrelinha": "Previsão · {data}",
+      "titulo": "Câmara e Senado",
+      "destaque": "Câmara {camara} · Senado {senado}",
+      "texto": "Probabilidade de controlo em {simulacoes} simulações."
+    },
+    "resultados": {
+      "titulo": "Noite eleitoral",
+      "texto": "Contagem oficial por corrida ao lado da previsão congelada."
+    }
   }
 }

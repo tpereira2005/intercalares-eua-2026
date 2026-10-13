@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { SeccaoEmPreparacao } from "@/components/layout/SeccaoEmPreparacao.tsx";
 import { PaginaEstado } from "@/components/voto-antecipado/PaginaEstado.tsx";
+import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
 import { PaginaAgregado } from "@/components/voto-antecipado/PaginaAgregado.tsx";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
 import { resumirTodos } from "@/lib/voto-antecipado/resumo.ts";
 
-export const metadata: Metadata = { title: t("seccoes.votoAntecipado.titulo") };
+export const metadata: Metadata = metadadosPagina({
+  titulo: t("seccoes.votoAntecipado.titulo"),
+  descricao: t("seccoes.votoAntecipado.descricao"),
+  caminho: "/voto-antecipado/",
+  cartao: "voto-antecipado.png",
+});
 
 export default function Pagina() {
   // Lido e validado no build; o site é reconstruído a cada atualização de dados.

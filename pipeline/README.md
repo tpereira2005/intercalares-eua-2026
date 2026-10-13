@@ -95,6 +95,7 @@ src/pipeline/
 │   ├── publicar.py      # contrato PrevisaoCongresso e backtests
 │   ├── verificacoes.py  # verificações de coerência antes de publicar
 │   ├── historico.py     # histórico diário para os gráficos de evolução
+│   ├── publicar_sondagens.py # sondagens e médias para a página de sondagens
 │   ├── avaliacao.py     # scorecard da previsão congelada (Brier, log-loss, calibração)
 │   └── noite/           # Modelo C: corrida a corrida, câmaras, histórico da noite e repetições
 └── jobs/

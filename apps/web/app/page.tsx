@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { QuemVotou } from "@/components/inicio/QuemVotou.tsx";
 import { CodigoDia } from "@/components/ui/CodigoDia.tsx";
@@ -17,10 +18,18 @@ import {
   formatarPontos,
   formatarVariacao,
 } from "@/lib/formatacao.ts";
+import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
 import { resumirEstado, resumirTodos, type ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 import type { VistaVotoAntecipado } from "@/lib/voto-antecipado/vista.ts";
+
+export const metadata: Metadata = metadadosPagina({
+  titulo: null,
+  descricao: t("site.descricao"),
+  caminho: "/",
+  cartao: "inicio.png",
+});
 
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px] hover:decoration-ink-3";
 

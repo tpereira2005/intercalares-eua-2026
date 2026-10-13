@@ -178,14 +178,10 @@ def estimar(
     return fund, por_ano
 
 
-def _medias(
-    dados: Dados,
-    ano: int,
-    corte: date,
-    linhas: list[LinhaModelo] | None = None,
-    meia_vida: float = MEIA_VIDA_DIAS,
-) -> dict[str, Media]:
-    """Média de sondagens por corrida; com ``linhas``, só perguntas com os candidatos reais."""
+def sondagens_por_corrida(
+    dados: Dados, ano: int, linhas: list[LinhaModelo] | None = None
+) -> dict[str, list[Sondagem]]:
+    """Sondagens de cada corrida; com ``linhas``, só perguntas com os candidatos reais."""
     candidatos = {ln.id: (ln.lado_d, ln.lado_r) for ln in linhas or []}
     por_corrida: dict[str, list[Sondagem]] = {}
     for s in dados.sondagens:
@@ -194,8 +190,19 @@ def _medias(
         if s.corrida in candidatos and not _mesmos_candidatos(s, *candidatos[s.corrida]):
             continue
         por_corrida.setdefault(s.corrida, []).append(s)
+    return por_corrida
+
+
+def _medias(
+    dados: Dados,
+    ano: int,
+    corte: date,
+    linhas: list[LinhaModelo] | None = None,
+    meia_vida: float = MEIA_VIDA_DIAS,
+) -> dict[str, Media]:
+    """Média de sondagens por corrida; com ``linhas``, só perguntas com os candidatos reais."""
     medias = {}
-    for corrida, lista in por_corrida.items():
+    for corrida, lista in sondagens_por_corrida(dados, ano, linhas).items():
         m = media(lista, corte, meia_vida)
         if m is not None:
             medias[corrida] = m

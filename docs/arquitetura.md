@@ -62,6 +62,10 @@ A página `/resultados/` lê o retrato da contagem que a recolha da noite public
 
 As probabilidades ao vivo do estimador do modelo entram quando o seu contrato existir no `main`. A forma de atualizar a página durante a noite (a cada 30 segundos) está por decidir: hoje, a página só muda quando o site é reconstruído.
 
+### Cartões e SEO
+
+Cada página declara título, descrição, endereço canónico e cartão para redes sociais com `lib/metadados.ts`. Os cartões (1200 × 630) são gerados no build por `app/cartoes/[cartao]/route.tsx` como `/cartoes/<nome>.png`, com as letras e as cores do sistema visual: início, secções, previsão (probabilidades de controlo) e um por estado do voto antecipado. Mudam a cada reconstrução, como as páginas. `robots.txt` e `sitemap.xml` também são gerados no build. O endereço do site vem de `lib/site.ts`; `URL_SITE` substitui-o quando houver um domínio próprio.
+
 ## Limites do plano gratuito
 
 | Recurso                              | Limite                                                 | Comportamento ao exceder                |
