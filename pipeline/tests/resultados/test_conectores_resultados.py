@@ -4,6 +4,7 @@ públicos por condado, sem dados de eleitores)."""
 import functools
 import http.server
 import threading
+import zipfile
 from collections.abc import Iterator
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -31,6 +32,14 @@ def _fonte() -> Fonte:
 
 
 DADOS = Path(__file__).parent / "dados"
+
+
+@pytest.fixture
+def pasta_sc(tmp_path: Path) -> Path:
+    """O site Clarity serve o XML dentro de um zip; o excerto está versionado sem zip."""
+    with zipfile.ZipFile(tmp_path / "detailxml.zip", "w") as z:
+        z.write(DADOS / "sc" / "detail.xml", "detail.xml")
+    return tmp_path
 
 
 def _totais(leitura: Leitura, corrida: str) -> dict[str, int]:
@@ -99,8 +108,8 @@ def test_georgia_2024() -> None:
     assert all(" (" not in n for n in leitura.votos["nome"].to_list())
 
 
-def test_carolina_do_sul_2022() -> None:
-    leitura = CAROLINA_DO_SUL.ler(DADOS / "sc", date(2022, 11, 8))
+def test_carolina_do_sul_2022(pasta_sc: Path) -> None:
+    leitura = CAROLINA_DO_SUL.ler(pasta_sc, date(2022, 11, 8))
     assert {c.id for c in leitura.corridas} == {"SC-S", "SC-01"}
     senado = leitura.votos.filter(leitura.votos["corrida"] == "SC-S")
     estado = senado.filter(senado["nivel"] == "estado")
@@ -110,8 +119,8 @@ def test_carolina_do_sul_2022() -> None:
     assert condados["codigo"].n_unique() == 46
 
 
-def test_ensaio_reconstroi_uma_noite_sem_descidas() -> None:
-    leitura = CAROLINA_DO_SUL.ler(DADOS / "sc", date(2022, 11, 8))
+def test_ensaio_reconstroi_uma_noite_sem_descidas(pasta_sc: Path) -> None:
+    leitura = CAROLINA_DO_SUL.ler(pasta_sc, date(2022, 11, 8))
     passos = ensaio.progressao(leitura, 6, semente=3)
     assert len(passos) == 6
     assert passos[-1] is leitura

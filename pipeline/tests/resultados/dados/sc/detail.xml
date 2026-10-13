@@ -1,0 +1,2106 @@
+<ElectionResult>
+    <Timestamp>11/17/2022 3:17:28 PM EST</Timestamp>
+    <ElectionName>2022 Statewide General Elections</ElectionName>
+    <ElectionDate>11/8/2022</ElectionDate>
+    <Region>SC</Region>
+    <ElectionVoterTurnout totalVoters="3379089" ballotsCast="1718626" voterTurnout="50.86">
+        <Counties>
+            <County name="Abbeville" totalVoters="15982" ballotsCast="8666" voterTurnout="54.22" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="Aiken" totalVoters="116055" ballotsCast="55366" voterTurnout="47.71" precinctsParticipating="86" precinctsReported="86" precinctsReportingPercent="100.00" />
+            <County name="Allendale" totalVoters="5124" ballotsCast="1893" voterTurnout="36.94" precinctsParticipating="8" precinctsReported="8" precinctsReportingPercent="100.00" />
+            <County name="Anderson" totalVoters="125932" ballotsCast="63886" voterTurnout="50.73" precinctsParticipating="79" precinctsReported="79" precinctsReportingPercent="100.00" />
+            <County name="Bamberg" totalVoters="8448" ballotsCast="4061" voterTurnout="48.07" precinctsParticipating="13" precinctsReported="13" precinctsReportingPercent="100.00" />
+            <County name="Barnwell" totalVoters="13514" ballotsCast="6427" voterTurnout="47.56" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="Beaufort" totalVoters="138812" ballotsCast="72326" voterTurnout="52.10" precinctsParticipating="95" precinctsReported="95" precinctsReportingPercent="100.00" />
+            <County name="Berkeley" totalVoters="149091" ballotsCast="72067" voterTurnout="48.34" precinctsParticipating="94" precinctsReported="94" precinctsReportingPercent="100.00" />
+            <County name="Calhoun" totalVoters="10345" ballotsCast="5707" voterTurnout="55.17" precinctsParticipating="12" precinctsReported="12" precinctsReportingPercent="100.00" />
+            <County name="Charleston" totalVoters="264022" ballotsCast="154386" voterTurnout="58.47" precinctsParticipating="182" precinctsReported="182" precinctsReportingPercent="100.00" />
+            <County name="Cherokee" totalVoters="33504" ballotsCast="16281" voterTurnout="48.59" precinctsParticipating="29" precinctsReported="29" precinctsReportingPercent="100.00" />
+            <County name="Chester" totalVoters="20179" ballotsCast="9719" voterTurnout="48.16" precinctsParticipating="21" precinctsReported="21" precinctsReportingPercent="100.00" />
+            <County name="Chesterfield" totalVoters="26214" ballotsCast="12776" voterTurnout="48.74" precinctsParticipating="25" precinctsReported="25" precinctsReportingPercent="100.00" />
+            <County name="Clarendon" totalVoters="22043" ballotsCast="11635" voterTurnout="52.78" precinctsParticipating="25" precinctsReported="25" precinctsReportingPercent="100.00" />
+            <County name="Colleton" totalVoters="25425" ballotsCast="12775" voterTurnout="50.25" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Darlington" totalVoters="41576" ballotsCast="20313" voterTurnout="48.86" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Dillon" totalVoters="17737" ballotsCast="8072" voterTurnout="45.51" precinctsParticipating="19" precinctsReported="19" precinctsReportingPercent="100.00" />
+            <County name="Dorchester" totalVoters="106797" ballotsCast="50159" voterTurnout="46.97" precinctsParticipating="81" precinctsReported="81" precinctsReportingPercent="100.00" />
+            <County name="Edgefield" totalVoters="17909" ballotsCast="8922" voterTurnout="49.82" precinctsParticipating="12" precinctsReported="12" precinctsReportingPercent="100.00" />
+            <County name="Fairfield" totalVoters="15817" ballotsCast="8569" voterTurnout="54.18" precinctsParticipating="22" precinctsReported="22" precinctsReportingPercent="100.00" />
+            <County name="Florence" totalVoters="82842" ballotsCast="41893" voterTurnout="50.57" precinctsParticipating="63" precinctsReported="63" precinctsReportingPercent="100.00" />
+            <County name="Georgetown" totalVoters="48343" ballotsCast="27750" voterTurnout="57.40" precinctsParticipating="34" precinctsReported="34" precinctsReportingPercent="100.00" />
+            <County name="Greenville" totalVoters="344300" ballotsCast="179296" voterTurnout="52.08" precinctsParticipating="151" precinctsReported="151" precinctsReportingPercent="100.00" />
+            <County name="Greenwood" totalVoters="40336" ballotsCast="22020" voterTurnout="54.59" precinctsParticipating="50" precinctsReported="50" precinctsReportingPercent="100.00" />
+            <County name="Hampton" totalVoters="12067" ballotsCast="5812" voterTurnout="48.16" precinctsParticipating="18" precinctsReported="18" precinctsReportingPercent="100.00" />
+            <County name="Horry" totalVoters="261725" ballotsCast="134795" voterTurnout="51.50" precinctsParticipating="125" precinctsReported="125" precinctsReportingPercent="100.00" />
+            <County name="Jasper" totalVoters="22369" ballotsCast="11278" voterTurnout="50.42" precinctsParticipating="17" precinctsReported="17" precinctsReportingPercent="100.00" />
+            <County name="Kershaw" totalVoters="42777" ballotsCast="22600" voterTurnout="52.83" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Lancaster" totalVoters="69690" ballotsCast="34884" voterTurnout="50.06" precinctsParticipating="36" precinctsReported="36" precinctsReportingPercent="100.00" />
+            <County name="Laurens" totalVoters="39823" ballotsCast="20000" voterTurnout="50.22" precinctsParticipating="33" precinctsReported="33" precinctsReportingPercent="100.00" />
+            <County name="Lee" totalVoters="10578" ballotsCast="5350" voterTurnout="50.58" precinctsParticipating="22" precinctsReported="22" precinctsReportingPercent="100.00" />
+            <County name="Lexington" totalVoters="195197" ballotsCast="100352" voterTurnout="51.41" precinctsParticipating="96" precinctsReported="96" precinctsReportingPercent="100.00" />
+            <County name="Marion" totalVoters="20431" ballotsCast="8588" voterTurnout="42.03" precinctsParticipating="17" precinctsReported="17" precinctsReportingPercent="100.00" />
+            <County name="Marlboro" totalVoters="16254" ballotsCast="6645" voterTurnout="40.88" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="McCormick" totalVoters="7609" ballotsCast="4636" voterTurnout="60.93" precinctsParticipating="11" precinctsReported="11" precinctsReportingPercent="100.00" />
+            <County name="Newberry" totalVoters="23732" ballotsCast="12942" voterTurnout="54.53" precinctsParticipating="30" precinctsReported="30" precinctsReportingPercent="100.00" />
+            <County name="Oconee" totalVoters="54116" ballotsCast="29203" voterTurnout="53.96" precinctsParticipating="31" precinctsReported="31" precinctsReportingPercent="100.00" />
+            <County name="Orangeburg" totalVoters="53536" ballotsCast="26534" voterTurnout="49.56" precinctsParticipating="53" precinctsReported="53" precinctsReportingPercent="100.00" />
+            <County name="Pickens" totalVoters="75940" ballotsCast="40541" voterTurnout="53.39" precinctsParticipating="61" precinctsReported="61" precinctsReportingPercent="100.00" />
+            <County name="Richland" totalVoters="271139" ballotsCast="128524" voterTurnout="47.40" precinctsParticipating="149" precinctsReported="149" precinctsReportingPercent="100.00" />
+            <County name="Saluda" totalVoters="11639" ballotsCast="6664" voterTurnout="57.26" precinctsParticipating="13" precinctsReported="13" precinctsReportingPercent="100.00" />
+            <County name="Spartanburg" totalVoters="202773" ballotsCast="97769" voterTurnout="48.22" precinctsParticipating="98" precinctsReported="98" precinctsReportingPercent="100.00" />
+            <County name="Sumter" totalVoters="66461" ballotsCast="31062" voterTurnout="46.74" precinctsParticipating="58" precinctsReported="58" precinctsReportingPercent="100.00" />
+            <County name="Union" totalVoters="16259" ballotsCast="8783" voterTurnout="54.02" precinctsParticipating="21" precinctsReported="21" precinctsReportingPercent="100.00" />
+            <County name="Williamsburg" totalVoters="20266" ballotsCast="9973" voterTurnout="49.21" precinctsParticipating="28" precinctsReported="28" precinctsReportingPercent="100.00" />
+            <County name="York" totalVoters="194401" ballotsCast="96726" voterTurnout="49.76" precinctsParticipating="98" precinctsReported="98" precinctsReportingPercent="100.00" />
+        </Counties>
+    </ElectionVoterTurnout>
+    <Contest key="22500" text="Secretary of State" voteFor="1" isQuestion="false" countiesParticipating="46" countiesReported="46" precinctsParticipating="2257" precinctsReported="2257" precinctsReportingPercent="100.00">
+        <ParticipatingCounties>
+            <County name="Abbeville" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="Aiken" precinctsParticipating="86" precinctsReported="86" precinctsReportingPercent="100.00" />
+            <County name="Allendale" precinctsParticipating="8" precinctsReported="8" precinctsReportingPercent="100.00" />
+            <County name="Anderson" precinctsParticipating="79" precinctsReported="79" precinctsReportingPercent="100.00" />
+            <County name="Bamberg" precinctsParticipating="13" precinctsReported="13" precinctsReportingPercent="100.00" />
+            <County name="Barnwell" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="Beaufort" precinctsParticipating="95" precinctsReported="95" precinctsReportingPercent="100.00" />
+            <County name="Berkeley" precinctsParticipating="94" precinctsReported="94" precinctsReportingPercent="100.00" />
+            <County name="Calhoun" precinctsParticipating="12" precinctsReported="12" precinctsReportingPercent="100.00" />
+            <County name="Charleston" precinctsParticipating="182" precinctsReported="182" precinctsReportingPercent="100.00" />
+            <County name="Cherokee" precinctsParticipating="29" precinctsReported="29" precinctsReportingPercent="100.00" />
+            <County name="Chester" precinctsParticipating="21" precinctsReported="21" precinctsReportingPercent="100.00" />
+            <County name="Chesterfield" precinctsParticipating="25" precinctsReported="25" precinctsReportingPercent="100.00" />
+            <County name="Clarendon" precinctsParticipating="25" precinctsReported="25" precinctsReportingPercent="100.00" />
+            <County name="Colleton" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Darlington" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Dillon" precinctsParticipating="19" precinctsReported="19" precinctsReportingPercent="100.00" />
+            <County name="Dorchester" precinctsParticipating="81" precinctsReported="81" precinctsReportingPercent="100.00" />
+            <County name="Edgefield" precinctsParticipating="12" precinctsReported="12" precinctsReportingPercent="100.00" />
+            <County name="Fairfield" precinctsParticipating="22" precinctsReported="22" precinctsReportingPercent="100.00" />
+            <County name="Florence" precinctsParticipating="63" precinctsReported="63" precinctsReportingPercent="100.00" />
+            <County name="Georgetown" precinctsParticipating="34" precinctsReported="34" precinctsReportingPercent="100.00" />
+            <County name="Greenville" precinctsParticipating="151" precinctsReported="151" precinctsReportingPercent="100.00" />
+            <County name="Greenwood" precinctsParticipating="50" precinctsReported="50" precinctsReportingPercent="100.00" />
+            <County name="Hampton" precinctsParticipating="18" precinctsReported="18" precinctsReportingPercent="100.00" />
+            <County name="Horry" precinctsParticipating="125" precinctsReported="125" precinctsReportingPercent="100.00" />
+            <County name="Jasper" precinctsParticipating="17" precinctsReported="17" precinctsReportingPercent="100.00" />
+            <County name="Kershaw" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Lancaster" precinctsParticipating="36" precinctsReported="36" precinctsReportingPercent="100.00" />
+            <County name="Laurens" precinctsParticipating="33" precinctsReported="33" precinctsReportingPercent="100.00" />
+            <County name="Lee" precinctsParticipating="22" precinctsReported="22" precinctsReportingPercent="100.00" />
+            <County name="Lexington" precinctsParticipating="96" precinctsReported="96" precinctsReportingPercent="100.00" />
+            <County name="Marion" precinctsParticipating="17" precinctsReported="17" precinctsReportingPercent="100.00" />
+            <County name="Marlboro" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="McCormick" precinctsParticipating="11" precinctsReported="11" precinctsReportingPercent="100.00" />
+            <County name="Newberry" precinctsParticipating="30" precinctsReported="30" precinctsReportingPercent="100.00" />
+            <County name="Oconee" precinctsParticipating="31" precinctsReported="31" precinctsReportingPercent="100.00" />
+            <County name="Orangeburg" precinctsParticipating="53" precinctsReported="53" precinctsReportingPercent="100.00" />
+            <County name="Pickens" precinctsParticipating="61" precinctsReported="61" precinctsReportingPercent="100.00" />
+            <County name="Richland" precinctsParticipating="149" precinctsReported="149" precinctsReportingPercent="100.00" />
+            <County name="Saluda" precinctsParticipating="13" precinctsReported="13" precinctsReportingPercent="100.00" />
+            <County name="Spartanburg" precinctsParticipating="98" precinctsReported="98" precinctsReportingPercent="100.00" />
+            <County name="Sumter" precinctsParticipating="58" precinctsReported="58" precinctsReportingPercent="100.00" />
+            <County name="Union" precinctsParticipating="21" precinctsReported="21" precinctsReportingPercent="100.00" />
+            <County name="Williamsburg" precinctsParticipating="28" precinctsReported="28" precinctsReportingPercent="100.00" />
+            <County name="York" precinctsParticipating="98" precinctsReported="98" precinctsReportingPercent="100.00" />
+        </ParticipatingCounties>
+        <Choice key="001" text="REP Mark Hammond" party="REP" totalVotes="1071451">
+            <VoteType name="Election Day" votes="729033">
+                <County name="Abbeville" votes="4605" />
+                <County name="Aiken" votes="25310" />
+                <County name="Allendale" votes="418" />
+                <County name="Anderson" votes="37314" />
+                <County name="Bamberg" votes="1339" />
+                <County name="Barnwell" votes="2730" />
+                <County name="Beaufort" votes="27954" />
+                <County name="Berkeley" votes="30956" />
+                <County name="Calhoun" votes="2664" />
+                <County name="Charleston" votes="43233" />
+                <County name="Cherokee" votes="9934" />
+                <County name="Chester" votes="4476" />
+                <County name="Chesterfield" votes="6471" />
+                <County name="Clarendon" votes="4296" />
+                <County name="Colleton" votes="5483" />
+                <County name="Darlington" votes="8986" />
+                <County name="Dillon" votes="3428" />
+                <County name="Dorchester" votes="18121" />
+                <County name="Edgefield" votes="4602" />
+                <County name="Fairfield" votes="2729" />
+                <County name="Florence" votes="16751" />
+                <County name="Georgetown" votes="10080" />
+                <County name="Greenville" votes="86024" />
+                <County name="Greenwood" votes="10507" />
+                <County name="Hampton" votes="2030" />
+                <County name="Horry" votes="59591" />
+                <County name="Jasper" votes="3802" />
+                <County name="Kershaw" votes="10126" />
+                <County name="Lancaster" votes="14258" />
+                <County name="Laurens" votes="12135" />
+                <County name="Lee" votes="1737" />
+                <County name="Lexington" votes="49516" />
+                <County name="Marion" votes="2908" />
+                <County name="Marlboro" votes="2089" />
+                <County name="McCormick" votes="1538" />
+                <County name="Newberry" votes="6763" />
+                <County name="Oconee" votes="15347" />
+                <County name="Orangeburg" votes="7213" />
+                <County name="Pickens" votes="22974" />
+                <County name="Richland" votes="31934" />
+                <County name="Saluda" votes="3753" />
+                <County name="Spartanburg" votes="49374" />
+                <County name="Sumter" votes="10942" />
+                <County name="Union" votes="4492" />
+                <County name="Williamsburg" votes="3085" />
+                <County name="York" votes="45015" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="301147">
+                <County name="Abbeville" votes="1546" />
+                <County name="Aiken" votes="11356" />
+                <County name="Allendale" votes="11" />
+                <County name="Anderson" votes="1027" />
+                <County name="Bamberg" votes="456" />
+                <County name="Barnwell" votes="1026" />
+                <County name="Beaufort" votes="15127" />
+                <County name="Berkeley" votes="11494" />
+                <County name="Calhoun" votes="728" />
+                <County name="Charleston" votes="31716" />
+                <County name="Cherokee" votes="2687" />
+                <County name="Chester" votes="1544" />
+                <County name="Chesterfield" votes="1749" />
+                <County name="Clarendon" votes="2203" />
+                <County name="Colleton" votes="2081" />
+                <County name="Darlington" votes="2971" />
+                <County name="Dillon" votes="847" />
+                <County name="Dorchester" votes="11478" />
+                <County name="Edgefield" votes="1383" />
+                <County name="Fairfield" votes="1122" />
+                <County name="Florence" votes="7160" />
+                <County name="Georgetown" votes="6877" />
+                <County name="Greenville" votes="28227" />
+                <County name="Greenwood" votes="3923" />
+                <County name="Hampton" votes="670" />
+                <County name="Horry" votes="35248" />
+                <County name="Jasper" votes="2530" />
+                <County name="Kershaw" votes="4799" />
+                <County name="Lancaster" votes="8794" />
+                <County name="Laurens" votes="2183" />
+                <County name="Lee" votes="453" />
+                <County name="Lexington" votes="19526" />
+                <County name="Marion" votes="1011" />
+                <County name="Marlboro" votes="1120" />
+                <County name="McCormick" votes="1179" />
+                <County name="Newberry" votes="2218" />
+                <County name="Oconee" votes="6700" />
+                <County name="Orangeburg" votes="2642" />
+                <County name="Pickens" votes="8323" />
+                <County name="Richland" votes="14734" />
+                <County name="Saluda" votes="1176" />
+                <County name="Spartanburg" votes="17767" />
+                <County name="Sumter" votes="3830" />
+                <County name="Union" votes="1429" />
+                <County name="Williamsburg" votes="950" />
+                <County name="York" votes="15126" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="37501">
+                <County name="Abbeville" votes="85" />
+                <County name="Aiken" votes="876" />
+                <County name="Allendale" votes="160" />
+                <County name="Anderson" votes="10222" />
+                <County name="Bamberg" votes="37" />
+                <County name="Barnwell" votes="39" />
+                <County name="Beaufort" votes="1541" />
+                <County name="Berkeley" votes="1553" />
+                <County name="Calhoun" votes="67" />
+                <County name="Charleston" votes="3453" />
+                <County name="Cherokee" votes="143" />
+                <County name="Chester" votes="64" />
+                <County name="Chesterfield" votes="121" />
+                <County name="Clarendon" votes="146" />
+                <County name="Colleton" votes="209" />
+                <County name="Darlington" votes="244" />
+                <County name="Dillon" votes="155" />
+                <County name="Dorchester" votes="750" />
+                <County name="Edgefield" votes="141" />
+                <County name="Fairfield" votes="99" />
+                <County name="Florence" votes="463" />
+                <County name="Georgetown" votes="517" />
+                <County name="Greenville" votes="2898" />
+                <County name="Greenwood" votes="518" />
+                <County name="Hampton" votes="103" />
+                <County name="Horry" votes="2278" />
+                <County name="Jasper" votes="219" />
+                <County name="Kershaw" votes="268" />
+                <County name="Lancaster" votes="366" />
+                <County name="Laurens" votes="175" />
+                <County name="Lee" votes="26" />
+                <County name="Lexington" votes="1938" />
+                <County name="Marion" votes="100" />
+                <County name="Marlboro" votes="138" />
+                <County name="McCormick" votes="73" />
+                <County name="Newberry" votes="124" />
+                <County name="Oconee" votes="794" />
+                <County name="Orangeburg" votes="204" />
+                <County name="Pickens" votes="435" />
+                <County name="Richland" votes="2115" />
+                <County name="Saluda" votes="41" />
+                <County name="Spartanburg" votes="1523" />
+                <County name="Sumter" votes="484" />
+                <County name="Union" votes="63" />
+                <County name="Williamsburg" votes="53" />
+                <County name="York" votes="1480" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="1332">
+                <County name="Abbeville" votes="1" />
+                <County name="Aiken" votes="47" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="132" />
+                <County name="Bamberg" votes="1" />
+                <County name="Barnwell" votes="6" />
+                <County name="Beaufort" votes="163" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="9" />
+                <County name="Charleston" votes="52" />
+                <County name="Cherokee" votes="45" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="12" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="7" />
+                <County name="Fairfield" votes="4" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="192" />
+                <County name="Greenwood" votes="38" />
+                <County name="Hampton" votes="1" />
+                <County name="Horry" votes="39" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="38" />
+                <County name="Laurens" votes="36" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="113" />
+                <County name="Marion" votes="6" />
+                <County name="Marlboro" votes="1" />
+                <County name="McCormick" votes="9" />
+                <County name="Newberry" votes="1" />
+                <County name="Oconee" votes="4" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="97" />
+                <County name="Richland" votes="29" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="125" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="39" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="85" />
+            </VoteType>
+            <VoteType name="Provisional" votes="994">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="24" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="79" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="1" />
+                <County name="Beaufort" votes="53" />
+                <County name="Berkeley" votes="11" />
+                <County name="Calhoun" votes="3" />
+                <County name="Charleston" votes="122" />
+                <County name="Cherokee" votes="4" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="1" />
+                <County name="Clarendon" votes="3" />
+                <County name="Colleton" votes="1" />
+                <County name="Darlington" votes="4" />
+                <County name="Dillon" votes="5" />
+                <County name="Dorchester" votes="3" />
+                <County name="Edgefield" votes="7" />
+                <County name="Fairfield" votes="2" />
+                <County name="Florence" votes="11" />
+                <County name="Georgetown" votes="10" />
+                <County name="Greenville" votes="177" />
+                <County name="Greenwood" votes="9" />
+                <County name="Hampton" votes="1" />
+                <County name="Horry" votes="46" />
+                <County name="Jasper" votes="6" />
+                <County name="Kershaw" votes="8" />
+                <County name="Lancaster" votes="13" />
+                <County name="Laurens" votes="9" />
+                <County name="Lee" votes="1" />
+                <County name="Lexington" votes="38" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="3" />
+                <County name="Oconee" votes="15" />
+                <County name="Orangeburg" votes="6" />
+                <County name="Pickens" votes="59" />
+                <County name="Richland" votes="42" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="53" />
+                <County name="Sumter" votes="5" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="5" />
+                <County name="York" votes="154" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="1444">
+                <County name="Abbeville" votes="3" />
+                <County name="Aiken" votes="66" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="73" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="73" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="119" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="2" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="5" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="369" />
+                <County name="Greenwood" votes="26" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="34" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="2" />
+                <County name="Lancaster" votes="54" />
+                <County name="Laurens" votes="19" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="177" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="5" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="33" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="48" />
+                <County name="Richland" votes="44" />
+                <County name="Saluda" votes="3" />
+                <County name="Spartanburg" votes="84" />
+                <County name="Sumter" votes="9" />
+                <County name="Union" votes="1" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="195" />
+            </VoteType>
+        </Choice>
+        <Choice key="002" text="DEM Rosemounda Peggy Butler" party="DEM" totalVotes="619341">
+            <VoteType name="Election Day" votes="347659">
+                <County name="Abbeville" votes="1299" />
+                <County name="Aiken" votes="9684" />
+                <County name="Allendale" votes="616" />
+                <County name="Anderson" votes="9584" />
+                <County name="Bamberg" votes="1215" />
+                <County name="Barnwell" votes="1263" />
+                <County name="Beaufort" votes="13090" />
+                <County name="Berkeley" votes="16090" />
+                <County name="Calhoun" votes="1174" />
+                <County name="Charleston" votes="34463" />
+                <County name="Cherokee" votes="2212" />
+                <County name="Chester" votes="2186" />
+                <County name="Chesterfield" votes="2751" />
+                <County name="Clarendon" votes="1880" />
+                <County name="Colleton" votes="2678" />
+                <County name="Darlington" votes="4441" />
+                <County name="Dillon" votes="1902" />
+                <County name="Dorchester" votes="9249" />
+                <County name="Edgefield" votes="1570" />
+                <County name="Fairfield" votes="2692" />
+                <County name="Florence" votes="9779" />
+                <County name="Georgetown" votes="4516" />
+                <County name="Greenville" votes="35486" />
+                <County name="Greenwood" votes="3998" />
+                <County name="Hampton" votes="1540" />
+                <County name="Horry" votes="17574" />
+                <County name="Jasper" votes="2149" />
+                <County name="Kershaw" votes="3725" />
+                <County name="Lancaster" votes="5596" />
+                <County name="Laurens" votes="3768" />
+                <County name="Lee" votes="1758" />
+                <County name="Lexington" votes="17194" />
+                <County name="Marion" votes="2531" />
+                <County name="Marlboro" votes="1394" />
+                <County name="McCormick" votes="860" />
+                <County name="Newberry" votes="2343" />
+                <County name="Oconee" votes="3433" />
+                <County name="Orangeburg" votes="8411" />
+                <County name="Pickens" votes="4688" />
+                <County name="Richland" votes="43840" />
+                <County name="Saluda" votes="1034" />
+                <County name="Spartanburg" votes="17369" />
+                <County name="Sumter" votes="8691" />
+                <County name="Union" votes="1798" />
+                <County name="Williamsburg" votes="3134" />
+                <County name="York" votes="21011" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="237730">
+                <County name="Abbeville" votes="924" />
+                <County name="Aiken" votes="6689" />
+                <County name="Allendale" votes="34" />
+                <County name="Anderson" votes="557" />
+                <County name="Bamberg" votes="709" />
+                <County name="Barnwell" votes="1095" />
+                <County name="Beaufort" votes="11585" />
+                <County name="Berkeley" votes="9319" />
+                <County name="Calhoun" votes="864" />
+                <County name="Charleston" votes="33115" />
+                <County name="Cherokee" votes="1026" />
+                <County name="Chester" votes="1177" />
+                <County name="Chesterfield" votes="1293" />
+                <County name="Clarendon" votes="2467" />
+                <County name="Colleton" votes="1850" />
+                <County name="Darlington" votes="2871" />
+                <County name="Dillon" votes="766" />
+                <County name="Dorchester" votes="8845" />
+                <County name="Edgefield" votes="896" />
+                <County name="Fairfield" votes="1538" />
+                <County name="Florence" votes="6612" />
+                <County name="Georgetown" votes="4908" />
+                <County name="Greenville" votes="20761" />
+                <County name="Greenwood" votes="2331" />
+                <County name="Hampton" votes="942" />
+                <County name="Horry" votes="16465" />
+                <County name="Jasper" votes="2141" />
+                <County name="Kershaw" votes="3166" />
+                <County name="Lancaster" votes="5034" />
+                <County name="Laurens" votes="1245" />
+                <County name="Lee" votes="1196" />
+                <County name="Lexington" votes="9175" />
+                <County name="Marion" votes="1340" />
+                <County name="Marlboro" votes="1392" />
+                <County name="McCormick" votes="829" />
+                <County name="Newberry" votes="1245" />
+                <County name="Oconee" votes="2158" />
+                <County name="Orangeburg" votes="6183" />
+                <County name="Pickens" votes="3043" />
+                <County name="Richland" votes="30369" />
+                <County name="Saluda" votes="508" />
+                <County name="Spartanburg" votes="9173" />
+                <County name="Sumter" votes="5735" />
+                <County name="Union" votes="751" />
+                <County name="Williamsburg" votes="2348" />
+                <County name="York" votes="11060" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="31714">
+                <County name="Abbeville" votes="82" />
+                <County name="Aiken" votes="594" />
+                <County name="Allendale" votes="557" />
+                <County name="Anderson" votes="4041" />
+                <County name="Bamberg" votes="201" />
+                <County name="Barnwell" votes="90" />
+                <County name="Beaufort" votes="1377" />
+                <County name="Berkeley" votes="1339" />
+                <County name="Calhoun" votes="84" />
+                <County name="Charleston" votes="4147" />
+                <County name="Cherokee" votes="48" />
+                <County name="Chester" votes="142" />
+                <County name="Chesterfield" votes="119" />
+                <County name="Clarendon" votes="368" />
+                <County name="Colleton" votes="187" />
+                <County name="Darlington" votes="444" />
+                <County name="Dillon" votes="711" />
+                <County name="Dorchester" votes="739" />
+                <County name="Edgefield" votes="183" />
+                <County name="Fairfield" votes="100" />
+                <County name="Florence" votes="458" />
+                <County name="Georgetown" votes="391" />
+                <County name="Greenville" votes="2279" />
+                <County name="Greenwood" votes="286" />
+                <County name="Hampton" votes="281" />
+                <County name="Horry" votes="1717" />
+                <County name="Jasper" votes="230" />
+                <County name="Kershaw" votes="175" />
+                <County name="Lancaster" votes="335" />
+                <County name="Laurens" votes="141" />
+                <County name="Lee" votes="55" />
+                <County name="Lexington" votes="940" />
+                <County name="Marion" votes="442" />
+                <County name="Marlboro" votes="330" />
+                <County name="McCormick" votes="71" />
+                <County name="Newberry" votes="65" />
+                <County name="Oconee" votes="353" />
+                <County name="Orangeburg" votes="1407" />
+                <County name="Pickens" votes="250" />
+                <County name="Richland" votes="2706" />
+                <County name="Saluda" votes="19" />
+                <County name="Spartanburg" votes="1032" />
+                <County name="Sumter" votes="839" />
+                <County name="Union" votes="32" />
+                <County name="Williamsburg" votes="115" />
+                <County name="York" votes="1212" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="880">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="25" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="46" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="5" />
+                <County name="Beaufort" votes="88" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="1" />
+                <County name="Charleston" votes="99" />
+                <County name="Cherokee" votes="20" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="6" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="2" />
+                <County name="Fairfield" votes="1" />
+                <County name="Florence" votes="1" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="163" />
+                <County name="Greenwood" votes="40" />
+                <County name="Hampton" votes="1" />
+                <County name="Horry" votes="14" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="12" />
+                <County name="Laurens" votes="12" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="57" />
+                <County name="Marion" votes="6" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="4" />
+                <County name="Newberry" votes="1" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="23" />
+                <County name="Richland" votes="101" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="109" />
+                <County name="Sumter" votes="2" />
+                <County name="Union" votes="12" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="29" />
+            </VoteType>
+            <VoteType name="Provisional" votes="624">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="13" />
+                <County name="Allendale" votes="1" />
+                <County name="Anderson" votes="16" />
+                <County name="Bamberg" votes="2" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="20" />
+                <County name="Berkeley" votes="15" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="137" />
+                <County name="Cherokee" votes="2" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="1" />
+                <County name="Clarendon" votes="1" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="2" />
+                <County name="Dillon" votes="12" />
+                <County name="Dorchester" votes="1" />
+                <County name="Edgefield" votes="4" />
+                <County name="Fairfield" votes="1" />
+                <County name="Florence" votes="13" />
+                <County name="Georgetown" votes="4" />
+                <County name="Greenville" votes="78" />
+                <County name="Greenwood" votes="11" />
+                <County name="Hampton" votes="5" />
+                <County name="Horry" votes="20" />
+                <County name="Jasper" votes="4" />
+                <County name="Kershaw" votes="6" />
+                <County name="Lancaster" votes="3" />
+                <County name="Laurens" votes="1" />
+                <County name="Lee" votes="1" />
+                <County name="Lexington" votes="15" />
+                <County name="Marion" votes="17" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="1" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="5" />
+                <County name="Orangeburg" votes="9" />
+                <County name="Pickens" votes="15" />
+                <County name="Richland" votes="66" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="30" />
+                <County name="Sumter" votes="6" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="7" />
+                <County name="York" votes="79" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="734">
+                <County name="Abbeville" votes="1" />
+                <County name="Aiken" votes="20" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="21" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="20" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="143" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="2" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="3" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="1" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="155" />
+                <County name="Greenwood" votes="18" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="14" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="1" />
+                <County name="Lancaster" votes="19" />
+                <County name="Laurens" votes="8" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="77" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="6" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="6" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="18" />
+                <County name="Richland" votes="64" />
+                <County name="Saluda" votes="1" />
+                <County name="Spartanburg" votes="24" />
+                <County name="Sumter" votes="5" />
+                <County name="Union" votes="2" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="105" />
+            </VoteType>
+        </Choice>
+        <Choice key="004" text="Write-In" party="NON" totalVotes="1109">
+            <VoteType name="Election Day" votes="814">
+                <County name="Abbeville" votes="2" />
+                <County name="Aiken" votes="31" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="22" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="4" />
+                <County name="Beaufort" votes="43" />
+                <County name="Berkeley" votes="39" />
+                <County name="Calhoun" votes="3" />
+                <County name="Charleston" votes="70" />
+                <County name="Cherokee" votes="5" />
+                <County name="Chester" votes="4" />
+                <County name="Chesterfield" votes="3" />
+                <County name="Clarendon" votes="5" />
+                <County name="Colleton" votes="4" />
+                <County name="Darlington" votes="8" />
+                <County name="Dillon" votes="2" />
+                <County name="Dorchester" votes="29" />
+                <County name="Edgefield" votes="2" />
+                <County name="Fairfield" votes="12" />
+                <County name="Florence" votes="15" />
+                <County name="Georgetown" votes="2" />
+                <County name="Greenville" votes="112" />
+                <County name="Greenwood" votes="11" />
+                <County name="Hampton" votes="2" />
+                <County name="Horry" votes="23" />
+                <County name="Jasper" votes="6" />
+                <County name="Kershaw" votes="12" />
+                <County name="Lancaster" votes="13" />
+                <County name="Laurens" votes="22" />
+                <County name="Lee" votes="3" />
+                <County name="Lexington" votes="61" />
+                <County name="Marion" votes="2" />
+                <County name="Marlboro" votes="1" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="5" />
+                <County name="Oconee" votes="14" />
+                <County name="Orangeburg" votes="6" />
+                <County name="Pickens" votes="16" />
+                <County name="Richland" votes="83" />
+                <County name="Saluda" votes="2" />
+                <County name="Spartanburg" votes="58" />
+                <County name="Sumter" votes="10" />
+                <County name="Union" votes="7" />
+                <County name="Williamsburg" votes="3" />
+                <County name="York" votes="37" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="234">
+                <County name="Abbeville" votes="1" />
+                <County name="Aiken" votes="11" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="1" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="16" />
+                <County name="Berkeley" votes="9" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="21" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="1" />
+                <County name="Chesterfield" votes="1" />
+                <County name="Clarendon" votes="1" />
+                <County name="Colleton" votes="1" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="2" />
+                <County name="Dorchester" votes="11" />
+                <County name="Edgefield" votes="1" />
+                <County name="Fairfield" votes="1" />
+                <County name="Florence" votes="3" />
+                <County name="Georgetown" votes="2" />
+                <County name="Greenville" votes="31" />
+                <County name="Greenwood" votes="3" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="14" />
+                <County name="Jasper" votes="3" />
+                <County name="Kershaw" votes="2" />
+                <County name="Lancaster" votes="7" />
+                <County name="Laurens" votes="5" />
+                <County name="Lee" votes="1" />
+                <County name="Lexington" votes="18" />
+                <County name="Marion" votes="1" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="1" />
+                <County name="Orangeburg" votes="2" />
+                <County name="Pickens" votes="6" />
+                <County name="Richland" votes="32" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="13" />
+                <County name="Sumter" votes="1" />
+                <County name="Union" votes="2" />
+                <County name="Williamsburg" votes="2" />
+                <County name="York" votes="7" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="55">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="2" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="6" />
+                <County name="Bamberg" votes="1" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="1" />
+                <County name="Berkeley" votes="2" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="8" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="12" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="6" />
+                <County name="Greenwood" votes="0" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="2" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="0" />
+                <County name="Laurens" votes="0" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="1" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="2" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="0" />
+                <County name="Richland" votes="8" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="2" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="2" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="4">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="0" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="0" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="0" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="1" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="0" />
+                <County name="Greenwood" votes="1" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="0" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="0" />
+                <County name="Laurens" votes="0" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="0" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="1" />
+                <County name="Richland" votes="1" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="0" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="0" />
+            </VoteType>
+            <VoteType name="Provisional" votes="1">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="0" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="0" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="0" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="0" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="0" />
+                <County name="Greenwood" votes="0" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="0" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="0" />
+                <County name="Laurens" votes="1" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="0" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="0" />
+                <County name="Richland" votes="0" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="0" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="0" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="1">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="0" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="0" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="0" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="0" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="0" />
+                <County name="Greenwood" votes="0" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="0" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="0" />
+                <County name="Laurens" votes="0" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="0" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="0" />
+                <County name="Richland" votes="1" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="0" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="0" />
+            </VoteType>
+        </Choice>
+    </Contest>
+    <Contest key="26000" text="U.S. Senate" voteFor="1" isQuestion="false" countiesParticipating="46" countiesReported="46" precinctsParticipating="2257" precinctsReported="2257" precinctsReportingPercent="100.00">
+        <ParticipatingCounties>
+            <County name="Abbeville" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="Aiken" precinctsParticipating="86" precinctsReported="86" precinctsReportingPercent="100.00" />
+            <County name="Allendale" precinctsParticipating="8" precinctsReported="8" precinctsReportingPercent="100.00" />
+            <County name="Anderson" precinctsParticipating="79" precinctsReported="79" precinctsReportingPercent="100.00" />
+            <County name="Bamberg" precinctsParticipating="13" precinctsReported="13" precinctsReportingPercent="100.00" />
+            <County name="Barnwell" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="Beaufort" precinctsParticipating="95" precinctsReported="95" precinctsReportingPercent="100.00" />
+            <County name="Berkeley" precinctsParticipating="94" precinctsReported="94" precinctsReportingPercent="100.00" />
+            <County name="Calhoun" precinctsParticipating="12" precinctsReported="12" precinctsReportingPercent="100.00" />
+            <County name="Charleston" precinctsParticipating="182" precinctsReported="182" precinctsReportingPercent="100.00" />
+            <County name="Cherokee" precinctsParticipating="29" precinctsReported="29" precinctsReportingPercent="100.00" />
+            <County name="Chester" precinctsParticipating="21" precinctsReported="21" precinctsReportingPercent="100.00" />
+            <County name="Chesterfield" precinctsParticipating="25" precinctsReported="25" precinctsReportingPercent="100.00" />
+            <County name="Clarendon" precinctsParticipating="25" precinctsReported="25" precinctsReportingPercent="100.00" />
+            <County name="Colleton" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Darlington" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Dillon" precinctsParticipating="19" precinctsReported="19" precinctsReportingPercent="100.00" />
+            <County name="Dorchester" precinctsParticipating="81" precinctsReported="81" precinctsReportingPercent="100.00" />
+            <County name="Edgefield" precinctsParticipating="12" precinctsReported="12" precinctsReportingPercent="100.00" />
+            <County name="Fairfield" precinctsParticipating="22" precinctsReported="22" precinctsReportingPercent="100.00" />
+            <County name="Florence" precinctsParticipating="63" precinctsReported="63" precinctsReportingPercent="100.00" />
+            <County name="Georgetown" precinctsParticipating="34" precinctsReported="34" precinctsReportingPercent="100.00" />
+            <County name="Greenville" precinctsParticipating="151" precinctsReported="151" precinctsReportingPercent="100.00" />
+            <County name="Greenwood" precinctsParticipating="50" precinctsReported="50" precinctsReportingPercent="100.00" />
+            <County name="Hampton" precinctsParticipating="18" precinctsReported="18" precinctsReportingPercent="100.00" />
+            <County name="Horry" precinctsParticipating="125" precinctsReported="125" precinctsReportingPercent="100.00" />
+            <County name="Jasper" precinctsParticipating="17" precinctsReported="17" precinctsReportingPercent="100.00" />
+            <County name="Kershaw" precinctsParticipating="32" precinctsReported="32" precinctsReportingPercent="100.00" />
+            <County name="Lancaster" precinctsParticipating="36" precinctsReported="36" precinctsReportingPercent="100.00" />
+            <County name="Laurens" precinctsParticipating="33" precinctsReported="33" precinctsReportingPercent="100.00" />
+            <County name="Lee" precinctsParticipating="22" precinctsReported="22" precinctsReportingPercent="100.00" />
+            <County name="Lexington" precinctsParticipating="96" precinctsReported="96" precinctsReportingPercent="100.00" />
+            <County name="Marion" precinctsParticipating="17" precinctsReported="17" precinctsReportingPercent="100.00" />
+            <County name="Marlboro" precinctsParticipating="15" precinctsReported="15" precinctsReportingPercent="100.00" />
+            <County name="McCormick" precinctsParticipating="11" precinctsReported="11" precinctsReportingPercent="100.00" />
+            <County name="Newberry" precinctsParticipating="30" precinctsReported="30" precinctsReportingPercent="100.00" />
+            <County name="Oconee" precinctsParticipating="31" precinctsReported="31" precinctsReportingPercent="100.00" />
+            <County name="Orangeburg" precinctsParticipating="53" precinctsReported="53" precinctsReportingPercent="100.00" />
+            <County name="Pickens" precinctsParticipating="61" precinctsReported="61" precinctsReportingPercent="100.00" />
+            <County name="Richland" precinctsParticipating="149" precinctsReported="149" precinctsReportingPercent="100.00" />
+            <County name="Saluda" precinctsParticipating="13" precinctsReported="13" precinctsReportingPercent="100.00" />
+            <County name="Spartanburg" precinctsParticipating="98" precinctsReported="98" precinctsReportingPercent="100.00" />
+            <County name="Sumter" precinctsParticipating="58" precinctsReported="58" precinctsReportingPercent="100.00" />
+            <County name="Union" precinctsParticipating="21" precinctsReported="21" precinctsReportingPercent="100.00" />
+            <County name="Williamsburg" precinctsParticipating="28" precinctsReported="28" precinctsReportingPercent="100.00" />
+            <County name="York" precinctsParticipating="98" precinctsReported="98" precinctsReportingPercent="100.00" />
+        </ParticipatingCounties>
+        <Choice key="001" text="REP Tim Scott" party="REP" totalVotes="1066274">
+            <VoteType name="Election Day" votes="726540">
+                <County name="Abbeville" votes="4606" />
+                <County name="Aiken" votes="25252" />
+                <County name="Allendale" votes="413" />
+                <County name="Anderson" votes="37318" />
+                <County name="Bamberg" votes="1323" />
+                <County name="Barnwell" votes="2735" />
+                <County name="Beaufort" votes="28052" />
+                <County name="Berkeley" votes="31288" />
+                <County name="Calhoun" votes="2637" />
+                <County name="Charleston" votes="43946" />
+                <County name="Cherokee" votes="9895" />
+                <County name="Chester" votes="4388" />
+                <County name="Chesterfield" votes="6463" />
+                <County name="Clarendon" votes="4266" />
+                <County name="Colleton" votes="5461" />
+                <County name="Darlington" votes="8913" />
+                <County name="Dillon" votes="3440" />
+                <County name="Dorchester" votes="18452" />
+                <County name="Edgefield" votes="4569" />
+                <County name="Fairfield" votes="2684" />
+                <County name="Florence" votes="16597" />
+                <County name="Georgetown" votes="10078" />
+                <County name="Greenville" votes="86171" />
+                <County name="Greenwood" votes="10528" />
+                <County name="Hampton" votes="2042" />
+                <County name="Horry" votes="59417" />
+                <County name="Jasper" votes="3777" />
+                <County name="Kershaw" votes="9990" />
+                <County name="Lancaster" votes="14046" />
+                <County name="Laurens" votes="12109" />
+                <County name="Lee" votes="1733" />
+                <County name="Lexington" votes="48803" />
+                <County name="Marion" votes="2864" />
+                <County name="Marlboro" votes="2062" />
+                <County name="McCormick" votes="1550" />
+                <County name="Newberry" votes="6679" />
+                <County name="Oconee" votes="15394" />
+                <County name="Orangeburg" votes="7181" />
+                <County name="Pickens" votes="23054" />
+                <County name="Richland" votes="30860" />
+                <County name="Saluda" votes="3740" />
+                <County name="Spartanburg" votes="48863" />
+                <County name="Sumter" votes="10816" />
+                <County name="Union" votes="4465" />
+                <County name="Williamsburg" votes="3059" />
+                <County name="York" votes="44561" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="298921">
+                <County name="Abbeville" votes="1560" />
+                <County name="Aiken" votes="11290" />
+                <County name="Allendale" votes="10" />
+                <County name="Anderson" votes="1000" />
+                <County name="Bamberg" votes="456" />
+                <County name="Barnwell" votes="1028" />
+                <County name="Beaufort" votes="15148" />
+                <County name="Berkeley" votes="11532" />
+                <County name="Calhoun" votes="717" />
+                <County name="Charleston" votes="31963" />
+                <County name="Cherokee" votes="2670" />
+                <County name="Chester" votes="1502" />
+                <County name="Chesterfield" votes="1712" />
+                <County name="Clarendon" votes="2200" />
+                <County name="Colleton" votes="2079" />
+                <County name="Darlington" votes="2961" />
+                <County name="Dillon" votes="863" />
+                <County name="Dorchester" votes="11593" />
+                <County name="Edgefield" votes="1390" />
+                <County name="Fairfield" votes="1098" />
+                <County name="Florence" votes="7052" />
+                <County name="Georgetown" votes="6852" />
+                <County name="Greenville" votes="28155" />
+                <County name="Greenwood" votes="3926" />
+                <County name="Hampton" votes="677" />
+                <County name="Horry" votes="35151" />
+                <County name="Jasper" votes="2551" />
+                <County name="Kershaw" votes="4676" />
+                <County name="Lancaster" votes="8650" />
+                <County name="Laurens" votes="2163" />
+                <County name="Lee" votes="450" />
+                <County name="Lexington" votes="19127" />
+                <County name="Marion" votes="986" />
+                <County name="Marlboro" votes="1106" />
+                <County name="McCormick" votes="1185" />
+                <County name="Newberry" votes="2162" />
+                <County name="Oconee" votes="6671" />
+                <County name="Orangeburg" votes="2634" />
+                <County name="Pickens" votes="8327" />
+                <County name="Richland" votes="14037" />
+                <County name="Saluda" votes="1153" />
+                <County name="Spartanburg" votes="17439" />
+                <County name="Sumter" votes="3793" />
+                <County name="Union" votes="1419" />
+                <County name="Williamsburg" votes="927" />
+                <County name="York" votes="14880" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="37056">
+                <County name="Abbeville" votes="89" />
+                <County name="Aiken" votes="869" />
+                <County name="Allendale" votes="162" />
+                <County name="Anderson" votes="10193" />
+                <County name="Bamberg" votes="40" />
+                <County name="Barnwell" votes="38" />
+                <County name="Beaufort" votes="1539" />
+                <County name="Berkeley" votes="1576" />
+                <County name="Calhoun" votes="64" />
+                <County name="Charleston" votes="3383" />
+                <County name="Cherokee" votes="139" />
+                <County name="Chester" votes="64" />
+                <County name="Chesterfield" votes="122" />
+                <County name="Clarendon" votes="133" />
+                <County name="Colleton" votes="206" />
+                <County name="Darlington" votes="236" />
+                <County name="Dillon" votes="149" />
+                <County name="Dorchester" votes="761" />
+                <County name="Edgefield" votes="136" />
+                <County name="Fairfield" votes="95" />
+                <County name="Florence" votes="456" />
+                <County name="Georgetown" votes="517" />
+                <County name="Greenville" votes="2904" />
+                <County name="Greenwood" votes="508" />
+                <County name="Hampton" votes="104" />
+                <County name="Horry" votes="2253" />
+                <County name="Jasper" votes="220" />
+                <County name="Kershaw" votes="259" />
+                <County name="Lancaster" votes="359" />
+                <County name="Laurens" votes="172" />
+                <County name="Lee" votes="25" />
+                <County name="Lexington" votes="1855" />
+                <County name="Marion" votes="95" />
+                <County name="Marlboro" votes="134" />
+                <County name="McCormick" votes="74" />
+                <County name="Newberry" votes="122" />
+                <County name="Oconee" votes="804" />
+                <County name="Orangeburg" votes="203" />
+                <County name="Pickens" votes="437" />
+                <County name="Richland" votes="1981" />
+                <County name="Saluda" votes="42" />
+                <County name="Spartanburg" votes="1474" />
+                <County name="Sumter" votes="478" />
+                <County name="Union" votes="66" />
+                <County name="Williamsburg" votes="56" />
+                <County name="York" votes="1464" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="1334">
+                <County name="Abbeville" votes="1" />
+                <County name="Aiken" votes="48" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="137" />
+                <County name="Bamberg" votes="1" />
+                <County name="Barnwell" votes="6" />
+                <County name="Beaufort" votes="160" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="9" />
+                <County name="Charleston" votes="53" />
+                <County name="Cherokee" votes="45" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="10" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="7" />
+                <County name="Fairfield" votes="4" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="190" />
+                <County name="Greenwood" votes="36" />
+                <County name="Hampton" votes="1" />
+                <County name="Horry" votes="40" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="37" />
+                <County name="Laurens" votes="36" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="114" />
+                <County name="Marion" votes="7" />
+                <County name="Marlboro" votes="1" />
+                <County name="McCormick" votes="9" />
+                <County name="Newberry" votes="1" />
+                <County name="Oconee" votes="4" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="101" />
+                <County name="Richland" votes="28" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="123" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="40" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="85" />
+            </VoteType>
+            <VoteType name="Provisional" votes="986">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="25" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="78" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="1" />
+                <County name="Beaufort" votes="51" />
+                <County name="Berkeley" votes="11" />
+                <County name="Calhoun" votes="3" />
+                <County name="Charleston" votes="117" />
+                <County name="Cherokee" votes="4" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="1" />
+                <County name="Clarendon" votes="3" />
+                <County name="Colleton" votes="1" />
+                <County name="Darlington" votes="4" />
+                <County name="Dillon" votes="4" />
+                <County name="Dorchester" votes="3" />
+                <County name="Edgefield" votes="6" />
+                <County name="Fairfield" votes="2" />
+                <County name="Florence" votes="12" />
+                <County name="Georgetown" votes="10" />
+                <County name="Greenville" votes="183" />
+                <County name="Greenwood" votes="9" />
+                <County name="Hampton" votes="1" />
+                <County name="Horry" votes="45" />
+                <County name="Jasper" votes="6" />
+                <County name="Kershaw" votes="8" />
+                <County name="Lancaster" votes="13" />
+                <County name="Laurens" votes="9" />
+                <County name="Lee" votes="1" />
+                <County name="Lexington" votes="38" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="3" />
+                <County name="Oconee" votes="17" />
+                <County name="Orangeburg" votes="6" />
+                <County name="Pickens" votes="59" />
+                <County name="Richland" votes="40" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="51" />
+                <County name="Sumter" votes="4" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="5" />
+                <County name="York" votes="152" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="1437">
+                <County name="Abbeville" votes="3" />
+                <County name="Aiken" votes="65" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="75" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="73" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="124" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="2" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="5" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="371" />
+                <County name="Greenwood" votes="26" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="35" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="2" />
+                <County name="Lancaster" votes="54" />
+                <County name="Laurens" votes="15" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="176" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="5" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="33" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="50" />
+                <County name="Richland" votes="43" />
+                <County name="Saluda" votes="3" />
+                <County name="Spartanburg" votes="80" />
+                <County name="Sumter" votes="9" />
+                <County name="Union" votes="1" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="187" />
+            </VoteType>
+        </Choice>
+        <Choice key="002" text="DEM Krystle Matthews" party="DEM" totalVotes="627616">
+            <VoteType name="Election Day" votes="352635">
+                <County name="Abbeville" votes="1309" />
+                <County name="Aiken" votes="9770" />
+                <County name="Allendale" votes="626" />
+                <County name="Anderson" votes="9654" />
+                <County name="Bamberg" votes="1240" />
+                <County name="Barnwell" votes="1260" />
+                <County name="Beaufort" votes="13150" />
+                <County name="Berkeley" votes="15963" />
+                <County name="Calhoun" votes="1197" />
+                <County name="Charleston" votes="34375" />
+                <County name="Cherokee" votes="2243" />
+                <County name="Chester" votes="2264" />
+                <County name="Chesterfield" votes="2789" />
+                <County name="Clarendon" votes="1921" />
+                <County name="Colleton" votes="2708" />
+                <County name="Darlington" votes="4534" />
+                <County name="Dillon" votes="1924" />
+                <County name="Dorchester" votes="9095" />
+                <County name="Edgefield" votes="1588" />
+                <County name="Fairfield" votes="2759" />
+                <County name="Florence" votes="9962" />
+                <County name="Georgetown" votes="4544" />
+                <County name="Greenville" votes="35626" />
+                <County name="Greenwood" votes="4023" />
+                <County name="Hampton" votes="1567" />
+                <County name="Horry" votes="17829" />
+                <County name="Jasper" votes="2184" />
+                <County name="Kershaw" votes="3869" />
+                <County name="Lancaster" votes="5798" />
+                <County name="Laurens" votes="3787" />
+                <County name="Lee" votes="1770" />
+                <County name="Lexington" votes="18083" />
+                <County name="Marion" votes="2577" />
+                <County name="Marlboro" votes="1422" />
+                <County name="McCormick" votes="838" />
+                <County name="Newberry" votes="2418" />
+                <County name="Oconee" votes="3432" />
+                <County name="Orangeburg" votes="8475" />
+                <County name="Pickens" votes="4655" />
+                <County name="Richland" votes="45056" />
+                <County name="Saluda" votes="1059" />
+                <County name="Spartanburg" votes="17882" />
+                <County name="Sumter" votes="8817" />
+                <County name="Union" votes="1831" />
+                <County name="Williamsburg" votes="3193" />
+                <County name="York" votes="21569" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="240438">
+                <County name="Abbeville" votes="921" />
+                <County name="Aiken" votes="6748" />
+                <County name="Allendale" votes="39" />
+                <County name="Anderson" votes="584" />
+                <County name="Bamberg" votes="708" />
+                <County name="Barnwell" votes="1100" />
+                <County name="Beaufort" votes="11647" />
+                <County name="Berkeley" votes="9306" />
+                <County name="Calhoun" votes="874" />
+                <County name="Charleston" votes="33015" />
+                <County name="Cherokee" votes="1040" />
+                <County name="Chester" votes="1215" />
+                <County name="Chesterfield" votes="1326" />
+                <County name="Clarendon" votes="2479" />
+                <County name="Colleton" votes="1853" />
+                <County name="Darlington" votes="2911" />
+                <County name="Dillon" votes="768" />
+                <County name="Dorchester" votes="8820" />
+                <County name="Edgefield" votes="903" />
+                <County name="Fairfield" votes="1580" />
+                <County name="Florence" votes="6734" />
+                <County name="Georgetown" votes="4939" />
+                <County name="Greenville" votes="20809" />
+                <County name="Greenwood" votes="2330" />
+                <County name="Hampton" votes="939" />
+                <County name="Horry" votes="16571" />
+                <County name="Jasper" votes="2117" />
+                <County name="Kershaw" votes="3297" />
+                <County name="Lancaster" votes="5130" />
+                <County name="Laurens" votes="1258" />
+                <County name="Lee" votes="1201" />
+                <County name="Lexington" votes="9611" />
+                <County name="Marion" votes="1370" />
+                <County name="Marlboro" votes="1408" />
+                <County name="McCormick" votes="832" />
+                <County name="Newberry" votes="1288" />
+                <County name="Oconee" votes="2184" />
+                <County name="Orangeburg" votes="6201" />
+                <County name="Pickens" votes="3055" />
+                <County name="Richland" votes="31002" />
+                <County name="Saluda" votes="527" />
+                <County name="Spartanburg" votes="9544" />
+                <County name="Sumter" votes="5761" />
+                <County name="Union" votes="772" />
+                <County name="Williamsburg" votes="2381" />
+                <County name="York" votes="11340" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="32251">
+                <County name="Abbeville" votes="79" />
+                <County name="Aiken" votes="604" />
+                <County name="Allendale" votes="558" />
+                <County name="Anderson" votes="4073" />
+                <County name="Bamberg" votes="199" />
+                <County name="Barnwell" votes="88" />
+                <County name="Beaufort" votes="1402" />
+                <County name="Berkeley" votes="1338" />
+                <County name="Calhoun" votes="87" />
+                <County name="Charleston" votes="4207" />
+                <County name="Cherokee" votes="50" />
+                <County name="Chester" votes="142" />
+                <County name="Chesterfield" votes="118" />
+                <County name="Clarendon" votes="383" />
+                <County name="Colleton" votes="189" />
+                <County name="Darlington" votes="449" />
+                <County name="Dillon" votes="715" />
+                <County name="Dorchester" votes="724" />
+                <County name="Edgefield" votes="188" />
+                <County name="Fairfield" votes="102" />
+                <County name="Florence" votes="461" />
+                <County name="Georgetown" votes="398" />
+                <County name="Greenville" votes="2275" />
+                <County name="Greenwood" votes="295" />
+                <County name="Hampton" votes="287" />
+                <County name="Horry" votes="1749" />
+                <County name="Jasper" votes="227" />
+                <County name="Kershaw" votes="185" />
+                <County name="Lancaster" votes="343" />
+                <County name="Laurens" votes="145" />
+                <County name="Lee" votes="56" />
+                <County name="Lexington" votes="1038" />
+                <County name="Marion" votes="452" />
+                <County name="Marlboro" votes="333" />
+                <County name="McCormick" votes="73" />
+                <County name="Newberry" votes="68" />
+                <County name="Oconee" votes="350" />
+                <County name="Orangeburg" votes="1411" />
+                <County name="Pickens" votes="250" />
+                <County name="Richland" votes="2834" />
+                <County name="Saluda" votes="18" />
+                <County name="Spartanburg" votes="1082" />
+                <County name="Sumter" votes="851" />
+                <County name="Union" votes="30" />
+                <County name="Williamsburg" votes="114" />
+                <County name="York" votes="1231" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="901">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="24" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="44" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="5" />
+                <County name="Beaufort" votes="92" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="1" />
+                <County name="Charleston" votes="106" />
+                <County name="Cherokee" votes="20" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="8" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="2" />
+                <County name="Fairfield" votes="1" />
+                <County name="Florence" votes="1" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="167" />
+                <County name="Greenwood" votes="43" />
+                <County name="Hampton" votes="1" />
+                <County name="Horry" votes="15" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="14" />
+                <County name="Laurens" votes="12" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="59" />
+                <County name="Marion" votes="5" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="4" />
+                <County name="Newberry" votes="1" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="20" />
+                <County name="Richland" votes="103" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="112" />
+                <County name="Sumter" votes="1" />
+                <County name="Union" votes="11" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="29" />
+            </VoteType>
+            <VoteType name="Provisional" votes="639">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="13" />
+                <County name="Allendale" votes="1" />
+                <County name="Anderson" votes="17" />
+                <County name="Bamberg" votes="2" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="24" />
+                <County name="Berkeley" votes="15" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="142" />
+                <County name="Cherokee" votes="2" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="1" />
+                <County name="Clarendon" votes="1" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="2" />
+                <County name="Dillon" votes="13" />
+                <County name="Dorchester" votes="1" />
+                <County name="Edgefield" votes="5" />
+                <County name="Fairfield" votes="1" />
+                <County name="Florence" votes="13" />
+                <County name="Georgetown" votes="4" />
+                <County name="Greenville" votes="73" />
+                <County name="Greenwood" votes="11" />
+                <County name="Hampton" votes="5" />
+                <County name="Horry" votes="21" />
+                <County name="Jasper" votes="4" />
+                <County name="Kershaw" votes="7" />
+                <County name="Lancaster" votes="3" />
+                <County name="Laurens" votes="1" />
+                <County name="Lee" votes="1" />
+                <County name="Lexington" votes="14" />
+                <County name="Marion" votes="17" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="1" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="3" />
+                <County name="Orangeburg" votes="9" />
+                <County name="Pickens" votes="15" />
+                <County name="Richland" votes="69" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="33" />
+                <County name="Sumter" votes="7" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="7" />
+                <County name="York" votes="81" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="752">
+                <County name="Abbeville" votes="1" />
+                <County name="Aiken" votes="21" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="19" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="22" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="138" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="2" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="3" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="1" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="159" />
+                <County name="Greenwood" votes="18" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="13" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="1" />
+                <County name="Lancaster" votes="18" />
+                <County name="Laurens" votes="11" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="79" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="6" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="6" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="17" />
+                <County name="Richland" votes="66" />
+                <County name="Saluda" votes="1" />
+                <County name="Spartanburg" votes="28" />
+                <County name="Sumter" votes="5" />
+                <County name="Union" votes="2" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="115" />
+            </VoteType>
+        </Choice>
+        <Choice key="004" text="Write-In" party="NON" totalVotes="1812">
+            <VoteType name="Election Day" votes="1133">
+                <County name="Abbeville" votes="3" />
+                <County name="Aiken" votes="37" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="49" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="3" />
+                <County name="Beaufort" votes="26" />
+                <County name="Berkeley" votes="57" />
+                <County name="Calhoun" votes="7" />
+                <County name="Charleston" votes="107" />
+                <County name="Cherokee" votes="7" />
+                <County name="Chester" votes="3" />
+                <County name="Chesterfield" votes="5" />
+                <County name="Clarendon" votes="4" />
+                <County name="Colleton" votes="8" />
+                <County name="Darlington" votes="8" />
+                <County name="Dillon" votes="4" />
+                <County name="Dorchester" votes="26" />
+                <County name="Edgefield" votes="11" />
+                <County name="Fairfield" votes="6" />
+                <County name="Florence" votes="21" />
+                <County name="Georgetown" votes="5" />
+                <County name="Greenville" votes="192" />
+                <County name="Greenwood" votes="9" />
+                <County name="Hampton" votes="2" />
+                <County name="Horry" votes="45" />
+                <County name="Jasper" votes="3" />
+                <County name="Kershaw" votes="10" />
+                <County name="Lancaster" votes="17" />
+                <County name="Laurens" votes="33" />
+                <County name="Lee" votes="2" />
+                <County name="Lexington" votes="73" />
+                <County name="Marion" votes="2" />
+                <County name="Marlboro" votes="4" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="10" />
+                <County name="Oconee" votes="17" />
+                <County name="Orangeburg" votes="10" />
+                <County name="Pickens" votes="28" />
+                <County name="Richland" votes="133" />
+                <County name="Saluda" votes="2" />
+                <County name="Spartanburg" votes="75" />
+                <County name="Sumter" votes="14" />
+                <County name="Union" votes="2" />
+                <County name="Williamsburg" votes="2" />
+                <County name="York" votes="51" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="555">
+                <County name="Abbeville" votes="1" />
+                <County name="Aiken" votes="11" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="5" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="16" />
+                <County name="Berkeley" votes="14" />
+                <County name="Calhoun" votes="3" />
+                <County name="Charleston" votes="100" />
+                <County name="Cherokee" votes="5" />
+                <County name="Chester" votes="1" />
+                <County name="Chesterfield" votes="1" />
+                <County name="Clarendon" votes="2" />
+                <County name="Colleton" votes="2" />
+                <County name="Darlington" votes="4" />
+                <County name="Dillon" votes="1" />
+                <County name="Dorchester" votes="22" />
+                <County name="Edgefield" votes="2" />
+                <County name="Fairfield" votes="1" />
+                <County name="Florence" votes="2" />
+                <County name="Georgetown" votes="9" />
+                <County name="Greenville" votes="112" />
+                <County name="Greenwood" votes="2" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="16" />
+                <County name="Jasper" votes="1" />
+                <County name="Kershaw" votes="3" />
+                <County name="Lancaster" votes="6" />
+                <County name="Laurens" votes="2" />
+                <County name="Lee" votes="1" />
+                <County name="Lexington" votes="34" />
+                <County name="Marion" votes="2" />
+                <County name="Marlboro" votes="2" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="4" />
+                <County name="Orangeburg" votes="6" />
+                <County name="Pickens" votes="14" />
+                <County name="Richland" votes="93" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="30" />
+                <County name="Sumter" votes="9" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="16" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="119">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="2" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="18" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="1" />
+                <County name="Beaufort" votes="3" />
+                <County name="Berkeley" votes="4" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="23" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="1" />
+                <County name="Dorchester" votes="7" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="12" />
+                <County name="Georgetown" votes="1" />
+                <County name="Greenville" votes="12" />
+                <County name="Greenwood" votes="1" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="5" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="1" />
+                <County name="Lancaster" votes="0" />
+                <County name="Laurens" votes="1" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="4" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="3" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="1" />
+                <County name="Richland" votes="9" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="6" />
+                <County name="Sumter" votes="1" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="3" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="0">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="0" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="0" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="0" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="0" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="0" />
+                <County name="Greenwood" votes="0" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="0" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="0" />
+                <County name="Laurens" votes="0" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="0" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="0" />
+                <County name="Richland" votes="0" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="0" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="0" />
+            </VoteType>
+            <VoteType name="Provisional" votes="3">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="0" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="0" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="0" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="0" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="0" />
+                <County name="Greenwood" votes="0" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="0" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="0" />
+                <County name="Laurens" votes="1" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="0" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="0" />
+                <County name="Richland" votes="1" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="0" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="1" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="2">
+                <County name="Abbeville" votes="0" />
+                <County name="Aiken" votes="0" />
+                <County name="Allendale" votes="0" />
+                <County name="Anderson" votes="0" />
+                <County name="Bamberg" votes="0" />
+                <County name="Barnwell" votes="0" />
+                <County name="Beaufort" votes="0" />
+                <County name="Berkeley" votes="0" />
+                <County name="Calhoun" votes="0" />
+                <County name="Charleston" votes="0" />
+                <County name="Cherokee" votes="0" />
+                <County name="Chester" votes="0" />
+                <County name="Chesterfield" votes="0" />
+                <County name="Clarendon" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Darlington" votes="0" />
+                <County name="Dillon" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Edgefield" votes="0" />
+                <County name="Fairfield" votes="0" />
+                <County name="Florence" votes="0" />
+                <County name="Georgetown" votes="0" />
+                <County name="Greenville" votes="0" />
+                <County name="Greenwood" votes="0" />
+                <County name="Hampton" votes="0" />
+                <County name="Horry" votes="0" />
+                <County name="Jasper" votes="0" />
+                <County name="Kershaw" votes="0" />
+                <County name="Lancaster" votes="0" />
+                <County name="Laurens" votes="1" />
+                <County name="Lee" votes="0" />
+                <County name="Lexington" votes="1" />
+                <County name="Marion" votes="0" />
+                <County name="Marlboro" votes="0" />
+                <County name="McCormick" votes="0" />
+                <County name="Newberry" votes="0" />
+                <County name="Oconee" votes="0" />
+                <County name="Orangeburg" votes="0" />
+                <County name="Pickens" votes="0" />
+                <County name="Richland" votes="0" />
+                <County name="Saluda" votes="0" />
+                <County name="Spartanburg" votes="0" />
+                <County name="Sumter" votes="0" />
+                <County name="Union" votes="0" />
+                <County name="Williamsburg" votes="0" />
+                <County name="York" votes="0" />
+            </VoteType>
+        </Choice>
+    </Contest>
+    <Contest key="27002" text="U.S.  House of Representatives, District  1" voteFor="1" isQuestion="false" countiesParticipating="6" countiesReported="6" precinctsParticipating="335" precinctsReported="335" precinctsReportingPercent="100.00">
+        <ParticipatingCounties>
+            <County name="Beaufort" precinctsParticipating="95" precinctsReported="95" precinctsReportingPercent="100.00" />
+            <County name="Berkeley" precinctsParticipating="94" precinctsReported="94" precinctsReportingPercent="100.00" />
+            <County name="Charleston" precinctsParticipating="79" precinctsReported="79" precinctsReportingPercent="100.00" />
+            <County name="Colleton" precinctsParticipating="2" precinctsReported="2" precinctsReportingPercent="100.00" />
+            <County name="Dorchester" precinctsParticipating="63" precinctsReported="63" precinctsReportingPercent="100.00" />
+            <County name="Jasper" precinctsParticipating="2" precinctsReported="2" precinctsReportingPercent="100.00" />
+        </ParticipatingCounties>
+        <Choice key="001" text="REP Nancy Mace" party="REP" totalVotes="153757">
+            <VoteType name="Election Day" votes="94699">
+                <County name="Beaufort" votes="26422" />
+                <County name="Berkeley" votes="28764" />
+                <County name="Charleston" votes="24626" />
+                <County name="Colleton" votes="584" />
+                <County name="Dorchester" votes="13498" />
+                <County name="Jasper" votes="805" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="53025">
+                <County name="Beaufort" votes="14375" />
+                <County name="Berkeley" votes="10603" />
+                <County name="Charleston" votes="18039" />
+                <County name="Colleton" votes="102" />
+                <County name="Dorchester" votes="8956" />
+                <County name="Jasper" votes="950" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="5595">
+                <County name="Beaufort" votes="1463" />
+                <County name="Berkeley" votes="1452" />
+                <County name="Charleston" votes="1920" />
+                <County name="Colleton" votes="43" />
+                <County name="Dorchester" votes="582" />
+                <County name="Jasper" votes="135" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="165">
+                <County name="Beaufort" votes="149" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="16" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Provisional" votes="135">
+                <County name="Beaufort" votes="48" />
+                <County name="Berkeley" votes="10" />
+                <County name="Charleston" votes="69" />
+                <County name="Colleton" votes="1" />
+                <County name="Dorchester" votes="2" />
+                <County name="Jasper" votes="5" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="138">
+                <County name="Beaufort" votes="67" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="66" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="5" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+        </Choice>
+        <Choice key="002" text="ALN Joseph Oddo" party="ALN" totalVotes="2634">
+            <VoteType name="Election Day" votes="1815">
+                <County name="Beaufort" votes="360" />
+                <County name="Berkeley" votes="715" />
+                <County name="Charleston" votes="383" />
+                <County name="Colleton" votes="5" />
+                <County name="Dorchester" votes="344" />
+                <County name="Jasper" votes="8" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="752">
+                <County name="Beaufort" votes="153" />
+                <County name="Berkeley" votes="202" />
+                <County name="Charleston" votes="230" />
+                <County name="Colleton" votes="2" />
+                <County name="Dorchester" votes="158" />
+                <County name="Jasper" votes="7" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="56">
+                <County name="Beaufort" votes="10" />
+                <County name="Berkeley" votes="19" />
+                <County name="Charleston" votes="21" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="6" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="5">
+                <County name="Beaufort" votes="5" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Provisional" votes="2">
+                <County name="Beaufort" votes="1" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="1" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="4">
+                <County name="Beaufort" votes="1" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="3" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+        </Choice>
+        <Choice key="003" text="DEM Annie Andrews" party="DEM" totalVotes="115796">
+            <VoteType name="Election Day" votes="59280">
+                <County name="Beaufort" votes="14376" />
+                <County name="Berkeley" votes="17693" />
+                <County name="Charleston" votes="18849" />
+                <County name="Colleton" votes="340" />
+                <County name="Dorchester" votes="7689" />
+                <County name="Jasper" votes="333" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="49721">
+                <County name="Beaufort" votes="12297" />
+                <County name="Berkeley" votes="10068" />
+                <County name="Charleston" votes="19104" />
+                <County name="Colleton" votes="136" />
+                <County name="Dorchester" votes="7465" />
+                <County name="Jasper" votes="651" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="6462">
+                <County name="Beaufort" votes="1462" />
+                <County name="Berkeley" votes="1458" />
+                <County name="Charleston" votes="2757" />
+                <County name="Colleton" votes="41" />
+                <County name="Dorchester" votes="639" />
+                <County name="Jasper" votes="105" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="111">
+                <County name="Beaufort" votes="95" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="16" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Provisional" votes="117">
+                <County name="Beaufort" votes="25" />
+                <County name="Berkeley" votes="16" />
+                <County name="Charleston" votes="73" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="1" />
+                <County name="Jasper" votes="2" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="105">
+                <County name="Beaufort" votes="25" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="77" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="3" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+        </Choice>
+        <Choice key="005" text="Write-In" party="NON" totalVotes="494">
+            <VoteType name="Election Day" votes="340">
+                <County name="Beaufort" votes="82" />
+                <County name="Berkeley" votes="101" />
+                <County name="Charleston" votes="96" />
+                <County name="Colleton" votes="1" />
+                <County name="Dorchester" votes="53" />
+                <County name="Jasper" votes="7" />
+            </VoteType>
+            <VoteType name="Early Voting" votes="123">
+                <County name="Beaufort" votes="47" />
+                <County name="Berkeley" votes="25" />
+                <County name="Charleston" votes="30" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="21" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Absentee By Mail" votes="28">
+                <County name="Beaufort" votes="13" />
+                <County name="Berkeley" votes="8" />
+                <County name="Charleston" votes="4" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="3" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Failsafe" votes="2">
+                <County name="Beaufort" votes="2" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Provisional" votes="0">
+                <County name="Beaufort" votes="0" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="0" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+            <VoteType name="Failsafe Provisional" votes="1">
+                <County name="Beaufort" votes="0" />
+                <County name="Berkeley" votes="0" />
+                <County name="Charleston" votes="1" />
+                <County name="Colleton" votes="0" />
+                <County name="Dorchester" votes="0" />
+                <County name="Jasper" votes="0" />
+            </VoteType>
+        </Choice>
+    </Contest>
+    </ElectionResult>
