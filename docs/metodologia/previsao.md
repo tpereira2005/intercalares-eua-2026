@@ -194,7 +194,12 @@ Por corrida ao Senado com sondagens, o ficheiro traz:
 
 Tudo se calcula com o mesmo código da previsão (`media.pesos` e `previsao.sondagens_por_corrida`), por isso a página mostra exatamente o que entra no modelo.
 
-O voto genérico é diferente: a Wikipédia de 2026 só publica os valores atuais dos agregadores, não as sondagens individuais. A série guarda, dia a dia, os valores lidos em cada execução e a sua média simples. Recupera-se o ficheiro anterior da Release e acrescenta-se o dia, como no histórico. Por isso a série só começa no dia em que o ficheiro passou a ser publicado.
+O voto genérico é diferente: a Wikipédia de 2026 só publica os valores atuais dos agregadores, não as sondagens individuais. A série guarda, dia a dia, os valores lidos em cada execução e a sua média simples. Recupera-se o ficheiro anterior da Release e acrescenta-se o dia, como no histórico. Para trás, a série foi reconstruída com o histórico de revisões da própria página (`pipeline.jobs.referencia_voto_generico`, ficheiro `data/reference/modelo/voto_generico_2026.csv`). Cobre de 1 de janeiro a 12 de outubro de 2026, usando para cada dia a última revisão feita até ao fim desse dia.
+
+- **Pedidos:** um de cada vez, com pausa e recuo exponencial nos 429, e em cache: uma revisão nunca é pedida duas vezes.
+- **Prioridade:** o valor lido na própria execução diária prevalece sobre o reconstruído.
+- **Composição:** o conjunto de agregadores muda ao longo do ano (VoteHub e Race to the WH até setembro, NBC News desde outubro). A média de cada dia é a média simples dos que a página mostrava, por isso parte da variação da média vem dessa mudança de composição.
+- **Fidelidade:** os valores são os que a página mostrava nesse dia, incluindo eventuais erros de edição que tenham sido corrigidos depois.
 
 As sondagens continuam a atualizar-se depois do congelamento da previsão, até ao dia da eleição. De 2 a 3 de novembro, a execução diária corre `pipeline.jobs.previsao --apenas-sondagens`, com o corte do próprio dia, e publica só `sondagens-2026.json`. A previsão congelada e o histórico nunca são reenviados.
 

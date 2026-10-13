@@ -159,7 +159,7 @@ O carimbo temporal de cada ficheiro tem duas partes:
 
 Os dois ficheiros dizem ainda se partiram da previsão congelada (`prior_congelado`) e se os resultados são uma reconstrução (`reconstruido`, verdadeiro nos ensaios). O site deve assinalar qualquer ficheiro que não seja congelado e real.
 
-**Ensaio.** Todas as segundas-feiras, o mesmo workflow reconstrói a noite de 2024 na Carolina do Norte, na Geórgia, na Carolina do Sul, no Iowa e na Florida. Depois corre o job passo a passo, a partir da previsão do backtest de 2024, e valida os ficheiros. À mão, com `publicar_ensaio`, os ficheiros de 2024 vão para a mesma Release (`projecao-noite-2024.json` e `historico-noite-2024.json`), o que permite desenvolver a página com dados reais antes da noite.
+**Ensaio.** Todas as segundas-feiras, o mesmo workflow reconstrói a noite de 2024 na Carolina do Norte, na Geórgia, na Carolina do Sul, no Iowa e na Florida. Um estado cuja fonte recuse pedidos automáticos fica de fora, com um aviso, e o bloqueio nunca se contorna. Desde 13 de outubro, o Clarity da Carolina do Sul responde ao GitHub Actions com um desafio anti-robô. Depois corre o job passo a passo, a partir da previsão do backtest de 2024, e valida os ficheiros. À mão, com `publicar_ensaio`, os ficheiros de 2024 vão para a mesma Release (`projecao-noite-2024.json` e `historico-noite-2024.json`), o que permite desenvolver a página com dados reais antes da noite.
 
 **Na noite.** Lançar à mão os workflows Resultados e Projeção da noite, ambos em modo `noite` e com a mesma hora `ate` (por exemplo, `2026-11-04T12:00`).
 
