@@ -110,15 +110,35 @@ def _vencedor(
     return {"D": "D", "R": "R"}.get(primeiro.partido, "O")
 
 
+def _principal(candidatos: list[Candidato], incumbentes: list[str]) -> Candidato | None:
+    """Candidato principal de um partido.
+
+    Com resultados, o mais votado. Antes da eleição, quando a lista traz vários candidatos
+    do mesmo partido (primárias abertas como a do Alasca, homónimos), o incumbente que se
+    recandidata e, depois, quem tem artigo na Wikipédia; em último caso, o primeiro.
+    """
+    if not candidatos:
+        return None
+    if any(c.percentagem is not None for c in candidatos):
+        return max(candidatos, key=lambda c: c.percentagem or 0.0)
+    return max(
+        candidatos,
+        key=lambda c: (any(_mesmo(i, c.nome) for i in incumbentes), c.notavel),
+    )
+
+
 def _lados(
-    cands: list[Candidato], independentes_d: frozenset[str], independentes_r: frozenset[str]
+    cands: list[Candidato],
+    independentes_d: frozenset[str],
+    independentes_r: frozenset[str],
+    incumbentes: list[str] | None = None,
 ) -> tuple[Candidato | None, bool, Candidato | None, bool]:
     """Candidato principal de cada lado e se é um independente (regra igual nos dois lados)."""
     dems = [c for c in cands if c.partido == "D"]
     reps = [c for c in cands if c.partido == "R"]
     outros = sorted((c for c in cands if c.partido == "O"), key=lambda c: -(c.percentagem or 0.0))
-    principal_d = max(dems, key=lambda c: c.percentagem or 0.0) if dems else None
-    principal_r = max(reps, key=lambda c: c.percentagem or 0.0) if reps else None
+    principal_d = _principal(dems, incumbentes or [])
+    principal_r = _principal(reps, incumbentes or [])
     # Um independente ocupa o lado democrata quando não há Democrata (ou é um dos conhecidos).
     lado_d_indep = False
     indep_d = next((c for c in outros if c.nome in independentes_d), None)
@@ -172,6 +192,35 @@ def _soma(candidatos: list[Candidato], partido: str) -> float | None:
     return sum(v for v in valores if v is not None)
 
 
+def _incumbencia(
+    corrida: Corrida,
+    cands: list[Candidato],
+    lado_d: tuple[Candidato | None, bool],
+    lado_r: tuple[Candidato | None, bool],
+) -> int:
+    """+1 se o candidato do lado democrata é o incumbente, -1 se o do lado republicano.
+
+    Só conta se o incumbente for o candidato escolhido do seu lado: um homónimo ou um
+    derrotado na primária que aparece noutra linha não herda a vantagem.
+    """
+    (principal_d, lado_d_indep), (principal_r, lado_r_indep) = lado_d, lado_r
+    for nome, partido in corrida.incumbentes:
+        if not any(_mesmo(nome, c.nome) for c in cands):
+            continue
+        if partido == "D" and principal_d is not None and _mesmo(nome, principal_d.nome):
+            return 1
+        if partido == "R" and principal_r is not None and _mesmo(nome, principal_r.nome):
+            return -1
+        if partido in {"D", "R"}:
+            continue
+        # Independente incumbente: conta para o lado que ocupa.
+        if lado_d_indep and principal_d is not None and _mesmo(nome, principal_d.nome):
+            return 1
+        if lado_r_indep and principal_r is not None and _mesmo(nome, principal_r.nome):
+            return -1
+    return 0
+
+
 def linha_modelo(
     corrida: Corrida,
     independentes_d: frozenset[str] = frozenset(),
@@ -189,7 +238,7 @@ def linha_modelo(
     # margem usa a primeira (comparável às outras corridas) e o vencedor a última.
     cands = _primeira_volta(corrida.candidatos)
     principal_d, lado_d_indep, principal_r, lado_r_indep = _lados(
-        cands, independentes_d, independentes_r
+        cands, independentes_d, independentes_r, [nome for nome, _ in corrida.incumbentes]
     )
     certo: str | None = None
     margem: float | None = None
@@ -204,20 +253,9 @@ def linha_modelo(
         r = principal_r.percentagem if lado_r_indep else _soma(cands, "R")
         if d is not None and r is not None and _disputa_entre_lados(cands):
             margem = d - r
-    incumbente = 0
-    for nome, partido in corrida.incumbentes:
-        if not any(_mesmo(nome, c.nome) for c in cands):
-            continue
-        if partido in {"D", "R"}:
-            incumbente = 1 if partido == "D" else -1
-            break
-        # Independente incumbente: conta para o lado que ocupa.
-        if lado_d_indep and principal_d is not None and _mesmo(nome, principal_d.nome):
-            incumbente = 1
-            break
-        if lado_r_indep and principal_r is not None and _mesmo(nome, principal_r.nome):
-            incumbente = -1
-            break
+    incumbente = _incumbencia(
+        corrida, cands, (principal_d, lado_d_indep), (principal_r, lado_r_indep)
+    )
     return LinhaModelo(
         ano=corrida.ano,
         camara=corrida.camara,

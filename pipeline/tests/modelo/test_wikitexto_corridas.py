@@ -114,8 +114,10 @@ def test_le_candidatos_em_todos_os_formatos() -> None:
     assert al.pvi == 12.0
     assert [(c.nome, c.partido) for c in al.candidatos] == [("Rui Costa", "R"), ("Ana Silva", "D")]
     assert al.incumbentes == [("Ana Silva", "D")]
+    assert [c.notavel for c in al.candidatos] == [False, True]
     tn4 = corridas["TN-04"]
     assert [c.partido for c in tn4.candidatos] == ["O", "R", "D"]
+    assert [c.notavel for c in tn4.candidatos] == [False, True, False]
     tn5 = corridas["TN-05"]
     assert tn5.pvi == 0.0
     assert [(c.nome, c.percentagem) for c in tn5.candidatos] == [

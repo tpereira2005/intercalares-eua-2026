@@ -46,6 +46,10 @@ class Candidato:
     percentagem: float | None
     """Percentagem final dos votos; ``None`` antes da eleição."""
 
+    notavel: bool = False
+    """O nome tem ligação para um artigo da Wikipédia (só se usa antes da eleição, para
+    distinguir o candidato principal de homónimos e candidatos menores do mesmo partido)."""
+
 
 @dataclass(slots=True)
 class Corrida:
@@ -109,6 +113,10 @@ def _partido_candidato(texto: str) -> str:
     return "O"
 
 
+_LIGACAO_NOME = re.compile(r"\[\[[^\[\]]+\]\]\s*\(")
+"""Nome com ligação para um artigo, seguido do partido entre parênteses."""
+
+
 def ler_candidatos(celula: str) -> list[Candidato]:
     """Lê a lista de candidatos (``* nome (Partido) 51.2%``) de uma célula."""
     resultado: list[Candidato] = []
@@ -136,6 +144,7 @@ def ler_candidatos(celula: str) -> list[Candidato]:
                 nome=nome,
                 partido=_partido_candidato(m.group(1)),
                 percentagem=float(perc.group(1)) if perc else None,
+                notavel=_LIGACAO_NOME.search(bruto) is not None,
             )
         )
     return resultado

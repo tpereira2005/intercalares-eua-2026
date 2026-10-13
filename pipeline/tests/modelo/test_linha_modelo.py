@@ -100,3 +100,36 @@ def test_disputa_interna_nao_entra_na_margem() -> None:
     assert linha is not None
     assert linha.margem is None
     assert linha.vencedor == "D"
+
+
+@pytest.mark.parametrize("partido", ["D", "R"])
+def test_antes_da_eleicao_escolhe_o_incumbente_e_nao_um_homonimo(partido: str) -> None:
+    """Alasca 2026: a lista traz o incumbente, um homónimo e um candidato menor."""
+    outro = "R" if partido == "D" else "D"
+    linha = linha_modelo(
+        _corrida(
+            [
+                Candidato("Gerald Heikes", partido, None),
+                Candidato("Mary Peltola", outro, None, notavel=True),
+                Candidato("Dan J. Sullivan", partido, None),
+                Candidato("Dan S. Sullivan", partido, None, notavel=True),
+            ],
+            [("Dan Sullivan", partido)],
+        )
+    )
+    assert linha is not None
+    escolhido = linha.lado_d if partido == "D" else linha.lado_r
+    assert escolhido == "Dan S. Sullivan"
+    assert linha.incumbente == (1 if partido == "D" else -1)
+
+
+def test_incumbente_que_nao_e_o_candidato_nao_conta() -> None:
+    """Um homónimo do incumbente noutro partido não herda a vantagem (PA-12 em 2022)."""
+    linha = linha_modelo(
+        _corrida(
+            [Candidato("Summer Lee", "D", 56.2), Candidato("Mike Doyle", "R", 43.8)],
+            [("Mike Doyle", "D")],
+        )
+    )
+    assert linha is not None
+    assert linha.incumbente == 0
