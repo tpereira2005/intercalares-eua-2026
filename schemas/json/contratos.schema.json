@@ -1,5 +1,199 @@
 {
   "$defs": {
+    "AgregadorVotoGenerico": {
+      "additionalProperties": false,
+      "description": "Valor de um agregador público do voto genérico usado no ambiente nacional.",
+      "properties": {
+        "margem": {
+          "title": "Margem",
+          "type": "number"
+        },
+        "nome": {
+          "minLength": 1,
+          "title": "Nome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nome",
+        "margem"
+      ],
+      "title": "AgregadorVotoGenerico",
+      "type": "object"
+    },
+    "AmbienteNacional": {
+      "additionalProperties": false,
+      "description": "Margem nacional no voto para a Câmara (D-R) que serve de centro às simulações.",
+      "properties": {
+        "agregadores": {
+          "items": {
+            "$ref": "#/$defs/AgregadorVotoGenerico"
+          },
+          "title": "Agregadores",
+          "type": "array"
+        },
+        "desvio_padrao": {
+          "description": "Erro histórico (raiz do erro quadrático médio) das médias do voto genérico.",
+          "exclusiveMinimum": 0,
+          "title": "Desvio Padrao",
+          "type": "number"
+        },
+        "fonte": {
+          "enum": [
+            "agregadores",
+            "media_sondagens_voto_generico",
+            "sondagens_senado"
+          ],
+          "title": "Fonte",
+          "type": "string"
+        },
+        "margem": {
+          "title": "Margem",
+          "type": "number"
+        }
+      },
+      "required": [
+        "margem",
+        "desvio_padrao",
+        "fonte",
+        "agregadores"
+      ],
+      "title": "AmbienteNacional",
+      "type": "object"
+    },
+    "Backtest": {
+      "additionalProperties": false,
+      "description": "O mesmo modelo aplicado a uma eleição passada, só com dados anteriores ao corte.",
+      "properties": {
+        "ambiente_previsto": {
+          "title": "Ambiente Previsto",
+          "type": "number"
+        },
+        "ambiente_real": {
+          "title": "Ambiente Real",
+          "type": "number"
+        },
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "brier": {
+          "minimum": 0,
+          "title": "Brier",
+          "type": "number"
+        },
+        "camara": {
+          "enum": [
+            "camara",
+            "senado"
+          ],
+          "title": "Camara",
+          "type": "string"
+        },
+        "cobertura_80": {
+          "description": "Fração das margens reais dentro do intervalo de 80% (o ideal é 0,8).",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Cobertura 80",
+          "type": "number"
+        },
+        "controlo_real": {
+          "enum": [
+            "D",
+            "R"
+          ],
+          "title": "Controlo Real",
+          "type": "string"
+        },
+        "corridas_avaliadas": {
+          "minimum": 0,
+          "title": "Corridas Avaliadas",
+          "type": "integer"
+        },
+        "corridas_erradas": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Corridas Erradas",
+          "type": "array"
+        },
+        "corte": {
+          "format": "date",
+          "title": "Corte",
+          "type": "string"
+        },
+        "erro_absoluto_competitivas": {
+          "minimum": 0,
+          "title": "Erro Absoluto Competitivas",
+          "type": "number"
+        },
+        "fonte_ambiente": {
+          "enum": [
+            "agregadores",
+            "media_sondagens_voto_generico",
+            "sondagens_senado"
+          ],
+          "title": "Fonte Ambiente",
+          "type": "string"
+        },
+        "lugares_d_mediana": {
+          "title": "Lugares D Mediana",
+          "type": "integer"
+        },
+        "lugares_d_p10": {
+          "title": "Lugares D P10",
+          "type": "integer"
+        },
+        "lugares_d_p90": {
+          "title": "Lugares D P90",
+          "type": "integer"
+        },
+        "lugares_d_reais": {
+          "title": "Lugares D Reais",
+          "type": "integer"
+        },
+        "prob_controlo_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo D",
+          "type": "number"
+        },
+        "prob_controlo_r": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo R",
+          "type": "number"
+        },
+        "vies_competitivas": {
+          "description": "Média de (previsto - real) nas corridas com margem prevista abaixo de 15 pontos.",
+          "title": "Vies Competitivas",
+          "type": "number"
+        }
+      },
+      "required": [
+        "ano",
+        "camara",
+        "corte",
+        "ambiente_previsto",
+        "ambiente_real",
+        "fonte_ambiente",
+        "prob_controlo_d",
+        "prob_controlo_r",
+        "controlo_real",
+        "lugares_d_mediana",
+        "lugares_d_p10",
+        "lugares_d_p90",
+        "lugares_d_reais",
+        "corridas_avaliadas",
+        "corridas_erradas",
+        "brier",
+        "vies_competitivas",
+        "erro_absoluto_competitivas",
+        "cobertura_80"
+      ],
+      "title": "Backtest",
+      "type": "object"
+    },
     "CicloAgregado": {
       "additionalProperties": false,
       "properties": {
@@ -1054,6 +1248,140 @@
       "title": "Metadados",
       "type": "object"
     },
+    "ParametrosErroSondagens": {
+      "additionalProperties": false,
+      "description": "Erro histórico das médias de sondagens do Senado.",
+      "properties": {
+        "desvio_ano": {
+          "minimum": 0,
+          "title": "Desvio Ano",
+          "type": "number"
+        },
+        "erro_base": {
+          "minimum": 0,
+          "title": "Erro Base",
+          "type": "number"
+        },
+        "erro_por_instituto": {
+          "minimum": 0,
+          "title": "Erro Por Instituto",
+          "type": "number"
+        },
+        "ligacao_nacional": {
+          "description": "Parte do erro do voto genérico que se transmite às sondagens do Senado.",
+          "title": "Ligacao Nacional",
+          "type": "number"
+        },
+        "observacoes": {
+          "exclusiveMinimum": 0,
+          "title": "Observacoes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "observacoes",
+        "erro_base",
+        "erro_por_instituto",
+        "desvio_ano",
+        "ligacao_nacional"
+      ],
+      "title": "ParametrosErroSondagens",
+      "type": "object"
+    },
+    "ParametrosFundamentos": {
+      "additionalProperties": false,
+      "description": "Parâmetros da regressão de fundamentos de uma câmara (anos anteriores apenas).",
+      "properties": {
+        "anos_treino": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Anos Treino",
+          "type": "array"
+        },
+        "camara": {
+          "enum": [
+            "camara",
+            "senado"
+          ],
+          "title": "Camara",
+          "type": "string"
+        },
+        "desvio_ano": {
+          "minimum": 0,
+          "title": "Desvio Ano",
+          "type": "number"
+        },
+        "desvio_corrida": {
+          "minimum": 0,
+          "title": "Desvio Corrida",
+          "type": "number"
+        },
+        "desvio_regiao": {
+          "minimum": 0,
+          "title": "Desvio Regiao",
+          "type": "number"
+        },
+        "inclinacao_pvi": {
+          "title": "Inclinacao Pvi",
+          "type": "number"
+        },
+        "incumbencia": {
+          "title": "Incumbencia",
+          "type": "number"
+        },
+        "intercepto": {
+          "title": "Intercepto",
+          "type": "number"
+        },
+        "observacoes": {
+          "exclusiveMinimum": 0,
+          "title": "Observacoes",
+          "type": "integer"
+        },
+        "persistencia": {
+          "title": "Persistencia",
+          "type": "number"
+        }
+      },
+      "required": [
+        "camara",
+        "anos_treino",
+        "observacoes",
+        "intercepto",
+        "inclinacao_pvi",
+        "incumbencia",
+        "persistencia",
+        "desvio_ano",
+        "desvio_regiao",
+        "desvio_corrida"
+      ],
+      "title": "ParametrosFundamentos",
+      "type": "object"
+    },
+    "PontoDistribuicao": {
+      "additionalProperties": false,
+      "description": "Probabilidade de o lado democrata ficar com exatamente ``lugares`` lugares.",
+      "properties": {
+        "lugares": {
+          "minimum": 0,
+          "title": "Lugares",
+          "type": "integer"
+        },
+        "probabilidade": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Probabilidade",
+          "type": "number"
+        }
+      },
+      "required": [
+        "lugares",
+        "probabilidade"
+      ],
+      "title": "PontoDistribuicao",
+      "type": "object"
+    },
     "PontoSerie": {
       "additionalProperties": false,
       "description": "Votos acumulados até um dia do ciclo.",
@@ -1186,6 +1514,387 @@
         "votos"
       ],
       "title": "PontoSerieAgregado",
+      "type": "object"
+    },
+    "PrevisaoCongresso": {
+      "additionalProperties": false,
+      "description": "Previsão completa: ambiente, câmaras, corridas, parâmetros e backtests.",
+      "properties": {
+        "ambiente": {
+          "$ref": "#/$defs/AmbienteNacional"
+        },
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "backtests": {
+          "items": {
+            "$ref": "#/$defs/Backtest"
+          },
+          "title": "Backtests",
+          "type": "array"
+        },
+        "camara": {
+          "$ref": "#/$defs/ResumoCamara"
+        },
+        "congelada": {
+          "description": "Verdadeiro quando ``corte`` é a data final (dois dias antes da eleição).",
+          "title": "Congelada",
+          "type": "boolean"
+        },
+        "corridas": {
+          "items": {
+            "$ref": "#/$defs/PrevisaoCorrida"
+          },
+          "title": "Corridas",
+          "type": "array"
+        },
+        "corte": {
+          "description": "Só entram dados até este dia (exclusive).",
+          "format": "date",
+          "title": "Corte",
+          "type": "string"
+        },
+        "data_eleicao": {
+          "format": "date",
+          "title": "Data Eleicao",
+          "type": "string"
+        },
+        "erro_sondagens": {
+          "$ref": "#/$defs/ParametrosErroSondagens"
+        },
+        "fundamentos": {
+          "items": {
+            "$ref": "#/$defs/ParametrosFundamentos"
+          },
+          "title": "Fundamentos",
+          "type": "array"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "notas": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notas",
+          "type": "array"
+        },
+        "peso_voto_antecipado": {
+          "description": "Peso do voto antecipado na previsão (0: só diagnóstico, ver a metodologia).",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Peso Voto Antecipado",
+          "type": "number"
+        },
+        "semente": {
+          "title": "Semente",
+          "type": "integer"
+        },
+        "senado": {
+          "$ref": "#/$defs/ResumoCamara"
+        },
+        "simulacoes": {
+          "exclusiveMinimum": 0,
+          "title": "Simulacoes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "data_eleicao",
+        "corte",
+        "congelada",
+        "simulacoes",
+        "semente",
+        "ambiente",
+        "camara",
+        "senado",
+        "corridas",
+        "fundamentos",
+        "erro_sondagens",
+        "peso_voto_antecipado",
+        "backtests",
+        "notas"
+      ],
+      "title": "PrevisaoCongresso",
+      "type": "object"
+    },
+    "PrevisaoCorrida": {
+      "additionalProperties": false,
+      "description": "Previsão de uma corrida: um distrito da Câmara ou um lugar do Senado.",
+      "properties": {
+        "camara": {
+          "enum": [
+            "camara",
+            "senado"
+          ],
+          "title": "Camara",
+          "type": "string"
+        },
+        "candidato_d": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Candidato do lado democrata (pode ser um independente, ver ``lado_d_independente``).",
+          "title": "Candidato D"
+        },
+        "candidato_r": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Candidato R"
+        },
+        "decidida": {
+          "anyOf": [
+            {
+              "enum": [
+                "D",
+                "R",
+                "I"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Vencedor já certo (sem candidato de um dos lados).",
+          "title": "Decidida"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "id": {
+          "description": "``NC-01``, ``AK-00`` (distrito único), ``TX-S`` ou ``OH-S-especial``.",
+          "pattern": "^[A-Z]{2}-(\\d{2}|S|S-especial)$",
+          "title": "Id",
+          "type": "string"
+        },
+        "incumbente_recandidato": {
+          "anyOf": [
+            {
+              "enum": [
+                "D",
+                "R",
+                "I"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Partido do incumbente quando se recandidata; ``None`` em lugar aberto.",
+          "title": "Incumbente Recandidato"
+        },
+        "institutos": {
+          "description": "Número de institutos com sondagens na média (só no Senado).",
+          "minimum": 0,
+          "title": "Institutos",
+          "type": "integer"
+        },
+        "lado_d_independente": {
+          "title": "Lado D Independente",
+          "type": "boolean"
+        },
+        "lado_r_independente": {
+          "title": "Lado R Independente",
+          "type": "boolean"
+        },
+        "margem_fundamentos": {
+          "title": "Margem Fundamentos",
+          "type": "number"
+        },
+        "margem_p10": {
+          "title": "Margem P10",
+          "type": "number"
+        },
+        "margem_p90": {
+          "title": "Margem P90",
+          "type": "number"
+        },
+        "margem_prevista": {
+          "title": "Margem Prevista",
+          "type": "number"
+        },
+        "margem_sondagens": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Margem Sondagens"
+        },
+        "peso_sondagens": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Peso Sondagens",
+          "type": "number"
+        },
+        "prob_d": {
+          "description": "Probabilidade de vitória do lado democrata.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob D",
+          "type": "number"
+        },
+        "pvi": {
+          "description": "Cook PVI em pontos (D+ positivo), tal como publicado: a margem é o dobro.",
+          "title": "Pvi",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "camara",
+        "estado",
+        "candidato_d",
+        "candidato_r",
+        "lado_d_independente",
+        "lado_r_independente",
+        "incumbente_recandidato",
+        "pvi",
+        "decidida",
+        "margem_fundamentos",
+        "margem_sondagens",
+        "institutos",
+        "peso_sondagens",
+        "margem_prevista",
+        "margem_p10",
+        "margem_p90",
+        "prob_d"
+      ],
+      "title": "PrevisaoCorrida",
+      "type": "object"
+    },
+    "ResumoCamara": {
+      "additionalProperties": false,
+      "description": "Controlo e distribuição de lugares de uma câmara.\n\n``lugares_d_*`` contam o lado democrata, incluindo independentes que ocupam esse lado\ne, no Senado, os lugares que não vão a votos. O lado republicano é o complemento.",
+      "properties": {
+        "camara": {
+          "enum": [
+            "camara",
+            "senado"
+          ],
+          "title": "Camara",
+          "type": "string"
+        },
+        "distribuicao": {
+          "items": {
+            "$ref": "#/$defs/PontoDistribuicao"
+          },
+          "title": "Distribuicao",
+          "type": "array"
+        },
+        "limiar_nacional": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Margem nacional a partir da qual o lado democrata passa a favorito ao controlo\n(abaixo dela o favorito é o lado republicano). ``None`` se nunca muda nas simulações.",
+          "title": "Limiar Nacional"
+        },
+        "lugares_d_media": {
+          "title": "Lugares D Media",
+          "type": "number"
+        },
+        "lugares_d_mediana": {
+          "title": "Lugares D Mediana",
+          "type": "integer"
+        },
+        "lugares_d_p10": {
+          "title": "Lugares D P10",
+          "type": "integer"
+        },
+        "lugares_d_p5": {
+          "title": "Lugares D P5",
+          "type": "integer"
+        },
+        "lugares_d_p90": {
+          "title": "Lugares D P90",
+          "type": "integer"
+        },
+        "lugares_d_p95": {
+          "title": "Lugares D P95",
+          "type": "integer"
+        },
+        "lugares_fora_de_jogo_d": {
+          "minimum": 0,
+          "title": "Lugares Fora De Jogo D",
+          "type": "integer"
+        },
+        "lugares_fora_de_jogo_r": {
+          "minimum": 0,
+          "title": "Lugares Fora De Jogo R",
+          "type": "integer"
+        },
+        "lugares_independentes_media": {
+          "description": "Lugares ganhos por independentes (de qualquer lado), em média.",
+          "title": "Lugares Independentes Media",
+          "type": "number"
+        },
+        "lugares_total": {
+          "exclusiveMinimum": 0,
+          "title": "Lugares Total",
+          "type": "integer"
+        },
+        "maioria": {
+          "exclusiveMinimum": 0,
+          "title": "Maioria",
+          "type": "integer"
+        },
+        "prob_controlo_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo D",
+          "type": "number"
+        },
+        "prob_controlo_r": {
+          "description": "No Senado, 50-50 decide-se pelo partido do vice-presidente.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo R",
+          "type": "number"
+        }
+      },
+      "required": [
+        "camara",
+        "lugares_total",
+        "maioria",
+        "prob_controlo_d",
+        "prob_controlo_r",
+        "lugares_d_media",
+        "lugares_d_p5",
+        "lugares_d_p10",
+        "lugares_d_mediana",
+        "lugares_d_p90",
+        "lugares_d_p95",
+        "lugares_independentes_media",
+        "lugares_fora_de_jogo_d",
+        "lugares_fora_de_jogo_r",
+        "limiar_nacional",
+        "distribuicao"
+      ],
+      "title": "ResumoCamara",
       "type": "object"
     },
     "VotoAntecipadoAgregado": {
