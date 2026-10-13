@@ -91,6 +91,129 @@ export interface AmbienteNacional {
   margem: number;
 }
 /**
+ * Métricas de uma câmara, calculadas só sobre corridas disputadas e já decididas.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "AvaliacaoCamara".
+ */
+export interface AvaliacaoCamara {
+  acertos: number;
+  /**
+   * Média de (probabilidade - resultado)²: 0 é perfeito, 0,25 é atirar uma moeda.
+   */
+  brier: number;
+  calibracao: FaixaCalibracao[];
+  camara: "camara" | "senado";
+  cobertura_80: number | null;
+  corridas_avaliadas: number;
+  corridas_com_margem: number;
+  corridas_erradas: string[];
+  /**
+   * Corridas ainda sem vencedor conhecido (contagem lenta); ficam fora das métricas.
+   */
+  corridas_por_decidir: string[];
+  erro_absoluto_margem: number | null;
+  /**
+   * Média de -ln(probabilidade dada ao vencedor): pune mais a confiança errada.
+   */
+  log_loss: number;
+  lugares_d_previstos: number;
+  lugares_d_reais: number | null;
+  /**
+   * Probabilidade que a previsão deu a quem ficou com o controlo (se já conhecido).
+   */
+  prob_controlo_vencedor: number | null;
+  /**
+   * Média de (prevista - real), em pontos D-R: positivo sobrestimou o lado democrata.
+   */
+  vies_margem: number | null;
+}
+/**
+ * Corridas cujo favorito tinha probabilidade dentro da faixa, e quantas ele ganhou.
+ *
+ * A faixa usa a probabilidade do favorito (sempre 50% ou mais), seja qual for o partido,
+ * para que a calibração não dependa de qual lado é o democrata.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "FaixaCalibracao".
+ */
+export interface FaixaCalibracao {
+  corridas: number;
+  /**
+   * Fração das corridas da faixa em que o favorito ganhou.
+   */
+  frequencia: number | null;
+  limite_inferior: number;
+  limite_superior: number;
+  /**
+   * Probabilidade média atribuída ao favorito (``None`` sem corridas na faixa).
+   */
+  prob_media: number | null;
+}
+/**
+ * Avaliação pública da previsão congelada face aos resultados (Fase 4 do plano).
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "AvaliacaoPrevisao".
+ */
+export interface AvaliacaoPrevisao {
+  ambiente_previsto: number;
+  ambiente_real: number | null;
+  ano: number;
+  camaras: AvaliacaoCamara[];
+  /**
+   * Data de corte da previsão avaliada (1 de novembro em 2026).
+   */
+  corte: string;
+  metadados: Metadados;
+}
+/**
+ * Cabeçalho comum a todos os ficheiros de dados publicados.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Metadados".
+ */
+export interface Metadados {
+  /**
+   * Todas as fontes usadas para produzir o ficheiro.
+   *
+   * @minItems 1
+   */
+  fontes: [Fonte, ...Fonte[]];
+  /**
+   * Momento em que o pipeline gerou o ficheiro.
+   */
+  gerado_em: string;
+  /**
+   * Versão dos contratos com que o ficheiro foi produzido.
+   */
+  versao_esquema: string;
+}
+/**
+ * Origem de um conjunto de dados, citada em cada número publicado.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Fonte".
+ */
+export interface Fonte {
+  /**
+   * Licença ou termos de utilização, quando conhecidos.
+   */
+  licenca: string | null;
+  /**
+   * Nome legível da fonte, por exemplo "North Carolina State Board of Elections".
+   */
+  nome: string;
+  /**
+   * Momento da recolha, sempre com fuso horário.
+   */
+  obtida_em: string;
+  /**
+   * Endereço exato de onde os dados foram obtidos.
+   */
+  url: string;
+}
+/**
  * O mesmo modelo aplicado a uma eleição passada, só com dados anteriores ao corte.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -175,28 +298,53 @@ export interface CicloVotoAntecipado {
   votos_antecipados: number;
 }
 /**
- * Origem de um conjunto de dados, citada em cada número publicado.
+ * A previsão de um dia, reduzida ao necessário para desenhar a evolução.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
- * via the `definition` "Fonte".
+ * via the `definition` "DiaHistorico".
  */
-export interface Fonte {
-  /**
-   * Licença ou termos de utilização, quando conhecidos.
-   */
-  licenca: string | null;
-  /**
-   * Nome legível da fonte, por exemplo "North Carolina State Board of Elections".
-   */
-  nome: string;
-  /**
-   * Momento da recolha, sempre com fuso horário.
-   */
-  obtida_em: string;
-  /**
-   * Endereço exato de onde os dados foram obtidos.
-   */
-  url: string;
+export interface DiaHistorico {
+  ambiente_margem: number;
+  camara: PontoHistoricoCamara;
+  congelada: boolean;
+  corridas: PontoHistoricoCorrida[];
+  corte: string;
+  senado: PontoHistoricoCamara;
+}
+/**
+ * Resumo de uma câmara numa data de corte.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoHistoricoCamara".
+ */
+export interface PontoHistoricoCamara {
+  lugares_d_mediana: number;
+  lugares_d_p10: number;
+  lugares_d_p90: number;
+  prob_controlo_d: number;
+  prob_controlo_r: number;
+}
+/**
+ * Probabilidade e margem prevista de uma corrida numa data de corte.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoHistoricoCorrida".
+ */
+export interface PontoHistoricoCorrida {
+  id: string;
+  margem_prevista: number;
+  prob_d: number;
+}
+/**
+ * Uma entrada por data de corte, por ordem cronológica (a mais recente no fim).
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "HistoricoPrevisao".
+ */
+export interface HistoricoPrevisao {
+  ano: number;
+  dias: DiaHistorico[];
+  metadados: Metadados;
 }
 /**
  * 2026 face a um ano de referência, no mesmo dia do ciclo, para uma faixa etária.
@@ -400,28 +548,6 @@ export interface LinhaReserva {
   ja_votaram: number;
   partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
   restantes: number;
-}
-/**
- * Cabeçalho comum a todos os ficheiros de dados publicados.
- *
- * This interface was referenced by `Contratos`'s JSON-Schema
- * via the `definition` "Metadados".
- */
-export interface Metadados {
-  /**
-   * Todas as fontes usadas para produzir o ficheiro.
-   *
-   * @minItems 1
-   */
-  fontes: [Fonte, ...Fonte[]];
-  /**
-   * Momento em que o pipeline gerou o ficheiro.
-   */
-  gerado_em: string;
-  /**
-   * Versão dos contratos com que o ficheiro foi produzido.
-   */
-  versao_esquema: string;
 }
 /**
  * Erro histórico das médias de sondagens do Senado.

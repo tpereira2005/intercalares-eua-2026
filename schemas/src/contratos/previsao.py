@@ -197,3 +197,106 @@ class PrevisaoCongresso(ModeloContrato):
 
     backtests: tuple[Backtest, ...]
     notas: tuple[str, ...]
+
+
+# --- Histórico diário (gráficos de evolução) ------------------------------------------
+
+
+class PontoHistoricoCamara(ModeloContrato):
+    """Resumo de uma câmara numa data de corte."""
+
+    prob_controlo_d: float = Probabilidade
+    prob_controlo_r: float = Probabilidade
+    lugares_d_mediana: int
+    lugares_d_p10: int
+    lugares_d_p90: int
+
+
+class PontoHistoricoCorrida(ModeloContrato):
+    """Probabilidade e margem prevista de uma corrida numa data de corte."""
+
+    id: str = Field(pattern=r"^[A-Z]{2}-(\d{2}|S|S-especial)$")
+    prob_d: float = Probabilidade
+    margem_prevista: float
+
+
+class DiaHistorico(ModeloContrato):
+    """A previsão de um dia, reduzida ao necessário para desenhar a evolução."""
+
+    corte: date
+    congelada: bool
+    ambiente_margem: float
+    camara: PontoHistoricoCamara
+    senado: PontoHistoricoCamara
+    corridas: tuple[PontoHistoricoCorrida, ...]
+
+
+class HistoricoPrevisao(ModeloContrato):
+    """Uma entrada por data de corte, por ordem cronológica (a mais recente no fim)."""
+
+    metadados: Metadados
+    ano: int
+    dias: tuple[DiaHistorico, ...]
+
+
+# --- Avaliação da previsão congelada (scorecard) --------------------------------------
+
+
+class FaixaCalibracao(ModeloContrato):
+    """Corridas cujo favorito tinha probabilidade dentro da faixa, e quantas ele ganhou.
+
+    A faixa usa a probabilidade do favorito (sempre 50% ou mais), seja qual for o partido,
+    para que a calibração não dependa de qual lado é o democrata.
+    """
+
+    limite_inferior: float = Probabilidade
+    limite_superior: float = Probabilidade
+    corridas: int = Field(ge=0)
+    prob_media: float | None
+    """Probabilidade média atribuída ao favorito (``None`` sem corridas na faixa)."""
+
+    frequencia: float | None
+    """Fração das corridas da faixa em que o favorito ganhou."""
+
+
+class AvaliacaoCamara(ModeloContrato):
+    """Métricas de uma câmara, calculadas só sobre corridas disputadas e já decididas."""
+
+    camara: CamaraCongresso
+    corridas_avaliadas: int = Field(ge=0)
+    corridas_por_decidir: tuple[str, ...]
+    """Corridas ainda sem vencedor conhecido (contagem lenta); ficam fora das métricas."""
+
+    corridas_erradas: tuple[str, ...]
+    acertos: float = Probabilidade
+    brier: float = Field(ge=0)
+    """Média de (probabilidade - resultado)²: 0 é perfeito, 0,25 é atirar uma moeda."""
+
+    log_loss: float = Field(ge=0)
+    """Média de -ln(probabilidade dada ao vencedor): pune mais a confiança errada."""
+
+    corridas_com_margem: int = Field(ge=0)
+    erro_absoluto_margem: float | None
+    vies_margem: float | None
+    """Média de (prevista - real), em pontos D-R: positivo sobrestimou o lado democrata."""
+
+    cobertura_80: float | None
+    calibracao: tuple[FaixaCalibracao, ...]
+    prob_controlo_vencedor: float | None = Probabilidade
+    """Probabilidade que a previsão deu a quem ficou com o controlo (se já conhecido)."""
+
+    lugares_d_previstos: int
+    lugares_d_reais: int | None
+
+
+class AvaliacaoPrevisao(ModeloContrato):
+    """Avaliação pública da previsão congelada face aos resultados (Fase 4 do plano)."""
+
+    metadados: Metadados
+    ano: int
+    corte: date
+    """Data de corte da previsão avaliada (1 de novembro em 2026)."""
+
+    ambiente_previsto: float
+    ambiente_real: float | None
+    camaras: tuple[AvaliacaoCamara, ...]

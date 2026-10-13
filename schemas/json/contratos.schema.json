@@ -61,6 +61,203 @@
       "title": "AmbienteNacional",
       "type": "object"
     },
+    "AvaliacaoCamara": {
+      "additionalProperties": false,
+      "description": "Métricas de uma câmara, calculadas só sobre corridas disputadas e já decididas.",
+      "properties": {
+        "acertos": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Acertos",
+          "type": "number"
+        },
+        "brier": {
+          "description": "Média de (probabilidade - resultado)²: 0 é perfeito, 0,25 é atirar uma moeda.",
+          "minimum": 0,
+          "title": "Brier",
+          "type": "number"
+        },
+        "calibracao": {
+          "items": {
+            "$ref": "#/$defs/FaixaCalibracao"
+          },
+          "title": "Calibracao",
+          "type": "array"
+        },
+        "camara": {
+          "enum": [
+            "camara",
+            "senado"
+          ],
+          "title": "Camara",
+          "type": "string"
+        },
+        "cobertura_80": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cobertura 80"
+        },
+        "corridas_avaliadas": {
+          "minimum": 0,
+          "title": "Corridas Avaliadas",
+          "type": "integer"
+        },
+        "corridas_com_margem": {
+          "minimum": 0,
+          "title": "Corridas Com Margem",
+          "type": "integer"
+        },
+        "corridas_erradas": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Corridas Erradas",
+          "type": "array"
+        },
+        "corridas_por_decidir": {
+          "description": "Corridas ainda sem vencedor conhecido (contagem lenta); ficam fora das métricas.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Corridas Por Decidir",
+          "type": "array"
+        },
+        "erro_absoluto_margem": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Erro Absoluto Margem"
+        },
+        "log_loss": {
+          "description": "Média de -ln(probabilidade dada ao vencedor): pune mais a confiança errada.",
+          "minimum": 0,
+          "title": "Log Loss",
+          "type": "number"
+        },
+        "lugares_d_previstos": {
+          "title": "Lugares D Previstos",
+          "type": "integer"
+        },
+        "lugares_d_reais": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Lugares D Reais"
+        },
+        "prob_controlo_vencedor": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Probabilidade que a previsão deu a quem ficou com o controlo (se já conhecido).",
+          "title": "Prob Controlo Vencedor"
+        },
+        "vies_margem": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Média de (prevista - real), em pontos D-R: positivo sobrestimou o lado democrata.",
+          "title": "Vies Margem"
+        }
+      },
+      "required": [
+        "camara",
+        "corridas_avaliadas",
+        "corridas_por_decidir",
+        "corridas_erradas",
+        "acertos",
+        "brier",
+        "log_loss",
+        "corridas_com_margem",
+        "erro_absoluto_margem",
+        "vies_margem",
+        "cobertura_80",
+        "calibracao",
+        "prob_controlo_vencedor",
+        "lugares_d_previstos",
+        "lugares_d_reais"
+      ],
+      "title": "AvaliacaoCamara",
+      "type": "object"
+    },
+    "AvaliacaoPrevisao": {
+      "additionalProperties": false,
+      "description": "Avaliação pública da previsão congelada face aos resultados (Fase 4 do plano).",
+      "properties": {
+        "ambiente_previsto": {
+          "title": "Ambiente Previsto",
+          "type": "number"
+        },
+        "ambiente_real": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ambiente Real"
+        },
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "camaras": {
+          "items": {
+            "$ref": "#/$defs/AvaliacaoCamara"
+          },
+          "title": "Camaras",
+          "type": "array"
+        },
+        "corte": {
+          "description": "Data de corte da previsão avaliada (1 de novembro em 2026).",
+          "format": "date",
+          "title": "Corte",
+          "type": "string"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "corte",
+        "ambiente_previsto",
+        "ambiente_real",
+        "camaras"
+      ],
+      "title": "AvaliacaoPrevisao",
+      "type": "object"
+    },
     "Backtest": {
       "additionalProperties": false,
       "description": "O mesmo modelo aplicado a uma eleição passada, só com dados anteriores ao corte.",
@@ -416,6 +613,104 @@
       "title": "CodigoEstado",
       "type": "string"
     },
+    "DiaHistorico": {
+      "additionalProperties": false,
+      "description": "A previsão de um dia, reduzida ao necessário para desenhar a evolução.",
+      "properties": {
+        "ambiente_margem": {
+          "title": "Ambiente Margem",
+          "type": "number"
+        },
+        "camara": {
+          "$ref": "#/$defs/PontoHistoricoCamara"
+        },
+        "congelada": {
+          "title": "Congelada",
+          "type": "boolean"
+        },
+        "corridas": {
+          "items": {
+            "$ref": "#/$defs/PontoHistoricoCorrida"
+          },
+          "title": "Corridas",
+          "type": "array"
+        },
+        "corte": {
+          "format": "date",
+          "title": "Corte",
+          "type": "string"
+        },
+        "senado": {
+          "$ref": "#/$defs/PontoHistoricoCamara"
+        }
+      },
+      "required": [
+        "corte",
+        "congelada",
+        "ambiente_margem",
+        "camara",
+        "senado",
+        "corridas"
+      ],
+      "title": "DiaHistorico",
+      "type": "object"
+    },
+    "FaixaCalibracao": {
+      "additionalProperties": false,
+      "description": "Corridas cujo favorito tinha probabilidade dentro da faixa, e quantas ele ganhou.\n\nA faixa usa a probabilidade do favorito (sempre 50% ou mais), seja qual for o partido,\npara que a calibração não dependa de qual lado é o democrata.",
+      "properties": {
+        "corridas": {
+          "minimum": 0,
+          "title": "Corridas",
+          "type": "integer"
+        },
+        "frequencia": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Fração das corridas da faixa em que o favorito ganhou.",
+          "title": "Frequencia"
+        },
+        "limite_inferior": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Limite Inferior",
+          "type": "number"
+        },
+        "limite_superior": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Limite Superior",
+          "type": "number"
+        },
+        "prob_media": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Probabilidade média atribuída ao favorito (``None`` sem corridas na faixa).",
+          "title": "Prob Media"
+        }
+      },
+      "required": [
+        "limite_inferior",
+        "limite_superior",
+        "corridas",
+        "prob_media",
+        "frequencia"
+      ],
+      "title": "FaixaCalibracao",
+      "type": "object"
+    },
     "Fonte": {
       "additionalProperties": false,
       "description": "Origem de um conjunto de dados, citada em cada número publicado.",
@@ -461,6 +756,33 @@
         "obtida_em"
       ],
       "title": "Fonte",
+      "type": "object"
+    },
+    "HistoricoPrevisao": {
+      "additionalProperties": false,
+      "description": "Uma entrada por data de corte, por ordem cronológica (a mais recente no fim).",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "dias": {
+          "items": {
+            "$ref": "#/$defs/DiaHistorico"
+          },
+          "title": "Dias",
+          "type": "array"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "dias"
+      ],
+      "title": "HistoricoPrevisao",
       "type": "object"
     },
     "LinhaComparacao": {
@@ -1380,6 +1702,73 @@
         "probabilidade"
       ],
       "title": "PontoDistribuicao",
+      "type": "object"
+    },
+    "PontoHistoricoCamara": {
+      "additionalProperties": false,
+      "description": "Resumo de uma câmara numa data de corte.",
+      "properties": {
+        "lugares_d_mediana": {
+          "title": "Lugares D Mediana",
+          "type": "integer"
+        },
+        "lugares_d_p10": {
+          "title": "Lugares D P10",
+          "type": "integer"
+        },
+        "lugares_d_p90": {
+          "title": "Lugares D P90",
+          "type": "integer"
+        },
+        "prob_controlo_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo D",
+          "type": "number"
+        },
+        "prob_controlo_r": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo R",
+          "type": "number"
+        }
+      },
+      "required": [
+        "prob_controlo_d",
+        "prob_controlo_r",
+        "lugares_d_mediana",
+        "lugares_d_p10",
+        "lugares_d_p90"
+      ],
+      "title": "PontoHistoricoCamara",
+      "type": "object"
+    },
+    "PontoHistoricoCorrida": {
+      "additionalProperties": false,
+      "description": "Probabilidade e margem prevista de uma corrida numa data de corte.",
+      "properties": {
+        "id": {
+          "pattern": "^[A-Z]{2}-(\\d{2}|S|S-especial)$",
+          "title": "Id",
+          "type": "string"
+        },
+        "margem_prevista": {
+          "title": "Margem Prevista",
+          "type": "number"
+        },
+        "prob_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob D",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "prob_d",
+        "margem_prevista"
+      ],
+      "title": "PontoHistoricoCorrida",
       "type": "object"
     },
     "PontoSerie": {

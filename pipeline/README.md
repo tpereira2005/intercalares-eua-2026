@@ -81,10 +81,13 @@ src/pipeline/
 │   ├── media.py       # média ponderada de sondagens
 │   ├── simulacao.py   # Monte Carlo com erros nacionais, regionais e por corrida
 │   ├── previsao.py    # orquestração (a mesma função serve 2026 e os backtests)
-│   └── publicar.py    # contrato PrevisaoCongresso e backtests
+│   ├── publicar.py    # contrato PrevisaoCongresso e backtests
+│   ├── historico.py   # histórico diário para os gráficos de evolução
+│   └── avaliacao.py   # scorecard da previsão congelada (Brier, log-loss, calibração)
 └── jobs/
     ├── previsao.py            # previsão de 2026 (diária até ao congelamento a 1 de novembro)
-    └── referencia_modelo.py   # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)
+    ├── referencia_modelo.py   # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)
+    └── avaliacao_previsao.py  # avaliação da previsão congelada (depois da eleição)
 ```
 
 ```sh

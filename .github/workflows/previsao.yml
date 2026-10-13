@@ -47,9 +47,28 @@ jobs:
           enable-cache: true
       - if: steps.janela.outputs.ativo == 'true'
         run: uv sync --all-packages
+      # O histórico diário vive na mesma Release: descarrega-se, acrescenta-se o dia e volta
+      # a publicar-se. Na primeira execução ainda não existe.
+      - name: Recuperar o histórico publicado
+        if: steps.janela.outputs.ativo == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        # Se o histórico já existe e a descarga falha, o passo falha: nunca se recomeça do
+        # zero por causa de um erro de rede.
+        run: |
+          if gh release view dados-previsao --json assets -q '.assets[].name' 2> /dev/null \
+            | grep -qx historico-previsao-2026.json; then
+            gh release download dados-previsao --pattern historico-previsao-2026.json \
+              --dir data/publicado/previsao
+          else
+            echo "Sem histórico anterior."
+          fi
       - name: Calcular a previsão e os backtests
         if: steps.janela.outputs.ativo == 'true'
-        run: uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
+        run: >-
+          uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
+          --historico data/publicado/previsao/historico-previsao-2026.json
       - name: Guardar o resultado
         if: steps.janela.outputs.ativo == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -61,7 +80,7 @@ jobs:
   # Publica o JSON num asset de uma Release fixa, substituído a cada execução, como no voto
   # antecipado. Job separado para que só ele tenha permissão de escrita.
   publicar:
-    name: Publicar previsao-2026.json
+    name: Publicar a previsão e o histórico
     needs: calcular
     if: github.ref == 'refs/heads/main' && needs.calcular.outputs.ativo == 'true'
     runs-on: ubuntu-latest
@@ -77,9 +96,10 @@ jobs:
       - name: Descarregar o resultado
         run: gh run download "$GITHUB_RUN_ID" --name previsao --dir resultado
       - name: Validar
-        run: >-
-          jq -e '.ano == 2026 and (.corridas | length) > 400 and (.backtests | length) == 6'
-          resultado/2026.json
+        run: |
+          jq -e '.ano == 2026 and (.corridas | length) > 400 and (.backtests | length) == 6' \
+            resultado/2026.json
+          jq -e '.ano == 2026 and (.dias | length) > 0' resultado/historico-previsao-2026.json
       - name: Substituir o asset da Release
         run: |
           cp resultado/2026.json previsao-2026.json
@@ -87,4 +107,5 @@ jobs:
             gh release create "$ETIQUETA" --title "Previsão da Câmara e do Senado" --latest=false \
               --notes "Ficheiro publicado pelo workflow Previsão. Substituído todos os dias até ao congelamento a 1 de novembro de 2026."
           fi
-          gh release upload "$ETIQUETA" previsao-2026.json --clobber
+          gh release upload "$ETIQUETA" previsao-2026.json \
+            resultado/historico-previsao-2026.json --clobber

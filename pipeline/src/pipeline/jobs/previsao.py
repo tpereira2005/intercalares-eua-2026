@@ -18,8 +18,10 @@ from pathlib import Path
 import httpx
 
 from contratos.base import Fonte
+from contratos.previsao import HistoricoPrevisao
 from pipeline.modelo import carregar as carga
 from pipeline.modelo.fontes import wikipedia
+from pipeline.modelo.historico import acrescentar
 from pipeline.modelo.previsao import corte_final, prever
 from pipeline.modelo.publicar import avaliar, montar
 
@@ -54,7 +56,9 @@ def fontes(agora: datetime) -> list[Fonte]:
     return resultado
 
 
-def executar(saida: Path, *, corte: date | None, atualizar: bool) -> None:
+def executar(
+    saida: Path, *, corte: date | None, atualizar: bool, historico: Path | None = None
+) -> None:
     final = corte_final(carga.ANO_ATUAL)
     corte = min(corte or datetime.now(UTC).date(), final)
     with httpx.Client(
@@ -89,6 +93,16 @@ def executar(saida: Path, *, corte: date | None, atualizar: bool) -> None:
         ficheiro.camara.prob_controlo_d,
         ficheiro.senado.prob_controlo_d,
     )
+    if historico is not None:
+        anterior = (
+            HistoricoPrevisao.model_validate_json(historico.read_text(encoding="utf-8"))
+            if historico.exists()
+            else None
+        )
+        novo = acrescentar(anterior, ficheiro)
+        historico.parent.mkdir(parents=True, exist_ok=True)
+        historico.write_text(novo.model_dump_json(), encoding="utf-8")
+        registo.info("Histórico com %d dias gravado em %s", len(novo.dias), historico)
 
 
 def main() -> None:
@@ -105,9 +119,20 @@ def main() -> None:
         action="store_true",
         help="Usa só as páginas da Wikipédia já guardadas em data/brutos/modelo/wiki.",
     )
+    parser.add_argument(
+        "--historico",
+        type=Path,
+        default=None,
+        help="Ficheiro do histórico diário a atualizar (criado se não existir).",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    executar(args.saida, corte=args.corte, atualizar=not args.sem_descarga)
+    executar(
+        args.saida,
+        corte=args.corte,
+        atualizar=not args.sem_descarga,
+        historico=args.historico,
+    )
 
 
 if __name__ == "__main__":

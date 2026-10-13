@@ -120,18 +120,46 @@ Notas de leitura:
 - Em 2024 o ambiente vem das sondagens do Senado, que erraram para o lado democrata; o modelo ficou praticamente empatado na Câmara e deu 73% aos Republicanos no Senado (P(D) + P(R) < 1 nesse ano porque o desempate dependia da eleição presidencial do mesmo dia).
 - A cobertura do intervalo de 80% fica entre 76% e 97%: a incerteza está bem calibrada na Câmara e algo larga no Senado.
 
-## 8. Limitações conhecidas
+## 8. Histórico diário
+
+Cada execução do workflow acrescenta a previsão do dia a `historico-previsao-2026.json` (contrato `HistoricoPrevisao`), publicado na mesma Release: resumo das duas câmaras, ambiente nacional e probabilidade e margem prevista de cada uma das 470 corridas (435 distritos e 35 corridas ao Senado, incluindo as especiais da Florida e do Ohio). Uma data de corte repetida substitui a anterior. O histórico só cresce até ao congelamento.
+
+## 9. Avaliação da previsão congelada
+
+Depois da eleição, `pipeline.jobs.avaliacao_previsao` avalia o ficheiro congelado a 1 de novembro (exatamente o que esteve no site) face aos resultados (contrato `AvaliacaoPrevisao`):
+
+- **Brier**: média de (probabilidade − resultado)². 0 é perfeito; 0,25 é atirar uma moeda.
+- **Log-loss**: média de −ln(probabilidade dada ao vencedor), com as probabilidades limitadas a [10⁻⁶, 1 − 10⁻⁶]. Pune mais a confiança errada.
+- **Calibração**: as corridas agrupam-se pela probabilidade do favorito (50-60%, 60-70%, ..., 95-100%) e compara-se com a frequência com que o favorito ganhou. Usar o favorito, e não o lado democrata, torna a tabela igual se os partidos forem trocados.
+- **Margens**: erro absoluto médio, viés (prevista − real) e cobertura do intervalo de 80%.
+- **Controlo**: probabilidade dada a quem ficou com cada câmara e lugares previstos contra reais.
+
+Só entram as corridas disputadas (as decididas à partida não dizem nada sobre o modelo). Durante a contagem lenta, as corridas sem vencedor ficam listadas como por decidir e fora das métricas, e os lugares reais só aparecem quando todas estiverem decididas.
+
+O mesmo código avalia os backtests (`--backtest 2018`, `2022` ou `2024`):
+
+| Ano  | Câmara: Brier / log-loss | Câmara: lugares D previstos / reais | Senado: Brier / log-loss | Senado: lugares D previstos / reais |
+| ---- | ------------------------ | ----------------------------------- | ------------------------ | ----------------------------------- |
+| 2018 | 0,046 / 0,142            | 224 / 235                           | 0,050 / 0,151            | 48 / 47                             |
+| 2022 | 0,030 / 0,097            | 213 / 213                           | 0,029 / 0,103            | 49 / 51                             |
+| 2024 | 0,017 / 0,068            | 217 / 215                           | 0,033 / 0,115            | 48 / 47                             |
+
+Na Câmara, a calibração por faixa fica perto da diagonal nos três anos (por exemplo, em 2022 os favoritos com 80-90% ganharam 90% das vezes e os de 90-95% ganharam 96%).
+
+## 10. Limitações conhecidas
 
 - O PVI e as listas de candidatos vêm da Wikipédia. Os testes guardam os formatos conhecidos e uma linha que não se consegue ler é registada, mas um erro de edição na página pode passar.
 - As sondagens de 2026 são as que a Wikipédia lista; algumas corridas seguras não têm nenhuma e ficam só com fundamentos.
 - Os estados redesenhados em 2026 perdem a persistência do ciclo anterior, porque o desvio do incumbente era medido noutro distrito.
 - Os agregadores do voto genérico são lidos tal como estão na página no momento da execução. Antes do congelamento, cada execução diária usa os valores desse dia.
 
-## 9. Reprodução
+## 11. Reprodução
 
 ```sh
 uv run python -m pipeline.jobs.referencia_modelo        # tabelas de 2012 a 2024 (uma vez)
-uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
+uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json \
+  --historico data/publicado/previsao/historico-previsao-2026.json
+uv run python -m pipeline.jobs.avaliacao_previsao --backtest 2022 --saida avaliacao-2022.json
 ```
 
 `--corte AAAA-MM-DD` fixa a data de corte (nunca depois de 1 de novembro de 2026) e `--sem-descarga` usa só as páginas já guardadas em `data/brutos/modelo/`. O resultado valida o contrato `PrevisaoCongresso` (`schemas/src/contratos/previsao.py`).

@@ -40,6 +40,8 @@ def _corrida(
 ) -> Corrida:
     ano, camara, estado, distrito = lugar
     nome_d, nome_r = f"Ana {apelido(2 * k)}", f"Rui {apelido(2 * k + 1)}"
+    if abs(margem) < 0.2:
+        margem = 0.2 if k % 2 else -0.2  # sem empates: cada corrida tem um vencedor
     incumbentes = []
     if inc == "D":
         incumbentes.append((nome_d, "D"))
