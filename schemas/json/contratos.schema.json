@@ -1026,7 +1026,7 @@
     },
     "HistoricoNoite": {
       "additionalProperties": false,
-      "description": "Pontos por ordem cronológica (o mais recente no fim), um por projeção guardada.\n\nPara o ficheiro não crescer sem limite ao longo da noite, dois pontos guardados\nseguidos distam pelo menos ``intervalo_minutos``; o último ponto é sempre a projeção\nmais recente.",
+      "description": "Pontos por ordem cronológica (o mais recente no fim), um por projeção guardada.\n\nPara o ficheiro não crescer sem limite ao longo da noite, dois pontos guardados\nseguidos distam pelo menos ``intervalo_minutos``, exceto os dois últimos: o último\nponto é sempre a projeção mais recente e substitui-se até haver um intervalo completo.",
       "properties": {
         "ano": {
           "title": "Ano",

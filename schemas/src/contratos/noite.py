@@ -140,8 +140,8 @@ class HistoricoNoite(ModeloContrato):
     """Pontos por ordem cronológica (o mais recente no fim), um por projeção guardada.
 
     Para o ficheiro não crescer sem limite ao longo da noite, dois pontos guardados
-    seguidos distam pelo menos ``intervalo_minutos``; o último ponto é sempre a projeção
-    mais recente.
+    seguidos distam pelo menos ``intervalo_minutos``, exceto os dois últimos: o último
+    ponto é sempre a projeção mais recente e substitui-se até haver um intervalo completo.
     """
 
     metadados: Metadados
