@@ -4,6 +4,7 @@ from datetime import UTC, date, datetime
 
 import httpx
 
+from pipeline.jobs.referencia_voto_generico import uniformizar_nomes
 from pipeline.modelo.fontes import wikipedia
 from pipeline.modelo.fontes.revisoes import Revisao, ultima_por_dia
 
@@ -29,3 +30,12 @@ def test_recuo_exponencial_respeita_o_retry_after() -> None:
     com = httpx.Response(429, headers={"Retry-After": "120"})
     assert wikipedia.espera(com, 0) == 120.0
     assert wikipedia.espera(com, 3) == 128.0
+
+
+def test_grafias_do_mesmo_agregador_ficam_iguais() -> None:
+    linhas = [
+        {"data": "2026-01-01", "revisao": "1", "agregador": "Race To The WH", "margem": "4"},
+        {"data": "2026-01-02", "revisao": "2", "agregador": "Race to the WH", "margem": "4"},
+        {"data": "2026-01-03", "revisao": "3", "agregador": "Race to the WH", "margem": "5"},
+    ]
+    assert {ln["agregador"] for ln in uniformizar_nomes(linhas)} == {"Race to the WH"}

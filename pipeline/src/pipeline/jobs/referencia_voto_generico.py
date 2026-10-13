@@ -16,6 +16,7 @@ job pode ser interrompido e retomado. O resultado fica versionado em
 import argparse
 import csv
 import logging
+from collections import Counter
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
@@ -65,7 +66,17 @@ def reconstruir(inicio: date, fim: date, cliente: httpx.Client) -> list[dict[str
             }
             for n, m in valores
         )
-    return linhas
+    return uniformizar_nomes(linhas)
+
+
+def uniformizar_nomes(linhas: list[dict[str, str]]) -> list[dict[str, str]]:
+    """O mesmo agregador com grafias diferentes entre revisões ("Race To The WH" e "Race
+    to the WH") fica com a grafia mais frequente."""
+    contagem = Counter(ln["agregador"] for ln in linhas)
+    preferido: dict[str, str] = {}
+    for nome, _ in contagem.most_common():
+        preferido.setdefault(nome.casefold(), nome)
+    return [{**ln, "agregador": preferido[ln["agregador"].casefold()]} for ln in linhas]
 
 
 def main() -> None:
