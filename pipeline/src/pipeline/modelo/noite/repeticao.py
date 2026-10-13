@@ -89,9 +89,16 @@ class Final:
 
 
 def finais(final: ResultadosParciais) -> dict[str, Final]:
-    """Margem e vencedor de cada corrida no resultado final (lados D e R)."""
+    """Margem e vencedor de cada corrida no resultado final (lados D e R).
+
+    As corridas dos estados com cobertura parcial ficam de fora: a soma dos condados
+    acompanhados não é o resultado da corrida.
+    """
+    parciais = {c.estado.value for c in final.cobertura_parcial}
     somas: dict[str, list[int]] = {}
     for u in final.unidades:
+        if u.corrida[:2] in parciais:
+            continue
         s = somas.setdefault(u.corrida, [0, 0, 0])
         s[0] += u.votos_d
         s[1] += u.votos_r
@@ -110,5 +117,7 @@ def juntar(instantes: Sequence[ResultadosParciais]) -> ResultadosParciais:
         update={
             "instante": max(i.instante for i in instantes),
             "unidades": tuple(u for i in instantes for u in i.unidades),
+            "reconstruido": any(i.reconstruido for i in instantes),
+            "cobertura_parcial": tuple(c for i in instantes for c in i.cobertura_parcial),
         }
     )

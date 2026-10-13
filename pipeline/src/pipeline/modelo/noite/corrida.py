@@ -140,7 +140,11 @@ class _Unidades:
 
 
 def _unidades(
-    prior: PriorCorrida, contagens: Sequence[Contagem], base: Mapping[str, Base], p: Parametros
+    prior: PriorCorrida,
+    contagens: Sequence[Contagem],
+    base: Mapping[str, Base],
+    p: Parametros,
+    parcial: bool = False,
 ) -> _Unidades:
     referencia = base if prior.estatal else {}
     condados = [c for c in contagens if c.unidade != TOTAL]
@@ -155,9 +159,11 @@ def _unidades(
         if totais:
             contagem: Contagem | None = totais[-1]
         elif condados:
-            # Partes de condados de um distrito: somam-se votos e secções.
+            # Partes de condados de um distrito: somam-se votos e secções. Num estado
+            # acompanhado só por alguns condados, a soma pode não ser o distrito inteiro:
+            # as secções não dizem quanto falta e o distrito fica sem voto esperado.
             seccoes = [(c.seccoes_reportadas, c.seccoes_totais) for c in condados]
-            completas = all(r is not None and t for r, t in seccoes)
+            completas = not parcial and all(r is not None and t for r, t in seccoes)
             contagem = Contagem(
                 prior.id,
                 TOTAL,
@@ -279,9 +285,17 @@ def analisar(
     base: Mapping[str, Base],
     participacao: float,
     p: Parametros,
+    *,
+    parcial: bool = False,
 ) -> AnaliseCorrida:
-    """Distribuição da margem final condicionada ao desvio ``s`` e às contagens."""
-    u = _unidades(prior, contagens, base, p)
+    """Distribuição da margem final condicionada ao desvio ``s`` e às contagens.
+
+    ``parcial``: o estado só é acompanhado em alguns condados. Numa corrida estadual, os
+    condados sem dados ficam no voto esperado (previstos pelo desvio da corrida) e a
+    corrida nunca se dá por completa; num distrito, as partes de condados não dizem
+    quanto falta e o distrito só aprende pelos fatores comuns.
+    """
+    u = _unidades(prior, contagens, base, p, parcial)
     contados = int(u.n.sum())
     margem_contada = float(u.n @ u.m / contados) if contados > 0 else None
     com_votos = int((u.n > 0).sum())

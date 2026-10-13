@@ -58,6 +58,9 @@ class Instantaneo:
 
     instante: datetime
     contagens: tuple[Contagem, ...]
+    parciais: frozenset[str] = frozenset()
+    """Estados acompanhados só por alguns condados: a soma das suas unidades não é o estado
+    nem o distrito inteiro (os outros condados estão fora da recolha)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,7 +91,8 @@ def de_parciais(parciais: ResultadosParciais) -> Instantaneo:
         )
         for u in parciais.unidades
     )
-    return Instantaneo(parciais.instante, contagens)
+    estados = frozenset(c.estado.value for c in parciais.cobertura_parcial)
+    return Instantaneo(parciais.instante, contagens, estados)
 
 
 def agrupar(contagens: Iterable[Contagem]) -> dict[str, list[Contagem]]:
