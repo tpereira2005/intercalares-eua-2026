@@ -43,6 +43,10 @@ jobs:
     if: ${{ inputs.modo != 'noite' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Os sites Clarity (SC, IA) respondem ao Actions com um desafio do AWS WAF, que não
+    # contornamos (docs/metodologia/resultados.md). Continuam no ensaio para se ver quando
+    # o bloqueio acaba, mas não pintam a execução de vermelho.
+    continue-on-error: ${{ matrix.clarity == true }}
     strategy:
       fail-fast: false
       matrix:
@@ -52,9 +56,9 @@ jobs:
           - { estado: FL, data: "2024-11-05" }
           - { estado: GA, data: "2022-11-08" }
           - { estado: GA, data: "2024-11-05" }
-          - { estado: SC, data: "2022-11-08" }
-          - { estado: SC, data: "2024-11-05" }
-          - { estado: IA, data: "2024-11-05" }
+          - { estado: SC, data: "2022-11-08", clarity: true }
+          - { estado: SC, data: "2024-11-05", clarity: true }
+          - { estado: IA, data: "2024-11-05", clarity: true }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

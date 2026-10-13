@@ -6,9 +6,17 @@ os votos por candidato, tipo de voto e condado, e as secções apuradas por cond
 pedido por ciclo chega para o estado inteiro.
 
 O ``eid`` da eleição geral só existe quando o estado cria a página (normalmente poucos
-dias antes). Até lá, ``pedidos`` falha com uma mensagem clara e a recolha salta o estado.
+dias antes). Quando não está em ``eleicoes``, procura-se em ``elections.json``, a lista
+que o próprio site publica (o Iowa e os condados usam-na; a Carolina do Sul devolve uma
+lista vazia). Até lá, ``pedidos`` falha com uma mensagem clara e a recolha salta o estado.
+
+Os sites Clarity estão atrás de um AWS WAF que, a 13 de outubro de 2026, responde aos
+endereços do GitHub Actions com um desafio anti-robô (``202`` e corpo vazio). Não o
+contornamos: ``pipeline.comum.descarga.verificar_resposta`` transforma-o em
+``ErroBloqueio`` e a recolha segue com os outros estados.
 """
 
+import json
 import re
 import zipfile
 from collections.abc import Mapping
@@ -53,7 +61,7 @@ class ConectorClarity:
     licenca: str | None = None
 
     def pedidos(self, data: date, obter: ObterTexto) -> list[Pedido]:
-        eid = self.eleicoes.get(data)
+        eid = self.eleicoes.get(data) or _procurar_eid(obter(f"{self.base}/elections.json"), data)
         if eid is None:
             msg = f"{self.estado}: ainda não há página Clarity conhecida para {data}"
             raise ErroDescarga(msg)
@@ -118,6 +126,36 @@ class ConectorClarity:
         )
 
 
+def _procurar_eid(texto: str, data: date) -> int | None:
+    """``EID`` da eleição com esta data na lista ``elections.json`` do site, ou ``None``.
+
+    Com várias eleições no mesmo dia (uma especial ao lado da geral), prefere a que tem
+    "General" no nome; se a escolha continuar ambígua, não escolhe.
+    """
+    try:
+        lista = json.loads(texto) if texto.strip() else []
+    except json.JSONDecodeError as erro:
+        msg = "elections.json não é JSON válido"
+        raise ErroFormatoFonte(msg) from erro
+    if not isinstance(lista, list):
+        msg = "elections.json: formato inesperado"
+        raise ErroFormatoFonte(msg)
+    candidatas: list[tuple[str, int]] = []
+    for item in lista:
+        if not isinstance(item, dict):
+            continue
+        dia, eid = str(item.get("Date", "")).split(" ")[0], str(item.get("EID", ""))
+        try:
+            mes, d, ano = (int(x) for x in dia.split("/"))
+            dia_eleicao = date(ano, mes, d)
+        except ValueError:
+            continue
+        if dia_eleicao == data and eid.isdigit():
+            candidatas.append((str(item.get("ElectionName", "")), int(eid)))
+    gerais = [c for c in candidatas if "GENERAL" in c[0].upper()] or candidatas
+    return gerais[0][1] if len(gerais) == 1 else None
+
+
 def _int(elemento: ET.Element, atributo: str) -> int:
     valor = elemento.get(atributo)
     if valor is None or not valor.strip().lstrip("-").isdigit():
@@ -151,7 +189,7 @@ CAROLINA_DO_SUL = ConectorClarity(
 
 IOWA = ConectorClarity(
     estado=CodigoEstado.IA,
-    base="https://results.enr.clarityelections.com/IA",
+    base="https://electionresults.iowa.gov/IA",
     eleicoes={date(2024, 11, 5): 122322},
     nome_fonte="Iowa Secretary of State, Election Night Reporting",
     licenca="Registo público",

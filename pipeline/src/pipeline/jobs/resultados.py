@@ -37,7 +37,7 @@ import httpx
 from contratos.base import Fonte
 from contratos.estados import CodigoEstado
 from contratos.resultados import ResultadosEstado
-from pipeline.comum.descarga import USER_AGENT, Descarga, descarregar
+from pipeline.comum.descarga import USER_AGENT, Descarga, descarregar, obter_texto
 from pipeline.comum.erros import ErroPipeline
 from pipeline.connectors.results.comum import ConectorResultados
 from pipeline.connectors.results.registo import CONECTORES, nomes_geo
@@ -84,9 +84,7 @@ class Recolha:
         return f"{self.espelho.rstrip('/')}/{partes.netloc}{partes.path}"
 
     def obter(self, url: str) -> str:
-        resposta = self.cliente.get(self.url(url))
-        resposta.raise_for_status()
-        return resposta.text
+        return obter_texto(self.cliente, self.url(url))
 
     def ciclo(self, conectores: Sequence[ConectorResultados]) -> list[Path]:
         """Um ciclo de recolha; devolve os ficheiros publicados que mudaram."""
