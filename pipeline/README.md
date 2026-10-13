@@ -80,29 +80,35 @@ uv run python -m pipeline.jobs.resultados_avaliacao --pasta data/publicado/resul
 
 ## Previsão
 
-Modelo próprio para a Câmara e o Senado (metodologia em [`docs/metodologia/previsao.md`](../docs/metodologia/previsao.md)).
+Modelo próprio para a Câmara e o Senado (metodologia em [`docs/metodologia/previsao.md`](../docs/metodologia/previsao.md)) e projeção da noite eleitoral (Modelo C, em [`docs/metodologia/noite-eleitoral.md`](../docs/metodologia/noite-eleitoral.md)).
 
-```
+```text
 src/pipeline/
 ├── modelo/
-│   ├── fontes/        # Wikipédia (wikitexto, corridas, sondagens) e raw_polls.csv da 538
-│   ├── dados.py       # corrida → linha do modelo (lados, independentes, corridas decididas)
-│   ├── estimacao.py   # fundamentos e erro das sondagens, só com anos anteriores
-│   ├── media.py       # média ponderada de sondagens
-│   ├── simulacao.py   # Monte Carlo com erros nacionais, regionais e por corrida
-│   ├── previsao.py    # orquestração (a mesma função serve 2026 e os backtests)
-│   ├── publicar.py    # contrato PrevisaoCongresso e backtests
-│   ├── historico.py   # histórico diário para os gráficos de evolução
-│   └── avaliacao.py   # scorecard da previsão congelada (Brier, log-loss, calibração)
+│   ├── fontes/          # Wikipédia (wikitexto, corridas, sondagens) e raw_polls.csv da 538
+│   ├── dados.py         # corrida → linha do modelo (lados, independentes, corridas decididas)
+│   ├── estimacao.py     # fundamentos e erro das sondagens, só com anos anteriores
+│   ├── media.py         # média ponderada de sondagens
+│   ├── simulacao.py     # Monte Carlo com erros nacionais, regionais e por corrida
+│   ├── previsao.py      # orquestração (a mesma função serve 2026 e os backtests)
+│   ├── publicar.py      # contrato PrevisaoCongresso e backtests
+│   ├── verificacoes.py  # verificações de coerência antes de publicar
+│   ├── historico.py     # histórico diário para os gráficos de evolução
+│   ├── avaliacao.py     # scorecard da previsão congelada (Brier, log-loss, calibração)
+│   └── noite/           # Modelo C: corrida a corrida, câmaras e repetições
 └── jobs/
-    ├── previsao.py            # previsão de 2026 (diária até ao congelamento a 1 de novembro)
-    ├── referencia_modelo.py   # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)
-    └── avaliacao_previsao.py  # avaliação da previsão congelada (depois da eleição)
+    ├── previsao.py           # previsão de 2026 (diária até ao congelamento a 1 de novembro)
+    ├── referencia_modelo.py  # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)
+    ├── referencia_noite.py   # presidenciais por condado (2020 e 2024) para o Modelo C
+    ├── repeticao_noite.py    # repetição das noites de 2022 e 2024 com o Modelo C
+    └── avaliacao_previsao.py # avaliação da previsão congelada (depois da eleição)
 ```
 
 ```sh
 uv run python -m pipeline.jobs.referencia_modelo
 uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
+uv run python -m pipeline.jobs.ensaio_resultados --estado NC --data 2022-11-08 --parciais data/brutos/repeticao/NC-2022
+uv run python -m pipeline.jobs.repeticao_noite --ano 2022 --ordem modos --parciais data/brutos/repeticao/NC-2022
 ```
 
 ## Comandos

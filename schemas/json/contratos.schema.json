@@ -851,6 +851,34 @@
       "title": "Corrida",
       "type": "object"
     },
+    "DesvioNacionalNoite": {
+      "additionalProperties": false,
+      "description": "Quanto os votos contados se afastam, em média, da previsão congelada.",
+      "properties": {
+        "corridas_informativas": {
+          "minimum": 0,
+          "title": "Corridas Informativas",
+          "type": "integer"
+        },
+        "desvio_padrao": {
+          "minimum": 0,
+          "title": "Desvio Padrao",
+          "type": "number"
+        },
+        "media": {
+          "description": "Desvio nacional estimado em pontos de margem D-R (positivo: melhor para D).",
+          "title": "Media",
+          "type": "number"
+        }
+      },
+      "required": [
+        "media",
+        "desvio_padrao",
+        "corridas_informativas"
+      ],
+      "title": "DesvioNacionalNoite",
+      "type": "object"
+    },
     "DiaHistorico": {
       "additionalProperties": false,
       "description": "A previsão de um dia, reduzida ao necessário para desenhar a evolução.",
@@ -2509,6 +2537,198 @@
       "title": "PrevisaoCorrida",
       "type": "object"
     },
+    "ProjecaoCorridaNoite": {
+      "additionalProperties": false,
+      "description": "Projeção de uma corrida num instante da contagem.",
+      "properties": {
+        "camara": {
+          "enum": [
+            "camara",
+            "senado"
+          ],
+          "title": "Camara",
+          "type": "string"
+        },
+        "decidida": {
+          "description": "Corrida sem disputa entre os dois lados na previsão (fica com o vencedor certo).",
+          "title": "Decidida",
+          "type": "boolean"
+        },
+        "fracao_contada": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Votos contados a dividir pelos votos esperados.",
+          "title": "Fracao Contada"
+        },
+        "id": {
+          "pattern": "^[A-Z]{2}-(\\d{2}|S|S-especial)$",
+          "title": "Id",
+          "type": "string"
+        },
+        "margem_contada": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Margem D-R dos votos já contados; ``None`` sem votos.",
+          "title": "Margem Contada"
+        },
+        "margem_p10": {
+          "title": "Margem P10",
+          "type": "number"
+        },
+        "margem_p90": {
+          "title": "Margem P90",
+          "type": "number"
+        },
+        "margem_prior": {
+          "description": "Margem prevista na previsão congelada.",
+          "title": "Margem Prior",
+          "type": "number"
+        },
+        "margem_projetada": {
+          "title": "Margem Projetada",
+          "type": "number"
+        },
+        "prob_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob D",
+          "type": "number"
+        },
+        "prob_d_prior": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob D Prior",
+          "type": "number"
+        },
+        "unidades_com_votos": {
+          "minimum": 0,
+          "title": "Unidades Com Votos",
+          "type": "integer"
+        },
+        "votos_contados": {
+          "minimum": 0,
+          "title": "Votos Contados",
+          "type": "integer"
+        },
+        "votos_esperados": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Estimativa do total final de votos (contados mais por contar); ``None`` quando a\nfonte não diz quanto falta e não há eleição de referência para o estimar.",
+          "title": "Votos Esperados"
+        }
+      },
+      "required": [
+        "id",
+        "camara",
+        "votos_contados",
+        "votos_esperados",
+        "fracao_contada",
+        "unidades_com_votos",
+        "margem_contada",
+        "margem_prior",
+        "margem_projetada",
+        "margem_p10",
+        "margem_p90",
+        "prob_d",
+        "prob_d_prior",
+        "decidida"
+      ],
+      "title": "ProjecaoCorridaNoite",
+      "type": "object"
+    },
+    "ProjecaoNoite": {
+      "additionalProperties": false,
+      "description": "Projeção completa num instante: corridas, câmaras e desvio nacional.",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "camara": {
+          "$ref": "#/$defs/ResumoCamaraNoite"
+        },
+        "corridas": {
+          "items": {
+            "$ref": "#/$defs/ProjecaoCorridaNoite"
+          },
+          "title": "Corridas",
+          "type": "array"
+        },
+        "corte_prior": {
+          "description": "Data de corte da previsão congelada usada como ponto de partida.",
+          "format": "date",
+          "title": "Corte Prior",
+          "type": "string"
+        },
+        "desvio_nacional": {
+          "$ref": "#/$defs/DesvioNacionalNoite"
+        },
+        "instante": {
+          "description": "Instante dos resultados usados (o da recolha, ou o original numa repetição).",
+          "format": "date-time",
+          "title": "Instante",
+          "type": "string"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "notas": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notas",
+          "type": "array"
+        },
+        "semente": {
+          "title": "Semente",
+          "type": "integer"
+        },
+        "senado": {
+          "$ref": "#/$defs/ResumoCamaraNoite"
+        },
+        "simulacoes": {
+          "exclusiveMinimum": 0,
+          "title": "Simulacoes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "instante",
+        "corte_prior",
+        "simulacoes",
+        "semente",
+        "desvio_nacional",
+        "camara",
+        "senado",
+        "corridas",
+        "notas"
+      ],
+      "title": "ProjecaoNoite",
+      "type": "object"
+    },
     "ResultadoGeografico": {
       "additionalProperties": false,
       "description": "Resultado de uma corrida num condado (ou município) do estado.",
@@ -2826,6 +3046,92 @@
         "distribuicao"
       ],
       "title": "ResumoCamara",
+      "type": "object"
+    },
+    "ResumoCamaraNoite": {
+      "additionalProperties": false,
+      "description": "Controlo e lugares de uma câmara, incluindo os lugares que não vão a votos.",
+      "properties": {
+        "camara": {
+          "enum": [
+            "camara",
+            "senado"
+          ],
+          "title": "Camara",
+          "type": "string"
+        },
+        "corridas_com_votos": {
+          "minimum": 0,
+          "title": "Corridas Com Votos",
+          "type": "integer"
+        },
+        "distribuicao": {
+          "items": {
+            "$ref": "#/$defs/PontoDistribuicao"
+          },
+          "title": "Distribuicao",
+          "type": "array"
+        },
+        "lugares_d_media": {
+          "title": "Lugares D Media",
+          "type": "number"
+        },
+        "lugares_d_mediana": {
+          "title": "Lugares D Mediana",
+          "type": "integer"
+        },
+        "lugares_d_p10": {
+          "title": "Lugares D P10",
+          "type": "integer"
+        },
+        "lugares_d_p90": {
+          "title": "Lugares D P90",
+          "type": "integer"
+        },
+        "lugares_total": {
+          "exclusiveMinimum": 0,
+          "title": "Lugares Total",
+          "type": "integer"
+        },
+        "maioria": {
+          "exclusiveMinimum": 0,
+          "title": "Maioria",
+          "type": "integer"
+        },
+        "prob_controlo_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo D",
+          "type": "number"
+        },
+        "prob_controlo_d_prior": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo D Prior",
+          "type": "number"
+        },
+        "prob_controlo_r": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo R",
+          "type": "number"
+        }
+      },
+      "required": [
+        "camara",
+        "lugares_total",
+        "maioria",
+        "prob_controlo_d",
+        "prob_controlo_r",
+        "prob_controlo_d_prior",
+        "lugares_d_media",
+        "lugares_d_p10",
+        "lugares_d_mediana",
+        "lugares_d_p90",
+        "corridas_com_votos",
+        "distribuicao"
+      ],
+      "title": "ResumoCamaraNoite",
       "type": "object"
     },
     "UnidadeContagem": {

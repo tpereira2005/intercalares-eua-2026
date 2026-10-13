@@ -39,3 +39,13 @@ def nomes(estado: str) -> dict[str, str]:
         for uf, fips, nome in _tabela()
         if uf == estado
     }
+
+
+@cache
+def _estados_por_codigo() -> dict[str, str]:
+    return {fips[:2]: uf for uf, fips, _ in _tabela()}
+
+
+def estado_do_fips(fips: str) -> str | None:
+    """Estado (código de duas letras) a partir dos dois primeiros dígitos do FIPS."""
+    return _estados_por_codigo().get(fips[:2])

@@ -401,6 +401,20 @@ export interface VotosCandidato {
   votos: number;
 }
 /**
+ * Quanto os votos contados se afastam, em média, da previsão congelada.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "DesvioNacionalNoite".
+ */
+export interface DesvioNacionalNoite {
+  corridas_informativas: number;
+  desvio_padrao: number;
+  /**
+   * Desvio nacional estimado em pontos de margem D-R (positivo: melhor para D).
+   */
+  media: number;
+}
+/**
  * A previsão de um dia, reduzida ao necessário para desenhar a evolução.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -866,6 +880,89 @@ export interface PrevisaoCorrida {
    * Cook PVI em pontos (D+ positivo), tal como publicado: a margem é o dobro.
    */
   pvi: number;
+}
+/**
+ * Projeção de uma corrida num instante da contagem.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ProjecaoCorridaNoite".
+ */
+export interface ProjecaoCorridaNoite {
+  camara: "camara" | "senado";
+  /**
+   * Corrida sem disputa entre os dois lados na previsão (fica com o vencedor certo).
+   */
+  decidida: boolean;
+  /**
+   * Votos contados a dividir pelos votos esperados.
+   */
+  fracao_contada: number | null;
+  id: string;
+  /**
+   * Margem D-R dos votos já contados; ``None`` sem votos.
+   */
+  margem_contada: number | null;
+  margem_p10: number;
+  margem_p90: number;
+  /**
+   * Margem prevista na previsão congelada.
+   */
+  margem_prior: number;
+  margem_projetada: number;
+  prob_d: number;
+  prob_d_prior: number;
+  unidades_com_votos: number;
+  votos_contados: number;
+  /**
+   * Estimativa do total final de votos (contados mais por contar); ``None`` quando a
+   * fonte não diz quanto falta e não há eleição de referência para o estimar.
+   */
+  votos_esperados: number | null;
+}
+/**
+ * Projeção completa num instante: corridas, câmaras e desvio nacional.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ProjecaoNoite".
+ */
+export interface ProjecaoNoite {
+  ano: number;
+  camara: ResumoCamaraNoite;
+  corridas: ProjecaoCorridaNoite[];
+  /**
+   * Data de corte da previsão congelada usada como ponto de partida.
+   */
+  corte_prior: string;
+  desvio_nacional: DesvioNacionalNoite;
+  /**
+   * Instante dos resultados usados (o da recolha, ou o original numa repetição).
+   */
+  instante: string;
+  metadados: Metadados;
+  notas: string[];
+  semente: number;
+  senado: ResumoCamaraNoite;
+  simulacoes: number;
+}
+/**
+ * Controlo e lugares de uma câmara, incluindo os lugares que não vão a votos.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ResumoCamaraNoite".
+ */
+export interface ResumoCamaraNoite {
+  camara: "camara" | "senado";
+  corridas_com_votos: number;
+  distribuicao: PontoDistribuicao[];
+  lugares_d_media: number;
+  lugares_d_mediana: number;
+  lugares_d_p10: number;
+  lugares_d_p90: number;
+  lugares_total: number;
+  maioria: number;
+  prob_controlo_d: number;
+  prob_controlo_d_prior: number;
+  prob_controlo_r: number;
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema
