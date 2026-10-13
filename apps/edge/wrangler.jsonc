@@ -17,8 +17,8 @@
     "run_worker_first": ["/api/*"],
   },
 
-  // Snapshots correntes. O database_id real é preenchido quando a conta
-  // Cloudflare for criada (Fase 0); este valor é um marcador.
+  // Snapshots correntes. Este database_id é um marcador: o workflow de
+  // implantação cria a base de dados e escreve o id real (scripts/preparar-d1.mjs).
   "d1_databases": [
     {
       "binding": "DB",

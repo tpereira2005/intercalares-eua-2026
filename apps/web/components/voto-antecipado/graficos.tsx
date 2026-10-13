@@ -26,7 +26,7 @@ import {
   type PartidoRegisto,
   type ReservaPartido,
 } from "@/lib/voto-antecipado/vista.ts";
-import { estiloAno, rotuloFaixa } from "./anos.ts";
+import { estiloAno, rotuloFaixa, type LinhaBarra } from "./anos.ts";
 
 const ROTULO = 54;
 const TEXTO_EIXO = "fill-ink-3 font-mono text-[10.5px]";
@@ -103,12 +103,6 @@ function Grelha({
 
 /* ---------- Composição e participação por idade ---------- */
 
-export interface LinhaBarra {
-  faixa: FaixaEtaria;
-  valor: number;
-  referencias: { ano: number; valor: number }[];
-}
-
 export function BarrasIdade({
   titulo,
   linhas,
@@ -117,16 +111,19 @@ export function BarrasIdade({
   comparacoes,
   faixaAtiva,
   aoEscolher,
+  compacto = false,
 }: {
   titulo: string;
   linhas: readonly LinhaBarra[];
   anoAtual: number;
   anoComparar: number;
   comparacoes: readonly ComparacaoAno[];
-  faixaAtiva: FaixaEtaria;
-  aoEscolher: (faixa: FaixaEtaria) => void;
+  /** Sem faixa ativa nem escolha, o gráfico é só de leitura (painel inicial). */
+  faixaAtiva?: FaixaEtaria;
+  aoEscolher?: (faixa: FaixaEtaria) => void;
+  compacto?: boolean;
 }) {
-  const alturaLinha = 36;
+  const alturaLinha = compacto ? 30 : 36;
   const topo = 22;
   const altura = topo + linhas.length * alturaLinha + 4;
   const { maximo, marcas } = escala(
@@ -134,7 +131,7 @@ export function BarrasIdade({
   );
   const decimais = casas(maximo);
   return (
-    <Grafico titulo={titulo} altura={altura}>
+    <Grafico titulo={titulo} altura={altura} interativo={aoEscolher !== undefined}>
       {(largura) => {
         const colunaValor = largura < 480 ? 116 : 140;
         const x1 = largura - colunaValor;
@@ -162,9 +159,11 @@ export function BarrasIdade({
                       faixa: rotuloFaixa(linha.faixa),
                       valor,
                     }),
-                    () => {
-                      aoEscolher(linha.faixa);
-                    },
+                    aoEscolher
+                      ? () => {
+                          aoEscolher(linha.faixa);
+                        }
+                      : undefined,
                   )}
                 >
                   <FundoLinha y={y} largura={largura} altura={alturaLinha} ativa={ativa} />
@@ -243,7 +242,7 @@ export function BarrasMomento({
   );
   const altura = topo + faixas.length * alturaLinha + 4;
   return (
-    <Grafico titulo={titulo} altura={altura}>
+    <Grafico titulo={titulo} altura={altura} interativo>
       {(largura) => {
         const colunaValor = largura < 480 ? 92 : 150;
         const x1 = largura - colunaValor;
@@ -350,7 +349,7 @@ export function BarrasDesvio({
   // Com muitas marcas, só uma em cada duas, para caberem no telemóvel.
   const positivas = marcas.filter((_, i) => i > 0 && (marcas.length <= 4 || i % 2 === 0));
   return (
-    <Grafico titulo={titulo} altura={altura}>
+    <Grafico titulo={titulo} altura={altura} interativo>
       {(largura) => {
         const x1 = largura - 60;
         const x = (v: number) => ROTULO + ((x1 - ROTULO) * (v + extremo)) / (2 * extremo);
@@ -702,7 +701,7 @@ export function Cruzamento({
   const topo = 6;
   const altura = topo + linhas.length * alturaLinha + 4;
   return (
-    <Grafico titulo={titulo} altura={altura}>
+    <Grafico titulo={titulo} altura={altura} interativo>
       {(largura) => {
         const x1 = largura - (largura < 480 ? 84 : 104);
         const util = x1 - ROTULO;

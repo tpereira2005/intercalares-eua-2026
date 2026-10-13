@@ -54,24 +54,34 @@ export function afastarRotulos(posicoes: readonly number[], distancia = 12): num
   return resultado;
 }
 
-/** Contentor de um gráfico SVG com largura medida e título acessível. */
+/**
+ * Contentor de um gráfico SVG com largura medida e título acessível. Um
+ * gráfico com elementos que se escolhem é um grupo, para os leitores de ecrã
+ * chegarem a esses elementos; os outros são uma imagem com título.
+ */
 export function Grafico({
   titulo,
   altura,
+  alturaPorLargura,
+  interativo = false,
   children,
 }: {
   titulo: string;
   altura: number;
+  /** Altura calculada a partir da largura medida, para gráficos que crescem com ela. */
+  alturaPorLargura?: (largura: number) => number;
+  interativo?: boolean;
   children: (largura: number) => ReactNode;
 }) {
   const [ref, largura] = useLargura<HTMLDivElement>();
+  const alturaFinal = alturaPorLargura ? alturaPorLargura(largura) : altura;
   return (
     <div ref={ref} className="w-full min-w-0">
       <svg
         width={largura}
-        height={altura}
-        viewBox={`0 0 ${largura} ${altura}`}
-        role="img"
+        height={alturaFinal}
+        viewBox={`0 0 ${String(largura)} ${String(alturaFinal)}`}
+        role={interativo ? "group" : "img"}
         aria-label={titulo}
         className="block max-w-full overflow-visible font-sans"
       >

@@ -1,0 +1,270 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { Grafico, escala, linhaEscolhivel } from "@/components/charts/base.tsx";
+import { ControloSegmentado } from "@/components/ui/ControloSegmentado.tsx";
+import { QualidadeDados } from "@/components/ui/QualidadeDados.tsx";
+import { COLUNAS_GRELHA, ESTADOS, LINHAS_GRELHA, nomeEstado } from "@/lib/estados.ts";
+import {
+  formatarData,
+  formatarDiaCiclo,
+  formatarNumero,
+  formatarVariacao,
+} from "@/lib/formatacao.ts";
+import { t } from "@/lib/mensagens.ts";
+import type { ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
+
+type Indicador = "todos" | "mais65" | "jovens";
+
+const ESPACO = 4;
+
+/** Cor de um quadrado: verde-azulado acima do esperado, violeta abaixo, mais forte quanto maior. */
+function preenchimento(valor: number, extremo: number): { fill: string; forte: boolean } {
+  const intensidade = Math.min(1, Math.abs(valor) / extremo);
+  const cor = valor >= 0 ? "var(--up)" : "var(--down)";
+  return {
+    fill: `color-mix(in oklab, ${cor} ${String(Math.round(intensidade * 85))}%, var(--rule-2))`,
+    forte: intensidade > 0.55,
+  };
+}
+
+export function MapaEstados({
+  resumos,
+  caminhos,
+}: {
+  resumos: readonly ResumoEstado[];
+  /** Endereço da análise de cada estado com dados. */
+  caminhos: Readonly<Record<string, string>>;
+}) {
+  const [indicador, setIndicador] = useState<Indicador>("todos");
+  const [escolhido, setEscolhido] = useState<string>(resumos[0]?.estado ?? "NC");
+  const porEstado = new Map(resumos.map((r) => [r.estado, r]));
+  const valores = resumos.flatMap((r) => {
+    const v = r.desvio[indicador];
+    return v === null ? [] : [Math.abs(v)];
+  });
+  const extremo = escala(Math.max(0.1, ...valores)).maximo;
+  const resumo = porEstado.get(escolhido as ResumoEstado["estado"]);
+  const anoBase = resumos.find((r) => r.anoBase !== null)?.anoBase ?? 2022;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-end gap-x-6 gap-y-3 rounded-md border border-rule bg-sheet px-[18px] py-3">
+        <div className="flex flex-col gap-1.5">
+          <span className="rotulo">{t("mapa.indicador")}</span>
+          <ControloSegmentado<Indicador>
+            rotuloGrupo={t("mapa.indicador")}
+            valor={indicador}
+            aoMudar={setIndicador}
+            opcoes={[
+              { valor: "todos", rotulo: t("mapa.indicadores.todos") },
+              { valor: "mais65", rotulo: t("mapa.indicadores.mais65") },
+              { valor: "jovens", rotulo: t("mapa.indicadores.jovens") },
+            ]}
+          />
+        </div>
+        <div className="flex items-center gap-2 font-mono text-[11px] text-ink-3">
+          <span>{formatarVariacao(-extremo)}</span>
+          <span
+            aria-hidden="true"
+            className="inline-block h-2.5 w-28 rounded-[1px] bg-[linear-gradient(90deg,var(--down),var(--rule-2),var(--up))]"
+          />
+          <span>{formatarVariacao(extremo)}</span>
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <QualidadeDados nivel="individual" comTexto />
+          <QualidadeDados nivel="parcial" comTexto />
+          <QualidadeDados nivel="agregado" comTexto />
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-2">
+            <span
+              aria-hidden="true"
+              className="inline-block size-3 rounded-[2px] border border-dashed border-ink-3"
+            />
+            {t("mapa.semDados")}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <section className="flex min-w-0 flex-col gap-3 rounded-md border border-rule bg-sheet px-[18px] pt-[18px] pb-3.5">
+          <Grafico
+            titulo={t("mapa.graficoAria")}
+            altura={0}
+            alturaPorLargura={alturaMapa}
+            interativo
+          >
+            {(largura) => {
+              const lado = ladoQuadrado(largura);
+              const deslocamento = Math.floor(
+                (largura - (COLUNAS_GRELHA * lado + (COLUNAS_GRELHA - 1) * ESPACO)) / 2,
+              );
+              return ESTADOS.map((e) => {
+                const x = deslocamento + e.coluna * (lado + ESPACO);
+                const y = e.linha * (lado + ESPACO);
+                const r = porEstado.get(e.codigo);
+                const valor = r ? r.desvio[indicador] : null;
+                const cor = valor === null ? null : preenchimento(valor, extremo);
+                const ativo = e.codigo === escolhido;
+                const texto = cor?.forte ? "fill-sheet" : "fill-ink";
+                return (
+                  <g
+                    key={e.codigo}
+                    {...linhaEscolhivel(
+                      valor === null
+                        ? t("mapa.quadradoSemDados", { estado: e.nome })
+                        : t("mapa.quadrado", { estado: e.nome, valor: formatarVariacao(valor) }),
+                      () => {
+                        setEscolhido(e.codigo);
+                      },
+                    )}
+                  >
+                    <rect
+                      x={x}
+                      y={y}
+                      width={lado}
+                      height={lado}
+                      rx={3}
+                      strokeWidth={ativo ? 3 : 1}
+                      strokeDasharray={r ? undefined : "3 2"}
+                      style={cor ? { fill: cor.fill } : undefined}
+                      className={`${cor ? "" : "fill-sheet"} ${
+                        ativo ? "stroke-signal" : r ? "stroke-transparent" : "stroke-ink-3"
+                      }`}
+                    />
+                    <text
+                      x={x + 6}
+                      y={y + (lado < 34 ? 13 : 16)}
+                      className={`font-mono font-bold ${texto} ${lado < 34 ? "text-[9.5px]" : "text-[12px]"}`}
+                    >
+                      {e.codigo}
+                    </text>
+                    {lado >= 44 && valor !== null ? (
+                      <text
+                        x={x + 6}
+                        y={y + lado - 8}
+                        className={`font-mono text-[10.5px] ${cor?.forte ? "fill-sheet" : "fill-ink-2"}`}
+                      >
+                        {formatarVariacao(valor)}
+                      </text>
+                    ) : null}
+                    {lado >= 30 && r ? (
+                      <MarcaQualidade
+                        x={x + lado - 9}
+                        y={y + 11}
+                        nivel={r.qualidade}
+                        claro={cor?.forte ?? false}
+                      />
+                    ) : null}
+                  </g>
+                );
+              });
+            }}
+          </Grafico>
+          <footer className="flex flex-wrap justify-between gap-x-3.5 gap-y-1.5 border-t border-rule-2 pt-2 font-mono text-[11px] leading-snug text-ink-3">
+            <span>{t("mapa.metodo", { ano: anoBase })}</span>
+          </footer>
+        </section>
+
+        <section
+          aria-live="polite"
+          className="flex min-w-0 flex-col gap-3 self-start rounded-md border border-rule bg-sheet px-[18px] py-[18px]"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <p className="rotulo mb-1">{t("mapa.estadoEscolhido")}</p>
+              <h2 className="font-display text-[30px] leading-none font-bold">
+                {nomeEstado(escolhido as ResumoEstado["estado"])}
+              </h2>
+            </div>
+            {resumo ? <QualidadeDados nivel={resumo.qualidade} comTexto /> : null}
+          </div>
+          {resumo ? (
+            <>
+              <dl className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1.5 text-sm">
+                <dt className="text-ink-2">{t("mapa.votos")}</dt>
+                <dd className="text-right font-semibold">{formatarNumero(resumo.votos)}</dd>
+                {resumo.variacaoVotos === null ? null : (
+                  <>
+                    <dt className="text-ink-2">
+                      {t("mapa.ritmo", { ano: resumo.anoBase ?? anoBase })}
+                    </dt>
+                    <dd className="text-right font-semibold">
+                      {formatarVariacao(resumo.variacaoVotos)}
+                    </dd>
+                  </>
+                )}
+                {(["todos", "mais65", "jovens"] as const).map((chave) => {
+                  const v = resumo.desvio[chave];
+                  return v === null ? null : (
+                    <div key={chave} className="contents">
+                      <dt className="text-ink-2">{t(`mapa.desvios.${chave}`)}</dt>
+                      <dd className="text-right font-semibold">{formatarVariacao(v)}</dd>
+                    </div>
+                  );
+                })}
+              </dl>
+              <p className="font-mono text-[11px] text-ink-3">
+                {formatarDiaCiclo(resumo.diasAntes)} ·{" "}
+                {t("votoAntecipado.dadosAte", {
+                  data: formatarData(new Date(`${resumo.dadosAte}T12:00:00Z`)),
+                })}
+              </p>
+              {caminhos[resumo.estado] ? (
+                <Link
+                  href={caminhos[resumo.estado] ?? "/voto-antecipado/"}
+                  className="self-start rounded-[2px] border border-rule px-2.5 py-1.5 text-[13px] text-ink hover:border-ink-3"
+                >
+                  {t("mapa.abrirAnalise")}
+                </Link>
+              ) : null}
+            </>
+          ) : (
+            <p className="text-sm text-ink-2">{t("mapa.estadoSemDados")}</p>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function ladoQuadrado(largura: number): number {
+  return Math.min(62, Math.floor((largura - ESPACO * (COLUNAS_GRELHA - 1)) / COLUNAS_GRELHA));
+}
+
+function alturaMapa(largura: number): number {
+  return LINHAS_GRELHA * (ladoQuadrado(largura) + ESPACO);
+}
+
+/** Ponto de qualidade dos dados: cheio, meio ou vazio. */
+function MarcaQualidade({
+  x,
+  y,
+  nivel,
+  claro,
+}: {
+  x: number;
+  y: number;
+  nivel: ResumoEstado["qualidade"];
+  claro: boolean;
+}) {
+  const cor = claro ? "stroke-sheet" : "stroke-ink-2";
+  const enchimento = claro ? "fill-sheet" : "fill-ink-2";
+  return (
+    <g aria-hidden="true">
+      <circle
+        cx={x}
+        cy={y}
+        r={3.5}
+        strokeWidth={1.3}
+        className={`${cor} ${nivel === "individual" ? enchimento : "fill-none"}`}
+      />
+      {nivel === "parcial" ? (
+        <path
+          d={`M${String(x)},${String(y - 3.5)} A3.5,3.5 0 0 0 ${String(x)},${String(y + 3.5)} Z`}
+          className={enchimento}
+        />
+      ) : null}
+    </g>
+  );
+}

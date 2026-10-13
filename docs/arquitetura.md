@@ -30,13 +30,15 @@ O Worker usa o mecanismo de ficheiros estáticos da Cloudflare com `run_worker_f
 
 ### Voto antecipado no site
 
-A página `/voto-antecipado` é gerada no build a partir do ficheiro `VotoAntecipadoEstado` que o pipeline publica numa Release pública fixa do repositório:
+As páginas `/`, `/mapa` e `/voto-antecipado/<uf>/` são geradas no build a partir dos ficheiros `VotoAntecipadoEstado` que o pipeline publica numa Release pública fixa do repositório (`dados-voto-antecipado`), um por estado (`nc.json`, `ga.json`, ...):
 
-1. `pnpm --filter @intercalares/web dados:obter` descarrega o ficheiro para `apps/web/dados/voto-antecipado/nc.json` (ignorado pelo git). `URL_DADOS_VOTO_ANTECIPADO` aponta para outro endereço ou para um ficheiro local.
-2. No build, `lib/voto-antecipado/carregar.ts` valida o ficheiro contra `schemas/json/contratos.schema.json`. Um ficheiro inválido faz falhar o build; sem ficheiro, a página mostra "em preparação". `DADOS_VOTO_ANTECIPADO` muda o caminho lido.
-3. `lib/voto-antecipado/vista.ts` reduz o ficheiro ao que os gráficos mostram (cerca de 70 KB), sem metodologia nova: os indicadores vêm calculados pelo pipeline (`docs/metodologia/voto-antecipado.md`).
+1. `pnpm --filter @intercalares/web dados:obter` lista a Release e descarrega cada ficheiro de estado para `apps/web/dados/voto-antecipado/` (ignorado pelo git). `URL_DADOS_VOTO_ANTECIPADO` aceita outras origens separadas por vírgulas (endereços ou ficheiros locais).
+2. No build, `lib/voto-antecipado/carregar.ts` valida cada ficheiro contra `schemas/json/contratos.schema.json`. Um ficheiro inválido faz falhar o build; sem ficheiros, as páginas mostram "em preparação". `DADOS_VOTO_ANTECIPADO` muda a pasta lida.
+3. `lib/voto-antecipado/vista.ts` reduz cada ficheiro ao que os gráficos mostram (cerca de 70 KB), sem metodologia nova: os indicadores vêm calculados pelo pipeline (`docs/metodologia/voto-antecipado.md`).
 
 Os testes usam `apps/web/test/fixtures/voto-antecipado-sintetico.json`, gerado com eleitores aleatórios por `apps/web/test/fixtures/gerar.py`; esse ficheiro nunca é publicado no site.
+
+Um estado novo só precisa de publicar o seu ficheiro na Release: ganha uma página, um quadrado colorido no mapa e uma linha em "Estados acompanhados" no início, sem alterações no site.
 
 ## Limites do plano gratuito
 
