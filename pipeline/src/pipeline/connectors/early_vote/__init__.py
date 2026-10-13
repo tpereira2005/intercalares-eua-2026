@@ -1,1 +1,1 @@
-"""Voto antecipado e por correspondência, um módulo por estado (ex.: ``nc.py``)."""
+"""Conectores de voto antecipado e por correspondência, um módulo por estado."""
