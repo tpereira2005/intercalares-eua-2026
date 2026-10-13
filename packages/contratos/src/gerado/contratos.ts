@@ -327,6 +327,23 @@ export interface CicloVotoAntecipado {
   votos_antecipados: number;
 }
 /**
+ * Estado de que só se acompanham alguns condados.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "CoberturaParcial".
+ */
+export interface CoberturaParcial {
+  /**
+   * FIPS dos condados com fonte. Os outros condados do estado não têm dados: não estão
+   * por apurar, estão fora da recolha.
+   *
+   * @minItems 1
+   */
+  condados: [string, ...string[]];
+  estado: CodigoEstado;
+  nota: string;
+}
+/**
  * This interface was referenced by `Contratos`'s JSON-Schema
  * via the `definition` "ContagemModo".
  */
@@ -630,6 +647,10 @@ export interface LinhaCorridaNacional {
   apuramento: number | null;
   atualizado_fonte: string | null;
   cargo: "senado" | "camara" | "governador";
+  /**
+   * ``condados``: os votos são só dos condados acompanhados, não do estado inteiro.
+   */
+  cobertura?: "estado" | "condados";
   distrito: number | null;
   estado: CodigoEstado;
   /**
@@ -1156,6 +1177,11 @@ export interface ResultadosEstado {
    */
   atualizado_fonte: string | null;
   avisos: string[];
+  cobertura?: "estado" | "condados";
+  /**
+   * FIPS dos condados incluídos, quando ``cobertura = "condados"``.
+   */
+  condados_cobertos?: string[];
   corridas: Corrida[];
   data_eleicao: string;
   estado: CodigoEstado;
@@ -1179,6 +1205,11 @@ export interface ResultadosNacional {
  */
 export interface ResultadosParciais {
   ano: number;
+  /**
+   * Estados com só alguns condados: as suas unidades são esses condados (FIPS), sem
+   * ``total`` do estado.
+   */
+  cobertura_parcial?: CoberturaParcial[];
   instante: string;
   metadados: Metadados;
   /**

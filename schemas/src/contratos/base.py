@@ -1,5 +1,8 @@
 """Modelos base comuns a todos os contratos de dados."""
 
+from collections.abc import Callable
+from typing import Any
+
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, HttpUrl
 
 VERSAO_ESQUEMA = "0.1.0"
@@ -20,6 +23,22 @@ class ModeloContrato(BaseModel):
         use_attribute_docstrings=True,
         json_schema_serialization_defaults_required=True,
     )
+
+
+def opcionais_no_esquema(*campos: str) -> Callable[[dict[str, Any]], None]:
+    """``json_schema_extra`` que tira ``campos`` da lista de obrigatórios do esquema JSON.
+
+    Para campos acrescentados depois de haver ficheiros publicados: o modelo pydantic usa o
+    valor por omissão e os ficheiros antigos continuam válidos no site. Os outros campos
+    do modelo mantêm a convenção (obrigatórios no esquema de serialização).
+    """
+
+    def ajustar(esquema: dict[str, Any]) -> None:
+        obrigatorios = esquema.get("required")
+        if isinstance(obrigatorios, list):
+            esquema["required"] = [c for c in obrigatorios if c not in campos]
+
+    return ajustar
 
 
 class Fonte(ModeloContrato):
