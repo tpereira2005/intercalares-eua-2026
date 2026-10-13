@@ -20,14 +20,14 @@ export function formatarPercentagem(fracao: number, casasDecimais = 1): string {
   }).format(fracao);
 }
 
-/** Diferença em pontos percentuais com sinal explícito, por exemplo "+3,2 p.p.". */
+/** Diferença em pontos percentuais com sinal explícito, por exemplo "+2,1 pp". */
 export function formatarPontos(diferenca: number, casasDecimais = 1): string {
   const texto = new Intl.NumberFormat(LOCALE, {
     minimumFractionDigits: casasDecimais,
     maximumFractionDigits: casasDecimais,
     signDisplay: "exceptZero",
   }).format(diferenca * 100);
-  return `${texto} p.p.`;
+  return `${texto} pp`;
 }
 
 /** Data por extenso, por exemplo "3 de novembro de 2026", no fuso da costa leste. */
@@ -41,4 +41,27 @@ export const DIA_DA_ELEICAO = new Date("2026-11-03T12:00:00Z");
 export function diasAteEleicao(agora: Date, eleicao: Date = DIA_DA_ELEICAO): number {
   const umDia = 24 * 60 * 60 * 1000;
   return Math.max(0, Math.ceil((eleicao.getTime() - agora.getTime()) / umDia));
+}
+
+/**
+ * Margem entre partidos a partir da diferença D − R (em fração), por exemplo
+ * "D +1,2" ou "R +0,6". Uma diferença nula escreve-se "Empate".
+ */
+export function formatarMargem(diferencaDemRep: number, casasDecimais = 1): string {
+  const pontos = Math.abs(diferencaDemRep * 100);
+  const texto = new Intl.NumberFormat(LOCALE, {
+    minimumFractionDigits: casasDecimais,
+    maximumFractionDigits: casasDecimais,
+  }).format(pontos);
+  if (Number(pontos.toFixed(casasDecimais)) === 0) return "Empate";
+  return `${diferencaDemRep > 0 ? "D" : "R"} +${texto}`;
+}
+
+/**
+ * Dia do ciclo em relação à eleição, com o sinal menos tipográfico (U+2212):
+ * "E−21" faltando 21 dias, "Dia E" no próprio dia, "E+2" depois.
+ */
+export function formatarDiaCiclo(diasParaEleicao: number): string {
+  if (diasParaEleicao === 0) return "Dia E";
+  return diasParaEleicao > 0 ? `E\u2212${diasParaEleicao}` : `E+${-diasParaEleicao}`;
 }
