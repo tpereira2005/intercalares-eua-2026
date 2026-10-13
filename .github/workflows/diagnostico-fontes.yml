@@ -1,0 +1,58 @@
+name: Diagnóstico de fontes (temporário)
+
+on:
+  push:
+    branches: [claude/voto-antecipado-idade-h01np9]
+    paths: [.github/workflows/diagnostico-fontes.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Pedidos às fontes candidatas
+        run: |
+          UA="intercalares-eua-2026/0.1 (+https://github.com/tpereira2005/intercalares-eua-2026)"
+          # Alasca: o servidor envia o intermédio errado; usa-se o indicado no próprio
+          # certificado (AIA), como fazem os navegadores.
+          curl -sS -m 20 -o inter.der http://secure.globalsign.com/cacert/gsgccr46ovtlsca2025.crt
+          openssl x509 -inform der -in inter.der -out inter.pem
+          cat /etc/ssl/certs/ca-certificates.crt inter.pem > ak.pem
+          while read -r extra u; do
+            opts=(-A "$UA")
+            [ "$extra" = ak ] && opts+=(--cacert ak.pem)
+            r=$(curl -sS -m 25 -o corpo -D cab "${opts[@]}" -w '%{http_code} %{size_download}' "$u" 2>&1 | tail -c 120)
+            waf=$(grep -iE '^(x-amzn-waf-action|cf-mitigated|server):' cab 2>/dev/null | tr -d '\r' | tr '\n' ' ')
+            echo "$r [$waf] $u :: $(head -c 80 corpo 2>/dev/null | tr -d '\0\r' | tr '\n' ' ')"
+          done <<'LISTA'
+          ak https://www.elections.alaska.gov/election-results/e/?id=24genr
+          ak https://www.elections.alaska.gov/results/24GENR/ENRbyPrecinct.csv
+          - https://sos.iowa.gov/elections/pdf/2024/general/AbsenteeCongressional2024.pdf
+          - https://sos.iowa.gov/elections/pdf/2024/general/AbsenteeCounty2024.pdf
+          - https://scvotes.gov/elections-statistics/voter-participation/
+          - https://scvotes.gov/wp-content/uploads/2025/06/2024-Historical-Absentee-EV-Reports-1.zip
+          - https://www.electionreturns.pa.gov/
+          - https://www.electionreturns.pa.gov/api/ElectionReturn/GetCountyBreak?officeId=2&districtId=1&methodName=GetCountyBreak&electiontype=G&electionid=undefined&isactive=1
+          - https://vote.phila.gov/
+          - https://www.harrisvotes.com/election-results
+          - https://countyclerk.traviscountytx.gov/
+          - https://elections.clarkcountynv.gov/
+          - https://www.washoecounty.gov/voters/
+          - https://www.pima.gov/
+          - https://boe.cuyahogacounty.gov/
+          - https://vote.franklincountyohio.gov/
+          - https://www.waynecounty.com/elected/clerk/election-results.aspx
+          - https://liveresults.ohiosos.gov/
+          - https://www.ohiosos.gov/data
+          - https://silverstateelection.nv.gov/
+          - https://results.arizona.vote/
+          - https://results.texas-election.com/
+          - https://mielections.us/election/results/
+          - https://www.sos.state.co.us/pubs/elections/main.html
+          - https://www.elections.virginia.gov/resultsreports/registrationturnout-statistics/
+          - https://www.sos.wa.gov/elections/data-research/election-data-and-maps/ballot-return-statistics
+          - https://elections.maryland.gov/press_room/index.html
+          LISTA
