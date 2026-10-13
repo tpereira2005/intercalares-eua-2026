@@ -95,12 +95,13 @@ src/pipeline/
 │   ├── verificacoes.py  # verificações de coerência antes de publicar
 │   ├── historico.py     # histórico diário para os gráficos de evolução
 │   ├── avaliacao.py     # scorecard da previsão congelada (Brier, log-loss, calibração)
-│   └── noite/           # Modelo C: corrida a corrida, câmaras e repetições
+│   └── noite/           # Modelo C: corrida a corrida, câmaras, histórico da noite e repetições
 └── jobs/
     ├── previsao.py           # previsão de 2026 (diária até ao congelamento a 1 de novembro)
     ├── referencia_modelo.py  # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)
     ├── referencia_noite.py   # presidenciais por condado (2020 e 2024) para o Modelo C
     ├── repeticao_noite.py    # repetição das noites de 2022 e 2024 com o Modelo C
+    ├── projecao_noite.py     # Modelo C na noite eleitoral (e ensaio com 2024)
     └── avaliacao_previsao.py # avaliação da previsão congelada (depois da eleição)
 ```
 
@@ -109,7 +110,10 @@ uv run python -m pipeline.jobs.referencia_modelo
 uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
 uv run python -m pipeline.jobs.ensaio_resultados --estado NC --data 2022-11-08 --parciais data/brutos/repeticao/NC-2022
 uv run python -m pipeline.jobs.repeticao_noite --ano 2022 --ordem modos --parciais data/brutos/repeticao/NC-2022
+uv run python -m pipeline.jobs.projecao_noite --ensaio data/brutos/repeticao/NC-2022 --saida data/publicado/noite
 ```
+
+Na noite eleitoral, o workflow `noite.yml` corre `projecao_noite` em paralelo com a recolha de resultados e publica `projecao-noite-2026.json` e `historico-noite-2026.json` na Release `dados-noite` (ver a secção 6 de `docs/metodologia/noite-eleitoral.md`).
 
 ## Comandos
 

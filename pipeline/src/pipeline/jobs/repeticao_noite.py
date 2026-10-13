@@ -76,6 +76,7 @@ def repetir(
             gerado_em=agora,
             desempate=DESEMPATE[ano],
             simulacoes=SIMULACOES,
+            reconstruido=True,
         )
         avaliadas = [c for c in projecao.corridas if c.id in reais and not c.decidida]
         brier = cobertura = erro = 0.0

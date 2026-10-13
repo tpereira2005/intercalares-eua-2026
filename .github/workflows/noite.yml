@@ -1,0 +1,171 @@
+name: Projeção da noite
+
+# Modelo C na noite eleitoral (ver pipeline/src/pipeline/jobs/projecao_noite.py e
+# docs/metodologia/noite-eleitoral.md).
+#
+# - ensaio (todas as semanas e à mão): reconstrói a noite de 2024 em NC, GA, SC, IA e FL
+#   com o ensaio da recolha de resultados e corre a projeção passo a passo a partir da
+#   previsão do backtest de 2024. Confirma de ponta a ponta que os ficheiros saem válidos.
+#   Com "publicar_ensaio", envia-os para a Release "dados-noite" (ficheiros de 2024,
+#   marcados como reconstruídos) para o site poder ser desenvolvido com dados reais.
+# - noite (à mão, ao mesmo tempo que o workflow Resultados): lê a previsão congelada,
+#   segue o parciais.json da Release "resultados-2026" e publica a projeção e o histórico
+#   na Release "dados-noite". Volta a lançar-se enquanto não chegar a hora "ate".
+on:
+  schedule:
+    - cron: "11 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      modo:
+        type: choice
+        options: [ensaio, noite]
+        default: ensaio
+      publicar_ensaio:
+        description: No ensaio, publicar os ficheiros de 2024 na Release dados-noite
+        type: boolean
+        default: false
+      duracao:
+        description: Segundos de projeção neste job (máximo de um job, 6 h, menos margem)
+        default: "20700"
+      ate:
+        description: Hora UTC (AAAA-MM-DDTHH:MM) até à qual a projeção se volta a lançar
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: noite-${{ inputs.modo || 'ensaio' }}
+  cancel-in-progress: false
+
+env:
+  UV_LOCKED: "1"
+  ETIQUETA: dados-noite
+
+jobs:
+  ensaio:
+    name: Ensaio com a noite de 2024
+    if: ${{ inputs.modo != 'noite' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Reconstruir a noite de 2024
+        run: |
+          for estado in NC GA SC IA FL; do
+            uv run python -m pipeline.jobs.ensaio_resultados \
+              --estado "$estado" --data 2024-11-05 --parciais "ensaio/$estado"
+          done
+      - name: Projetar passo a passo
+        run: >-
+          uv run python -m pipeline.jobs.projecao_noite
+          --ensaio ensaio/NC ensaio/GA ensaio/SC ensaio/IA ensaio/FL
+          --saida data/publicado/noite
+      - name: Validar
+        run: |
+          jq -e '.ano == 2024 and .reconstruido and (.corridas | length) > 400
+            and .camara.corridas_com_votos > 0' data/publicado/noite/projecao-noite-2024.json
+          jq -e '.reconstruido and (.pontos | length) > 5' \
+            data/publicado/noite/historico-noite-2024.json
+      - name: Guardar o resultado
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: noite-ensaio
+          path: data/publicado/noite
+          retention-days: 30
+
+  publicar-ensaio:
+    name: Publicar o ensaio
+    needs: ensaio
+    if: ${{ inputs.publicar_ensaio && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - run: gh run download "$GITHUB_RUN_ID" --name noite-ensaio --dir resultado
+      - name: Substituir os assets da Release
+        run: |
+          if ! gh release view "$ETIQUETA" > /dev/null 2>&1; then
+            gh release create "$ETIQUETA" --title "Projeção da noite eleitoral" --latest=false \
+              --notes "Projeção ao vivo (Modelo C) e a sua evolução ao longo da noite. Os ficheiros de 2024 são um ensaio com a noite reconstruída."
+          fi
+          gh release upload "$ETIQUETA" resultado/*.json --clobber
+
+  # Este job escreve na Release a cada projeção nova, por isso tem permissão de escrita
+  # enquanto corre o código do pipeline (dependências fixadas em uv.lock). O token só entra
+  # nos passos que falam com a Release e no relançamento.
+  noite:
+    name: Noite eleitoral
+    if: ${{ inputs.modo == 'noite' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      # A previsão de partida é a congelada; o job recusa uma previsão por congelar. O
+      # histórico da noite continua o do job anterior da cadeia, se já existir.
+      - name: Obter a previsão congelada e o histórico
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release download dados-previsao --pattern previsao-2026.json --dir entrada
+          gh release view "$ETIQUETA" > /dev/null 2>&1 || gh release create "$ETIQUETA" \
+            --title "Projeção da noite eleitoral" --latest=false \
+            --notes "Projeção ao vivo (Modelo C) e a sua evolução ao longo da noite. Substituídas a cada instante novo de resultados."
+          if gh release view "$ETIQUETA" --json assets -q '.assets[].name' \
+            | grep -qx historico-noite-2026.json; then
+            gh release download "$ETIQUETA" --pattern historico-noite-2026.json \
+              --dir data/publicado/noite
+          fi
+      - name: Projetar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          DURACAO: ${{ inputs.duracao }}
+        run: >-
+          uv run python -m pipeline.jobs.projecao_noite
+          --previsao entrada/previsao-2026.json
+          --parciais "https://github.com/$GH_REPO/releases/download/resultados-2026/parciais.json"
+          --historico data/publicado/noite/historico-noite-2026.json
+          --saida data/publicado/noite
+          --duracao "$DURACAO" --publicar "$ETIQUETA"
+      - name: Guardar a última projeção
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: noite-${{ github.run_id }}
+          path: data/publicado/noite
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Relançar enquanto a noite não acabar
+        if: ${{ !cancelled() && inputs.ate != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ATE: ${{ inputs.ate }}
+          DURACAO: ${{ inputs.duracao }}
+        run: |
+          if [ "$(date -u +%Y-%m-%dT%H:%M)" \< "$ATE" ]; then
+            gh workflow run noite.yml --ref "$GITHUB_REF_NAME" \
+              -f modo=noite -f duracao="$DURACAO" -f ate="$ATE"
+          fi

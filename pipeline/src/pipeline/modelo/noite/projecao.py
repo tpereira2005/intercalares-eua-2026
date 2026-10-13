@@ -234,8 +234,12 @@ def projetar(
     parametros: Parametros | None = None,
     simulacoes: int = SIMULACOES,
     semente: int = 2026,
+    reconstruido: bool = False,
 ) -> ProjecaoNoite:
-    """Projeção num instante; ``desempate`` é o partido do vice-presidente (Senado 50-50)."""
+    """Projeção num instante; ``desempate`` é o partido do vice-presidente (Senado 50-50).
+
+    ``reconstruido`` marca resultados reconstruídos (ensaio ou repetição).
+    """
     p = parametros or Parametros()
     sd_nacional = previsao.ambiente.desvio_padrao
     sd_regiao = next(f.desvio_regiao for f in previsao.fundamentos if f.camara == "camara")
@@ -253,6 +257,8 @@ def projetar(
         ano=previsao.ano,
         instante=instantaneo.instante,
         corte_prior=previsao.corte,
+        prior_congelado=previsao.congelada,
+        reconstruido=reconstruido,
         simulacoes=simulacoes,
         semente=semente,
         desvio_nacional=DesvioNacionalNoite(
