@@ -11,7 +11,7 @@ from urllib.parse import urljoin
 
 NOME_FONTE = "Florida Division of Elections, Vote-by-Mail and Early Voting Statistics"
 LICENCA = "Registo público (Fla. Stat. 101.62, 101.657)"
-PAGINA = "https://countyballotfiles.floridados.gov/VoteByMailEarlyVotingReports/PublicStats"
+PAGINA = "https://countyfilesvbm-ev.floridados.gov/VoteByMailEarlyVotingReports/PublicStats"
 
 _FICHEIRO = re.compile(
     r"https://electionfiles\.floridados\.gov/countyballotreportfiles/Stats_\d+_\w+\.txt"
