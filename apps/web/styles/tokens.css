@@ -1,0 +1,84 @@
+/*
+ * Tokens do sistema visual Escrutínio (direção aprovada pelo Tomás a 13 de
+ * outubro de 2026). Fonte: design/tokens.json nos ficheiros do projeto.
+ *
+ * Papéis:
+ * - signal: ciclo atual (2026), dia de hoje, foco, separador ativo.
+ * - ink / ink-3 / rule: anos de comparação (2022 cheio, 2024 tracejado, 2018 régua).
+ * - dem / rep / una: só partido, com luminosidade equivalente.
+ * - up / down: acima / abaixo do esperado; nunca cores partidárias.
+ *
+ * Única alteração aos tokens aprovados: --ink-3 ficou um pouco mais escuro no
+ * tema claro e mais claro no escuro, para cumprir o contraste AA.
+ *
+ * Temas: o do sistema por omissão; data-theme="light" ou "dark" força um.
+ */
+:root {
+  --paper: #eef1f5;
+  --sheet: #ffffff;
+  --ink: #10141c;
+  --ink-2: #444e5f;
+  /* Ajustado de #768093 para #646d7f: contraste AA (4,5:1) em texto pequeno sobre o papel. */
+  --ink-3: #646d7f;
+  --rule: #d3d9e2;
+  --rule-2: #e6eaf0;
+  --signal: #c4870e;
+  --signal-ink: #8a5a00;
+  --signal-wash: #f7ebcf;
+  --dem: #2c68ae;
+  --rep: #be3e36;
+  --una: #8b919c;
+  --up: #178272;
+  --down: #7759a6;
+
+  --f-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --f-body: "Public Sans Variable", "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --r-sm: 3px;
+  --r-md: 6px;
+  --gutter: clamp(16px, 3vw, 28px);
+  --max-width: 1240px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0c0f14;
+    --sheet: #151920;
+    --ink: #e9ecf1;
+    --ink-2: #a7afbc;
+    --ink-3: #7e8797;
+    --rule: #2a303a;
+    --rule-2: #1e232b;
+    --signal: #e3a63b;
+    --signal-ink: #f1be5e;
+    --signal-wash: #3a2e16;
+    --dem: #6ea1e1;
+    --rep: #e8776b;
+    --una: #8f96a2;
+    --up: #4bbea9;
+    --down: #a68ad5;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0c0f14;
+  --sheet: #151920;
+  --ink: #e9ecf1;
+  --ink-2: #a7afbc;
+  --ink-3: #7e8797;
+  --rule: #2a303a;
+  --rule-2: #1e232b;
+  --signal: #e3a63b;
+  --signal-ink: #f1be5e;
+  --signal-wash: #3a2e16;
+  --dem: #6ea1e1;
+  --rep: #e8776b;
+  --una: #8f96a2;
+  --up: #4bbea9;
+  --down: #a68ad5;
+  color-scheme: dark;
+}

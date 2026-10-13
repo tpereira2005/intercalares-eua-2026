@@ -1,17 +1,51 @@
-import type { Metadata } from "next";
-import type { ReactNode } from "react";
-import { t } from "@/lib/mensagens.ts";
 import "./globals.css";
 
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
+import { PadroesSvg } from "@/components/charts/PadroesSvg.tsx";
+import { Cabecalho } from "@/components/layout/Cabecalho.tsx";
+import { Navegacao } from "@/components/layout/Navegacao.tsx";
+import { Rodape } from "@/components/layout/Rodape.tsx";
+import { t } from "@/lib/mensagens.ts";
+import { SCRIPT_TEMA } from "@/lib/tema.ts";
+
 export const metadata: Metadata = {
-  title: { default: t("site.nome"), template: `%s · ${t("site.nome")}` },
+  title: {
+    default: `${t("site.nome")} · ${t("site.subtitulo")}`,
+    template: `%s · ${t("site.nome")}`,
+  },
   description: t("site.descricao"),
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#151920" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-PT">
-      <body className="min-h-dvh font-sans antialiased">{children}</body>
+    // O script de tema altera data-theme antes da hidratação.
+    <html lang="pt-PT" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+      </head>
+      <body className="min-h-dvh antialiased">
+        <a
+          href="#conteudo"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-10 focus:rounded-sm focus:bg-sheet focus:px-3 focus:py-2"
+        >
+          {t("site.irParaConteudo")}
+        </a>
+        <PadroesSvg />
+        <Cabecalho />
+        <Navegacao />
+        <main id="conteudo" className="contentor flex flex-col gap-4 pt-[18px] pb-10">
+          {children}
+        </main>
+        <Rodape />
+      </body>
     </html>
   );
 }

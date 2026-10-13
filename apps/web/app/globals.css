@@ -1,25 +1,143 @@
 @import "tailwindcss";
+/* Letras alojadas no próprio site (sem pedidos a terceiros), só latim e latim estendido. */
+@import "@fontsource-variable/public-sans/wght";
+@import "@fontsource/big-shoulders-display/latin-700";
+@import "@fontsource/big-shoulders-display/latin-800";
+@import "@fontsource/big-shoulders-display/latin-900";
+@import "@fontsource/ibm-plex-mono/latin-400";
+@import "@fontsource/ibm-plex-mono/latin-500";
+@import "../styles/tokens.css";
 
-/*
- * Tokens provisórios. A identidade visual definitiva chega depois de aprovado
- * o protótipo de design; até lá o site usa uma base neutra.
- */
-@theme {
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
-  --color-fundo: oklch(0.99 0 0);
-  --color-texto: oklch(0.2 0 0);
-  --color-texto-suave: oklch(0.45 0 0);
+/* Os utilitários do Tailwind leem os tokens: bg-sheet, text-ink-2, border-rule, font-display... */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-rule-2: var(--rule-2);
+  --color-signal: var(--signal);
+  --color-signal-ink: var(--signal-ink);
+  --color-signal-wash: var(--signal-wash);
+  --color-dem: var(--dem);
+  --color-rep: var(--rep);
+  --color-una: var(--una);
+  --color-up: var(--up);
+  --color-down: var(--down);
+
+  --font-display: var(--f-display);
+  --font-sans: var(--f-body);
+  --font-mono: var(--f-data);
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-fundo: oklch(0.17 0 0);
-    --color-texto: oklch(0.96 0 0);
-    --color-texto-suave: oklch(0.72 0 0);
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 15px/1.5 var(--f-body);
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--color-fundo);
-  color: var(--color-texto);
+@layer components {
+  /* Contentor com a largura máxima e as margens laterais do sistema. */
+  .contentor {
+    max-width: var(--max-width);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* Marcas de sincronização dos boletins de leitura ótica, sob o cabeçalho. */
+  .marcas-sincronizacao {
+    height: 6px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 9px, transparent 9px 23px);
+    opacity: 0.9;
+  }
+
+  /* Rótulo em monoespaçada: eixos, fontes, sobrelinhas. */
+  .rotulo {
+    font: 500 10.5px/1.3 var(--f-data);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* Oval de boletim: contorno que se preenche na opção ativa. */
+  .oval {
+    display: inline-block;
+    flex: none;
+    width: 15px;
+    height: 9px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    opacity: 0.7;
+  }
+
+  [aria-pressed="true"] > .oval,
+  [aria-current="true"] > .oval,
+  .oval[data-preenchido="true"] {
+    background: var(--ink);
+    border-color: var(--ink);
+    opacity: 1;
+  }
+
+  /* Padrão tracejado para republicanos, ligado por omissão (daltonismo). */
+  .fundo-rep {
+    background: repeating-linear-gradient(
+      135deg,
+      var(--rep) 0 3px,
+      color-mix(in oklab, var(--rep) 35%, var(--sheet)) 3px 6px
+    );
+  }
+
+  .fundo-dem {
+    background: var(--dem);
+  }
+
+  .fundo-una {
+    background:
+      radial-gradient(circle, var(--una) 1.4px, transparent 1.6px) 0 0 / 5px 5px,
+      color-mix(in oklab, var(--una) 30%, var(--sheet));
+  }
+
+  .ao-vivo::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--signal);
+    animation: pulsar 1.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ao-vivo::before {
+      animation: none;
+    }
+  }
+}
+
+@keyframes pulsar {
+  50% {
+    opacity: 0.25;
+  }
 }

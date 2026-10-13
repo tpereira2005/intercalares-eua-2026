@@ -1,12 +1,137 @@
 {
   "site": {
-    "nome": "Intercalares EUA 2026",
-    "descricao": "Análise, acompanhamento e previsão das eleições intercalares dos Estados Unidos de 3 de novembro de 2026."
+    "nome": "Escrutínio",
+    "subtitulo": "Intercalares EUA 2026",
+    "descricao": "Análise, acompanhamento e previsão das eleições intercalares dos Estados Unidos de 3 de novembro de 2026: voto antecipado, previsões e resultados em tempo real.",
+    "irParaConteudo": "Saltar para o conteúdo",
+    "inicioAria": "Escrutínio, início"
+  },
+  "cabecalho": {
+    "fase": "Fase",
+    "fases": {
+      "antes": "Antes",
+      "noite": "Noite",
+      "depois": "Depois"
+    },
+    "faseAtualAria": "Fase atual do ciclo eleitoral",
+    "tema": "Tema",
+    "temaAria": "Tema visual",
+    "temas": {
+      "sistema": "Sistema",
+      "claro": "Claro",
+      "escuro": "Escuro"
+    }
+  },
+  "navegacao": {
+    "aria": "Secções",
+    "inicio": "Início",
+    "votoAntecipado": "Voto antecipado",
+    "votoAntecipadoMarca": "Idade",
+    "mapa": "Mapa",
+    "previsao": "Previsão",
+    "resultados": "Noite eleitoral",
+    "metodologia": "Metodologia"
+  },
+  "rodape": {
+    "texto": "Escrutínio · Intercalares EUA 2026. Dados de fontes oficiais e gratuitas; cada número indica a fonte e o método.",
+    "codigo": "Código aberto",
+    "sistema": "Sistema visual"
+  },
+  "comum": {
+    "fonte": "Fonte",
+    "metodo": "Método",
+    "emPreparacao": "Em preparação",
+    "qualidade": {
+      "individual": "Dados individuais",
+      "parcial": "Dados parciais",
+      "agregado": "Dados agregados ou geográficos"
+    },
+    "selos": {
+      "ilustrativo": "Ilustrativo",
+      "estimativa": "Estimativa",
+      "oficial": "Oficial",
+      "aoVivo": "Ao vivo"
+    },
+    "atualizadoEm": "Atualizado a {data}"
   },
   "inicio": {
     "titulo": "Intercalares EUA 2026",
-    "subtitulo": "Voto antecipado, previsões e resultados em tempo real.",
-    "emConstrucao": "Plataforma em construção. A primeira versão, com o rastreador de voto antecipado e a análise por idade, chega antes da eleição.",
-    "contagemDecrescente": "Faltam {dias} dias para a eleição"
+    "sobrelinha": "Dia da eleição",
+    "diasParaEleicao": "dias para a eleição",
+    "diaDaEleicao": "Dia da eleição",
+    "emJogo": "Em jogo: 435 lugares na Câmara dos Representantes, 35 no Senado e 36 governos estaduais.",
+    "proximosTitulo": "O que vem aí",
+    "proximosDescricao": "A plataforma abre por fases, sempre com dados reais e a fonte indicada.",
+    "proximos": {
+      "votoAntecipado": "Rastreador do voto antecipado, com a análise por idade, partido, histórico de voto e modalidade, a começar pela Carolina do Norte.",
+      "previsao": "Previsão da Câmara e do Senado, com simulação, backtests simétricos e modelo congelado a 1 de novembro.",
+      "noite": "Resultados em tempo real na noite eleitoral, com projeção do voto que falta contar."
+    },
+    "metodo": "Os dias contam até às 0h00 de 3 de novembro, hora de Washington."
+  },
+  "seccoes": {
+    "votoAntecipado": {
+      "titulo": "Voto antecipado",
+      "descricao": "Composição, participação e momento do voto por idade, partido, histórico e modalidade, comparados com 2018, 2020, 2022 e 2024."
+    },
+    "mapa": {
+      "titulo": "Mapa",
+      "descricao": "Os 50 estados e o Distrito de Colúmbia numa grelha de quadrados, com a qualidade dos dados de cada estado."
+    },
+    "previsao": {
+      "titulo": "Previsão",
+      "descricao": "Probabilidades para a Câmara e o Senado, corridas a seguir e auditoria das sondagens."
+    },
+    "resultados": {
+      "titulo": "Noite eleitoral",
+      "descricao": "Margem contada, projeção e voto que falta por modalidade, atualizados a cada 30 segundos."
+    },
+    "metodologia": {
+      "titulo": "Metodologia",
+      "descricao": "Fontes, modelos, validação e registo de alterações."
+    },
+    "emPreparacaoTexto": "Esta secção está a ser construída. Abre com dados reais, nunca com valores fictícios."
+  },
+  "sistema": {
+    "titulo": "Sistema visual",
+    "descricao": "Tokens, tipografia e componentes base do Escrutínio. Referência para quem desenvolve o site.",
+    "cores": "Cores",
+    "tipografia": "Tipografia",
+    "componentes": "Componentes",
+    "papeis": {
+      "paper": "Papel (fundo)",
+      "sheet": "Folha (painéis)",
+      "ink": "Tinta; 2022 a traço cheio",
+      "ink-2": "Tinta secundária",
+      "ink-3": "Tinta terciária; 2024 tracejado",
+      "rule": "Régua; 2018",
+      "signal": "Ciclo atual, hoje, foco",
+      "signal-wash": "Realce do ciclo atual",
+      "dem": "Democratas",
+      "rep": "Republicanos (tracejado)",
+      "una": "Não filiados (pontilhado)",
+      "up": "Acima do esperado",
+      "down": "Abaixo do esperado"
+    },
+    "letras": {
+      "display": "Big Shoulders Display · títulos e números",
+      "body": "Public Sans · texto e interface",
+      "data": "IBM Plex Mono · rótulos, eixos e fontes"
+    },
+    "exemplos": {
+      "kpi1": "Votos antecipados registados",
+      "kpi2": "Diferença face a 2022",
+      "kpi3": "Dia do ciclo",
+      "detalhe": "Valores ilustrativos",
+      "painelSobrelinha": "Exemplo",
+      "painelTitulo": "Painel com fonte e método",
+      "painelDescricao": "Cada painel termina com a fonte e o método.",
+      "fonte": "Fonte de exemplo",
+      "metodo": "Método de exemplo"
+    }
+  },
+  "naoEncontrado": {
+    "titulo": "Página não encontrada",
+    "voltar": "Voltar ao início"
   }
 }

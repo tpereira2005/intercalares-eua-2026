@@ -3,10 +3,11 @@ import { t } from "./mensagens.ts";
 
 describe("mensagens", () => {
   it("devolve o texto de uma chave", () => {
-    expect(t("site.nome")).toBe("Intercalares EUA 2026");
+    expect(t("site.nome")).toBe("Escrutínio");
   });
 
   it("substitui marcadores", () => {
-    expect(t("inicio.contagemDecrescente", { dias: 21 })).toBe("Faltam 21 dias para a eleição");
+    expect(t("comum.atualizadoEm", { data: "13 de outubro" })).toBe("Atualizado a 13 de outubro");
+    expect(t("comum.atualizadoEm")).toBe("Atualizado a {data}");
   });
 });

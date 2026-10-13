@@ -1,4 +1,4 @@
-# Intercalares EUA 2026
+# Escrutínio · Intercalares EUA 2026
 
 Plataforma de análise, acompanhamento e previsão das eleições intercalares dos Estados Unidos de 3 de novembro de 2026: voto antecipado com análise demográfica (com a idade como prioridade), previsões para a Câmara e o Senado, e resultados em tempo real na noite eleitoral.
 
@@ -31,7 +31,7 @@ Um único Worker da Cloudflare serve o site (export estático do Next.js, pedido
 | `schemas`            | Contratos de dados em pydantic, a única fonte de verdade, e o JSON Schema gerado |
 | `pipeline`           | Pipeline de dados em Python: conectores, transformação, publicação, jobs         |
 | `data`               | Dados de referência pequenos e o registo de proveniência                         |
-| `docs`               | Arquitetura, contratos, implantação e registos de decisões                       |
+| `docs`               | Design, arquitetura, contratos, implantação e registos de decisões               |
 
 ## Requisitos
 

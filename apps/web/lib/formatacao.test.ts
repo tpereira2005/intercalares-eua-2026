@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   diasAteEleicao,
   formatarData,
+  formatarDiaCiclo,
+  formatarMargem,
   formatarNumero,
   formatarPercentagem,
   formatarPontos,
@@ -18,9 +20,9 @@ describe("formatação pt-PT", () => {
   });
 
   it("mostra o sinal das diferenças em pontos percentuais", () => {
-    expect(formatarPontos(0.032)).toBe("+3,2 p.p.");
-    expect(formatarPontos(-0.015)).toBe("-1,5 p.p.");
-    expect(formatarPontos(0)).toBe("0,0 p.p.");
+    expect(formatarPontos(0.032)).toBe("+3,2 pp");
+    expect(formatarPontos(-0.015)).toBe("-1,5 pp");
+    expect(formatarPontos(0)).toBe("0,0 pp");
   });
 
   it("escreve datas por extenso", () => {
@@ -30,5 +32,17 @@ describe("formatação pt-PT", () => {
   it("conta os dias até à eleição", () => {
     expect(diasAteEleicao(new Date("2026-10-13T12:00:00Z"))).toBe(21);
     expect(diasAteEleicao(new Date("2026-11-10T12:00:00Z"))).toBe(0);
+  });
+
+  it("escreve margens com o partido à frente", () => {
+    expect(formatarMargem(0.012)).toBe("D +1,2");
+    expect(formatarMargem(-0.006)).toBe("R +0,6");
+    expect(formatarMargem(0.0004)).toBe("Empate");
+  });
+
+  it("escreve o dia do ciclo com o sinal menos tipográfico", () => {
+    expect(formatarDiaCiclo(21)).toBe("E\u221221");
+    expect(formatarDiaCiclo(0)).toBe("Dia E");
+    expect(formatarDiaCiclo(-2)).toBe("E+2");
   });
 });
