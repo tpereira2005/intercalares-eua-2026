@@ -146,7 +146,14 @@ def _preparar(
         centro, carga, var_propria = decompor(c, e)
         comum = float(carga**2 @ e.sd**2)
         prior = PriorCorrida(c.id, c.estado, centro, math.sqrt(comum + var_propria))
-        analise = analisar(prior, contagens.get(c.id, []), referencia.get(c.estado, {}), k, p)
+        analise = analisar(
+            prior,
+            contagens.get(c.id, []),
+            referencia.get(c.estado, {}),
+            k,
+            p,
+            parcial=c.estado in instantaneo.parciais,
+        )
         tau2 = max(analise.var_s - comum, SD_MINIMO**2)
         corridas.append(_Corrida(c, prior, analise, carga, tau2))
     return corridas

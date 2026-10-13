@@ -52,6 +52,14 @@ Um condado cujo desvio está a mais de 3 desvios-padrão da mediana pesa menos (
 
 **Volume do que falta.** Soma-se ainda a incerteza no volume do que falta (15%). Só pesa quando o que falta vota de forma diferente do que já foi contado, e desaparece no início e no fim da contagem.
 
+**Estados com cobertura parcial.** Em alguns estados só há fonte oficial aberta para alguns condados (por exemplo, a Harris no Texas). Os `ResultadosParciais` dizem-no em `cobertura_parcial`: os outros condados não estão por apurar, estão fora da recolha. O modelo trata estes estados assim:
+
+- **Corrida estadual.** Os condados acompanhados entram como os outros. Os restantes ficam no voto esperado do estado, previstos pelo desvio da corrida, por isso a fração contada é só a parte acompanhada e a corrida nunca se dá por completa. No ensaio de 2024, com a Harris inteira contada (D+11), o TX-S ficou com 14% contado e uma projeção de R+5,9 (resultado: R+8,5), porque a Harris é mais democrata do que o estado.
+- **Distritos da Câmara.** As partes de condados de um distrito não dizem quanto falta do distrito, porque o distrito pode sair da zona acompanhada. Os votos contados aparecem, mas o distrito fica sem voto esperado e só aprende pelos fatores comuns (o desvio nacional e o da região).
+- **Avaliação.** Nas repetições, as corridas destes estados não entram nas métricas: a soma dos condados acompanhados não é o resultado.
+
+As regras olham só para a cobertura, nunca para o partido, e um teste confirma que trocar os partidos troca a análise.
+
 ## 3. As câmaras
 
 A estrutura de erros entre corridas é **exatamente a da previsão congelada** (secção 5 de `previsao.md`), reconstruída a partir dos parâmetros publicados no próprio ficheiro da previsão. A margem final de cada corrida é
