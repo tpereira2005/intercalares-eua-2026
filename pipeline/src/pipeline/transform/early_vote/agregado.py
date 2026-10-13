@@ -32,7 +32,7 @@ from contratos.voto_antecipado_agregado import (
     VotoAntecipadoAgregado,
 )
 from pipeline.comum.calendario import EleicaoGeral
-from pipeline.comum.faixas_etarias import CANONICA
+from pipeline.comum.faixas_etarias import CANONICA, CANONICA_PARA_LARGA
 from pipeline.transform.early_vote.indicadores import TOTAL, com_total
 from pipeline.transform.early_vote.painel import DIAS_ANTES_MAXIMO, DIAS_ANTES_MINIMO
 from pipeline.transform.early_vote.relatorio import CASAS_DECIMAIS, INICIO_SERIE, LIMIAR_POPULACAO
@@ -245,6 +245,21 @@ def geografia(cubo: pl.DataFrame, d: int, coluna: str) -> pl.DataFrame:
     return com_total(tabela, "partido", ("votos",)).sort(coluna, "partido")
 
 
+def geografia_por_faixa(cubo: pl.DataFrame, d: int, coluna: str) -> pl.DataFrame:
+    """Votos até ``d`` por unidade geográfica e faixa larga (todos os partidos), com a
+    linha ``total``. Só nos estados com idade."""
+    tabela = (
+        _ate(cubo, d)
+        .drop_nulls(coluna)
+        .with_columns(
+            pl.col("faixa").replace_strict(CANONICA_PARA_LARGA, default=None).alias("faixa")
+        )
+        .group_by(coluna, "faixa")
+        .agg(pl.col("n").sum().alias("votos"))
+    )
+    return com_total(tabela, "faixa", ("votos",)).sort(coluna, "faixa", nulls_last=True)
+
+
 def pedidos(cubo: pl.DataFrame, d: int) -> pl.DataFrame:
     """Pedidos até ``d``, quantos estavam devolvidos e quantos por devolver nesse dia."""
     pedidos_ = cubo.filter(pl.col("dias_pedido") >= d)
@@ -326,34 +341,35 @@ def montar(
     ]
 
     geo: list[LinhaGeografiaAgregada] = []
+    unidades = [
+        (coluna, nivel)
+        for coluna, nivel in (("fips_condado", "condado"), ("distrito", "distrito"))
+        if nivel in dimensoes
+    ]
+    # Todos os anos ao mesmo dia do ciclo, como a comparação (não o total final).
     for c in [atual, *bases]:
-        d_c = d if c is atual else 0
-        if "condado" in dimensoes:
-            for x in _linhas(geografia(c.votos, d_c, "fips_condado"), ano=c.eleicao.ano):
-                fips = x.pop("fips_condado")
-                geo.append(
-                    LinhaGeografiaAgregada.model_validate(
-                        {
-                            **x,
-                            "nivel": "condado",
-                            "codigo": fips,
-                            "nome": nomes_condados.get(fips, fips),
-                        }
-                    )
+        for coluna, nivel in unidades:
+            tabelas = [geografia(c.votos, d, coluna).with_columns(pl.lit(TOTAL).alias("faixa"))]
+            if "faixa" in dimensoes:
+                # Sem a linha total, que já vem na tabela por partido.
+                tabelas.append(
+                    geografia_por_faixa(c.votos, d, coluna)
+                    .filter(pl.col("faixa") != TOTAL)
+                    .with_columns(pl.lit(TOTAL).alias("partido"))
                 )
-        if "distrito" in dimensoes:
-            for x in _linhas(geografia(c.votos, d_c, "distrito"), ano=c.eleicao.ano):
-                numero = x.pop("distrito")
-                geo.append(
-                    LinhaGeografiaAgregada.model_validate(
-                        {
-                            **x,
-                            "nivel": "distrito",
-                            "codigo": str(numero),
-                            "nome": f"{estado.value}-{numero:02d}",
-                        }
+            for tabela in tabelas:
+                for x in _linhas(tabela.drop_nulls("faixa"), ano=c.eleicao.ano):
+                    valor = x.pop(coluna)
+                    codigo, nome = (
+                        (valor, nomes_condados.get(valor, valor))
+                        if nivel == "condado"
+                        else (str(valor), f"{estado.value}-{valor:02d}")
                     )
-                )
+                    geo.append(
+                        LinhaGeografiaAgregada.model_validate(
+                            {**x, "nivel": nivel, "codigo": codigo, "nome": nome}
+                        )
+                    )
 
     # Os pedidos de cada ano até ao mesmo dia do ciclo; células com menos de
     # LIMIAR_POPULACAO pedidos não são publicadas (ver a metodologia).

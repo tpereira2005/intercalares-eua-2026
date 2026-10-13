@@ -227,6 +227,30 @@ def geografia(cubo_geo: pl.DataFrame, d: int, nivel: str) -> pl.DataFrame:
     return com_total(t, "faixa", ("registados", "votos")).sort([nivel, "faixa"], nulls_last=True)
 
 
+def historico_geografia(cubo_geo: pl.DataFrame, d: int, nivel: str) -> pl.DataFrame:
+    """Contributo de cada grupo histórico por unidade geográfica e faixa larga até ``d``,
+    com a linha ``total`` de cada unidade (como ``decomposicao_historico``, por lugar)."""
+    larga = cubo_geo.drop_nulls(nivel).with_columns(
+        pl.col("faixa").replace_strict(CANONICA_PARA_LARGA, default=None).alias("faixa")
+    )
+    larga = pl.concat([larga, larga.with_columns(pl.lit(TOTAL).alias("faixa"))])
+    por = [nivel, "faixa"]
+    registados = larga.group_by(por).agg(pl.col("n").sum().cast(pl.Int64).alias("registados"))
+    votos = (
+        larga.filter(votou_ate(d))
+        .group_by([*por, "grupo"])
+        .agg(pl.col("n").sum().cast(pl.Int64).alias("votos"))
+    )
+    grupos = larga.select("grupo").unique()
+    return (
+        registados.join(grupos, how="cross")
+        .join(votos, on=[*por, "grupo"], how="left")
+        .with_columns(pl.col("votos").fill_null(0))
+        .with_columns(_taxa(pl.col("votos"), pl.col("registados")).alias("contributo"))
+        .sort([*por, "grupo"], nulls_last=True)
+    )
+
+
 def cruzamento(cubo: pl.DataFrame, d: int, dimensao: str) -> pl.DataFrame:
     """Votos e recenseados por faixa x ``dimensao``.
 

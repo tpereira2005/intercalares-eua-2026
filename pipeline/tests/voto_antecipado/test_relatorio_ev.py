@@ -165,3 +165,71 @@ def test_publicado_sem_identificadores_nem_celulas_pequenas(fabrica_painel: Fabr
     assert all(p == 0 or p >= LIMIAR_POPULACAO for p in populacoes)
     # O total do ciclo continua a contar toda a gente, incluindo as células suprimidas.
     assert relatorio.ciclos[0].registados == painel.height
+
+
+def test_cruzamentos_e_geografia_dos_anos_de_referencia_sao_do_mesmo_dia(
+    cubos: Callable[[int, int], CubosAno],
+) -> None:
+    """Nos anos de referência, cruzamentos e geografia contam os votos até ao mesmo dia do
+    ciclo que 2026, não o total final (o site compara-os lado a lado)."""
+    relatorio = montar(
+        estado=CodigoEstado.NC,
+        atual=cubos(2026, 10),
+        bases=[cubos(2022, 11)],
+        dados_ate=date(2026, 10, 24),
+        fontes=[_fonte()],
+        nomes_condados={},
+    )
+    d = relatorio.dias_antes
+
+    def serie_2022(dias: int) -> int:
+        return next(
+            p.votos
+            for p in relatorio.serie
+            if p.ano == 2022
+            and p.dias_antes == dias
+            and p.faixa == "total"
+            and p.partido == "total"
+            and p.modalidade == "total"
+        )
+
+    no_dia, final = serie_2022(d), serie_2022(0)
+    assert no_dia < final
+    for dim in ("partido", "modalidade"):
+        soma = sum(c.votos for c in relatorio.cruzamentos if c.ano == 2022 and c.dimensao == dim)
+        # Só faltam as células pequenas suprimidas (populações de 1 a 9).
+        assert 0 <= no_dia - soma < final - no_dia, dim
+    condados = sum(
+        g.votos
+        for g in relatorio.geografia
+        if g.ano == 2022 and g.nivel == "condado" and g.faixa == "total"
+    )
+    assert 0 <= no_dia - condados < final - no_dia
+
+
+def test_historico_por_geografia_soma_a_taxa_de_cada_lugar(
+    cubos: Callable[[int, int], CubosAno],
+) -> None:
+    relatorio = montar(
+        estado=CodigoEstado.NC,
+        atual=cubos(2026, 10),
+        bases=[cubos(2022, 11), cubos(2018, 12)],
+        dados_ate=date(2026, 10, 24),
+        fontes=[_fonte()],
+        nomes_condados={"37183": "Wake"},
+    )
+    linhas = relatorio.historico_geografia
+    assert {x.ano for x in linhas} == {2026, 2022}  # 2018 não tem referência individual
+    assert {x.nivel for x in linhas} == {"condado", "distrito"}
+    geo = {(g.ano, g.nivel, g.codigo, g.faixa): g for g in relatorio.geografia}
+    chaves = {(x.ano, x.nivel, x.codigo, x.faixa) for x in linhas}
+    for chave in chaves:
+        grupos = [x for x in linhas if (x.ano, x.nivel, x.codigo, x.faixa) == chave]
+        votos = sum(x.votos for x in grupos)
+        g = geo[chave]
+        assert votos == g.votos
+        assert all(x.registados == g.registados for x in grupos)
+        if g.registados:
+            assert sum(x.contributo or 0 for x in grupos) == pytest.approx(
+                g.votos / g.registados, abs=1e-5
+            )

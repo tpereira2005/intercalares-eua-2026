@@ -9,14 +9,31 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 
 from contratos.base import Fonte, Metadados
+from contratos.estados import CodigoEstado
 from contratos.voto_antecipado import VotoAntecipadoEstado
 from contratos.voto_antecipado_agregado import (
+    EstadoSemDados,
     LinhaEstadoNacional,
     VotoAntecipadoAgregado,
     VotoAntecipadoNacional,
 )
 
 FAIXAS_65_MAIS = ("65-74", "75+")
+
+_BLOQUEADO = (
+    "A fonte oficial publica os dados, mas recusa pedidos automáticos. Não contornamos "
+    "bloqueios, por isso este estado fica de fora até haver uma via oficial aberta."
+)
+SEM_DADOS: tuple[EstadoSemDados, ...] = (
+    EstadoSemDados(estado=CodigoEstado.GA, motivo="bloqueado", nota=_BLOQUEADO),
+    EstadoSemDados(estado=CodigoEstado.TX, motivo="bloqueado", nota=_BLOQUEADO),
+    EstadoSemDados(estado=CodigoEstado.MI, motivo="bloqueado", nota=_BLOQUEADO),
+    EstadoSemDados(estado=CodigoEstado.OH, motivo="bloqueado", nota=_BLOQUEADO),
+    EstadoSemDados(estado=CodigoEstado.NV, motivo="bloqueado", nota=_BLOQUEADO),
+    EstadoSemDados(estado=CodigoEstado.AZ, motivo="bloqueado", nota=_BLOQUEADO),
+)
+"""Estados prioritários sem ficheiro (ver docs/metodologia/voto-antecipado-estados.md).
+Um estado que passe a ter ficheiro sai automaticamente desta lista no resumo."""
 TOTAL = "total"
 CASAS = 6
 
@@ -141,10 +158,12 @@ def montar(
             "Os estados publicam a ritmos diferentes: cada linha tem a sua data e as "
             "comparações são sempre com o mesmo dia do ciclo do próprio estado."
         )
+    acompanhados = {linha.estado for linha in linhas}
     return VotoAntecipadoNacional(
         metadados=Metadados(gerado_em=gerado_em or datetime.now(UTC), fontes=tuple(fontes)),
         ano=ano,
         estados=tuple(sorted(linhas, key=lambda x: x.estado.value)),
         votos=sum(linha.votos for linha in linhas),
         avisos=tuple(avisos),
+        estados_sem_dados=tuple(e for e in SEM_DADOS if e.estado not in acompanhados),
     )

@@ -146,3 +146,38 @@ def test_relatorio_valida_e_nao_publica_identificadores_nem_pedidos_pequenos(
 def test_relatorio_recusa_dados_posteriores_a_eleicao(fb: FabricaBoletins) -> None:
     with pytest.raises(ValueError, match="posteriores"):
         _montar(fb(1), fb(2, ano=2022), date(2026, 11, 4))
+
+
+def test_geografia_por_faixa_e_do_mesmo_dia_do_ciclo(fb: FabricaBoletins) -> None:
+    atual, base = fb(8, n=400), fb(9, n=400, ano=2022)
+    relatorio = _montar(atual, base, date(2026, 10, 20))
+    d = relatorio.dias_antes
+    for nivel in ("condado", "distrito"):
+        linhas = [g for g in relatorio.geografia if g.nivel == nivel]
+        por_faixa = [g for g in linhas if g.faixa != "total"]
+        assert por_faixa
+        assert all(g.partido == "total" for g in por_faixa)
+        # Por unidade, as faixas somam o total, e o total por faixa e por partido coincide.
+        for ano in (2026, 2022):
+            totais_faixa = {
+                g.codigo: g.votos
+                for g in linhas
+                if g.ano == ano and g.faixa == "total" and g.partido == "total"
+            }
+            for codigo, total in totais_faixa.items():
+                soma = sum(
+                    g.votos
+                    for g in por_faixa
+                    if g.ano == ano and g.codigo == codigo and g.faixa != "total"
+                )
+                assert soma == total
+    chaves = [(g.ano, g.nivel, g.codigo, g.faixa, g.partido) for g in relatorio.geografia]
+    assert len(chaves) == len(set(chaves))
+    # 2022 conta até ao mesmo dia do ciclo, não o total final.
+    cubo_base = ag.cubos(base, eleicao_geral("PA", 2022)).votos
+    total_2022 = sum(
+        g.votos
+        for g in relatorio.geografia
+        if g.ano == 2022 and g.nivel == "condado" and g.faixa == "total" and g.partido == "total"
+    )
+    assert total_2022 == ag.total_votos(cubo_base.drop_nulls("fips_condado"), d)

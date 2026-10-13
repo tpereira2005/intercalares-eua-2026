@@ -18,6 +18,7 @@ from contratos.voto_antecipado import (
     LinhaCruzamento,
     LinhaGeografia,
     LinhaHistorico,
+    LinhaHistoricoGeografia,
     LinhaReserva,
     PontoSerie,
     VotoAntecipadoEstado,
@@ -174,6 +175,26 @@ def montar(
                 )
             )
 
+    historico_geografia: list[LinhaHistoricoGeografia] = []
+    for c in todos:
+        referencia = c.eleicao.referencia_historico
+        if referencia is None or "grupo" not in c.geografico.columns:
+            continue
+        for coluna, nivel in (("fips_condado", "condado"), ("distrito_atual", "distrito")):
+            tabela = ind.historico_geografia(c.geografico, d, coluna)
+            for linha in _linhas(tabela, ano=c.eleicao.ano, ano_referencia=referencia):
+                valor = linha.pop(coluna)
+                codigo, nome = (
+                    (valor, nomes_condados.get(valor, valor))
+                    if nivel == "condado"
+                    else (str(valor), f"{estado.value}-{valor:02d}")
+                )
+                historico_geografia.append(
+                    LinhaHistoricoGeografia.model_validate(
+                        {**linha, "nivel": nivel, "codigo": codigo, "nome": nome}
+                    )
+                )
+
     cruzamentos = [
         LinhaCruzamento.model_validate(linha)
         for c in todos
@@ -196,4 +217,5 @@ def montar(
         geografia=tuple(geografia),
         cruzamentos=tuple(cruzamentos),
         avisos=tuple(avisos),
+        historico_geografia=tuple(historico_geografia),
     )
