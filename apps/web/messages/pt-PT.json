@@ -68,7 +68,32 @@
       "previsao": "Previsão da Câmara e do Senado, com simulação, backtests simétricos e modelo congelado a 1 de novembro.",
       "noite": "Resultados em tempo real na noite eleitoral, com projeção do voto que falta contar."
     },
-    "metodo": "Os dias contam até às 0h00 de 3 de novembro, hora de Washington."
+    "metodo": "Os dias contam até às 0h00 de 3 de novembro, hora de Washington.",
+    "narrativa": "{estado}: {votos} votos antecipados até agora, {variacao} face ao mesmo dia de {ano}. Os eleitores com 65 ou mais anos pesam {quota65} do voto antecipado ({pontos} face a {ano}). Entre os 18 e os 29 anos, a participação está {jovens} face ao esperado.",
+    "verRastreador": "Ver o rastreador",
+    "geradoDados": "Gerado automaticamente a partir dos dados de {data}",
+    "previsao": {
+      "sobrelinha": "Modelo Escrutínio",
+      "titulo": "Quem controla o Congresso",
+      "texto": "A previsão da Câmara e do Senado está a ser construída: simulação com erros correlacionados entre estados, testada de forma simétrica e congelada a 1 de novembro.",
+      "ligacao": "Sobre a previsão"
+    },
+    "kpis": {
+      "votos": "Votos antecipados nos estados acompanhados",
+      "votosDetalhe": "{n} estados · {variacao} face ao mesmo dia de {ano}",
+      "votosDetalheUm": "{variacao} face ao mesmo dia de {ano}"
+    },
+    "quemVotou": {
+      "sobrelinha": "{estado} · voto antecipado por idade",
+      "titulo": "Quem já votou",
+      "ligacao": "Analisar por idade"
+    },
+    "estados": {
+      "sobrelinha": "Voto antecipado",
+      "titulo": "Estados acompanhados",
+      "texto": "Participação face ao esperado, ao ritmo de {ano} no mesmo dia.",
+      "ligacao": "Ver o mapa"
+    }
   },
   "seccoes": {
     "votoAntecipado": {
@@ -144,9 +169,6 @@
     "diaDoCiclo": "Dia do ciclo",
     "controlosAria": "Controlos do rastreador",
     "avisosTitulo": "A ter em conta",
-    "estados": {
-      "NC": "Carolina do Norte"
-    },
     "faixaAria": "Faixa etária",
     "anoAtual": "{ano}",
     "kpis": {
@@ -258,6 +280,60 @@
       "reserva": "habituais = votaram em {referencia} por qualquer método."
     },
     "notasCiclos": "Notas sobre os anos de comparação",
-    "documentacao": "Metodologia completa"
+    "documentacao": "Metodologia completa",
+    "escolhaEstadoAria": "Estado"
+  },
+  "mapa": {
+    "sobrelinha": "Voto antecipado · 50 estados e DC",
+    "titulo": "Participação face ao esperado",
+    "lede": "Cada quadrado é um estado. A cor compara os votos antecipados com os esperados ao ritmo de {ano} no mesmo dia do ciclo. Os estados a tracejado ainda não têm dados no site.",
+    "indicador": "Indicador",
+    "indicadores": {
+      "todos": "Todos",
+      "mais65": "65+",
+      "jovens": "18–29"
+    },
+    "semDados": "sem dados ainda",
+    "graficoAria": "Mapa em grelha dos estados",
+    "quadrado": "{estado}: {valor}",
+    "quadradoSemDados": "{estado}: sem dados",
+    "metodo": "Método: votos observados / esperados − 1, com esperados = recenseados de hoje × taxa de {ano} no mesmo dia.",
+    "estadoEscolhido": "Estado escolhido",
+    "votos": "Votos antecipados",
+    "ritmo": "Votos face ao mesmo dia de {ano}",
+    "desvios": {
+      "todos": "Participação face ao esperado",
+      "mais65": "Participação 65+ face ao esperado",
+      "jovens": "Participação 18–29 face ao esperado"
+    },
+    "abrirAnalise": "Abrir a análise por idade",
+    "estadoSemDados": "Ainda não há dados de voto antecipado deste estado no site. Os estados entram à medida que o pipeline os acrescenta, sempre com fontes oficiais gratuitas."
+  },
+  "previsao": {
+    "sobrelinha": "Modelo Escrutínio · em construção",
+    "lede": "Simulação com erros correlacionados entre estados, testada de forma simétrica em anos bons para cada partido. O modelo congela a 1 de novembro e fica público para avaliação depois da eleição.",
+    "metodo": "Sem números até o modelo passar os testes retrospetivos de 2018, 2020, 2022 e 2024.",
+    "paineis": {
+      "camara": {
+        "sobrelinha": "Câmara dos Representantes",
+        "titulo": "Distribuição de lugares",
+        "descricao": "Probabilidade de cada partido conquistar a maioria dos 435 lugares, com a distribuição completa das simulações."
+      },
+      "senado": {
+        "sobrelinha": "Senado",
+        "titulo": "Quem fica com a maioria",
+        "descricao": "Lugares em disputa e probabilidade de maioria, contando o voto de desempate do vice-presidente."
+      },
+      "corridas": {
+        "sobrelinha": "Corridas a seguir",
+        "titulo": "Probabilidade de vitória",
+        "descricao": "As corridas mais renhidas da Câmara, do Senado e dos governadores, com o intervalo de margem de cada uma."
+      },
+      "sondagens": {
+        "sobrelinha": "Auditoria das sondagens",
+        "titulo": "O eleitorado que as sondagens assumem",
+        "descricao": "Composição etária do eleitor provável nas sondagens, comparada com a composição projetada a partir de quem já votou."
+      }
+    }
   }
 }

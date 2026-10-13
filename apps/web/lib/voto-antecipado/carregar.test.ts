@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { DadosInvalidos, carregarVista, lerEstado } from "./carregar.ts";
+import { DadosInvalidos, carregarVistas, lerEstado, lerEstados } from "./carregar.ts";
 
 const FIXTURE = "test/fixtures/voto-antecipado-sintetico.json";
 
@@ -21,7 +21,14 @@ describe("lerEstado", () => {
 
   it("devolve null quando o ficheiro ainda não existe", () => {
     expect(lerEstado("dados/nao-existe.json")).toBeNull();
-    expect(carregarVista("dados/nao-existe.json")).toBeNull();
+    expect(carregarVistas("dados/nao-existe")).toEqual([]);
+  });
+
+  it("lê todos os ficheiros de uma pasta e recusa estados repetidos", () => {
+    expect(carregarVistas("test/fixtures").map((v) => v.estado)).toEqual(["NC"]);
+    const pasta = path.dirname(copiaAlterada(() => undefined));
+    writeFileSync(path.join(pasta, "outro.json"), readFileSync(FIXTURE));
+    expect(() => lerEstados(pasta)).toThrow(/mais de um ficheiro/);
   });
 
   it("recusa um ficheiro sem um campo obrigatório", () => {
