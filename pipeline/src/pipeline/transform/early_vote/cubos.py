@@ -22,6 +22,7 @@ DIMENSOES_GEOGRAFICAS = (
     "distrito_atual",
     "faixa",
     "partido",
+    "grupo",
     "modalidade",
     "dias_antes",
 )

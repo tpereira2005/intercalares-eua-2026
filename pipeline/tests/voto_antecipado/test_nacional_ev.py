@@ -46,3 +46,10 @@ def test_linha_agregada_cita_os_numeros_do_estado(fb: Callable[..., pl.DataFrame
     resumo = nacional.montar([linha], [_fonte()], ano=2026)
     assert resumo.votos == linha.votos
     assert resumo.estados[0].estado == CodigoEstado.PA
+
+
+def test_estados_sem_dados_saem_quando_ha_ficheiro(fb: Callable[..., pl.DataFrame]) -> None:
+    del fb
+    sem_linhas = nacional.montar([], [_fonte()], ano=2026)
+    assert {e.estado.value for e in sem_linhas.estados_sem_dados} >= {"GA", "TX"}
+    assert all(e.motivo == "bloqueado" and e.nota for e in sem_linhas.estados_sem_dados)

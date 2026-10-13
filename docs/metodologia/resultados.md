@@ -19,11 +19,26 @@ Verificámos a 13 de outubro de 2026 os feeds oficiais de resultados dos estados
 
 Os sites de resultados dos estados "de fora" recusam pedidos automáticos. Um diagnóstico a 13 de outubro de 2026, a partir do GitHub Actions, encontrou desafios anti-robô do Cloudflare no Arizona (`results.arizona.vote`), no Texas (`results.texas-election.com`), no Michigan (`mielections.us`) e no Ohio (`ohiosos.gov`), do Imperva no Nevada (`silverstateelection.nv.gov`) e do Incapsula na Pensilvânia (`electionreturns.pa.gov`; a API respondeu ao Actions nesse dia, mas o site está protegido contra robôs, por isso não a usamos). Não contornamos esses bloqueios. Para essas corridas, o site mostra a previsão e indica que os resultados ao vivo não estão disponíveis numa fonte oficial aberta.
 
-Os sites de resultados de vários condados grandes destes estados responderam ao Actions (Filadélfia, Harris e Travis no Texas, Pima no Arizona, Clark e Washoe no Nevada, Cuyahoga no Ohio). Dariam resultados parciais de corridas estaduais, só de alguns condados; a decisão de os usar está pendente. Os condados que usam o Clarity (Dallas, Tarrant, Oakland, entre outros) têm o mesmo bloqueio do AWS WAF descrito abaixo.
+### Condados com fonte aberta nos estados bloqueados
+
+Nos estados cujo site estadual recusa pedidos automáticos, acompanham-se os condados com fonte oficial aberta que responde ao Actions sem desafios. A cobertura é sempre marcada como parcial: `ResultadosEstado.cobertura = "condados"` com a lista `condados_cobertos`, a mesma marca no resumo nacional e, nos parciais do Modelo C, `cobertura_parcial` com as unidades só desses condados (nunca um `total` do estado). Os totais destas corridas são a soma dos condados acompanhados, **não** o resultado do estado, e ficam fora do CSV de avaliação da previsão.
+
+| Condado                  | Fonte                                                                                | Estado (13 de outubro de 2026)                                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Harris (Texas, 48201)    | Harris County Clerk, `appfiles.harrisvotes.com/.../Data/<mmaa>/resultsbyballot.json` | **Acompanhado.** JSON por eleição com votos por tipo e secções apuradas; 2022 e 2024 no mesmo formato (ensaio semanal)        |
+| Travis (Texas)           | Clarity                                                                              | Bloqueado (AWS WAF, como os outros sites Clarity)                                                                             |
+| Pima (Arizona)           | Relatórios-resumo em PDF, em endereços que só se conhecem quando são publicados      | Sem feed estruturado; o site Clarity do condado também recusa pedidos                                                         |
+| Clark e Washoe (Nevada)  | Painéis do condado                                                                   | Sem feed estruturado encontrado; o painel de Washoe responde `503` fora de período eleitoral                                  |
+| Cuyahoga (Ohio)          | Relatórios-resumo em PDF (`GetDocumentById/<guid>`)                                  | Sem feed estruturado; os endereços só se conhecem quando são publicados                                                       |
+| Filadélfia (Pensilvânia) | Serviço web do condado (`phillyresws.azurewebsites.us`)                              | Responde ao Actions; o método dos votos ainda não foi identificado. Corridas federais não renhidas, por isso baixa prioridade |
+
+Os condados que usam o Clarity (Dallas, Tarrant, Travis, Oakland, entre outros) têm o mesmo bloqueio do AWS WAF descrito abaixo.
 
 O Alasca estava "de fora" por um erro de configuração, não por um bloqueio: o servidor envia o certificado intermédio errado e a verificação TLS falhava. Os navegadores resolvem isto descarregando o intermédio que o próprio certificado indica (AIA). O pipeline faz o mesmo de forma fixa: `pipeline/src/pipeline/comum/dados/intermedios.pem` guarda esse intermédio público da GlobalSign, verificado contra a raiz GlobalSign R46 e com a impressão digital fixada num teste, e `contexto_tls` junta-o aos certificados de confiança habituais. A verificação do certificado e do nome continua igual. O Alasca não tem condados, por isso só há o total do estado; uma secção conta como apurada quando tem boletins ou a fonte a marca como reportada.
 
 Os identificadores das eleições de 2026 na Carolina do Sul e no Iowa (sites Clarity) só existem quando o estado cria a página. O conector procura-os na lista `elections.json` que o próprio site publica (o Iowa usa-a; a Carolina do Sul devolve uma lista vazia, por isso o identificador acrescenta-se à mão em `connectors/results/clarity/conector.py`). Até lá, a recolha salta esses estados com um aviso.
+
+A 13 de outubro de 2026, o ficheiro da Florida (`flelectionfiles.floridados.gov`, servido pela Azure Front Door) respondeu uma vez `403` ao Actions e passou na repetição. Não é um bloqueio a robôs (não há desafio, e a resposta seguinte foi normal); na noite eleitoral, uma falha isolada mantém publicado o último ficheiro válido e o ciclo seguinte volta a tentar.
 
 ### Clarity e o GitHub Actions
 

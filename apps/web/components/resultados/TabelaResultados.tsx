@@ -10,6 +10,7 @@ import {
 } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
 import type { CorridaVista } from "@/lib/previsao/vista.ts";
+import type { CorridaNoite } from "@/lib/noite/vista.ts";
 import type { ContagemCorrida, LinhaResultados } from "@/lib/resultados/vista.ts";
 
 /**
@@ -70,6 +71,47 @@ function Contagem({ c }: { c: ContagemCorrida }) {
   );
 }
 
+function Pilula({ probD }: { probD: number }) {
+  const lado = probD >= 0.5 ? "D" : "R";
+  const prob = lado === "D" ? probD : 1 - probD;
+  return (
+    <span
+      className={`inline-block rounded-[2px] p-0.5 font-mono text-[12.5px] font-semibold ${
+        lado === "D" ? "bg-dem px-1.5 text-sheet" : "fundo-rep text-ink"
+      }`}
+    >
+      <span className={lado === "R" ? "block rounded-[1px] bg-sheet px-1" : undefined}>
+        {`${lado} ${formatarPercentagem(prob, 0)}`}
+      </span>
+    </span>
+  );
+}
+
+/** Projeção ao vivo do modelo, com a previsão congelada por baixo para comparação. */
+function Projecao({ p }: { p: CorridaNoite }) {
+  const prior =
+    p.probDPrior >= 0.5
+      ? `D ${formatarPercentagem(p.probDPrior, 0)}`
+      : `R ${formatarPercentagem(1 - p.probDPrior, 0)}`;
+  return (
+    <>
+      <Pilula probD={p.probD} />
+      <span className="block font-mono text-[11px] whitespace-normal text-ink-3">
+        {p.decidida
+          ? t("noite.tabela.decidida")
+          : t("noite.tabela.margem", {
+              margem: formatarMargemPontos(p.margem),
+              de: formatarMargemPontos(p.margemP10, 0),
+              ate: formatarMargemPontos(p.margemP90, 0),
+            })}
+      </span>
+      <span className="block font-mono text-[11px] whitespace-normal text-ink-3">
+        {t("noite.tabela.prior", { prob: prior })}
+      </span>
+    </>
+  );
+}
+
 function Previsao({ p }: { p: CorridaVista | null }) {
   if (!p)
     return <span className="text-[12px] text-ink-3">{t("resultados.tabela.semPrevisao")}</span>;
@@ -111,6 +153,7 @@ export function TabelaResultados({
   const limite = visiveis ?? linhas.length;
   const mostradas = aberta ? linhas : linhas.slice(0, limite);
   const escondidas = linhas.length - limite;
+  const comProjecao = linhas.some((l) => l.projecao !== null);
   return (
     <div className="flex flex-col gap-2">
       <table id={id} className="w-full border-collapse text-sm">
@@ -126,7 +169,7 @@ export function TabelaResultados({
               </th>
             ) : null}
             <th scope="col" className="pb-1.5 text-right font-medium">
-              {t("resultados.tabela.previsao")}
+              {comProjecao ? t("noite.tabela.projecao") : t("resultados.tabela.previsao")}
             </th>
           </tr>
         </thead>
@@ -152,7 +195,7 @@ export function TabelaResultados({
                 </td>
               ) : null}
               <td className="py-2 text-right whitespace-nowrap">
-                <Previsao p={l.previsao} />
+                {l.projecao ? <Projecao p={l.projecao} /> : <Previsao p={l.previsao} />}
               </td>
             </tr>
           ))}

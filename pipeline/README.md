@@ -38,7 +38,7 @@ src/pipeline/
 ├── transform/early_vote/        # painel → cubos → indicadores → ficheiro publicado
 └── jobs/
     ├── voto_antecipado_nc.py              # atualização de 2026 (a cada 2 h)
-    ├── referencia_voto_antecipado_nc.py   # cubos de 2018, 2022 e 2024 (uma vez)
+    ├── referencia_voto_antecipado_nc.py   # cubos de 2016, 2018, 2022 e 2024 (uma vez)
     ├── voto_antecipado_estado.py          # Pensilvânia e Maine
     ├── referencia_voto_antecipado_estado.py
     ├── voto_antecipado_fl.py              # Florida (arquivo diário próprio)
@@ -51,7 +51,7 @@ O fluxo é igual para todos os estados e anos: o conector produz um **painel** (
 Os cubos dos anos de referência estão versionados em `data/reference/nc/` (ver `data/PROVENIENCIA.md`). Para os reconstruir é preciso descarregar cerca de 5 GB:
 
 ```sh
-uv run python -m pipeline.jobs.referencia_voto_antecipado_nc --anos 2018 2022 2024
+uv run python -m pipeline.jobs.referencia_voto_antecipado_nc --anos 2016 2018 2022 2024
 uv run python -m pipeline.jobs.voto_antecipado_nc --saida data/publicado/voto-antecipado/nc.json
 ```
 
@@ -71,7 +71,7 @@ uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/v
 
 ### Resultados da noite eleitoral
 
-Conectores em `connectors/results/` (Carolina do Norte, Florida, Geórgia, Alasca e, pelo sistema Clarity, Carolina do Sul e Iowa), contratos `ResultadosEstado`, `ResultadosNacional` e `ResultadosParciais` (entrada do Modelo C). Metodologia e limites em `docs/metodologia/resultados.md`.
+Conectores em `connectors/results/` (Carolina do Norte, Florida, Geórgia, Alasca, pelo sistema Clarity Carolina do Sul e Iowa, e o condado de Harris no Texas, com cobertura parcial), contratos `ResultadosEstado`, `ResultadosNacional` e `ResultadosParciais` (entrada do Modelo C). Metodologia e limites em `docs/metodologia/resultados.md`.
 
 ```sh
 uv run python -m pipeline.jobs.resultados --duracao 600            # recolha a cada 30 s

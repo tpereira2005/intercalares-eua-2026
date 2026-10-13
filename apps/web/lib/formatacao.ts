@@ -111,3 +111,26 @@ export function formatarDataHora(data: Date, fuso: string = FUSO_ELEICAO): strin
   }).format(data);
   return `${dia}, ${hora}`;
 }
+
+/** Hora na costa leste, em 24 horas, por exemplo "21:34". */
+export function formatarHora(data: Date, fuso: string = FUSO_ELEICAO): string {
+  return new Intl.DateTimeFormat(LOCALE, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone: fuso,
+  }).format(data);
+}
+
+/** Tempo até um instante, curto: "3 d 4 h", "2 h 14 min", "9 min" ou "menos de 1 min". */
+export function formatarDuracao(milissegundos: number): string {
+  const minutos = Math.floor(milissegundos / 60_000);
+  if (minutos < 1) return "menos de 1 min";
+  const dias = Math.floor(minutos / 1440);
+  const horas = Math.floor((minutos % 1440) / 60);
+  const resto = minutos % 60;
+  if (dias > 0) return horas > 0 ? `${String(dias)} d ${String(horas)} h` : `${String(dias)} d`;
+  if (horas > 0)
+    return resto > 0 ? `${String(horas)} h ${String(resto)} min` : `${String(horas)} h`;
+  return `${String(resto)} min`;
+}

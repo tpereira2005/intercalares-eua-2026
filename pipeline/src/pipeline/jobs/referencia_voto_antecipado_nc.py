@@ -1,8 +1,8 @@
-"""Constrói os cubos de referência da Carolina do Norte (2018, 2022, 2024).
+"""Constrói os cubos de referência da Carolina do Norte (2016, 2018, 2022, 2024).
 
 Uso::
 
-    uv run python -m pipeline.jobs.referencia_voto_antecipado_nc --anos 2018 2022 2024
+    uv run python -m pipeline.jobs.referencia_voto_antecipado_nc --anos 2016 2018 2022 2024
 
 Corre uma vez (os ficheiros finais destes anos não mudam). Descarrega o ficheiro final de
 boletins, o retrato do recenseamento no dia da eleição (1 a 1,5 GB comprimido), o histórico
@@ -88,7 +88,7 @@ def executar(raiz: Path, anos: list[int], *, descarregar: bool) -> None:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--raiz", type=Path, default=Path.cwd(), help="raiz do repositório")
-    parser.add_argument("--anos", type=int, nargs="+", default=[2018, 2022, 2024])
+    parser.add_argument("--anos", type=int, nargs="+", default=[2016, 2018, 2022, 2024])
     parser.add_argument("--sem-descarga", action="store_true", help="usar só ficheiros locais")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

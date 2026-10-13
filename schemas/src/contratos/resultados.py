@@ -9,9 +9,9 @@ vencedor neste contrato.
 from datetime import date
 from typing import Literal, Self
 
-from pydantic import AwareDatetime, Field, model_validator
+from pydantic import AwareDatetime, ConfigDict, Field, model_validator
 
-from contratos.base import Metadados, ModeloContrato
+from contratos.base import Metadados, ModeloContrato, opcionais_no_esquema
 from contratos.estados import CodigoEstado
 
 Contagem = Field(ge=0)
@@ -118,7 +118,17 @@ class Corrida(ModeloContrato):
         return self
 
 
+Cobertura = Literal["estado", "condados"]
+"""``estado``: a fonte cobre o estado inteiro. ``condados``: só alguns condados (estados
+cujo site estadual recusa pedidos automáticos); os totais são a soma desses condados e
+**não** são o resultado do estado."""
+
+
 class ResultadosEstado(ModeloContrato):
+    model_config = ConfigDict(
+        json_schema_extra=opcionais_no_esquema("cobertura", "condados_cobertos")
+    )
+
     metadados: Metadados
     estado: CodigoEstado
     data_eleicao: date
@@ -127,6 +137,9 @@ class ResultadosEstado(ModeloContrato):
 
     corridas: tuple[Corrida, ...]
     avisos: tuple[str, ...] = ()
+    cobertura: Cobertura = "estado"
+    condados_cobertos: tuple[str, ...] = ()
+    """FIPS dos condados incluídos, quando ``cobertura = "condados"``."""
 
     @model_validator(mode="after")
     def _corridas_do_estado(self) -> Self:
@@ -136,11 +149,16 @@ class ResultadosEstado(ModeloContrato):
         if len({c.id for c in self.corridas}) != len(self.corridas):
             msg = "Corridas repetidas"
             raise ValueError(msg)
+        if (self.cobertura == "condados") != bool(self.condados_cobertos):
+            msg = "Só a cobertura por condados tem (e exige) a lista de condados"
+            raise ValueError(msg)
         return self
 
 
 class LinhaCorridaNacional(ModeloContrato):
     """Resumo de uma corrida para o painel da noite eleitoral."""
+
+    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("cobertura"))
 
     id: str
     estado: CodigoEstado
@@ -156,6 +174,9 @@ class LinhaCorridaNacional(ModeloContrato):
     votos_outros: int = Contagem
     apuramento: float | None = Field(default=None, ge=0, le=1)
     """Unidades reportadas / unidades totais, quando a fonte as indica."""
+
+    cobertura: Cobertura = "estado"
+    """``condados``: os votos são só dos condados acompanhados, não do estado inteiro."""
 
 
 class ResultadosNacional(ModeloContrato):
@@ -196,8 +217,21 @@ class UnidadeContagem(ModeloContrato):
     atualizado_em: AwareDatetime | None = None
 
 
+class CoberturaParcial(ModeloContrato):
+    """Estado de que só se acompanham alguns condados."""
+
+    estado: CodigoEstado
+    condados: tuple[str, ...] = Field(min_length=1)
+    """FIPS dos condados com fonte. Os outros condados do estado não têm dados: não estão
+    por apurar, estão fora da recolha."""
+
+    nota: str
+
+
 class ResultadosParciais(ModeloContrato):
     """Um instante da contagem em todos os estados acompanhados (entrada do Modelo C)."""
+
+    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("cobertura_parcial"))
 
     metadados: Metadados
     ano: int
@@ -207,3 +241,16 @@ class ResultadosParciais(ModeloContrato):
     resultado final, porque as fontes não guardam os retratos intermédios."""
 
     unidades: tuple[UnidadeContagem, ...]
+    cobertura_parcial: tuple[CoberturaParcial, ...] = ()
+    """Estados com só alguns condados: as suas unidades são esses condados (FIPS), sem
+    ``total`` do estado."""
+
+    @model_validator(mode="after")
+    def _unidades_dos_condados(self) -> Self:
+        parciais = {c.estado.value: set(c.condados) for c in self.cobertura_parcial}
+        for u in self.unidades:
+            condados = parciais.get(u.corrida[:2])
+            if condados is not None and u.unidade not in condados:
+                msg = f"{u.corrida}: unidade {u.unidade} fora dos condados acompanhados"
+                raise ValueError(msg)
+        return self

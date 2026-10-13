@@ -86,7 +86,7 @@ def executar(
     # Nos estados com um só lugar, o distrito é 0 (``XX-00``).
     esperados = {0} if DISTRITOS[estado] == 1 else set(range(1, DISTRITOS[estado] + 1))
     em_falta = sorted(esperados - distritos)
-    if em_falta:
+    if em_falta and not final.cobertura_condados:
         registo.warning("%s: distritos sem corrida no feed: %s", estado, em_falta)
     retratos = []
     maximo = 0.0

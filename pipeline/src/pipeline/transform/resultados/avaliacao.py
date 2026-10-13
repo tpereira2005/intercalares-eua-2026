@@ -1,8 +1,10 @@
 """CSV ``id,vencedor,margem`` para a avaliação da previsão (``jobs.avaliacao_previsao``).
 
 Só entram as corridas com todas as secções apuradas e um candidato democrata ou
-republicano à frente. Não é uma chamada de vencedor durante a noite: serve para avaliar a
-previsão depois de a contagem acabar. ``margem`` é D-R em pontos percentuais do total.
+republicano à frente, e nunca as dos estados acompanhados só por alguns condados (a soma
+desses condados não é o resultado do estado). Não é uma chamada de vencedor durante a
+noite: serve para avaliar a previsão depois de a contagem acabar. ``margem`` é D-R em
+pontos percentuais do total.
 """
 
 import csv
@@ -17,6 +19,8 @@ CASAS = 3
 def linhas(estados: Iterable[ResultadosEstado]) -> list[tuple[str, str, float]]:
     resultado = []
     for estado in estados:
+        if estado.cobertura != "estado":
+            continue
         for c in estado.corridas:
             if c.cargo == "governador" or not c.total or not c.candidatos:
                 continue

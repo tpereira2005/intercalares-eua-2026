@@ -11,6 +11,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import type { ResultadosParciais } from "@intercalares/contratos";
+import { carregarNoite } from "../noite/carregar.ts";
+import type { VistaNoite } from "../noite/vista.ts";
 import { carregarPrevisao } from "../previsao/carregar.ts";
 import { DadosInvalidos, obterValidador } from "../validacao.ts";
 import { construirVistaResultados, type VistaResultados } from "./vista.ts";
@@ -30,9 +32,22 @@ export function lerParciais(caminho: string): ResultadosParciais | null {
   return dados as ResultadosParciais;
 }
 
-/** Vista da noite eleitoral; `null` sem contagem publicada. */
-export function carregarResultados(caminho?: string): VistaResultados | null {
+export interface DadosNoiteEleitoral {
+  /** Contagem por corrida; `null` sem parciais.json. */
+  resultados: VistaResultados | null;
+  /** Projeção do modelo; `null` sem projeção publicada. */
+  noite: VistaNoite | null;
+}
+
+/** Contagem e projeção da noite eleitoral; `null` quando não há nenhuma das duas. */
+export function carregarResultados(caminho?: string): DadosNoiteEleitoral | null {
   const parciais = lerParciais(caminho ?? process.env[VARIAVEL_CAMINHO] ?? CAMINHO_POR_OMISSAO);
-  if (!parciais) return null;
-  return construirVistaResultados(parciais, carregarPrevisao()?.previsao ?? null);
+  const noite = carregarNoite();
+  if (!parciais && !noite) return null;
+  return {
+    resultados: parciais
+      ? construirVistaResultados(parciais, carregarPrevisao()?.previsao ?? null, noite)
+      : null,
+    noite,
+  };
 }

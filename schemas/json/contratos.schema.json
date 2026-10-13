@@ -617,6 +617,35 @@
       "title": "CicloVotoAntecipado",
       "type": "object"
     },
+    "CoberturaParcial": {
+      "additionalProperties": false,
+      "description": "Estado de que só se acompanham alguns condados.",
+      "properties": {
+        "condados": {
+          "description": "FIPS dos condados com fonte. Os outros condados do estado não têm dados: não estão\npor apurar, estão fora da recolha.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Condados",
+          "type": "array"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "nota": {
+          "title": "Nota",
+          "type": "string"
+        }
+      },
+      "required": [
+        "estado",
+        "condados",
+        "nota"
+      ],
+      "title": "CoberturaParcial",
+      "type": "object"
+    },
     "CodigoEstado": {
       "description": "Código postal de duas letras de cada estado e do Distrito de Colúmbia.",
       "enum": [
@@ -919,6 +948,36 @@
         "corridas"
       ],
       "title": "DiaHistorico",
+      "type": "object"
+    },
+    "EstadoSemDados": {
+      "additionalProperties": false,
+      "description": "Estado prioritário que o site não acompanha, e porquê.",
+      "properties": {
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "motivo": {
+          "description": "``bloqueado``: a fonte oficial existe, mas recusa pedidos automáticos (não contornamos\no bloqueio). ``sem_fonte_gratuita``: não há dados oficiais gratuitos.",
+          "enum": [
+            "bloqueado",
+            "sem_fonte_gratuita"
+          ],
+          "title": "Motivo",
+          "type": "string"
+        },
+        "nota": {
+          "description": "Explicação curta em PT-PT, para mostrar no site.",
+          "title": "Nota",
+          "type": "string"
+        }
+      },
+      "required": [
+        "estado",
+        "motivo",
+        "nota"
+      ],
+      "title": "EstadoSemDados",
       "type": "object"
     },
     "FaixaCalibracao": {
@@ -1354,6 +1413,16 @@
           "title": "Cargo",
           "type": "string"
         },
+        "cobertura": {
+          "default": "estado",
+          "description": "``condados``: os votos são só dos condados acompanhados, não do estado inteiro.",
+          "enum": [
+            "estado",
+            "condados"
+          ],
+          "title": "Cobertura",
+          "type": "string"
+        },
         "distrito": {
           "anyOf": [
             {
@@ -1715,6 +1784,20 @@
           "title": "Codigo",
           "type": "string"
         },
+        "faixa": {
+          "default": "total",
+          "description": "Faixa larga, nos estados com idade (Pensilvânia). As linhas por faixa têm\n``partido = \"total\"``; as linhas por partido têm ``faixa = \"total\"``.",
+          "enum": [
+            "18-29",
+            "30-49",
+            "50-64",
+            "65+",
+            "desconhecida",
+            "total"
+          ],
+          "title": "Faixa",
+          "type": "string"
+        },
         "nivel": {
           "enum": [
             "condado",
@@ -1827,6 +1910,97 @@
         "contributo"
       ],
       "title": "LinhaHistorico",
+      "type": "object"
+    },
+    "LinhaHistoricoGeografia": {
+      "additionalProperties": false,
+      "description": "Contributo de um grupo histórico para a participação de uma unidade geográfica e\nfaixa larga até ao dia (o mesmo dia do ciclo em todos os anos, com o mapa de 2026).",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "ano_referencia": {
+          "title": "Ano Referencia",
+          "type": "integer"
+        },
+        "codigo": {
+          "description": "FIPS de cinco dígitos (condado) ou número do distrito no mapa de 2026.",
+          "title": "Codigo",
+          "type": "string"
+        },
+        "contributo": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "votos / registados: a soma dos grupos dá a taxa de participação da unidade e faixa.",
+          "title": "Contributo"
+        },
+        "faixa": {
+          "enum": [
+            "18-29",
+            "30-49",
+            "50-64",
+            "65+",
+            "desconhecida",
+            "total"
+          ],
+          "title": "Faixa",
+          "type": "string"
+        },
+        "grupo": {
+          "enum": [
+            "antecipado_na_referencia",
+            "dia_eleicao_na_referencia",
+            "absteve_se_na_referencia",
+            "recenseado_apos_referencia",
+            "sem_historico"
+          ],
+          "title": "Grupo",
+          "type": "string"
+        },
+        "nivel": {
+          "enum": [
+            "condado",
+            "distrito"
+          ],
+          "title": "Nivel",
+          "type": "string"
+        },
+        "nome": {
+          "title": "Nome",
+          "type": "string"
+        },
+        "registados": {
+          "description": "Recenseados da unidade e faixa (todos os grupos).",
+          "minimum": 0,
+          "title": "Registados",
+          "type": "integer"
+        },
+        "votos": {
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ano",
+        "ano_referencia",
+        "nivel",
+        "codigo",
+        "nome",
+        "faixa",
+        "grupo",
+        "votos",
+        "registados",
+        "contributo"
+      ],
+      "title": "LinhaHistoricoGeografia",
       "type": "object"
     },
     "LinhaPedidos": {
@@ -3132,6 +3306,24 @@
           "title": "Avisos",
           "type": "array"
         },
+        "cobertura": {
+          "default": "estado",
+          "enum": [
+            "estado",
+            "condados"
+          ],
+          "title": "Cobertura",
+          "type": "string"
+        },
+        "condados_cobertos": {
+          "default": [],
+          "description": "FIPS dos condados incluídos, quando ``cobertura = \"condados\"``.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Condados Cobertos",
+          "type": "array"
+        },
         "corridas": {
           "items": {
             "$ref": "#/$defs/Corrida"
@@ -3205,6 +3397,15 @@
         "ano": {
           "title": "Ano",
           "type": "integer"
+        },
+        "cobertura_parcial": {
+          "default": [],
+          "description": "Estados com só alguns condados: as suas unidades são esses condados (FIPS), sem\n``total`` do estado.",
+          "items": {
+            "$ref": "#/$defs/CoberturaParcial"
+          },
+          "title": "Cobertura Parcial",
+          "type": "array"
         },
         "instante": {
           "format": "date-time",
@@ -3960,6 +4161,15 @@
           "title": "Historico",
           "type": "array"
         },
+        "historico_geografia": {
+          "default": [],
+          "description": "Histórico de voto (habituais, antecipação, voto novo) por condado e distrito e por\nfaixa larga. Vazio nos anos sem histórico individual de referência.",
+          "items": {
+            "$ref": "#/$defs/LinhaHistoricoGeografia"
+          },
+          "title": "Historico Geografia",
+          "type": "array"
+        },
         "metadados": {
           "$ref": "#/$defs/Metadados"
         },
@@ -4015,6 +4225,15 @@
             "$ref": "#/$defs/LinhaEstadoNacional"
           },
           "title": "Estados",
+          "type": "array"
+        },
+        "estados_sem_dados": {
+          "default": [],
+          "description": "Estados prioritários sem ficheiro, para o site não os mostrar como \"ainda sem dados\".",
+          "items": {
+            "$ref": "#/$defs/EstadoSemDados"
+          },
+          "title": "Estados Sem Dados",
           "type": "array"
         },
         "metadados": {
