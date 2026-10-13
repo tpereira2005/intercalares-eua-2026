@@ -1,0 +1,1 @@
+"""Recolha de sondagens."""
