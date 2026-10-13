@@ -453,6 +453,75 @@ export interface PontoHistoricoCorrida {
   prob_d: number;
 }
 /**
+ * Pontos por ordem cronológica (o mais recente no fim), um por projeção guardada.
+ *
+ * Para o ficheiro não crescer sem limite ao longo da noite, dois pontos guardados
+ * seguidos distam pelo menos ``intervalo_minutos``; o último ponto é sempre a projeção
+ * mais recente.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "HistoricoNoite".
+ */
+export interface HistoricoNoite {
+  ano: number;
+  corte_prior: string;
+  intervalo_minutos: number;
+  metadados: Metadados;
+  /**
+   * @minItems 1
+   */
+  pontos: [PontoNoite, ...PontoNoite[]];
+  prior_congelado: boolean;
+  reconstruido: boolean;
+}
+/**
+ * Uma projeção reduzida ao necessário para desenhar a evolução da noite.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoNoite".
+ */
+export interface PontoNoite {
+  camara: PontoNoiteCamara;
+  /**
+   * Só as corridas que já têm votos contados.
+   */
+  corridas: PontoNoiteCorrida[];
+  desvio_nacional: number;
+  gerado_em: string;
+  /**
+   * Instante dos resultados usados (o mesmo de ``ProjecaoNoite.instante``).
+   */
+  instante: string;
+  senado: PontoNoiteCamara;
+  votos_contados: number;
+}
+/**
+ * Resumo de uma câmara num instante da noite.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoNoiteCamara".
+ */
+export interface PontoNoiteCamara {
+  corridas_com_votos: number;
+  lugares_d_mediana: number;
+  lugares_d_p10: number;
+  lugares_d_p90: number;
+  prob_controlo_d: number;
+  prob_controlo_r: number;
+}
+/**
+ * Uma corrida com votos contados num instante da noite.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoNoiteCorrida".
+ */
+export interface PontoNoiteCorrida {
+  fracao_contada: number | null;
+  id: string;
+  margem_projetada: number;
+  prob_d: number;
+}
+/**
  * Uma entrada por data de corte, por ordem cronológica (a mais recente no fim).
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -940,6 +1009,16 @@ export interface ProjecaoNoite {
   instante: string;
   metadados: Metadados;
   notas: string[];
+  /**
+   * ``False`` quando o ponto de partida não é a previsão congelada (ensaio antes de 1 de
+   * novembro, ou repetição com a previsão de um backtest).
+   */
+  prior_congelado: boolean;
+  /**
+   * ``True`` quando os resultados parciais são uma reconstrução (ensaio ou repetição) e
+   * não a contagem real da noite.
+   */
+  reconstruido: boolean;
   semente: number;
   senado: ResumoCamaraNoite;
   simulacoes: number;
