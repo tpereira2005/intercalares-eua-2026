@@ -120,6 +120,29 @@ export function Avisos({ avisos }: { avisos: readonly string[] }) {
   );
 }
 
+const ITENS_LEITURA = [
+  "composicao",
+  "partido",
+  "antecipacao",
+  "mesmoDia",
+  "regras",
+  "presidenciais",
+] as const;
+
+/** O que os números dizem e o que não dizem, antes dos gráficos. */
+export function ComoLer() {
+  return (
+    <section className="rounded-md border border-rule bg-sheet px-[18px] py-3.5 text-sm">
+      <h2 className="rotulo mb-2">{t("votoAntecipado.leitura.titulo")}</h2>
+      <ul className="grid list-disc gap-x-8 gap-y-1.5 pl-5 text-ink-2 md:grid-cols-2">
+        {ITENS_LEITURA.map((item) => (
+          <li key={item}>{t(`votoAntecipado.leitura.itens.${item}`)}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 /** Página completa do rastreador de um estado. */
 export function PaginaEstado({
   vista,
@@ -158,6 +181,8 @@ export function PaginaEstado({
       <Indicadores vista={vista} />
 
       <Avisos avisos={vista.avisos} />
+
+      <ComoLer />
 
       <Rastreador
         vista={vista}

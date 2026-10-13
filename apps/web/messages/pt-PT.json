@@ -285,7 +285,39 @@
     },
     "notasCiclos": "Notas sobre os anos de comparação",
     "documentacao": "Metodologia completa",
-    "escolhaEstadoAria": "Estado"
+    "escolhaEstadoAria": "Estado",
+    "geografia": {
+      "sobrelinha": "Geografia · face a {ano} no mesmo dia",
+      "titulo": "Peso dos {faixa} anos em cada território",
+      "texto": "Quota da faixa nos votos antecipados de cada distrito ou condado, comparada com o mesmo dia do ciclo de {ano}, e a participação da faixa (votos sobre recenseados). Ordenado da maior subida para a maior descida.",
+      "metodo": "votos da faixa / votos da unidade até ao mesmo dia do ciclo; participação = votos da faixa / recenseados da faixa. Unidades com menos de {minimo} votos num dos anos aparecem no fim, a cinzento: com tão poucos votos, a quota varia muito ao acaso. Distritos no mapa de 2026 em todos os anos.",
+      "nivelAria": "Nível geográfico",
+      "faixaAria": "Faixa etária",
+      "niveis": {
+        "distrito": "Distrito",
+        "condado": "Condado"
+      },
+      "distrito": "Distrito\u00a0{n}",
+      "legenda": "Quota dos {faixa} anos por {nivel}, face a {ano}",
+      "quota": "Quota {ano}",
+      "diferenca": "Face a {ano}",
+      "taxa": "Participação",
+      "votos": "{n} votos",
+      "poucosVotos": "poucos votos",
+      "mais": "Ver os outros {n}",
+      "menos": "Mostrar só os primeiros"
+    },
+    "leitura": {
+      "titulo": "Como ler estes números",
+      "itens": {
+        "composicao": "Composição não é intenção de voto: os números dizem quem já votou, nunca em quem votou.",
+        "partido": "O partido é o de registo do eleitor, não o voto. Há registados num partido que votam noutro, e os não filiados dividem-se.",
+        "antecipacao": "Voto antecipado não é participação final. Uma faixa que vota mais cedo pode estar só a antecipar o voto; o painel do momento do voto separa quem antecipa de quem vota de novo.",
+        "mesmoDia": "As comparações são sempre no mesmo dia do ciclo. No início do período há poucos votos e as quotas mudam muito de um dia para o outro.",
+        "regras": "Regras e calendários mudam entre eleições (início do voto presencial, prazos do correio). As notas de cada ciclo indicam as diferenças conhecidas.",
+        "presidenciais": "A comparação principal é com a intercalar mais recente; as presidenciais têm um eleitorado diferente e servem só de referência."
+      }
+    }
   },
   "mapa": {
     "sobrelinha": "Voto antecipado · 50 estados e DC",
