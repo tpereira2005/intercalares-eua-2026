@@ -149,6 +149,7 @@ def escrever_sondagens(
         anterior=anterior,
         fontes=fontes(agora),
         gerado_em=agora,
+        referencia_generico=publicar_sondagens.ler_referencia_generico(),
     )
     caminho.parent.mkdir(parents=True, exist_ok=True)
     caminho.write_text(ficheiro.model_dump_json(), encoding="utf-8")

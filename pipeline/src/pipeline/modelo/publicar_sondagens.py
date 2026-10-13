@@ -6,8 +6,10 @@ modelo. A série do voto genérico acumula-se de execução em execução: a Wik
 só publica os valores atuais dos agregadores, não as sondagens individuais.
 """
 
+import csv
 from collections.abc import Iterable, Sequence
 from datetime import date, datetime, timedelta
+from pathlib import Path
 
 from contratos.base import Fonte, Metadados
 from contratos.sondagens import (
@@ -27,6 +29,9 @@ from pipeline.modelo.previsao import Dados, sondagens_por_corrida
 POPULACOES = frozenset({"lv", "rv", "a", "?"})
 DIAS_SERIE = 150
 """A série diária da média começa, no máximo, este número de dias antes do corte."""
+
+REFERENCIA_GENERICO = Path("data/reference/modelo/voto_generico_2026.csv")
+"""Série reconstruída pelas revisões da Wikipédia (``jobs.referencia_voto_generico``)."""
 
 
 def _publicada(s: Sondagem, peso: float) -> SondagemPublicada:
@@ -76,18 +81,41 @@ def corrida(linha: LinhaModelo, lista: list[Sondagem], corte: date) -> Sondagens
     )
 
 
+def _ponto_generico(dia: date, agregadores: Sequence[tuple[str, float]]) -> PontoVotoGenerico:
+    return PontoVotoGenerico(
+        data=dia,
+        margem=sum(m for _, m in agregadores) / len(agregadores),
+        agregadores=tuple(ValorAgregador(nome=n, margem=m) for n, m in agregadores),
+    )
+
+
+def ler_referencia_generico(caminho: Path = REFERENCIA_GENERICO) -> list[PontoVotoGenerico]:
+    """Série reconstruída do voto genérico (vazia se o ficheiro não existir)."""
+    if not caminho.exists():
+        return []
+    por_dia: dict[date, list[tuple[str, float]]] = {}
+    with caminho.open(encoding="utf-8", newline="") as f:
+        for linha in csv.DictReader(f):
+            dia = date.fromisoformat(linha["data"])
+            por_dia.setdefault(dia, []).append((linha["agregador"], float(linha["margem"])))
+    return [_ponto_generico(d, v) for d, v in sorted(por_dia.items())]
+
+
 def voto_generico(
-    anterior: Iterable[PontoVotoGenerico], hoje: date, agregadores: Sequence[tuple[str, float]]
+    anterior: Iterable[PontoVotoGenerico],
+    hoje: date,
+    agregadores: Sequence[tuple[str, float]],
+    referencia: Iterable[PontoVotoGenerico] = (),
 ) -> tuple[PontoVotoGenerico, ...]:
-    """Acrescenta os valores de hoje à série (um dia repetido substitui o anterior)."""
-    pontos = {p.data: p for p in anterior if p.data <= hoje}
+    """Acrescenta os valores de hoje à série (um dia repetido substitui o anterior).
+
+    Os dias da ``referencia`` (reconstruída) só entram onde a série publicada não tem
+    valor: o que foi lido no próprio dia prevalece.
+    """
+    pontos = {p.data: p for p in referencia if p.data <= hoje}
+    pontos.update({p.data: p for p in anterior if p.data <= hoje})
     if agregadores:
-        valores = tuple(ValorAgregador(nome=n, margem=m) for n, m in agregadores)
-        pontos[hoje] = PontoVotoGenerico(
-            data=hoje,
-            margem=sum(m for _, m in agregadores) / len(agregadores),
-            agregadores=valores,
-        )
+        pontos[hoje] = _ponto_generico(hoje, agregadores)
     return tuple(pontos[d] for d in sorted(pontos))
 
 
@@ -101,6 +129,7 @@ def montar(
     anterior: SondagensCongresso | None,
     fontes: Iterable[Fonte],
     gerado_em: datetime,
+    referencia_generico: Iterable[PontoVotoGenerico] = (),
 ) -> SondagensCongresso:
     """Ficheiro das sondagens; ``linhas`` são as corridas disputadas com o lado de cada um."""
     por_corrida = sondagens_por_corrida(dados, ano, list(linhas))
@@ -120,6 +149,8 @@ def montar(
             amostra_maxima=metodo.AMOSTRA_MAXIMA,
             peso_partidaria=metodo.PESO_PARTIDARIA,
         ),
-        voto_generico=voto_generico(anterior.voto_generico if anterior else (), corte, agregadores),
+        voto_generico=voto_generico(
+            anterior.voto_generico if anterior else (), corte, agregadores, referencia_generico
+        ),
         corridas=corridas,
     )

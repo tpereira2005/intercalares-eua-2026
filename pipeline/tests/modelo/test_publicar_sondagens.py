@@ -1,6 +1,7 @@
 """Ficheiro das sondagens para o site: o mesmo método e as mesmas sondagens do modelo."""
 
 from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
 
 import pytest
 
@@ -10,7 +11,12 @@ from pipeline.modelo import media as metodo
 from pipeline.modelo.dados import LinhaModelo
 from pipeline.modelo.fontes.sondagens import Sondagem
 from pipeline.modelo.previsao import Dados
-from pipeline.modelo.publicar_sondagens import corrida, montar, voto_generico
+from pipeline.modelo.publicar_sondagens import (
+    corrida,
+    ler_referencia_generico,
+    montar,
+    voto_generico,
+)
 
 CORTE = date(2026, 10, 13)
 AGORA = datetime(2026, 10, 13, 7, tzinfo=UTC)
@@ -117,3 +123,19 @@ def test_montar_usa_so_perguntas_com_os_candidatos_reais() -> None:
     assert all(s.instituto != "Delta" for s in ficheiro.corridas[0].sondagens)
     assert ficheiro.metodo.meia_vida_dias == metodo.MEIA_VIDA_DIAS
     assert len(ficheiro.voto_generico) == 1
+
+
+def test_referencia_do_voto_generico_so_preenche_os_dias_em_falta(tmp_path: Path) -> None:
+    csv = tmp_path / "voto_generico.csv"
+    csv.write_text(
+        "data,revisao,agregador,margem\n2026-10-11,1,A,5\n2026-10-11,1,B,6\n2026-10-12,2,A,7\n",
+        encoding="utf-8",
+    )
+    referencia = ler_referencia_generico(csv)
+    assert [(p.data.day, p.margem) for p in referencia] == [(11, 5.5), (12, 7.0)]
+    lido = PontoVotoGenerico(
+        data=date(2026, 10, 12), margem=9.0, agregadores=(ValorAgregador(nome="A", margem=9.0),)
+    )
+    serie = voto_generico([lido], CORTE, [("A", 8.0)], referencia)
+    assert [(p.data.day, p.margem) for p in serie] == [(11, 5.5), (12, 9.0), (13, 8.0)]
+    assert ler_referencia_generico(tmp_path / "nao-existe.csv") == []
