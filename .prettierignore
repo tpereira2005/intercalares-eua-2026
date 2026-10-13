@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+uv.lock
+**/.next/
+**/out/
+**/dist/
+**/.wrangler/
+**/node_modules/
+.venv/
+packages/contratos/src/gerado/
+schemas/json/

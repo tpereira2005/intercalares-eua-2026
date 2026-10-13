@@ -1,0 +1,10 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Só estes pacotes podem correr scripts de instalação (binários nativos).
+onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver
+  - workerd
+  - sharp
