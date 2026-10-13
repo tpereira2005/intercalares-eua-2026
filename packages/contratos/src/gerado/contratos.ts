@@ -723,7 +723,7 @@ export interface LinhaGeografiaAgregada {
    * Faixa larga, nos estados com idade (Pensilvânia). As linhas por faixa têm
    * ``partido = "total"``; as linhas por partido têm ``faixa = "total"``.
    */
-  faixa: "18-29" | "30-49" | "50-64" | "65+" | "desconhecida" | "total";
+  faixa?: "18-29" | "30-49" | "50-64" | "65+" | "desconhecida" | "total";
   nivel: "condado" | "distrito";
   nome: string;
   partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
@@ -1228,7 +1228,7 @@ export interface VotoAntecipadoEstado {
    * Histórico de voto (habituais, antecipação, voto novo) por condado e distrito e por
    * faixa larga. Vazio nos anos sem histórico individual de referência.
    */
-  historico_geografia: LinhaHistoricoGeografia[];
+  historico_geografia?: LinhaHistoricoGeografia[];
   metadados: Metadados;
   reserva: LinhaReserva[];
   serie: PontoSerie[];
@@ -1244,7 +1244,7 @@ export interface VotoAntecipadoNacional {
   /**
    * Estados prioritários sem ficheiro, para o site não os mostrar como "ainda sem dados".
    */
-  estados_sem_dados: EstadoSemDados[];
+  estados_sem_dados?: EstadoSemDados[];
   metadados: Metadados;
   /**
    * Soma dos estados acompanhados (não é um total nacional).

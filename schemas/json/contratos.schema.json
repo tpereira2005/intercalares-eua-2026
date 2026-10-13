@@ -1794,8 +1794,7 @@
         "codigo",
         "nome",
         "partido",
-        "votos",
-        "faixa"
+        "votos"
       ],
       "title": "LinhaGeografiaAgregada",
       "type": "object"
@@ -3806,8 +3805,7 @@
         "reserva",
         "geografia",
         "cruzamentos",
-        "avisos",
-        "historico_geografia"
+        "avisos"
       ],
       "title": "VotoAntecipadoEstado",
       "type": "object"
@@ -3857,8 +3855,7 @@
         "ano",
         "estados",
         "votos",
-        "avisos",
-        "estados_sem_dados"
+        "avisos"
       ],
       "title": "VotoAntecipadoNacional",
       "type": "object"

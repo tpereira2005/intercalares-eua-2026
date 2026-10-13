@@ -8,7 +8,7 @@ e vêm já calculadas para que o site e a API não reimplementem a metodologia.
 from datetime import date
 from typing import Literal
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from contratos.base import Metadados, ModeloContrato
 from contratos.estados import CodigoEstado
@@ -178,6 +178,10 @@ class LinhaCruzamento(ModeloContrato):
 
 class VotoAntecipadoEstado(ModeloContrato):
     """Rastreador de voto antecipado de um estado, com a análise por idade."""
+
+    # Campo acrescentado depois da primeira versão: opcional no esquema JSON, para que os
+    # ficheiros já publicados continuem válidos (os modelos pydantic usam o valor por omissão).
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
 
     metadados: Metadados
     estado: CodigoEstado

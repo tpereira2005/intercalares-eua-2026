@@ -11,7 +11,7 @@ Maine) não aparecem: ``dimensoes`` diz quais existem.
 from datetime import date
 from typing import Literal
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from contratos.base import Metadados, ModeloContrato
 from contratos.estados import CodigoEstado
@@ -70,6 +70,10 @@ class LinhaComparacaoAgregada(ModeloContrato):
 
 
 class LinhaGeografiaAgregada(ModeloContrato):
+    # Campo acrescentado depois da primeira versão: opcional no esquema JSON, para que os
+    # ficheiros já publicados continuem válidos (os modelos pydantic usam o valor por omissão).
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
+
     ano: int
     nivel: Literal["condado", "distrito"]
     codigo: str
@@ -157,6 +161,10 @@ class EstadoSemDados(ModeloContrato):
 
 
 class VotoAntecipadoNacional(ModeloContrato):
+    # Campo acrescentado depois da primeira versão: opcional no esquema JSON, para que os
+    # ficheiros já publicados continuem válidos (os modelos pydantic usam o valor por omissão).
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
+
     metadados: Metadados
     ano: int
     estados: tuple[LinhaEstadoNacional, ...]
