@@ -1024,6 +1024,56 @@
       "title": "Fonte",
       "type": "object"
     },
+    "HistoricoNoite": {
+      "additionalProperties": false,
+      "description": "Pontos por ordem cronológica (o mais recente no fim), um por projeção guardada.\n\nPara o ficheiro não crescer sem limite ao longo da noite, dois pontos guardados\nseguidos distam pelo menos ``intervalo_minutos``, exceto os dois últimos: o último\nponto é sempre a projeção mais recente e substitui-se até haver um intervalo completo.",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "corte_prior": {
+          "format": "date",
+          "title": "Corte Prior",
+          "type": "string"
+        },
+        "intervalo_minutos": {
+          "exclusiveMinimum": 0,
+          "title": "Intervalo Minutos",
+          "type": "integer"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "pontos": {
+          "items": {
+            "$ref": "#/$defs/PontoNoite"
+          },
+          "minItems": 1,
+          "title": "Pontos",
+          "type": "array"
+        },
+        "prior_congelado": {
+          "title": "Prior Congelado",
+          "type": "boolean"
+        },
+        "reconstruido": {
+          "title": "Reconstruido",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "corte_prior",
+        "prior_congelado",
+        "reconstruido",
+        "intervalo_minutos",
+        "pontos"
+      ],
+      "title": "HistoricoNoite",
+      "type": "object"
+    },
     "HistoricoPrevisao": {
       "additionalProperties": false,
       "description": "Uma entrada por data de corte, por ordem cronológica (a mais recente no fim).",
@@ -2137,6 +2187,144 @@
       "title": "PontoHistoricoCorrida",
       "type": "object"
     },
+    "PontoNoite": {
+      "additionalProperties": false,
+      "description": "Uma projeção reduzida ao necessário para desenhar a evolução da noite.",
+      "properties": {
+        "camara": {
+          "$ref": "#/$defs/PontoNoiteCamara"
+        },
+        "corridas": {
+          "description": "Só as corridas que já têm votos contados.",
+          "items": {
+            "$ref": "#/$defs/PontoNoiteCorrida"
+          },
+          "title": "Corridas",
+          "type": "array"
+        },
+        "desvio_nacional": {
+          "title": "Desvio Nacional",
+          "type": "number"
+        },
+        "gerado_em": {
+          "format": "date-time",
+          "title": "Gerado Em",
+          "type": "string"
+        },
+        "instante": {
+          "description": "Instante dos resultados usados (o mesmo de ``ProjecaoNoite.instante``).",
+          "format": "date-time",
+          "title": "Instante",
+          "type": "string"
+        },
+        "senado": {
+          "$ref": "#/$defs/PontoNoiteCamara"
+        },
+        "votos_contados": {
+          "minimum": 0,
+          "title": "Votos Contados",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "instante",
+        "gerado_em",
+        "desvio_nacional",
+        "votos_contados",
+        "camara",
+        "senado",
+        "corridas"
+      ],
+      "title": "PontoNoite",
+      "type": "object"
+    },
+    "PontoNoiteCamara": {
+      "additionalProperties": false,
+      "description": "Resumo de uma câmara num instante da noite.",
+      "properties": {
+        "corridas_com_votos": {
+          "minimum": 0,
+          "title": "Corridas Com Votos",
+          "type": "integer"
+        },
+        "lugares_d_mediana": {
+          "title": "Lugares D Mediana",
+          "type": "integer"
+        },
+        "lugares_d_p10": {
+          "title": "Lugares D P10",
+          "type": "integer"
+        },
+        "lugares_d_p90": {
+          "title": "Lugares D P90",
+          "type": "integer"
+        },
+        "prob_controlo_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo D",
+          "type": "number"
+        },
+        "prob_controlo_r": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo R",
+          "type": "number"
+        }
+      },
+      "required": [
+        "prob_controlo_d",
+        "prob_controlo_r",
+        "lugares_d_mediana",
+        "lugares_d_p10",
+        "lugares_d_p90",
+        "corridas_com_votos"
+      ],
+      "title": "PontoNoiteCamara",
+      "type": "object"
+    },
+    "PontoNoiteCorrida": {
+      "additionalProperties": false,
+      "description": "Uma corrida com votos contados num instante da noite.",
+      "properties": {
+        "fracao_contada": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fracao Contada"
+        },
+        "id": {
+          "pattern": "^[A-Z]{2}-(\\d{2}|S|S-especial)$",
+          "title": "Id",
+          "type": "string"
+        },
+        "margem_projetada": {
+          "title": "Margem Projetada",
+          "type": "number"
+        },
+        "prob_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob D",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "prob_d",
+        "margem_projetada",
+        "fracao_contada"
+      ],
+      "title": "PontoNoiteCorrida",
+      "type": "object"
+    },
     "PontoSerie": {
       "additionalProperties": false,
       "description": "Votos acumulados até um dia do ciclo.",
@@ -2700,6 +2888,18 @@
           "title": "Notas",
           "type": "array"
         },
+        "prior_congelado": {
+          "default": true,
+          "description": "``False`` quando o ponto de partida é uma previsão ainda não congelada (por exemplo,\num ensaio antes de 1 de novembro).",
+          "title": "Prior Congelado",
+          "type": "boolean"
+        },
+        "reconstruido": {
+          "default": false,
+          "description": "``True`` quando os resultados parciais são uma reconstrução (ensaio ou repetição) e\nnão a contagem real da noite.",
+          "title": "Reconstruido",
+          "type": "boolean"
+        },
         "semente": {
           "title": "Semente",
           "type": "integer"
@@ -2718,6 +2918,8 @@
         "ano",
         "instante",
         "corte_prior",
+        "prior_congelado",
+        "reconstruido",
         "simulacoes",
         "semente",
         "desvio_nacional",

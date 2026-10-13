@@ -81,6 +81,14 @@ class ProjecaoNoite(ModeloContrato):
     corte_prior: date
     """Data de corte da previsão congelada usada como ponto de partida."""
 
+    prior_congelado: bool = True
+    """``False`` quando o ponto de partida é uma previsão ainda não congelada (por exemplo,
+    um ensaio antes de 1 de novembro)."""
+
+    reconstruido: bool = False
+    """``True`` quando os resultados parciais são uma reconstrução (ensaio ou repetição) e
+    não a contagem real da noite."""
+
     simulacoes: int = Field(gt=0)
     semente: int
     desvio_nacional: DesvioNacionalNoite
@@ -88,3 +96,58 @@ class ProjecaoNoite(ModeloContrato):
     senado: ResumoCamaraNoite
     corridas: tuple[ProjecaoCorridaNoite, ...]
     notas: tuple[str, ...]
+
+
+# --- Evolução ao longo da noite (gráficos) --------------------------------------------
+
+
+class PontoNoiteCamara(ModeloContrato):
+    """Resumo de uma câmara num instante da noite."""
+
+    prob_controlo_d: float = Probabilidade
+    prob_controlo_r: float = Probabilidade
+    lugares_d_mediana: int
+    lugares_d_p10: int
+    lugares_d_p90: int
+    corridas_com_votos: int = Field(ge=0)
+
+
+class PontoNoiteCorrida(ModeloContrato):
+    """Uma corrida com votos contados num instante da noite."""
+
+    id: str = Field(pattern=r"^[A-Z]{2}-(\d{2}|S|S-especial)$")
+    prob_d: float = Probabilidade
+    margem_projetada: float
+    fracao_contada: float | None = Field(ge=0.0, le=1.0)
+
+
+class PontoNoite(ModeloContrato):
+    """Uma projeção reduzida ao necessário para desenhar a evolução da noite."""
+
+    instante: AwareDatetime
+    """Instante dos resultados usados (o mesmo de ``ProjecaoNoite.instante``)."""
+
+    gerado_em: AwareDatetime
+    desvio_nacional: float
+    votos_contados: int = Field(ge=0)
+    camara: PontoNoiteCamara
+    senado: PontoNoiteCamara
+    corridas: tuple[PontoNoiteCorrida, ...]
+    """Só as corridas que já têm votos contados."""
+
+
+class HistoricoNoite(ModeloContrato):
+    """Pontos por ordem cronológica (o mais recente no fim), um por projeção guardada.
+
+    Para o ficheiro não crescer sem limite ao longo da noite, dois pontos guardados
+    seguidos distam pelo menos ``intervalo_minutos``, exceto os dois últimos: o último
+    ponto é sempre a projeção mais recente e substitui-se até haver um intervalo completo.
+    """
+
+    metadados: Metadados
+    ano: int
+    corte_prior: date
+    prior_congelado: bool
+    reconstruido: bool
+    intervalo_minutos: int = Field(gt=0)
+    pontos: tuple[PontoNoite, ...] = Field(min_length=1)
