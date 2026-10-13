@@ -74,7 +74,7 @@ function Indicadores({ vista }: { vista: VistaVotoAntecipado }) {
 }
 
 /** Escolha do estado, quando há mais de um com dados. */
-function EscolhaEstado({
+export function EscolhaEstado({
   atual,
   estados,
 }: {
@@ -99,6 +99,24 @@ function EscolhaEstado({
         </Link>
       ))}
     </nav>
+  );
+}
+
+/** Limitações conhecidas desta atualização, como o pipeline as escreve. */
+export function Avisos({ avisos }: { avisos: readonly string[] }) {
+  if (avisos.length === 0) return null;
+  return (
+    <aside
+      aria-label={t("votoAntecipado.avisosTitulo")}
+      className="rounded-md border border-dashed border-ink-3 bg-sheet px-[18px] py-3 text-sm"
+    >
+      <p className="rotulo mb-1.5">{t("votoAntecipado.avisosTitulo")}</p>
+      <ul className="flex list-disc flex-col gap-1 pl-5 text-ink-2">
+        {avisos.map((aviso) => (
+          <li key={aviso}>{aviso}</li>
+        ))}
+      </ul>
+    </aside>
   );
 }
 
@@ -139,19 +157,7 @@ export function PaginaEstado({
 
       <Indicadores vista={vista} />
 
-      {vista.avisos.length > 0 ? (
-        <aside
-          aria-label={t("votoAntecipado.avisosTitulo")}
-          className="rounded-md border border-dashed border-ink-3 bg-sheet px-[18px] py-3 text-sm"
-        >
-          <p className="rotulo mb-1.5">{t("votoAntecipado.avisosTitulo")}</p>
-          <ul className="flex list-disc flex-col gap-1 pl-5 text-ink-2">
-            {vista.avisos.map((aviso) => (
-              <li key={aviso}>{aviso}</li>
-            ))}
-          </ul>
-        </aside>
-      ) : null}
+      <Avisos avisos={vista.avisos} />
 
       <Rastreador
         vista={vista}

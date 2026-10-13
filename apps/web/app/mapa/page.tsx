@@ -9,12 +9,9 @@ export const metadata: Metadata = { title: t("seccoes.mapa.titulo") };
 
 export default function Pagina() {
   // Os estados sem ficheiro aparecem a tracejado: o mapa fica pronto para vários estados.
-  const todas = carregarTodas();
-  const resumos = resumirTodos(todas);
+  const resumos = resumirTodos(carregarTodas());
   const anoBase = resumos.find((r) => r.anoBase !== null)?.anoBase ?? 2022;
-  const caminhos = Object.fromEntries(
-    todas.individuais.map((v) => [v.estado, caminhoEstado(v.estado)]),
-  );
+  const caminhos = Object.fromEntries(resumos.map((r) => [r.estado, caminhoEstado(r.estado)]));
   return (
     <div className="flex flex-col gap-4">
       <header className="min-w-0">
