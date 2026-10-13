@@ -5,6 +5,7 @@ import {
   formatarData,
   formatarDataCurta,
   formatarDataHora,
+  formatarDuracao,
   formatarHora,
   formatarDiaCiclo,
   formatarMargem,
@@ -81,5 +82,14 @@ describe("formatação pt-PT", () => {
 
   it("escreve a hora na costa leste", () => {
     expect(formatarHora(new Date("2026-11-04T02:34:00Z"))).toBe("21:34");
+  });
+
+  it("escreve durações curtas", () => {
+    const min = 60_000;
+    expect(formatarDuracao(30_000)).toBe("menos de 1 min");
+    expect(formatarDuracao(9 * min)).toBe("9 min");
+    expect(formatarDuracao(134 * min)).toBe("2 h 14 min");
+    expect(formatarDuracao(120 * min)).toBe("2 h");
+    expect(formatarDuracao((3 * 1440 + 4 * 60 + 5) * min)).toBe("3 d 4 h");
   });
 });

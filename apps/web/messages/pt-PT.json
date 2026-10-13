@@ -679,5 +679,20 @@
       "senado": "Senado",
       "ligacao": "Ver a noite eleitoral"
     }
+  },
+  "fecho": {
+    "sobrelinha": "Noite eleitoral · hora de Lisboa",
+    "titulo": "Quando fecham as urnas",
+    "texto": "Hora a que fecha a maior parte das urnas em cada estado, em hora de Lisboa (3 para 4 de novembro), com as corridas a seguir. Os resultados só começam a chegar depois do fecho.",
+    "metodo": "horários oficiais de cada estado, compilados pela fonte. Em estados com dois fusos, indica-se também a hora das últimas urnas. As corridas a seguir são as do Senado e os distritos que a previsão não dá como sólidos.",
+    "aCalcular": "A calcular o próximo fecho…",
+    "todasFechadas": "Todas as urnas já fecharam.",
+    "proximo": "até ao próximo fecho, às {hora} em Lisboa: {estados}.",
+    "todas": "(últimas urnas às {hora})",
+    "confirmar": "(horário por confirmar)",
+    "senado": "Senado: {favorito}",
+    "senadoEspecial": "Senado (eleição especial): {favorito}",
+    "distrito": "1 distrito em disputa",
+    "distritos": "{n} distritos em disputa"
   }
 }
