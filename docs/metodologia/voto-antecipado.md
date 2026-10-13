@@ -75,7 +75,13 @@ Eleitores que votaram na eleição de referência (por qualquer método) e ainda
 - Os indicadores mostram com o mesmo destaque sinais favoráveis a qualquer partido.
 - O que é composição e o que é participação nunca se apresenta como preferência de voto: o efeito na margem (plano, secção 6.4) é estimado na Fase 2, com calibração e backtests simétricos, e não é assumido aqui.
 
-## 6. Limitações conhecidas
+## 6. Privacidade
+
+- O painel individual (com o `ncid`) só existe em memória e em `data/cache/`, que não é versionado. Os cubos e o ficheiro publicado têm apenas contagens; os testes confirmam que não há colunas identificadoras (`ncid`, nomes, moradas, data ou ano de nascimento, idade exata) nem nos cubos versionados nem no JSON.
+- **Células pequenas**: não se publica nenhuma linha cuja população (recenseados, ou eleitores habituais na reserva) esteja entre 1 e 9. Na prática são quase só células da faixa etária desconhecida. Os totais são calculados antes, por isso continuam a contar toda a gente.
+- As contagens de votos pequenas (por exemplo, três votos de 18-29 anos num condado no início do ciclo) mantêm-se: são o próprio sinal do rastreador, e a NCSBE publica os mesmos registos de forma nominal e diária, pelo que agregá-los não acrescenta informação sobre ninguém.
+
+## 7. Limitações conhecidas
 
 - **Mudanças de regras**: em 2024 passou a ser obrigatória a identificação com fotografia e o correio passou a ter de chegar até ao fecho das urnas; em 2018 e 2022 havia três dias de tolerância. As séries até ao dia da eleição não são afetadas pela tolerância, mas o total final de correio sim.
 - **2024 é presidencial**, teve o furacão Helene no oeste do estado e o envio dos boletins por correio atrasou cerca de duas semanas por ordem judicial: é uma referência de ritmo do voto presencial, não de nível nem do correio.
@@ -84,7 +90,7 @@ Eleitores que votaram na eleição de referência (por qualquer método) e ainda
 - **Denominador de 2026**: o ficheiro de eleitores é semanal e não inclui ainda quem se recensear durante o voto antecipado; esses eleitores entram pelo boletim.
 - **Histórico**: o ficheiro individual guarda cerca de dez anos (desde 2016) e inclui eleitores removidos; os totais de votos antecipados conferem com os ficheiros de boletins a menos de 0,3% (secção 1).
 
-## 7. Reprodução
+## 8. Reprodução
 
 ```sh
 # cubos de referência (uma vez; descarrega cerca de 5 GB)

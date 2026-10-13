@@ -30,6 +30,10 @@ INICIO_SERIE = 60
 """Primeiro dia das séries (dias antes da eleição). Antes disto há muito poucos votos."""
 
 CASAS_DECIMAIS = 6
+LIMIAR_POPULACAO = 10
+"""Linhas cuja população (recenseados ou eleitores habituais) fica entre 1 e este limiar
+menos um não são publicadas: são células sem valor analítico (quase sempre a faixa
+desconhecida) e reduzem o risco de reidentificação. Os totais são calculados antes."""
 DIMENSOES_CRUZAMENTO = ("partido", "raca", "etnia", "genero", "modalidade")
 
 
@@ -46,8 +50,14 @@ def _arredondar(valor: Any) -> Any:
     return valor
 
 
-def _linhas(tabela: pl.DataFrame, **fixos: Any) -> Iterable[dict[str, Any]]:
-    for linha in tabela.iter_rows(named=True):
+def _suprimir(tabela: pl.DataFrame, coluna: str) -> pl.DataFrame:
+    return tabela.filter((pl.col(coluna) == 0) | (pl.col(coluna) >= LIMIAR_POPULACAO))
+
+
+def _linhas(
+    tabela: pl.DataFrame, *, populacao: str = "registados", **fixos: Any
+) -> Iterable[dict[str, Any]]:
+    for linha in _suprimir(tabela, populacao).iter_rows(named=True):
         yield {**fixos, **{k: _arredondar(v) for k, v in linha.items()}}
 
 
@@ -140,7 +150,10 @@ def montar(
         tabela = ind.reserva(c.demografico, d)
         tabela = ind.com_total(tabela, "partido", ("habituais", "ja_votaram", "restantes"))
         tabela = ind.com_total(tabela, "faixa", ("habituais", "ja_votaram", "restantes"))
-        reserva.extend(LinhaReserva.model_validate(x) for x in _linhas(tabela, ano=c.eleicao.ano))
+        reserva.extend(
+            LinhaReserva.model_validate(x)
+            for x in _linhas(tabela, populacao="habituais", ano=c.eleicao.ano)
+        )
 
     geografia: list[LinhaGeografia] = []
     for c in todos:
