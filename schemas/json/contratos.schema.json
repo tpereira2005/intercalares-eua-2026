@@ -617,6 +617,35 @@
       "title": "CicloVotoAntecipado",
       "type": "object"
     },
+    "CoberturaParcial": {
+      "additionalProperties": false,
+      "description": "Estado de que só se acompanham alguns condados.",
+      "properties": {
+        "condados": {
+          "description": "FIPS dos condados com fonte. Os outros condados do estado não têm dados: não estão\npor apurar, estão fora da recolha.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Condados",
+          "type": "array"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "nota": {
+          "title": "Nota",
+          "type": "string"
+        }
+      },
+      "required": [
+        "estado",
+        "condados",
+        "nota"
+      ],
+      "title": "CoberturaParcial",
+      "type": "object"
+    },
     "CodigoEstado": {
       "description": "Código postal de duas letras de cada estado e do Distrito de Colúmbia.",
       "enum": [
@@ -1382,6 +1411,16 @@
             "governador"
           ],
           "title": "Cargo",
+          "type": "string"
+        },
+        "cobertura": {
+          "default": "estado",
+          "description": "``condados``: os votos são só dos condados acompanhados, não do estado inteiro.",
+          "enum": [
+            "estado",
+            "condados"
+          ],
+          "title": "Cobertura",
           "type": "string"
         },
         "distrito": {
@@ -3267,6 +3306,24 @@
           "title": "Avisos",
           "type": "array"
         },
+        "cobertura": {
+          "default": "estado",
+          "enum": [
+            "estado",
+            "condados"
+          ],
+          "title": "Cobertura",
+          "type": "string"
+        },
+        "condados_cobertos": {
+          "default": [],
+          "description": "FIPS dos condados incluídos, quando ``cobertura = \"condados\"``.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Condados Cobertos",
+          "type": "array"
+        },
         "corridas": {
           "items": {
             "$ref": "#/$defs/Corrida"
@@ -3340,6 +3397,15 @@
         "ano": {
           "title": "Ano",
           "type": "integer"
+        },
+        "cobertura_parcial": {
+          "default": [],
+          "description": "Estados com só alguns condados: as suas unidades são esses condados (FIPS), sem\n``total`` do estado.",
+          "items": {
+            "$ref": "#/$defs/CoberturaParcial"
+          },
+          "title": "Cobertura Parcial",
+          "type": "array"
         },
         "instante": {
           "format": "date-time",
