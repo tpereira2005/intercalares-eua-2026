@@ -50,3 +50,32 @@ jobs:
           name: voto-antecipado-nc
           path: data/publicado/voto-antecipado
           retention-days: 30
+
+  # Publica o JSON num asset de uma Release fixa, substituído a cada execução: o build do
+  # site descarrega-o daí. Assim não há commits a cada duas horas e continua a custo zero.
+  # Job separado para que só ele tenha permissão de escrita, sem código de terceiros.
+  publicar:
+    name: Publicar nc.json
+    needs: carolina-do-norte
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ETIQUETA: dados-voto-antecipado
+    steps:
+      - name: Descarregar o resultado
+        run: gh run download "$GITHUB_RUN_ID" --name voto-antecipado-nc --dir resultado
+      - name: Validar
+        run: jq -e '.estado == "NC" and (.ciclos | length) > 0' resultado/nc.json
+      - name: Substituir o asset da Release
+        run: |
+          if ! gh release view "$ETIQUETA" > /dev/null 2>&1; then
+            gh release create "$ETIQUETA" --title "Dados do voto antecipado" --latest=false \
+              --notes "Ficheiros publicados pelo workflow Voto antecipado. Substituídos a cada execução; só contagens agregadas."
+          fi
+          gh release upload "$ETIQUETA" resultado/nc.json --clobber

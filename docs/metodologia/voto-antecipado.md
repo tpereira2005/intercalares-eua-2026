@@ -101,3 +101,5 @@ uv run python -m pipeline.jobs.voto_antecipado_nc --saida data/publicado/voto-an
 ```
 
 O formato do ficheiro publicado é o contrato `VotoAntecipadoEstado` (`schemas/src/contratos/voto_antecipado.py`).
+
+No GitHub Actions, o ficheiro de 2026 é publicado como asset `nc.json` da Release fixa `dados-voto-antecipado`, substituído a cada execução; o build do site descarrega-o daí.
