@@ -551,6 +551,7 @@ name = "pipeline"
 version = "0.1.0"
 source = { editable = "pipeline" }
 dependencies = [
+    { name = "certifi" },
     { name = "contratos" },
     { name = "httpx" },
     { name = "numpy" },
@@ -561,6 +562,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "certifi", specifier = ">=2026.7.22" },
     { name = "contratos", editable = "schemas" },
     { name = "httpx", specifier = ">=0.28" },
     { name = "numpy", specifier = ">=2.5.4" },

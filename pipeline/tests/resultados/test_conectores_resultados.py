@@ -1,8 +1,11 @@
 """Conectores de resultados lidos sobre excertos reais dos ficheiros oficiais (agregados
 públicos por condado, sem dados de eleitores)."""
 
+import base64
 import functools
+import hashlib
 import http.server
+import ssl
 import threading
 import zipfile
 from collections.abc import Iterator
@@ -13,7 +16,9 @@ import pytest
 
 from contratos.base import Fonte
 from contratos.estados import CodigoEstado
+from pipeline.comum.descarga import contexto_tls
 from pipeline.comum.erros import ErroDescarga
+from pipeline.connectors.results.ak.conector import ConectorAK
 from pipeline.connectors.results.clarity.conector import CAROLINA_DO_SUL, IOWA
 from pipeline.connectors.results.comum import identificar_corrida, partido
 from pipeline.connectors.results.fl.conector import ConectorFL
@@ -225,3 +230,57 @@ def test_recolha_publica_so_quando_a_fonte_muda(espelho: str, tmp_path: Path) ->
     assert executar(recolha, [ConectorFL()], intervalo=0, ciclos=2) == 2
     assert len(list((tmp_path / "brutos" / "fl").iterdir())) == 2  # "atual" e um retrato
     assert len(list((tmp_path / "brutos" / "parciais").iterdir())) == 1
+
+
+def test_alasca_2024_primeira_escolha_por_tipo_de_voto() -> None:
+    leitura = ConectorAK().ler(DADOS / "ak", date(2024, 11, 5))
+    assert [c.id for c in leitura.corridas] == ["AK-00"]  # a presidencial fica de fora
+    assert leitura.corridas[0].distrito == 0
+    totais = _totais(leitura, "AK-00")
+    assert totais["Begich, Nick"] == 1859
+    assert totais["Peltola, Mary S."] == 1825
+    assert leitura.modalidades is not None
+    begich = leitura.modalidades.filter(leitura.modalidades["candidato"] == "Begich, Nick")
+    assert begich["votos"].sum() == 1859
+    assert dict(begich.select("modalidade", "votos").iter_rows())["correio"] == 1447
+    assert leitura.unidades.row(0, named=True)["reportadas"] == 4
+
+
+def test_alasca_seccao_sem_boletins_nao_esta_apurada(tmp_path: Path) -> None:
+    texto = (DADOS / "ak" / "seccoes.csv").read_text(encoding="utf-8")
+    linhas = texto.splitlines()
+    begich = next(x for x in linhas if '"U.S. Representative","",1,"",517' in x)
+    vazia = begich.replace('"01-600 Ketchikan No. 1"', '"99-999 Exemplo"').split(",")
+    # total_ballots, total_votes e os votos por tipo a zero.
+    vazia = [*vazia[:17], *["0"] * (len(vazia) - 18), ""]
+    (tmp_path / "seccoes.csv").write_text("\n".join([*linhas, ",".join(vazia)]), "utf-8")
+    leitura = ConectorAK().ler(tmp_path, date(2024, 11, 5))
+    unidade = leitura.unidades.row(0, named=True)
+    assert (unidade["reportadas"], unidade["totais"]) == (4, 5)
+
+
+@pytest.mark.parametrize(
+    ("estado", "nome", "esperado"),
+    [
+        (CodigoEstado.AK, "U.S. Representative", "AK-00"),
+        (CodigoEstado.WY, "US House of Representatives", "WY-00"),
+        (CodigoEstado.NC, "U.S. Representative", None),
+    ],
+)
+def test_lugar_unico_na_camara(estado: CodigoEstado, nome: str, esperado: str | None) -> None:
+    desc = identificar_corrida(estado, nome)
+    assert (desc.id if desc else None) == esperado
+
+
+def test_intermedio_do_alasca_esta_fixado_e_carrega() -> None:
+    pem = (
+        Path(__file__).parents[2] / "src" / "pipeline" / "comum" / "dados" / "intermedios.pem"
+    ).read_text("ascii")
+    corpo = "".join(
+        x for x in pem.split("-----BEGIN CERTIFICATE-----")[1].split("-----END")[0].split()
+    )
+    digest = hashlib.sha256(base64.b64decode(corpo)).hexdigest().upper()
+    assert digest == ("D160E2DE4E56CB10B66C1CB0ADCB79CF93C78DCD9DB30C2018220262C04063F9")
+    contexto = contexto_tls()
+    assert contexto.verify_mode == ssl.CERT_REQUIRED
+    assert contexto.check_hostname

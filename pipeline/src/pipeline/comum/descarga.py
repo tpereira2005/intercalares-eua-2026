@@ -7,17 +7,38 @@ sobrecarregamos os servidores estaduais.
 """
 
 import json
+import os
+import ssl
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import cache
+from importlib.resources import files
 from pathlib import Path
 
+import certifi
 import httpx
 
 from pipeline.comum.erros import ErroBloqueio, ErroDescarga
 
 USER_AGENT = "intercalares-eua-2026/0.1 (+https://github.com/tpereira2005/intercalares-eua-2026)"
 TAMANHO_BLOCO = 1 << 20
+
+
+@cache
+def contexto_tls() -> ssl.SSLContext:
+    """Contexto TLS normal (``certifi``, ou ``SSL_CERT_FILE`` quando definido) mais os
+    certificados intermédios de ``comum/dados/intermedios.pem``.
+
+    Alguns servidores oficiais enviam o intermédio errado (o do Alasca, a 13 de outubro de
+    2026). Os navegadores resolvem isto descarregando o intermédio que o próprio certificado
+    indica (AIA); aqui junta-se esse intermédio público, verificado contra uma raiz já
+    confiável. A verificação do certificado e do nome continua igual.
+    """
+    contexto = ssl.create_default_context(cafile=os.environ.get("SSL_CERT_FILE") or certifi.where())
+    intermedios = files("pipeline.comum").joinpath("dados/intermedios.pem").read_text("ascii")
+    contexto.load_verify_locations(cadata=intermedios)
+    return contexto
 
 
 def verificar_resposta(resposta: httpx.Response) -> None:

@@ -71,7 +71,7 @@ uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/v
 
 ### Resultados da noite eleitoral
 
-Conectores em `connectors/results/` (Carolina do Norte, Florida, Geórgia e, pelo sistema Clarity, Carolina do Sul e Iowa), contratos `ResultadosEstado`, `ResultadosNacional` e `ResultadosParciais` (entrada do Modelo C). Metodologia e limites em `docs/metodologia/resultados.md`.
+Conectores em `connectors/results/` (Carolina do Norte, Florida, Geórgia, Alasca e, pelo sistema Clarity, Carolina do Sul e Iowa), contratos `ResultadosEstado`, `ResultadosNacional` e `ResultadosParciais` (entrada do Modelo C). Metodologia e limites em `docs/metodologia/resultados.md`.
 
 ```sh
 uv run python -m pipeline.jobs.resultados --duracao 600            # recolha a cada 30 s
