@@ -111,3 +111,13 @@ export function formatarDataHora(data: Date, fuso: string = FUSO_ELEICAO): strin
   }).format(data);
   return `${dia}, ${hora}`;
 }
+
+/** Hora na costa leste, em 24 horas, por exemplo "21:34". */
+export function formatarHora(data: Date, fuso: string = FUSO_ELEICAO): string {
+  return new Intl.DateTimeFormat(LOCALE, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone: fuso,
+  }).format(data);
+}

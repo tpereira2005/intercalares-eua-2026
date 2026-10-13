@@ -60,7 +60,13 @@ A página `/resultados/` lê o retrato da contagem que a recolha da noite public
 4. Cobertura ao vivo prevista: Carolina do Norte, Florida, Geórgia (só o total), Carolina do Sul e Iowa. As restantes corridas ao Senado e os distritos não sólidos aparecem numa tabela à parte, só com a previsão e a nota "sem dados ao vivo".
 5. Um ficheiro de ensaio (`reconstruido: true`, ou de um ano diferente do da previsão) leva o selo "Ensaio" e um aviso, e não se cruza com a previsão de 2026.
 
-As probabilidades ao vivo do estimador do modelo entram quando o seu contrato existir no `main`. A forma de atualizar a página durante a noite (a cada 30 segundos) está por decidir: hoje, a página só muda quando o site é reconstruído.
+A projeção do modelo (Release `dados-noite`, `projecao-noite-2026.json` e `historico-noite-2026.json`, contratos `ProjecaoNoite` e `HistoricoNoite`; ver `docs/metodologia/noite-eleitoral.md`) entra na mesma página:
+
+1. `dados:obter` descarrega-os para `apps/web/dados/noite/projecao.json` e `historico.json` (`URL_PROJECAO_NOITE`, `URL_HISTORICO_NOITE`; `DADOS_NOITE` muda a pasta lida). `lib/noite/carregar.ts` valida-os.
+2. O painel "Quem controla o Congresso" mostra, por câmara, a probabilidade de controlo, a previsão de partida, os lugares (mediana e intervalo de 80%), a distribuição e a evolução ao longo da noite. Nas tabelas, cada corrida mostra a probabilidade e a margem projetadas, com a previsão de partida por baixo.
+3. Um ficheiro reconstruído (ensaio) ou que parte de uma previsão não congelada leva sempre selo e aviso. A projeção só se junta à contagem do mesmo ano e da mesma natureza. A página inicial mostra um destaque só com uma projeção real.
+
+A forma de atualizar a página durante a noite (a cada 30 segundos) está por decidir: hoje, a página só muda quando o site é reconstruído.
 
 ### Cartões e SEO
 

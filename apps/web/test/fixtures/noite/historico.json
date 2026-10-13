@@ -1,0 +1,213 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-10-13T21:02:52.382556Z",
+    "fontes": [
+      {
+        "nome": "Escrutínio: previsão da Câmara e do Senado (corte de 2026-10-13)",
+        "url": "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/dados-previsao/previsao-2026.json",
+        "licenca": null,
+        "obtida_em": "2026-10-13T21:02:52.310616Z"
+      },
+      {
+        "nome": "Tony McGovern: resultados presidenciais de 2024 por condado",
+        "url": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "licenca": "MIT",
+        "obtida_em": "2026-10-13T21:02:52.310616Z"
+      },
+      {
+        "nome": "Ficheiro sintético",
+        "url": "https://example.org/",
+        "licenca": null,
+        "obtida_em": "2026-11-04T02:32:00Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "corte_prior": "2026-10-13",
+  "prior_congelado": false,
+  "reconstruido": false,
+  "intervalo_minutos": 5,
+  "pontos": [
+    {
+      "instante": "2026-11-04T01:10:00Z",
+      "gerado_em": "2026-10-13T21:02:50.720972Z",
+      "desvio_nacional": -0.5291684364613625,
+      "votos_contados": 2472158,
+      "camara": {
+        "prob_controlo_d": 0.9945,
+        "prob_controlo_r": 0.0055,
+        "lugares_d_mediana": 240,
+        "lugares_d_p10": 229,
+        "lugares_d_p90": 253,
+        "corridas_com_votos": 66
+      },
+      "senado": {
+        "prob_controlo_d": 0.69875,
+        "prob_controlo_r": 0.30125,
+        "lugares_d_mediana": 52,
+        "lugares_d_p10": 49,
+        "lugares_d_p90": 55,
+        "corridas_com_votos": 5
+      },
+      "corridas": [
+        {
+          "id": "FL-27",
+          "prob_d": 0.19275,
+          "margem_projetada": -6.902565773263628,
+          "fracao_contada": 0.2948207171314741
+        },
+        {
+          "id": "NC-01",
+          "prob_d": 0.61575,
+          "margem_projetada": 2.267858538124273,
+          "fracao_contada": 0.2975206611570248
+        },
+        {
+          "id": "NC-13",
+          "prob_d": 0.35675,
+          "margem_projetada": -2.8765008257614455,
+          "fracao_contada": 0.2918454935622318
+        },
+        {
+          "id": "GA-S",
+          "prob_d": 0.98975,
+          "margem_projetada": 8.966915179691874,
+          "fracao_contada": 0.00981869516808347
+        },
+        {
+          "id": "IA-S",
+          "prob_d": 0.497,
+          "margem_projetada": -0.045770343323335835,
+          "fracao_contada": 0.037002969693275205
+        },
+        {
+          "id": "NC-S",
+          "prob_d": 0.99675,
+          "margem_projetada": 9.698433077291279,
+          "fracao_contada": 0.006940963447591412
+        }
+      ]
+    },
+    {
+      "instante": "2026-11-04T02:05:00Z",
+      "gerado_em": "2026-10-13T21:02:51.562520Z",
+      "desvio_nacional": -0.4754443493378542,
+      "votos_contados": 4944590,
+      "camara": {
+        "prob_controlo_d": 1.0,
+        "prob_controlo_r": 0.0,
+        "lugares_d_mediana": 243,
+        "lugares_d_p10": 234,
+        "lugares_d_p90": 253,
+        "corridas_com_votos": 66
+      },
+      "senado": {
+        "prob_controlo_d": 0.74275,
+        "prob_controlo_r": 0.25725,
+        "lugares_d_mediana": 52,
+        "lugares_d_p10": 49,
+        "lugares_d_p90": 54,
+        "corridas_com_votos": 5
+      },
+      "corridas": [
+        {
+          "id": "FL-27",
+          "prob_d": 0.23875,
+          "margem_projetada": -5.013701667226169,
+          "fracao_contada": 0.5936254980079682
+        },
+        {
+          "id": "NC-01",
+          "prob_d": 0.3115,
+          "margem_projetada": -3.320808978455435,
+          "fracao_contada": 0.5950413223140496
+        },
+        {
+          "id": "NC-13",
+          "prob_d": 0.8975,
+          "margem_projetada": 10.008097577823024,
+          "fracao_contada": 0.592274678111588
+        },
+        {
+          "id": "GA-S",
+          "prob_d": 0.99175,
+          "margem_projetada": 8.811685632967777,
+          "fracao_contada": 0.019637654884063153
+        },
+        {
+          "id": "IA-S",
+          "prob_d": 0.518,
+          "margem_projetada": 0.17757652061252652,
+          "fracao_contada": 0.07400929247156635
+        },
+        {
+          "id": "NC-S",
+          "prob_d": 0.9995,
+          "margem_projetada": 9.575629840191711,
+          "fracao_contada": 0.013883394122518138
+        }
+      ]
+    },
+    {
+      "instante": "2026-11-04T03:20:00Z",
+      "gerado_em": "2026-10-13T21:02:52.382556Z",
+      "desvio_nacional": -2.111149254850446,
+      "votos_contados": 8241347,
+      "camara": {
+        "prob_controlo_d": 1.0,
+        "prob_controlo_r": 0.0,
+        "lugares_d_mediana": 244,
+        "lugares_d_p10": 238,
+        "lugares_d_p90": 251,
+        "corridas_com_votos": 66
+      },
+      "senado": {
+        "prob_controlo_d": 0.2395,
+        "prob_controlo_r": 0.7605,
+        "lugares_d_mediana": 49,
+        "lugares_d_p10": 47,
+        "lugares_d_p90": 51,
+        "corridas_com_votos": 5
+      },
+      "corridas": [
+        {
+          "id": "FL-27",
+          "prob_d": 1.0,
+          "margem_projetada": 2.6833004943762897,
+          "fracao_contada": 0.98
+        },
+        {
+          "id": "NC-01",
+          "prob_d": 0.0,
+          "margem_projetada": -24.628918986407378,
+          "fracao_contada": 0.98
+        },
+        {
+          "id": "NC-13",
+          "prob_d": 1.0,
+          "margem_projetada": 59.873801278710616,
+          "fracao_contada": 0.98
+        },
+        {
+          "id": "GA-S",
+          "prob_d": 0.0,
+          "margem_projetada": -38.35608502932856,
+          "fracao_contada": 0.98
+        },
+        {
+          "id": "IA-S",
+          "prob_d": 0.0,
+          "margem_projetada": -17.454752015675403,
+          "fracao_contada": 0.9799999999999999
+        },
+        {
+          "id": "NC-S",
+          "prob_d": 1.0,
+          "margem_projetada": 45.87965013487165,
+          "fracao_contada": 0.98
+        }
+      ]
+    }
+  ]
+}
