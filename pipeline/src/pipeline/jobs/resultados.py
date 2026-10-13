@@ -37,7 +37,13 @@ import httpx
 from contratos.base import Fonte
 from contratos.estados import CodigoEstado
 from contratos.resultados import ResultadosEstado
-from pipeline.comum.descarga import USER_AGENT, Descarga, descarregar, obter_texto
+from pipeline.comum.descarga import (
+    USER_AGENT,
+    Descarga,
+    contexto_tls,
+    descarregar,
+    obter_texto,
+)
 from pipeline.comum.erros import ErroPipeline
 from pipeline.connectors.results.comum import ConectorResultados
 from pipeline.connectors.results.registo import CONECTORES, nomes_geo
@@ -72,7 +78,10 @@ class Recolha:
     publicar: str | None = None
     cliente: httpx.Client = field(
         default_factory=lambda: httpx.Client(
-            timeout=httpx.Timeout(20.0), follow_redirects=True, headers={"User-Agent": USER_AGENT}
+            timeout=httpx.Timeout(20.0),
+            follow_redirects=True,
+            headers={"User-Agent": USER_AGENT},
+            verify=contexto_tls(),
         )
     )
     estados: dict[CodigoEstado, EstadoRecolha] = field(default_factory=dict)

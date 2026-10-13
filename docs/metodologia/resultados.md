@@ -6,17 +6,22 @@ O site mostra os resultados oficiais tal como cada estado os publica, recolhidos
 
 Verificámos a 13 de outubro de 2026 os feeds oficiais de resultados dos estados prioritários e das corridas ao Senado mais disputadas.
 
-| Estado            | Fonte                                                         | Formato                     | Condados                   | Tipo de voto | 2022 e 2024 no mesmo formato |
-| ----------------- | ------------------------------------------------------------- | --------------------------- | -------------------------- | ------------ | ---------------------------- |
-| Carolina do Norte | NCSBE, `er.ncsbe.gov/enr/<data>/data/results_<n>.txt`         | JSON, estado + 100 condados | Sim                        | Sim          | Sim                          |
-| Florida           | Division of Elections, `<data>_ElecResultsFL.txt`             | Texto por tabulações        | Sim                        | Não          | 2024 (o de 2022 está a zero) |
-| Geórgia           | Secretary of State, API `results.sos.ga.gov`                  | JSON                        | Só o total (159 ficheiros) | Sim          | Sim                          |
-| Carolina do Sul   | Clarity, `enr-scvotes.org` (bloqueado no Actions, ver abaixo) | XML (`detailxml.zip`)       | Sim                        | Sim          | Sim                          |
-| Iowa              | Clarity, `electionresults.iowa.gov/IA` (idem)                 | XML (`detailxml.zip`)       | Sim                        | Sim          | 2024                         |
-| Nebraska          | `electionresults.nebraska.gov` (CSV)                          | CSV                         | ·                          | ·            | Não (a acrescentar)          |
-| De fora           | Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada, Alasca   | ·                           | ·                          | ·            | ·                            |
+| Estado            | Fonte                                                                                           | Formato                     | Condados                        | Tipo de voto | 2022 e 2024 no mesmo formato |
+| ----------------- | ----------------------------------------------------------------------------------------------- | --------------------------- | ------------------------------- | ------------ | ---------------------------- |
+| Carolina do Norte | NCSBE, `er.ncsbe.gov/enr/<data>/data/results_<n>.txt`                                           | JSON, estado + 100 condados | Sim                             | Sim          | Sim                          |
+| Florida           | Division of Elections, `<data>_ElecResultsFL.txt`                                               | Texto por tabulações        | Sim                             | Não          | 2024 (o de 2022 está a zero) |
+| Geórgia           | Secretary of State, API `results.sos.ga.gov`                                                    | JSON                        | Só o total (159 ficheiros)      | Sim          | Sim                          |
+| Carolina do Sul   | Clarity, `enr-scvotes.org` (bloqueado no Actions, ver abaixo)                                   | XML (`detailxml.zip`)       | Sim                             | Sim          | Sim                          |
+| Iowa              | Clarity, `electionresults.iowa.gov/IA` (idem)                                                   | XML (`detailxml.zip`)       | Sim                             | Sim          | 2024                         |
+| Nebraska          | `electionresults.nebraska.gov` (CSV)                                                            | CSV                         | ·                               | ·            | Não (a acrescentar)          |
+| Alasca            | Division of Elections, `elections.alaska.gov/enr26/results/GA_ENR_Precinct_State_of_Alaska.csv` | CSV por secção              | Não (o Alasca não tem condados) | Sim          | 2024 (`ENRbyPrecinct.csv`)   |
+| De fora           | Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada                                             | ·                           | ·                               | ·            | ·                            |
 
-Os sites de resultados dos estados "de fora" recusam pedidos automáticos (Cloudflare, Incapsula, Akamai) ou não responderam. Não contornamos esses bloqueios. Para essas corridas, o site mostra a previsão e indica que os resultados ao vivo não estão disponíveis numa fonte oficial aberta.
+Os sites de resultados dos estados "de fora" recusam pedidos automáticos. Um diagnóstico a 13 de outubro de 2026, a partir do GitHub Actions, encontrou desafios anti-robô do Cloudflare no Arizona (`results.arizona.vote`), no Texas (`results.texas-election.com`), no Michigan (`mielections.us`) e no Ohio (`ohiosos.gov`), do Imperva no Nevada (`silverstateelection.nv.gov`) e do Incapsula na Pensilvânia (`electionreturns.pa.gov`; a API respondeu ao Actions nesse dia, mas o site está protegido contra robôs, por isso não a usamos). Não contornamos esses bloqueios. Para essas corridas, o site mostra a previsão e indica que os resultados ao vivo não estão disponíveis numa fonte oficial aberta.
+
+Os sites de resultados de vários condados grandes destes estados responderam ao Actions (Filadélfia, Harris e Travis no Texas, Pima no Arizona, Clark e Washoe no Nevada, Cuyahoga no Ohio). Dariam resultados parciais de corridas estaduais, só de alguns condados; a decisão de os usar está pendente. Os condados que usam o Clarity (Dallas, Tarrant, Oakland, entre outros) têm o mesmo bloqueio do AWS WAF descrito abaixo.
+
+O Alasca estava "de fora" por um erro de configuração, não por um bloqueio: o servidor envia o certificado intermédio errado e a verificação TLS falhava. Os navegadores resolvem isto descarregando o intermédio que o próprio certificado indica (AIA). O pipeline faz o mesmo de forma fixa: `pipeline/src/pipeline/comum/dados/intermedios.pem` guarda esse intermédio público da GlobalSign, verificado contra a raiz GlobalSign R46 e com a impressão digital fixada num teste, e `contexto_tls` junta-o aos certificados de confiança habituais. A verificação do certificado e do nome continua igual. O Alasca não tem condados, por isso só há o total do estado; uma secção conta como apurada quando tem boletins ou a fonte a marca como reportada.
 
 Os identificadores das eleições de 2026 na Carolina do Sul e no Iowa (sites Clarity) só existem quando o estado cria a página. O conector procura-os na lista `elections.json` que o próprio site publica (o Iowa usa-a; a Carolina do Sul devolve uma lista vazia, por isso o identificador acrescenta-se à mão em `connectors/results/clarity/conector.py`). Até lá, a recolha salta esses estados com um aviso.
 
@@ -44,6 +49,7 @@ Um estado que falha não para os outros: o último ficheiro válido continua pub
 - **Apuramento**: secções (ou condados, na Geórgia) com resultados sobre o total. Não é a fração do voto contado: na noite, o voto por correspondência pode chegar depois de todas as secções.
 - **Tipo de voto**: dia da eleição, antecipado presencial, correspondência e provisório, quando a fonte os separa.
 - **Voto preferencial** (Maine, Alasca): só a primeira volta.
+- **Lugar único na Câmara** (Alasca e outros estados com um só distrito): a corrida chama-se só "U.S. Representative" e o identificador é `XX-00`, como na previsão.
 
 ## 4. Ensaio geral
 

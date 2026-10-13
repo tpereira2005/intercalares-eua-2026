@@ -31,7 +31,7 @@ import httpx
 
 from contratos.base import Fonte
 from contratos.estados import CodigoEstado
-from pipeline.comum.descarga import USER_AGENT, descarregar, obter_texto
+from pipeline.comum.descarga import USER_AGENT, contexto_tls, descarregar, obter_texto
 from pipeline.connectors.results.registo import CONECTORES, DISTRITOS, nomes_geo
 from pipeline.transform.resultados import ensaio
 from pipeline.transform.resultados.montar import montar, nacional
@@ -57,7 +57,10 @@ def executar(
     fonte_url = "https://example.invalid/"
     if descarregar_:
         with httpx.Client(
-            timeout=60, follow_redirects=True, headers={"User-Agent": USER_AGENT}
+            timeout=60,
+            follow_redirects=True,
+            headers={"User-Agent": USER_AGENT},
+            verify=contexto_tls(),
         ) as cliente:
 
             def obter(url: str) -> str:
@@ -80,7 +83,9 @@ def executar(
     )
     falhas: list[str] = []
     distritos = {c.distrito for c in oficial.corridas if c.cargo == "camara"}
-    em_falta = sorted(set(range(1, DISTRITOS[estado] + 1)) - distritos)
+    # Nos estados com um só lugar, o distrito é 0 (``XX-00``).
+    esperados = {0} if DISTRITOS[estado] == 1 else set(range(1, DISTRITOS[estado] + 1))
+    em_falta = sorted(esperados - distritos)
     if em_falta:
         registo.warning("%s: distritos sem corrida no feed: %s", estado, em_falta)
     retratos = []

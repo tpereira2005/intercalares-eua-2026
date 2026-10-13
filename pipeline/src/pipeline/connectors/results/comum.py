@@ -77,6 +77,16 @@ _CAMARA = re.compile(
     r"UNITED STATES REPRESENTATIVE|US CONGRESS|CONGRESSIONAL DISTRICT)\b\D*?(\d{1,2})\b"
 )
 _CAMARA_DISTRITO_ANTES = re.compile(r"\b(\d{1,2})(ST|ND|RD|TH)? CONGRESSIONAL DISTRICT\b")
+_CAMARA_SEM_NUMERO = re.compile(
+    r"^(US REPRESENTATIVE|US HOUSE(?: OF REPRESENTATIVES)?|REPRESENTATIVE IN CONGRESS|"
+    r"UNITED STATES REPRESENTATIVE)$"
+)
+DISTRITO_UNICO = frozenset(
+    {CodigoEstado.AK, CodigoEstado.DE, CodigoEstado.ND, CodigoEstado.SD, CodigoEstado.VT,
+     CodigoEstado.WY}
+)  # fmt: skip
+"""Estados com um só lugar na Câmara: a corrida chama-se só "U.S. Representative" e o
+identificador é ``XX-00``, como na previsão."""
 _GOVERNADOR = re.compile(r"^GOVERNOR\b")
 _ESPECIAL = re.compile(r"\b(SPECIAL|UNEXPIRED)\b")
 
@@ -97,6 +107,9 @@ def identificar_corrida(estado: CodigoEstado, nome: str) -> DescricaoCorrida | N
         numero = m.group(1) if m.re is _CAMARA_DISTRITO_ANTES else m.group(2)
         distrito = int(numero)
         cargo, codigo = "camara", f"{distrito:02d}"
+    elif estado in DISTRITO_UNICO and _CAMARA_SEM_NUMERO.match(chave):
+        distrito = 0
+        cargo, codigo = "camara", "00"
     elif _GOVERNADOR.search(chave):
         cargo, codigo = "governador", "G"
     else:

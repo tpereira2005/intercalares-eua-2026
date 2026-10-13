@@ -59,6 +59,7 @@ jobs:
           - { estado: SC, data: "2022-11-08", clarity: true }
           - { estado: SC, data: "2024-11-05", clarity: true }
           - { estado: IA, data: "2024-11-05", clarity: true }
+          - { estado: AK, data: "2024-11-05" }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
