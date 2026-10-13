@@ -1,0 +1,36 @@
+ElectionDate	PartyCode	PartyName	RaceCode	RaceName	CountyCode	CountyName	Juris1num	Juris2num	Precincts	PrecinctsReporting	CanNameLast	CanNameFirst	CanNameMiddle	CanVotes
+11/05/2024	REP	Republican Party	USS	United States Senator	ALA	Alachua	   	 	63	63	Scott	Rick		54458
+11/05/2024	REP	Republican Party	USS	United States Senator	BAK	Baker	   	 	9	9	Scott	Rick		12415
+11/05/2024	REP	Republican Party	USS	United States Senator	DAD	Miami-Dade	   	 	714	714	Scott	Rick		585445
+11/05/2024	REP	Republican Party	USS	United States Senator	STJ	St. Johns	   	 	53	53	Scott	Rick		128463
+11/05/2024	DEM	Democratic Party	USS	United States Senator	ALA	Alachua	   	 	63	63	Mucarsel-Powell	Debbie		78314
+11/05/2024	DEM	Democratic Party	USS	United States Senator	BAK	Baker	   	 	9	9	Mucarsel-Powell	Debbie		2161
+11/05/2024	DEM	Democratic Party	USS	United States Senator	DAD	Miami-Dade	   	 	714	714	Mucarsel-Powell	Debbie		477598
+11/05/2024	DEM	Democratic Party	USS	United States Senator	STJ	St. Johns	   	 	53	53	Mucarsel-Powell	Debbie		64516
+11/05/2024	LPF	Libertarian Party	USS	United States Senator	ALA	Alachua	   	 	63	63	Bonoan	Feena		902
+11/05/2024	LPF	Libertarian Party	USS	United States Senator	BAK	Baker	   	 	9	9	Bonoan	Feena		85
+11/05/2024	LPF	Libertarian Party	USS	United States Senator	DAD	Miami-Dade	   	 	714	714	Bonoan	Feena		4737
+11/05/2024	LPF	Libertarian Party	USS	United States Senator	STJ	St. Johns	   	 	53	53	Bonoan	Feena		995
+11/05/2024	NPA	No Party Affiliation	USS	United States Senator	ALA	Alachua	   	 	63	63	Nguyen	Tuan	TQ	886
+11/05/2024	NPA	No Party Affiliation	USS	United States Senator	BAK	Baker	   	 	9	9	Nguyen	Tuan	TQ	46
+11/05/2024	NPA	No Party Affiliation	USS	United States Senator	DAD	Miami-Dade	   	 	714	714	Nguyen	Tuan	TQ	4088
+11/05/2024	NPA	No Party Affiliation	USS	United States Senator	STJ	St. Johns	   	 	53	53	Nguyen	Tuan	TQ	772
+11/05/2024	NPA	No Party Affiliation	USS	United States Senator	ALA	Alachua	   	 	63	63	Everidge	Ben		648
+11/05/2024	NPA	No Party Affiliation	USS	United States Senator	BAK	Baker	   	 	9	9	Everidge	Ben		90
+11/05/2024	NPA	No Party Affiliation	USS	United States Senator	DAD	Miami-Dade	   	 	714	714	Everidge	Ben		4244
+11/05/2024	NPA	No Party Affiliation	USS	United States Senator	STJ	St. Johns	   	 	53	53	Everidge	Ben		885
+11/05/2024	WRI	Write-in	USS	United States Senator	ALA	Alachua	   	 	63	63	Knepper	Howard		0
+11/05/2024	WRI	Write-in	USS	United States Senator	BAK	Baker	   	 	9	9	Knepper	Howard		0
+11/05/2024	WRI	Write-in	USS	United States Senator	DAD	Miami-Dade	   	 	714	714	Knepper	Howard		2
+11/05/2024	WRI	Write-in	USS	United States Senator	STJ	St. Johns	   	 	53	53	Knepper	Howard		0
+11/05/2024	REP	Republican Party	USR	Representative in Congress, District 3	ALA	Alachua	003	 	63	63	Cammack	Kat		54872
+11/05/2024	REP	Republican Party	USR	Representative in Congress, District 3	BAK	Baker	003	 	9	9	Cammack	Kat		12680
+11/05/2024	DEM	Democratic Party	USR	Representative in Congress, District 3	ALA	Alachua	003	 	63	63	Wells	Tom		78904
+11/05/2024	DEM	Democratic Party	USR	Representative in Congress, District 3	BAK	Baker	003	 	9	9	Wells	Tom		2014
+11/05/2024	REP	Republican Party	USR	Representative in Congress, District 5	STJ	St. Johns	005	 	47	47	Rutherford	John	H.	112885
+11/05/2024	DEM	Democratic Party	USR	Representative in Congress, District 5	STJ	St. Johns	005	 	47	47	McGovern	Jay		52872
+11/05/2024	WRI	Write-in	USR	Representative in Congress, District 5	STJ	St. Johns	005	 	47	47	Koniz	Gary	L.	8
+11/05/2024	REP	Republican Party	USR	Representative in Congress, District 26	DAD	Miami-Dade	026	 	129	129	Diaz-Balart	Mario		138467
+11/05/2024	DEM	Democratic Party	USR	Representative in Congress, District 26	DAD	Miami-Dade	026	 	129	129	Atkins	Joey		56161
+11/05/2024	REP	Republican Party	USR	Representative in Congress, District 27	DAD	Miami-Dade	027	 	211	211	Salazar	Maria	Elvira	199159
+11/05/2024	DEM	Democratic Party	USR	Representative in Congress, District 27	DAD	Miami-Dade	027	 	211	211	Báez-Geller	Lucia	 	130708

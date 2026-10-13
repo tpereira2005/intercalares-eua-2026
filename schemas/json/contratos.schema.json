@@ -391,6 +391,68 @@
       "title": "Backtest",
       "type": "object"
     },
+    "Candidatura": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Identificador estável dentro da corrida (o da fonte, ou o nome normalizado).",
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "nome": {
+          "minLength": 1,
+          "title": "Nome",
+          "type": "string"
+        },
+        "partido": {
+          "enum": [
+            "dem",
+            "rep",
+            "outro"
+          ],
+          "title": "Partido",
+          "type": "string"
+        },
+        "partido_fonte": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Rótulo do partido tal como a fonte o escreve (ex.: \"LIB\", \"Green\").",
+          "title": "Partido Fonte"
+        },
+        "por_modalidade": {
+          "default": [],
+          "description": "Votos no estado por tipo de voto, quando a fonte os separa (vazio se não).",
+          "items": {
+            "$ref": "#/$defs/VotosModalidade"
+          },
+          "title": "Por Modalidade",
+          "type": "array"
+        },
+        "votos": {
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "nome",
+        "partido",
+        "partido_fonte",
+        "votos",
+        "por_modalidade"
+      ],
+      "title": "Candidatura",
+      "type": "object"
+    },
     "CicloAgregado": {
       "additionalProperties": false,
       "properties": {
@@ -612,6 +674,182 @@
       ],
       "title": "CodigoEstado",
       "type": "string"
+    },
+    "ContagemModo": {
+      "additionalProperties": false,
+      "properties": {
+        "modo": {
+          "enum": [
+            "dia_eleicao",
+            "antecipado_presencial",
+            "correio",
+            "provisorio",
+            "outro"
+          ],
+          "title": "Modo",
+          "type": "string"
+        },
+        "votos_d": {
+          "minimum": 0,
+          "title": "Votos D",
+          "type": "integer"
+        },
+        "votos_outros": {
+          "minimum": 0,
+          "title": "Votos Outros",
+          "type": "integer"
+        },
+        "votos_r": {
+          "minimum": 0,
+          "title": "Votos R",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "modo",
+        "votos_d",
+        "votos_r",
+        "votos_outros"
+      ],
+      "title": "ContagemModo",
+      "type": "object"
+    },
+    "Corrida": {
+      "additionalProperties": false,
+      "properties": {
+        "candidatos": {
+          "items": {
+            "$ref": "#/$defs/Candidatura"
+          },
+          "minItems": 1,
+          "title": "Candidatos",
+          "type": "array"
+        },
+        "cargo": {
+          "enum": [
+            "senado",
+            "camara",
+            "governador"
+          ],
+          "title": "Cargo",
+          "type": "string"
+        },
+        "distrito": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Distrito da Câmara (0 nos estados com um só distrito); ``None`` nos outros cargos.",
+          "title": "Distrito"
+        },
+        "especial": {
+          "default": false,
+          "title": "Especial",
+          "type": "boolean"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "geografia": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ResultadoGeografico"
+          },
+          "title": "Geografia",
+          "type": "array"
+        },
+        "id": {
+          "description": "Os mesmos identificadores da previsão (``PrevisaoCongresso``): ``NC-S``, ``PA-08``,\n``AK-00``, ``OH-S-especial``; e ``XX-G`` para governador.",
+          "pattern": "^[A-Z]{2}-(S|G|\\d{2})(-especial)?$",
+          "title": "Id",
+          "type": "string"
+        },
+        "nome_fonte": {
+          "description": "Nome da corrida tal como a fonte o escreve.",
+          "title": "Nome Fonte",
+          "type": "string"
+        },
+        "notas": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notas",
+          "type": "array"
+        },
+        "tipo_unidade": {
+          "anyOf": [
+            {
+              "enum": [
+                "seccao",
+                "condado",
+                "municipio"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo Unidade"
+        },
+        "total": {
+          "description": "Total de votos válidos na corrida, incluindo candidatos não nomeados (write-in).",
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "unidades_reportadas": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unidades Reportadas"
+        },
+        "unidades_totais": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unidades Totais"
+        }
+      },
+      "required": [
+        "id",
+        "estado",
+        "cargo",
+        "distrito",
+        "especial",
+        "nome_fonte",
+        "candidatos",
+        "total",
+        "unidades_reportadas",
+        "unidades_totais",
+        "tipo_unidade",
+        "geografia",
+        "notas"
+      ],
+      "title": "Corrida",
+      "type": "object"
     },
     "DiaHistorico": {
       "additionalProperties": false,
@@ -996,6 +1234,106 @@
         "ritmo"
       ],
       "title": "LinhaComparacaoAgregada",
+      "type": "object"
+    },
+    "LinhaCorridaNacional": {
+      "additionalProperties": false,
+      "description": "Resumo de uma corrida para o painel da noite eleitoral.",
+      "properties": {
+        "apuramento": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Unidades reportadas / unidades totais, quando a fonte as indica.",
+          "title": "Apuramento"
+        },
+        "atualizado_fonte": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Atualizado Fonte"
+        },
+        "cargo": {
+          "enum": [
+            "senado",
+            "camara",
+            "governador"
+          ],
+          "title": "Cargo",
+          "type": "string"
+        },
+        "distrito": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Distrito"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "ficheiro": {
+          "description": "Ficheiro do estado com o detalhe (ex.: ``nc.json``).",
+          "title": "Ficheiro",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "total": {
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "votos_dem": {
+          "minimum": 0,
+          "title": "Votos Dem",
+          "type": "integer"
+        },
+        "votos_outros": {
+          "minimum": 0,
+          "title": "Votos Outros",
+          "type": "integer"
+        },
+        "votos_rep": {
+          "minimum": 0,
+          "title": "Votos Rep",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "estado",
+        "cargo",
+        "distrito",
+        "ficheiro",
+        "atualizado_fonte",
+        "total",
+        "votos_dem",
+        "votos_rep",
+        "votos_outros",
+        "apuramento"
+      ],
+      "title": "LinhaCorridaNacional",
       "type": "object"
     },
     "LinhaCruzamento": {
@@ -2171,6 +2509,210 @@
       "title": "PrevisaoCorrida",
       "type": "object"
     },
+    "ResultadoGeografico": {
+      "additionalProperties": false,
+      "description": "Resultado de uma corrida num condado (ou município) do estado.",
+      "properties": {
+        "codigo": {
+          "description": "FIPS de 5 dígitos para condados; código da fonte para municípios.",
+          "minLength": 1,
+          "title": "Codigo",
+          "type": "string"
+        },
+        "nivel": {
+          "enum": [
+            "condado",
+            "municipio"
+          ],
+          "title": "Nivel",
+          "type": "string"
+        },
+        "nome": {
+          "title": "Nome",
+          "type": "string"
+        },
+        "total": {
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "unidades_reportadas": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unidades Reportadas"
+        },
+        "unidades_totais": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unidades Totais"
+        },
+        "votos": {
+          "items": {
+            "$ref": "#/$defs/VotosCandidato"
+          },
+          "title": "Votos",
+          "type": "array"
+        }
+      },
+      "required": [
+        "nivel",
+        "codigo",
+        "nome",
+        "votos",
+        "total",
+        "unidades_reportadas",
+        "unidades_totais"
+      ],
+      "title": "ResultadoGeografico",
+      "type": "object"
+    },
+    "ResultadosEstado": {
+      "additionalProperties": false,
+      "properties": {
+        "atualizado_fonte": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Hora da última atualização declarada pela fonte, quando a fonte a indica.",
+          "title": "Atualizado Fonte"
+        },
+        "avisos": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Avisos",
+          "type": "array"
+        },
+        "corridas": {
+          "items": {
+            "$ref": "#/$defs/Corrida"
+          },
+          "title": "Corridas",
+          "type": "array"
+        },
+        "data_eleicao": {
+          "format": "date",
+          "title": "Data Eleicao",
+          "type": "string"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        }
+      },
+      "required": [
+        "metadados",
+        "estado",
+        "data_eleicao",
+        "atualizado_fonte",
+        "corridas",
+        "avisos"
+      ],
+      "title": "ResultadosEstado",
+      "type": "object"
+    },
+    "ResultadosNacional": {
+      "additionalProperties": false,
+      "properties": {
+        "avisos": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Avisos",
+          "type": "array"
+        },
+        "corridas": {
+          "items": {
+            "$ref": "#/$defs/LinhaCorridaNacional"
+          },
+          "title": "Corridas",
+          "type": "array"
+        },
+        "data_eleicao": {
+          "format": "date",
+          "title": "Data Eleicao",
+          "type": "string"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        }
+      },
+      "required": [
+        "metadados",
+        "data_eleicao",
+        "corridas",
+        "avisos"
+      ],
+      "title": "ResultadosNacional",
+      "type": "object"
+    },
+    "ResultadosParciais": {
+      "additionalProperties": false,
+      "description": "Um instante da contagem em todos os estados acompanhados (entrada do Modelo C).",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "instante": {
+          "format": "date-time",
+          "title": "Instante",
+          "type": "string"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "reconstruido": {
+          "default": false,
+          "description": "``True`` no ensaio: a ordem de chegada dos condados foi reconstruída a partir do\nresultado final, porque as fontes não guardam os retratos intermédios.",
+          "title": "Reconstruido",
+          "type": "boolean"
+        },
+        "unidades": {
+          "items": {
+            "$ref": "#/$defs/UnidadeContagem"
+          },
+          "title": "Unidades",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "instante",
+        "reconstruido",
+        "unidades"
+      ],
+      "title": "ResultadosParciais",
+      "type": "object"
+    },
     "ResumoCamara": {
       "additionalProperties": false,
       "description": "Controlo e distribuição de lugares de uma câmara.\n\n``lugares_d_*`` contam o lado democrata, incluindo independentes que ocupam esse lado\ne, no Senado, os lugares que não vão a votos. O lado republicano é o complemento.",
@@ -2284,6 +2826,116 @@
         "distribuicao"
       ],
       "title": "ResumoCamara",
+      "type": "object"
+    },
+    "UnidadeContagem": {
+      "additionalProperties": false,
+      "description": "Votos de uma corrida numa unidade geográfica, no formato do estimador ao vivo.",
+      "properties": {
+        "atualizado_em": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Atualizado Em"
+        },
+        "corrida": {
+          "description": "Identificador da previsão (só Senado e Câmara).",
+          "pattern": "^[A-Z]{2}-(S|\\d{2})(-especial)?$",
+          "title": "Corrida",
+          "type": "string"
+        },
+        "percentagem_contada": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Só quando a fonte publica a fração do voto esperado (nenhuma das atuais o faz).",
+          "title": "Percentagem Contada"
+        },
+        "por_modo": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ContagemModo"
+          },
+          "title": "Por Modo",
+          "type": "array"
+        },
+        "seccoes_reportadas": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seccoes Reportadas"
+        },
+        "seccoes_totais": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seccoes Totais"
+        },
+        "unidade": {
+          "description": "FIPS do condado, código do município, ou ``total`` quando a fonte só dá o total.\nUm condado partido por vários distritos aparece uma vez em cada distrito.",
+          "pattern": "^(\\d{5}|total|[A-Z0-9]{1,12})$",
+          "title": "Unidade",
+          "type": "string"
+        },
+        "votos_d": {
+          "description": "Candidatos com o rótulo democrata.",
+          "minimum": 0,
+          "title": "Votos D",
+          "type": "integer"
+        },
+        "votos_outros": {
+          "minimum": 0,
+          "title": "Votos Outros",
+          "type": "integer"
+        },
+        "votos_r": {
+          "minimum": 0,
+          "title": "Votos R",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "corrida",
+        "unidade",
+        "votos_d",
+        "votos_r",
+        "votos_outros",
+        "por_modo",
+        "percentagem_contada",
+        "seccoes_reportadas",
+        "seccoes_totais",
+        "atualizado_em"
+      ],
+      "title": "UnidadeContagem",
       "type": "object"
     },
     "VotoAntecipadoAgregado": {
@@ -2545,6 +3197,54 @@
         "avisos"
       ],
       "title": "VotoAntecipadoNacional",
+      "type": "object"
+    },
+    "VotosCandidato": {
+      "additionalProperties": false,
+      "properties": {
+        "candidato": {
+          "description": "``Candidatura.id``.",
+          "title": "Candidato",
+          "type": "string"
+        },
+        "votos": {
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "candidato",
+        "votos"
+      ],
+      "title": "VotosCandidato",
+      "type": "object"
+    },
+    "VotosModalidade": {
+      "additionalProperties": false,
+      "properties": {
+        "modalidade": {
+          "enum": [
+            "dia_eleicao",
+            "antecipado_presencial",
+            "correio",
+            "provisorio",
+            "outro"
+          ],
+          "title": "Modalidade",
+          "type": "string"
+        },
+        "votos": {
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "modalidade",
+        "votos"
+      ],
+      "title": "VotosModalidade",
       "type": "object"
     }
   },
