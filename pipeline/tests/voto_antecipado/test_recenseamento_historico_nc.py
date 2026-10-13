@@ -4,6 +4,8 @@ from pathlib import Path
 
 import polars as pl
 
+from pipeline.comum.condados import nomes
+from pipeline.connectors.early_vote.nc.codigos import CONDADOS, FIPS_CONDADO, NOME_CONDADO
 from pipeline.connectors.early_vote.nc.historico import ler_historico
 from pipeline.connectors.early_vote.nc.recenseamento import (
     COLUNAS_ATUAL,
@@ -102,3 +104,15 @@ def test_historico_fica_com_o_voto_antecipado_quando_ha_dois_registos(tmp_path: 
         ("H2", 2022): "antecipado",
         ("H3", 2018): "dia_eleicao",
     }
+
+
+def test_fips_dos_condados_nc_seguem_o_census() -> None:
+    """A posição na lista da NCSBE não dá o FIPS: McDowell é 37111 e Macon 37113."""
+    assert len(set(FIPS_CONDADO.values())) == len(CONDADOS) == 100
+    assert {k: FIPS_CONDADO[k] for k in ("MACON", "MADISON", "MARTIN", "MCDOWELL")} == {
+        "MACON": "37113",
+        "MADISON": "37115",
+        "MARTIN": "37117",
+        "MCDOWELL": "37111",
+    }
+    assert nomes("NC") == NOME_CONDADO

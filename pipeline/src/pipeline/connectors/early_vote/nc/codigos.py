@@ -1,6 +1,7 @@
 """Tradução dos códigos da NCSBE para as categorias normalizadas."""
 
 from pipeline.comum.categorias import EstadoBoletim, Etnia, Genero, Modalidade, Partido, Raca
+from pipeline.comum.condados import chave, fips_por_nome
 
 CONDADOS: tuple[str, ...] = (
     "ALAMANCE", "ALEXANDER", "ALLEGHANY", "ANSON", "ASHE", "AVERY", "BEAUFORT", "BERTIE",
@@ -17,10 +18,13 @@ CONDADOS: tuple[str, ...] = (
     "TRANSYLVANIA", "TYRRELL", "UNION", "VANCE", "WAKE", "WARREN", "WASHINGTON", "WATAUGA",
     "WAYNE", "WILKES", "WILSON", "YADKIN", "YANCEY",
 )  # fmt: skip
-"""Os 100 condados por ordem alfabética, que é também a ordem dos códigos FIPS."""
+"""Os 100 condados pela ordem dos identificadores da NCSBE (1 a 100), que é a ordem
+alfabética de como a NCSBE os escreve. Não é a ordem dos códigos FIPS: o Census ordena
+"McDowell" antes de "Macon", por isso a posição não serve para calcular o FIPS."""
 
-FIPS_CONDADO: dict[str, str] = {nome: f"37{2 * i + 1:03d}" for i, nome in enumerate(CONDADOS)}
-"""Nome do condado (como a NCSBE o escreve) para o código FIPS de cinco dígitos."""
+FIPS_CONDADO: dict[str, str] = {nome: fips_por_nome("NC")[chave(nome)] for nome in CONDADOS}
+"""Nome do condado (como a NCSBE o escreve) para o código FIPS de cinco dígitos, pela lista
+de condados do Census Bureau."""
 
 PARTIDO: dict[str, Partido] = {
     "DEM": Partido.DEM,

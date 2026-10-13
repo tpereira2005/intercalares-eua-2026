@@ -68,8 +68,6 @@ uv run python -m pipeline.jobs.voto_antecipado_fl --saida data/publicado/voto-an
 uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/voto-antecipado
 ```
 
-<<<<<<< HEAD
-
 ### Resultados da noite eleitoral
 
 Conectores em `connectors/results/` (Carolina do Norte, Florida, Geórgia e, pelo sistema Clarity, Carolina do Sul e Iowa), contratos `ResultadosEstado`, `ResultadosNacional` e `ResultadosParciais` (entrada do Modelo C). Metodologia e limites em `docs/metodologia/resultados.md`.
@@ -78,36 +76,34 @@ Conectores em `connectors/results/` (Carolina do Norte, Florida, Geórgia e, pel
 uv run python -m pipeline.jobs.resultados --duracao 600            # recolha a cada 30 s
 uv run python -m pipeline.jobs.ensaio_resultados --estado NC --data 2022-11-08 --parciais ensaio/nc-2022
 uv run python -m pipeline.jobs.resultados_avaliacao --pasta data/publicado/resultados --saida resultados-2026.csv
-=======
+```
+
 ## Previsão
 
 Modelo próprio para a Câmara e o Senado (metodologia em [`docs/metodologia/previsao.md`](../docs/metodologia/previsao.md)).
 
 ```
-
 src/pipeline/
 ├── modelo/
-│ ├── fontes/ # Wikipédia (wikitexto, corridas, sondagens) e raw_polls.csv da 538
-│ ├── dados.py # corrida → linha do modelo (lados, independentes, corridas decididas)
-│ ├── estimacao.py # fundamentos e erro das sondagens, só com anos anteriores
-│ ├── media.py # média ponderada de sondagens
-│ ├── simulacao.py # Monte Carlo com erros nacionais, regionais e por corrida
-│ ├── previsao.py # orquestração (a mesma função serve 2026 e os backtests)
-│ ├── publicar.py # contrato PrevisaoCongresso e backtests
-│ ├── historico.py # histórico diário para os gráficos de evolução
-│ └── avaliacao.py # scorecard da previsão congelada (Brier, log-loss, calibração)
+│   ├── fontes/        # Wikipédia (wikitexto, corridas, sondagens) e raw_polls.csv da 538
+│   ├── dados.py       # corrida → linha do modelo (lados, independentes, corridas decididas)
+│   ├── estimacao.py   # fundamentos e erro das sondagens, só com anos anteriores
+│   ├── media.py       # média ponderada de sondagens
+│   ├── simulacao.py   # Monte Carlo com erros nacionais, regionais e por corrida
+│   ├── previsao.py    # orquestração (a mesma função serve 2026 e os backtests)
+│   ├── publicar.py    # contrato PrevisaoCongresso e backtests
+│   ├── historico.py   # histórico diário para os gráficos de evolução
+│   └── avaliacao.py   # scorecard da previsão congelada (Brier, log-loss, calibração)
 └── jobs/
-├── previsao.py # previsão de 2026 (diária até ao congelamento a 1 de novembro)
-├── referencia_modelo.py # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)
-└── avaliacao_previsao.py # avaliação da previsão congelada (depois da eleição)
-
-````
+    ├── previsao.py            # previsão de 2026 (diária até ao congelamento a 1 de novembro)
+    ├── referencia_modelo.py   # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)
+    └── avaliacao_previsao.py  # avaliação da previsão congelada (depois da eleição)
+```
 
 ```sh
 uv run python -m pipeline.jobs.referencia_modelo
 uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
->>>>>>> origin/main
-````
+```
 
 ## Comandos
 

@@ -1,10 +1,10 @@
 """Conector de resultados da Carolina do Norte.
 
 A NCSBE publica, para cada eleição, um ficheiro JSON com o estado (``results_0.txt``) e
-um por condado (``results_1.txt`` a ``results_100.txt``, por ordem alfabética, que é a
-ordem dos códigos FIPS). Uma linha por candidato e corrida, com os votos, as secções
-apuradas (``prt``) e o total de secções (``ptl``). Os ficheiros de 2022 e 2024 continuam
-publicados no mesmo formato.
+um por condado (``results_1.txt`` a ``results_100.txt``, pelos identificadores da NCSBE,
+que seguem a ordem alfabética e não a dos códigos FIPS). Uma linha por candidato e
+corrida, com os votos, as secções apuradas (``prt``) e o total de secções (``ptl``).
+Os ficheiros de 2022 e 2024 continuam publicados no mesmo formato.
 """
 
 import json
@@ -16,7 +16,7 @@ import polars as pl
 
 from contratos.estados import CodigoEstado
 from pipeline.comum.erros import ErroFormatoFonte
-from pipeline.connectors.early_vote.nc.codigos import CONDADOS, NOME_CONDADO
+from pipeline.connectors.early_vote.nc.codigos import CONDADOS, FIPS_CONDADO, NOME_CONDADO
 from pipeline.connectors.results.comum import ObterTexto, Pedido, identificar_corrida, partido
 from pipeline.transform.resultados.montar import (
     COLUNAS_MODALIDADES,
@@ -39,7 +39,7 @@ MODALIDADES = {
 
 
 def _fips(cid: int) -> str:
-    return f"37{2 * cid - 1:03d}"
+    return FIPS_CONDADO[CONDADOS[cid - 1]]
 
 
 @dataclass(frozen=True, slots=True)

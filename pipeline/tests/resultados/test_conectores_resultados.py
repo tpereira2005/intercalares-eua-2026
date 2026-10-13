@@ -94,6 +94,14 @@ def test_carolina_do_norte_2022() -> None:
     assert alamance["votos"].to_list() == [32_866]
 
 
+def test_carolina_do_norte_usa_o_fips_do_census_e_nao_a_ordem_da_ncsbe() -> None:
+    """O ficheiro 56 da NCSBE é Macon (FIPS 37113); a ordem alfabética da NCSBE põe
+    McDowell (37111) depois de Martin, ao contrário do Census."""
+    leitura = ConectorNC().ler(DADOS / "nc", date(2022, 11, 8))
+    budd = leitura.votos.filter(leitura.votos["nome"] == "Ted Budd")
+    assert set(budd["codigo"].drop_nulls().to_list()) == {"37001", "37113"}
+
+
 def test_florida_2024() -> None:
     leitura = ConectorFL().ler(DADOS / "fl", date(2024, 11, 5))
     assert {c.id for c in leitura.corridas} >= {"FL-S", "FL-03", "FL-26", "FL-27"}
