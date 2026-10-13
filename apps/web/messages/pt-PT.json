@@ -1,0 +1,12 @@
+{
+  "site": {
+    "nome": "Intercalares EUA 2026",
+    "descricao": "Análise, acompanhamento e previsão das eleições intercalares dos Estados Unidos de 3 de novembro de 2026."
+  },
+  "inicio": {
+    "titulo": "Intercalares EUA 2026",
+    "subtitulo": "Voto antecipado, previsões e resultados em tempo real.",
+    "emConstrucao": "Plataforma em construção. A primeira versão, com o rastreador de voto antecipado e a análise por idade, chega antes da eleição.",
+    "contagemDecrescente": "Faltam {dias} dias para a eleição"
+  }
+}

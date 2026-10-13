@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.parquet binary
+*.png binary
+*.jpg binary
+*.woff2 binary
+pnpm-lock.yaml linguist-generated=true -diff
+uv.lock linguist-generated=true -diff
+packages/contratos/src/gerado/** linguist-generated=true
+schemas/json/** linguist-generated=true

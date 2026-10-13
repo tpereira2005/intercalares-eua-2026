@@ -1,0 +1,44 @@
+# Dependências
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Builds e caches
+.next/
+out/
+dist/
+.wrangler/
+*.tsbuildinfo
+.turbo/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+coverage/
+htmlcov/
+.coverage
+playwright-report/
+test-results/
+
+# Segredos e configuração local
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+
+# Dados brutos: ficheiros individuais de eleitores NUNCA entram no repositório.
+# O pipeline descarrega-os para estas pastas e só publica agregados.
+data/brutos/
+data/cache/
+*.zip
+*.gz
+
+# Sistema
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+next-env.d.ts

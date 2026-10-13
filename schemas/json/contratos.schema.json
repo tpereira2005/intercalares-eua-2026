@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "Fonte": {
+      "additionalProperties": false,
+      "description": "Origem de um conjunto de dados, citada em cada número publicado.",
+      "properties": {
+        "licenca": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Licença ou termos de utilização, quando conhecidos.",
+          "title": "Licenca"
+        },
+        "nome": {
+          "description": "Nome legível da fonte, por exemplo \"North Carolina State Board of Elections\".",
+          "minLength": 1,
+          "title": "Nome",
+          "type": "string"
+        },
+        "obtida_em": {
+          "description": "Momento da recolha, sempre com fuso horário.",
+          "format": "date-time",
+          "title": "Obtida Em",
+          "type": "string"
+        },
+        "url": {
+          "description": "Endereço exato de onde os dados foram obtidos.",
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nome",
+        "url",
+        "licenca",
+        "obtida_em"
+      ],
+      "title": "Fonte",
+      "type": "object"
+    },
+    "Metadados": {
+      "additionalProperties": false,
+      "description": "Cabeçalho comum a todos os ficheiros de dados publicados.",
+      "properties": {
+        "fontes": {
+          "description": "Todas as fontes usadas para produzir o ficheiro.",
+          "items": {
+            "$ref": "#/$defs/Fonte"
+          },
+          "minItems": 1,
+          "title": "Fontes",
+          "type": "array"
+        },
+        "gerado_em": {
+          "description": "Momento em que o pipeline gerou o ficheiro.",
+          "format": "date-time",
+          "title": "Gerado Em",
+          "type": "string"
+        },
+        "versao_esquema": {
+          "default": "0.1.0",
+          "description": "Versão dos contratos com que o ficheiro foi produzido.",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Versao Esquema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "versao_esquema",
+        "gerado_em",
+        "fontes"
+      ],
+      "title": "Metadados",
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/tpereira2005/intercalares-eua-2026/contratos/0.1.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Contratos de dados da plataforma Intercalares EUA 2026.",
+  "title": "Contratos"
+}

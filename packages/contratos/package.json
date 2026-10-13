@@ -1,0 +1,22 @@
+{
+  "name": "@intercalares/contratos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tipos TypeScript gerados a partir dos contratos pydantic.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "gerar": "node scripts/gerar.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^16.0.0",
+    "prettier": "^3.9.0",
+    "@types/node": "^22.20.0",
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.0"
+  }
+}
