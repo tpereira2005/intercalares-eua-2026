@@ -12,8 +12,8 @@ import polars as pl
 from pipeline.comum.categorias import Etnia, Genero, Partido, Raca
 from pipeline.comum.erros import ErroFormatoFonte
 from pipeline.comum.leitura import RelatorioLeitura, ler_delimitado
+from pipeline.comum.normalizar import data, distrito, inteiro, mapear, texto
 from pipeline.connectors.early_vote.nc import codigos
-from pipeline.connectors.early_vote.nc.normalizar import data, distrito, inteiro, mapear, texto
 
 ESTADOS_RECENSEADO = ("A", "I", "S")
 """Ativo, inativo e temporário (militares e residentes no estrangeiro). Excluímos removidos

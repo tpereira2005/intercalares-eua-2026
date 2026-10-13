@@ -13,8 +13,8 @@ import polars as pl
 from pipeline.comum.categorias import MetodoHistorico
 from pipeline.comum.erros import ErroFormatoFonte
 from pipeline.comum.leitura import RelatorioLeitura, ler_delimitado
+from pipeline.comum.normalizar import texto
 from pipeline.connectors.early_vote.nc import codigos
-from pipeline.connectors.early_vote.nc.normalizar import texto
 
 COLUNAS = ("ncid", "election_lbl", "voting_method")
 

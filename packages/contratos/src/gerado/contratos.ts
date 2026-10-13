@@ -66,6 +66,28 @@ export interface Contratos {
   [k: string]: unknown | undefined;
 }
 /**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "CicloAgregado".
+ */
+export interface CicloAgregado {
+  ano: number;
+  data_eleicao: string;
+  notas: string[];
+  /**
+   * Boletins por correspondência pedidos até ao mesmo dia, quando a fonte os tem.
+   */
+  pedidos: number | null;
+  tipo: "intercalar" | "presidencial";
+  /**
+   * Final nos anos anteriores; acumulado até ``dias_antes`` em 2026.
+   */
+  votos: number;
+  /**
+   * Votos até ao mesmo dia do ciclo que o ano atual (só nos anos de comparação).
+   */
+  votos_mesmo_dia: number | null;
+}
+/**
  * Uma eleição comparável (2026 ou um ano de referência).
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -164,6 +186,28 @@ export interface LinhaComparacao {
   votos_base: number;
 }
 /**
+ * Uma categoria em 2026 face ao ano de referência, no mesmo dia do ciclo.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "LinhaComparacaoAgregada".
+ */
+export interface LinhaComparacaoAgregada {
+  ano_base: number;
+  categoria: string;
+  dimensao: "faixa" | "partido" | "modalidade";
+  /**
+   * Quota da categoria nos votos antecipados de 2026 (composição).
+   */
+  quota: number | null;
+  quota_base: number | null;
+  /**
+   * votos / votos_base - 1: positivo quando a categoria vai à frente do ano de referência.
+   */
+  ritmo: number | null;
+  votos: number;
+  votos_base: number;
+}
+/**
  * This interface was referenced by `Contratos`'s JSON-Schema
  * via the `definition` "LinhaCruzamento".
  */
@@ -179,6 +223,42 @@ export interface LinhaCruzamento {
   votos: number;
 }
 /**
+ * Resumo de um estado para a página inicial.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "LinhaEstadoNacional".
+ */
+export interface LinhaEstadoNacional {
+  ano_base: number | null;
+  dados_ate: string;
+  dias_antes: number;
+  estado: CodigoEstado;
+  /**
+   * Nome do ficheiro completo do estado, publicado ao lado deste.
+   */
+  ficheiro: string;
+  granularidade: "boletim" | "condado";
+  modalidades: ("correio" | "presencial")[];
+  /**
+   * Quota de eleitores com 65 ou mais anos (só nos estados com idade).
+   */
+  quota_65_mais: number | null;
+  quota_65_mais_base: number | null;
+  /**
+   * Quota de eleitores registados como democratas nos votos (registo, não voto).
+   */
+  quota_dem: number | null;
+  quota_dem_base: number | null;
+  quota_rep: number | null;
+  quota_rep_base: number | null;
+  ritmo: number | null;
+  votos: number;
+  /**
+   * Votos do ano de referência até ao mesmo dia do ciclo.
+   */
+  votos_base: number | null;
+}
+/**
  * This interface was referenced by `Contratos`'s JSON-Schema
  * via the `definition` "LinhaGeografia".
  */
@@ -192,6 +272,21 @@ export interface LinhaGeografia {
   nivel: "condado" | "distrito";
   nome: string;
   registados: number;
+  votos: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "LinhaGeografiaAgregada".
+ */
+export interface LinhaGeografiaAgregada {
+  ano: number;
+  /**
+   * FIPS de cinco dígitos (condado) ou número do distrito em vigor em 2026.
+   */
+  codigo: string;
+  nivel: "condado" | "distrito";
+  nome: string;
+  partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
   votos: number;
 }
 /**
@@ -219,6 +314,20 @@ export interface LinhaHistorico {
    */
   registados: number;
   votos: number;
+}
+/**
+ * Boletins por correspondência pedidos, devolvidos e por devolver até ao dia.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "LinhaPedidos".
+ */
+export interface LinhaPedidos {
+  ano: number;
+  devolvidos: number;
+  faixa: "18-24" | "25-29" | "30-39" | "40-49" | "50-64" | "65-74" | "75+" | "desconhecida" | "total";
+  partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
+  pedidos: number;
+  pendentes: number;
 }
 /**
  * Eleitores que votaram na eleição de referência e ainda não votaram até ao dia.
@@ -272,6 +381,46 @@ export interface PontoSerie {
   votos: number;
 }
 /**
+ * Votos acumulados até um dia do ciclo.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PontoSerieAgregado".
+ */
+export interface PontoSerieAgregado {
+  ano: number;
+  dias_antes: number;
+  faixa: "18-24" | "25-29" | "30-39" | "40-49" | "50-64" | "65-74" | "75+" | "desconhecida" | "total";
+  modalidade: "correio" | "presencial" | "total";
+  partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
+  votos: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "VotoAntecipadoAgregado".
+ */
+export interface VotoAntecipadoAgregado {
+  ano: number;
+  avisos: string[];
+  ciclos: CicloAgregado[];
+  comparacao: LinhaComparacaoAgregada[];
+  dados_ate: string;
+  dias_antes: number;
+  /**
+   * Dimensões que a fonte permite analisar neste estado.
+   */
+  dimensoes: ("faixa" | "partido" | "modalidade" | "condado" | "distrito")[];
+  estado: CodigoEstado;
+  geografia: LinhaGeografiaAgregada[];
+  granularidade: "boletim" | "condado";
+  metadados: Metadados;
+  /**
+   * Modalidades que a fonte cobre (na Pensilvânia, por exemplo, só há correio).
+   */
+  modalidades: ("correio" | "presencial")[];
+  pedidos: LinhaPedidos[];
+  serie: PontoSerieAgregado[];
+}
+/**
  * Rastreador de voto antecipado de um estado, com a análise por idade.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -300,4 +449,18 @@ export interface VotoAntecipadoEstado {
   metadados: Metadados;
   reserva: LinhaReserva[];
   serie: PontoSerie[];
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "VotoAntecipadoNacional".
+ */
+export interface VotoAntecipadoNacional {
+  ano: number;
+  avisos: string[];
+  estados: LinhaEstadoNacional[];
+  metadados: Metadados;
+  /**
+   * Soma dos estados acompanhados (não é um total nacional).
+   */
+  votos: number;
 }

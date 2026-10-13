@@ -38,7 +38,11 @@ src/pipeline/
 ├── transform/early_vote/        # painel → cubos → indicadores → ficheiro publicado
 └── jobs/
     ├── voto_antecipado_nc.py              # atualização de 2026 (a cada 2 h)
-    └── referencia_voto_antecipado_nc.py   # cubos de 2018, 2022 e 2024 (uma vez)
+    ├── referencia_voto_antecipado_nc.py   # cubos de 2018, 2022 e 2024 (uma vez)
+    ├── voto_antecipado_estado.py          # Pensilvânia e Maine
+    ├── referencia_voto_antecipado_estado.py
+    ├── voto_antecipado_fl.py              # Florida (arquivo diário próprio)
+    └── voto_antecipado_nacional.py        # resumo para a página inicial
 ```
 
 O fluxo é igual para todos os estados e anos: o conector produz um **painel** (uma linha por eleitor recenseado, só em memória ou em `data/cache/`), que se agrega em **cubos** de contagens sem dados pessoais. Os indicadores (composição, participação, decomposição, esperado, histórico, reserva, geografia e cruzamentos) calculam-se sobre os cubos, e o resultado é validado pelo contrato `VotoAntecipadoEstado`.
@@ -51,6 +55,18 @@ uv run python -m pipeline.jobs.voto_antecipado_nc --saida data/publicado/voto-an
 ```
 
 `--sem-descarga` reutiliza os ficheiros já presentes em `data/brutos/nc/`.
+
+### Outros estados e resumo nacional
+
+Pensilvânia e Maine publicam um registo por boletim (sem ficheiro de eleitores) e a Florida só totais diários por condado. Usam o contrato `VotoAntecipadoAgregado` e o mesmo fluxo de cubos (`transform/early_vote/agregado.py`); o resumo da página inicial (`VotoAntecipadoNacional`) cita os ficheiros de cada estado. Detalhes e limites em `docs/metodologia/voto-antecipado-estados.md`.
+
+```sh
+uv run python -m pipeline.jobs.referencia_voto_antecipado_estado --estado PA   # cubos de referência
+uv run python -m pipeline.jobs.voto_antecipado_estado --estado PA --saida data/publicado/voto-antecipado/pa.json
+uv run python -m pipeline.jobs.voto_antecipado_fl --saida data/publicado/voto-antecipado/fl.json \
+  --arquivo data/publicado/voto-antecipado/historico-fl-2026.csv
+uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/voto-antecipado
+```
 
 ## Comandos
 

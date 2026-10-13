@@ -15,14 +15,14 @@ from pipeline.comum.categorias import (
 )
 from pipeline.comum.erros import ErroFormatoFonte
 from pipeline.comum.leitura import RelatorioLeitura, ler_cabecalho, ler_tudo
-from pipeline.connectors.early_vote.nc import codigos
-from pipeline.connectors.early_vote.nc.normalizar import (
+from pipeline.comum.normalizar import (
     data,
     distrito,
     inteiro,
     mapear,
     texto,
 )
+from pipeline.connectors.early_vote.nc import codigos
 
 COLUNAS = (
     "county_desc",

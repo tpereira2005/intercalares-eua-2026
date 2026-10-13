@@ -1,0 +1,60 @@
+# Voto antecipado nos outros estados e resumo nacional
+
+A Carolina do Norte (ver [voto-antecipado.md](voto-antecipado.md)) é o único estado prioritário com ficheiro de eleitores gratuito: só lá se calculam taxas de participação por grupo. Nos outros estados, o site usa o que cada fonte oficial gratuita publica e diz claramente o que não é possível medir.
+
+## 1. Que estados e porquê
+
+Verificámos a 13 de outubro de 2026, a partir do GitHub Actions (onde o pipeline corre), as fontes dos estados prioritários do plano.
+
+| Estado                                     | Fonte                                                                  | Granularidade                                                                | Idade | Comparação                      |
+| ------------------------------------------ | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----- | ------------------------------- |
+| Pensilvânia                                | Pedidos de voto por correspondência em data.pa.gov (diário, sem nomes) | Um registo por boletim: condado, partido, mês de nascimento, distrito, datas | Sim   | 2022 e 2024, mesmo dia do ciclo |
+| Maine                                      | "Absentee Voter File" do Secretary of State (algumas vezes por semana) | Um registo por boletim: município, partido, distrito, modalidade, datas      | Não   | 2022, 2018 e 2024               |
+| Florida                                    | Estatísticas diárias da Division of Elections                          | Totais por condado e partido                                                 | Não   | Só a série que nós guardamos    |
+| Geórgia, Texas                             | Ficheiros diários existem, mas o servidor bloqueia pedidos automáticos | ·                                                                            | ·     | ·                               |
+| Michigan, Ohio, Nevada, Arizona (Maricopa) | Painéis oficiais com o mesmo bloqueio                                  | ·                                                                            | ·     | ·                               |
+| Iowa                                       | Relatórios em PDF por distrito                                         | A avaliar                                                                    | ·     | ·                               |
+
+Não contornamos bloqueios a robôs (desafios do Cloudflare, Akamai ou Incapsula): seria contra as condições das fontes. Esses estados ficam de fora até haver uma via oficial aberta.
+
+## 2. O que se mede sem ficheiro de eleitores
+
+Sem os recenseados de cada grupo, não há taxa de participação. Compara-se **votos com votos**, no mesmo dia do ciclo (dias antes da eleição), como na Carolina do Norte:
+
+- **Composição**: quota de cada faixa etária, partido ou modalidade nos votos antecipados de 2026 e do ano de referência.
+- **Ritmo**: votos de 2026 / votos do ano de referência no mesmo dia − 1, para o total e para cada categoria.
+- **Pedidos por devolver**: boletins por correspondência pedidos até ao dia, quantos já voltaram e quantos faltam, por partido e faixa. É o equivalente, nestes estados, da reserva restante.
+
+Um ritmo positivo diz que há mais boletins do que no mesmo dia de 2022; não diz que a participação final será maior, porque as regras e os hábitos de voto mudam entre ciclos (ver os avisos de cada estado).
+
+## 3. Definições por estado
+
+- **Pensilvânia**: só há voto por correspondência (incluindo o pedido e entregue no balcão do condado). Um boletim conta como devolvido quando tem data de devolução e não foi cancelado. Desde 2024 a fonte junta os não filiados e os pequenos partidos em "OTH", por isso, em todos os anos, quem não é democrata nem republicano fica em `outro`. A idade é a do fim do ano da eleição, calculada a partir do ano de nascimento. O mapa dos distritos é o mesmo desde 2022.
+- **Maine**: conta um boletim por eleitor (a primeira receção, quando houve um duplicado). O voto na presença do funcionário municipal (`VP`) é o voto antecipado presencial; tudo o resto é correspondência. Em 2022 o voto presencial começou a 11 de outubro, seis dias mais tarde no ciclo do que em 2026. Não há idade.
+- **Florida**: os relatórios são cumulativos até à véspera e cada condado envia o seu a horas diferentes. Cada execução guarda o retrato do dia num arquivo (`historico-fl-2026.csv`, publicado na Release), de onde sai a série diária. Confere-se a soma dos condados com o total estadual da fonte.
+
+Em todos: o último dia com dados é a véspera do dia em que a fonte gerou o ficheiro (hora da costa leste), porque o próprio dia está incompleto.
+
+## 4. Resumo nacional
+
+`nacional.json` tem uma linha por estado, com os números citados do ficheiro do estado: votos, ano de referência, votos no mesmo dia desse ano, ritmo, quotas de democratas e republicanos registados e, onde há idade, a quota de 65 ou mais anos. A soma é só dos estados acompanhados e **não é um total nacional**. Se a recolha de um estado falhar, o resumo usa o último ficheiro já publicado desse estado, com a sua data.
+
+## 5. Simetria e privacidade
+
+As regras são as mesmas da Carolina do Norte: os partidos são valores de uma coluna, e o teste `test_troca_de_rotulos_partidarios_troca_os_resultados` (em `test_agregado_ev.py`) confirma que trocar democratas e republicanos troca os resultados e nada mais. Os ficheiros individuais ficam em `data/brutos/` (não versionado); os cubos e os ficheiros publicados só têm contagens, e as linhas de pedidos com 1 a 9 boletins não são publicadas.
+
+## 6. Reprodução
+
+```sh
+# cubos de referência (uma vez)
+uv run python -m pipeline.jobs.referencia_voto_antecipado_estado --estado PA
+uv run python -m pipeline.jobs.referencia_voto_antecipado_estado --estado ME
+
+# atualização de 2026
+uv run python -m pipeline.jobs.voto_antecipado_estado --estado PA --saida data/publicado/voto-antecipado/pa.json
+uv run python -m pipeline.jobs.voto_antecipado_fl --saida data/publicado/voto-antecipado/fl.json \
+  --arquivo data/publicado/voto-antecipado/historico-fl-2026.csv
+uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/voto-antecipado
+```
+
+Os formatos são os contratos `VotoAntecipadoAgregado` e `VotoAntecipadoNacional` (`schemas/src/contratos/voto_antecipado_agregado.py`).
