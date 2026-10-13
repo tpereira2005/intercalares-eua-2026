@@ -41,6 +41,19 @@ class EleicaoGeral:
 # quinta-feira antes da eleição e termina no último sábado (G.S. 163-227.6). Em 2018
 # começou numa quarta-feira, 17 de outubro.
 ELEICOES_NC: dict[int, EleicaoGeral] = {
+    2016: EleicaoGeral(
+        "NC",
+        date(2016, 11, 8),
+        "presidencial",
+        date(2016, 10, 20),
+        date(2016, 11, 5),
+        None,
+        (
+            "Eleição presidencial: comparar sobretudo o ritmo, não o nível.",
+            "O histórico individual público só cobre eleições desde 2016, por isso não há "
+            "grupos por comportamento na eleição anterior.",
+        ),
+    ),
     2018: EleicaoGeral(
         "NC",
         date(2018, 11, 6),

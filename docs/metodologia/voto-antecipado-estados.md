@@ -22,6 +22,7 @@ Não contornamos bloqueios a robôs (desafios do Cloudflare, Akamai ou Incapsula
 Sem os recenseados de cada grupo, não há taxa de participação. Compara-se **votos com votos**, no mesmo dia do ciclo (dias antes da eleição), como na Carolina do Norte:
 
 - **Composição**: quota de cada faixa etária, partido ou modalidade nos votos antecipados de 2026 e do ano de referência.
+- **Geografia**: votos até ao mesmo dia do ciclo por condado e distrito (mapa em vigor em 2026), por partido e, onde há idade (Pensilvânia), por faixa larga. As linhas por faixa têm `partido = "total"`; as linhas por partido têm `faixa = "total"`. No Iowa, o mapa por condado é só o do último dia de 2026.
 - **Ritmo**: votos de 2026 / votos do ano de referência no mesmo dia − 1, para o total e para cada categoria.
 - **Pedidos por devolver**: boletins por correspondência pedidos até ao dia, quantos já voltaram e quantos faltam, por partido e faixa. É o equivalente, nestes estados, da reserva restante.
 
@@ -39,6 +40,8 @@ Em todos: o último dia com dados é a véspera do dia em que a fonte gerou o fi
 ## 4. Resumo nacional
 
 `nacional.json` tem uma linha por estado, com os números citados do ficheiro do estado: votos, ano de referência, votos no mesmo dia desse ano, ritmo, quotas de democratas e republicanos registados e, onde há idade, a quota de 65 ou mais anos. A soma é só dos estados acompanhados e **não é um total nacional**. Se a recolha de um estado falhar, o resumo usa o último ficheiro já publicado desse estado, com a sua data.
+
+Os estados prioritários sem ficheiro (Geórgia, Texas, Michigan, Ohio, Nevada e Arizona, todos com fontes que recusam pedidos automáticos) vêm em `estados_sem_dados`, com o motivo e uma nota, para o site não os mostrar como "ainda sem dados". Um estado sai da lista assim que tem ficheiro.
 
 ## 5. Simetria e privacidade
 

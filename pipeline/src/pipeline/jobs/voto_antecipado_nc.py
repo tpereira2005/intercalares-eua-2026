@@ -32,8 +32,8 @@ from pipeline.transform.early_vote.relatorio import CubosAno, montar
 registo = logging.getLogger(__name__)
 
 ANO = 2026
-ANOS_BASE = (2022, 2018, 2024)
-"""Intercalares primeiro (as comparações principais), depois a presidencial de referência."""
+ANOS_BASE = (2022, 2018, 2024, 2016)
+"""Intercalares primeiro (as comparações principais), depois as presidenciais de referência."""
 
 
 def avisos_automaticos(

@@ -9,7 +9,7 @@ Este documento descreve como o pipeline transforma os ficheiros oficiais em indi
 | `ENRS/<data>/absentee_<data>.zip`       | Um registo por boletim (correio e presencial antecipado) | Diária em período eleitoral; final nos anos anteriores | Numeradores: quem já votou, quando e como                          |
 | `data/ncvoter_Statewide.zip`            | Eleitores atuais, incluindo removidos                    | Semanal                                                | Denominadores de 2026, ano de nascimento, distrito no mapa de 2026 |
 | `data/ncvhis_Statewide.zip`             | Histórico de voto individual (cerca de dez anos)         | Semanal                                                | Grupos históricos (habitual, antecipação, voto novo)               |
-| `data/Snapshots/VR_Snapshot_<data>.zip` | Retrato do recenseamento no dia de cada eleição          | Uma vez por eleição                                    | Denominadores de 2018, 2022 e 2024                                 |
+| `data/Snapshots/VR_Snapshot_<data>.zip` | Retrato do recenseamento no dia de cada eleição          | Uma vez por eleição                                    | Denominadores de 2016, 2018, 2022 e 2024                           |
 
 Todos são registos públicos (N.C. G.S. 132-1 e 163-82.10), publicados em `https://dl.ncsbe.gov`. Os ficheiros têm nomes e moradas: o pipeline lê só as colunas de que precisa e nunca grava dados pessoais fora da cache local, que o git ignora. O repositório e o site só recebem **cubos de contagens agregadas**.
 
@@ -44,7 +44,7 @@ Quota da faixa no voto antecipado até ao dia `d`. É o número que circula nas 
 
 ### 3.2 Participação
 
-Taxa = votos da faixa até `d` / recenseados da faixa. Comparada com o mesmo dia de 2022, 2018 e 2024, corrige automaticamente o envelhecimento da população e as mudanças no recenseamento.
+Taxa = votos da faixa até `d` / recenseados da faixa. Comparada com o mesmo dia de 2022, 2018, 2024 e 2016, corrige automaticamente o envelhecimento da população e as mudanças no recenseamento.
 
 A variação da quota entre dois anos divide-se exatamente em dois efeitos. Com `r` a quota da faixa no recenseamento e `t` a taxa de participação, a quota no voto é `s = r t / Σ r t`. O **efeito do recenseamento** é quanto a quota mudaria só por mudar `r`; o **efeito da participação**, só por mudar `t`. Usamos a média das duas ordens possíveis (valor de Shapley), o que torna a soma exata e independente da ordem.
 
@@ -63,7 +63,17 @@ Cada eleitor é classificado pelo que fez na eleição anterior do mesmo tipo (2
 
 O contributo de cada grupo é os seus votos a dividir pelos recenseados da faixa. Os contributos somam a taxa de participação, por isso a variação da participação face a 2022 divide-se exatamente entre voto habitual, antecipação e voto novo.
 
-2018 não tem grupos: o histórico público só começa em 2016 e a referência de 2018 seria 2014.
+2016 e 2018 não têm grupos: o histórico público só começa em 2016, e as referências seriam 2012 e 2014.
+
+### 3.4 Geografia e cruzamentos
+
+Tudo o que se compara entre anos usa o **mesmo dia do ciclo** `d`, nunca o total final de um ano anterior: a série, a comparação, o histórico, a reserva, a geografia e os cruzamentos. O teste `test_cruzamentos_e_geografia_dos_anos_de_referencia_sao_do_mesmo_dia` confirma-o.
+
+- **Geografia**: votos até `d` e recenseados por condado e por distrito do Congresso, para cada faixa larga (18-29, 30-49, 50-64, 65+, desconhecida) e para o total. Os distritos são os do mapa de 2026 em todos os anos: cada eleitor de um ano anterior fica no distrito em que está hoje no ficheiro de eleitores; quem já não está no ficheiro fica no distrito da época. Os condados não mudam.
+- **Histórico por geografia** (`historico_geografia`): o contributo de cada grupo histórico (secção 3.3) por condado e distrito e por faixa larga. Os contributos de um lugar somam a sua taxa de participação, por isso a variação face a 2022 divide-se, em cada condado e distrito, entre voto habitual, antecipação e voto novo. Só existe nos anos com histórico individual de referência (2022, 2024 e 2026).
+- **Cruzamentos**: votos e recenseados por faixa etária × partido, raça, etnia, género e modalidade, para o estado. Na modalidade, o denominador é o total da faixa, para que as taxas de correio e presencial somem a taxa total.
+
+As células com 1 a 9 recenseados não se publicam (secção 6). Nos condados pequenos isto tira sobretudo a faixa desconhecida; os totais de cada lugar continuam a contar toda a gente.
 
 ## 4. Reserva restante
 
@@ -85,6 +95,7 @@ Eleitores que votaram na eleição de referência (por qualquer método) e ainda
 
 - **Mudanças de regras**: em 2024 passou a ser obrigatória a identificação com fotografia e o correio passou a ter de chegar até ao fecho das urnas; em 2018 e 2022 havia três dias de tolerância. As séries até ao dia da eleição não são afetadas pela tolerância, mas o total final de correio sim.
 - **2024 é presidencial**, teve o furacão Helene no oeste do estado e o envio dos boletins por correio atrasou cerca de duas semanas por ordem judicial: é uma referência de ritmo do voto presencial, não de nível nem do correio.
+- **2016 é presidencial** e não tem grupos históricos: serve para comparar o ritmo e a composição etária com a última presidencial antes da pandemia, não o nível.
 - **2020** (pandemia) não é usado como referência.
 - **Antes do voto presencial** (até 15 de outubro de 2026) só há correio, onde os mais velhos pesam muito mais: a composição etária nessa fase não é comparável com o total final.
 - **Denominador de 2026**: o ficheiro de eleitores é semanal e não inclui ainda quem se recensear durante o voto antecipado; esses eleitores entram pelo boletim.
@@ -94,7 +105,7 @@ Eleitores que votaram na eleição de referência (por qualquer método) e ainda
 
 ```sh
 # cubos de referência (uma vez; descarrega cerca de 5 GB)
-uv run python -m pipeline.jobs.referencia_voto_antecipado_nc --anos 2018 2022 2024
+uv run python -m pipeline.jobs.referencia_voto_antecipado_nc --anos 2016 2018 2022 2024
 
 # atualização de 2026 (a cada duas horas no GitHub Actions)
 uv run python -m pipeline.jobs.voto_antecipado_nc --saida data/publicado/voto-antecipado/nc.json
