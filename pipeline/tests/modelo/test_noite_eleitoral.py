@@ -145,6 +145,33 @@ def test_sem_votos_fica_a_previsao(previsao: PrevisaoCongresso) -> None:
         assert resumo.corridas_com_votos == 0
 
 
+def _variacao_total(a: ResumoCamara, b: ProjecaoNoite, camara: str) -> float:
+    noite = b.camara if camara == "camara" else b.senado
+    p = {x.lugares: x.probabilidade for x in a.distribuicao}
+    q = {x.lugares: x.probabilidade for x in noite.distribuicao}
+    return 0.5 * sum(abs(p.get(k, 0.0) - q.get(k, 0.0)) for k in p.keys() | q.keys())
+
+
+def test_sem_votos_reproduz_o_controlo_da_previsao(previsao: PrevisaoCongresso) -> None:
+    """Sem votos, a projeção tem a estrutura de erros da previsão: o controlo das câmaras
+    e a distribuição de lugares coincidem, a menos do erro de Monte Carlo das duas."""
+    projecao = projetar(
+        previsao,
+        Instantaneo(AGORA, ()),
+        {},
+        fontes=[FONTE],
+        gerado_em=AGORA,
+        simulacoes=20_000,
+    )
+    for prevista, noite in ((previsao.camara, projecao.camara), (previsao.senado, projecao.senado)):
+        assert noite.prob_controlo_d == pytest.approx(prevista.prob_controlo_d, abs=0.015)
+        assert noite.lugares_d_media == pytest.approx(prevista.lugares_d_media, abs=0.3)
+        assert _variacao_total(prevista, projecao, prevista.camara) < 0.04
+    diferencas = [c.prob_d - c.prob_d_prior for c in projecao.corridas]
+    assert abs(float(np.mean(diferencas))) < 0.003
+    assert max(map(abs, diferencas)) < 0.03
+
+
 def test_contagem_completa_da_o_resultado(previsao: PrevisaoCongresso) -> None:
     noite = gerar_noite(previsao, 2)
     projecao = _projetar(previsao, noite, 1.0)
@@ -162,6 +189,8 @@ def _espelhar_corrida(c: PrevisaoCorrida) -> PrevisaoCorrida:
     return c.model_copy(
         update={
             "margem_prevista": -c.margem_prevista,
+            "margem_fundamentos": -c.margem_fundamentos,
+            "margem_sondagens": None if c.margem_sondagens is None else -c.margem_sondagens,
             "margem_p10": -c.margem_p90,
             "margem_p90": -c.margem_p10,
             "prob_d": 1 - c.prob_d,

@@ -1,15 +1,24 @@
 """Projeção da noite: junta as corridas e simula o controlo das duas câmaras.
 
-O desvio ``s`` de cada corrida face à previsão congelada tem uma parte comum a todas as
-corridas (o desvio nacional ``v``), uma parte da região do Census e uma parte própria:
+A estrutura de erros é exatamente a da previsão congelada (``simulacao.py``), reconstruída
+a partir dos parâmetros publicados. A margem final de cada corrida é
 
-    s_r = s0_r + l_r * (v + regiao_r) + n_r
+    margem_r = centro_r + L_r · F + n_r
 
-As corridas com votos contados informam ``v`` e as regiões (por pesos de precisão); as
-corridas sem votos ficam no prior, deslocadas apenas pelo que as outras já mostraram.
-Uma corrida sem feed não é tratada como certa: mantém a incerteza toda da previsão. Cada
-simulação sorteia ``v`` e as regiões, depois o desvio de cada corrida e, por fim, a margem
-final dada a análise da corrida (``corrida.analisar``).
+em que ``F`` são os fatores comuns da previsão: o erro nacional (t de Student com 5 graus
+de liberdade), o erro do ano na Câmara, o erro do ano nos fundamentos do Senado, o erro
+comum das sondagens do Senado e as quatro regiões do Census. As cargas ``L_r`` são as da
+simulação da previsão (no Senado dependem do peso das sondagens) e ``n_r`` é o erro
+próprio da corrida. Por isso, antes de haver votos, a projeção é a previsão congelada,
+corrida a corrida e no controlo das câmaras (a menos do erro de Monte Carlo).
+
+As corridas com votos contados informam ``F`` por pesos de precisão; as corridas sem votos
+ficam no prior, deslocadas apenas pelo que as outras já mostraram, e mantêm a incerteza
+toda da previsão. A t de Student escreve-se como uma mistura de normais: cada simulação
+sorteia a escala do erro nacional do prior, pesa-a pela verosimilhança dos votos contados
+(amostragem por importância com reamostragem sistemática) e sorteia ``F`` da normal
+condicionada a essa escala. Por fim sorteia o desvio de cada corrida e a margem final
+dada a análise da corrida (``corrida.analisar``).
 """
 
 import math
@@ -27,16 +36,25 @@ from contratos.noite import (
     ProjecaoNoite,
     ResumoCamaraNoite,
 )
-from contratos.previsao import PontoDistribuicao, PrevisaoCongresso, PrevisaoCorrida, ResumoCamara
+from contratos.previsao import (
+    ParametrosFundamentos,
+    PontoDistribuicao,
+    PrevisaoCongresso,
+    PrevisaoCorrida,
+    ResumoCamara,
+)
 from pipeline.modelo.dados import REGIOES
 from pipeline.modelo.noite.corrida import AnaliseCorrida, Parametros, PriorCorrida, analisar
 from pipeline.modelo.noite.entrada import Base, Instantaneo, agrupar
+from pipeline.modelo.simulacao import GRAUS_LIBERDADE
 
 SIMULACOES = 20_000
 Z_P90 = 1.2815515655446004
 ORDEM_REGIOES = ("nordeste", "centro_oeste", "sul", "oeste")
-FRACAO_NACIONAL = 0.8
-"""Fração máxima da variância prior de uma corrida atribuída ao desvio comum."""
+NACIONAL, ANO_CAMARA, ANO_SENADO, SONDAGENS_SENADO = range(4)
+FATORES = 4 + len(ORDEM_REGIOES)
+SD_MINIMO = 1e-3
+"""Desvio mínimo de um fator ou de um erro próprio (evita precisões infinitas)."""
 
 NOTAS = (
     "A projeção parte da previsão congelada e só a atualiza com votos contados.",
@@ -46,19 +64,66 @@ NOTAS = (
 
 
 @dataclass(frozen=True, slots=True)
+class Estrutura:
+    """Desvios-padrão dos fatores comuns da previsão (o nacional é o da t de Student)."""
+
+    sd: npt.NDArray[np.float64]
+    var_fundamentos: dict[str, float]
+    """Variância do erro próprio nos fundamentos, por câmara."""
+
+    erro_base: float
+    erro_por_instituto: float
+    ligacao_nacional: float
+
+
+def estrutura(previsao: PrevisaoCongresso) -> Estrutura:
+    fundamentos: dict[str, ParametrosFundamentos] = {f.camara: f for f in previsao.fundamentos}
+    camara, senado = fundamentos["camara"], fundamentos["senado"]
+    erro = previsao.erro_sondagens
+    sd_ambiente = previsao.ambiente.desvio_padrao
+    # Parte do erro comum das sondagens que não acompanha o voto genérico (como na
+    # simulação da previsão).
+    residual = math.sqrt(max(erro.desvio_ano**2 - (erro.ligacao_nacional * sd_ambiente) ** 2, 0))
+    sd = np.array(
+        [sd_ambiente, camara.desvio_ano, senado.desvio_ano, residual]
+        + [camara.desvio_regiao] * len(ORDEM_REGIOES)
+    )
+    return Estrutura(
+        sd=np.maximum(sd, SD_MINIMO),
+        var_fundamentos={"camara": camara.desvio_corrida**2, "senado": senado.desvio_corrida**2},
+        erro_base=erro.erro_base,
+        erro_por_instituto=erro.erro_por_instituto,
+        ligacao_nacional=erro.ligacao_nacional,
+    )
+
+
+def decompor(c: PrevisaoCorrida, e: Estrutura) -> tuple[float, npt.NDArray[np.float64], float]:
+    """Centro, cargas nos fatores comuns e variância própria de uma corrida disputada."""
+    carga = np.zeros(FATORES)
+    carga[4 + ORDEM_REGIOES.index(REGIOES[c.estado])] = 1.0
+    var_f = e.var_fundamentos[c.camara]
+    if c.camara == "camara":
+        carga[NACIONAL] = carga[ANO_CAMARA] = 1.0
+        return c.margem_fundamentos, carga, var_f
+    w = c.peso_sondagens if c.margem_sondagens is not None else 0.0
+    carga[NACIONAL] = (1 - w) + w * e.ligacao_nacional
+    carga[ANO_SENADO] = 1 - w
+    carga[SONDAGENS_SENADO] = w
+    if c.margem_sondagens is None:
+        return c.margem_fundamentos, carga, var_f
+    var_p = e.erro_base**2 + e.erro_por_instituto**2 / max(c.institutos, 1)
+    centro = (1 - w) * c.margem_fundamentos + w * c.margem_sondagens
+    return centro, carga, var_f * var_p / (var_f + var_p)
+
+
+@dataclass(frozen=True, slots=True)
 class _Corrida:
     previsao: PrevisaoCorrida
     prior: PriorCorrida
     analise: AnaliseCorrida
     carga: npt.NDArray[np.float64]
-    """``l_r`` vezes o indicador (nacional, região)."""
-
     tau2: float
-
-
-def _prior(c: PrevisaoCorrida) -> PriorCorrida:
-    sd = max((c.margem_p90 - c.margem_p10) / (2 * Z_P90), 0.5)
-    return PriorCorrida(c.id, c.estado, c.margem_prevista, sd)
+    """Variância do desvio da corrida que não vem dos fatores comuns."""
 
 
 def participacao(ano: int, p: Parametros) -> float:
@@ -70,52 +135,85 @@ def _preparar(
     instantaneo: Instantaneo,
     referencia: Mapping[str, Mapping[str, Base]],
     p: Parametros,
-    *,
-    sd_nacional: float,
-    sd_regiao: float,
+    e: Estrutura,
 ) -> list[_Corrida]:
     contagens = agrupar(instantaneo.contagens)
     k = participacao(previsao.ano, p)
-    sistematica = sd_nacional**2 + sd_regiao**2
     corridas: list[_Corrida] = []
     for c in previsao.corridas:
         if c.decidida is not None:
             continue
-        prior = _prior(c)
+        centro, carga, var_propria = decompor(c, e)
+        comum = float(carga**2 @ e.sd**2)
+        prior = PriorCorrida(c.id, c.estado, centro, math.sqrt(comum + var_propria))
         analise = analisar(prior, contagens.get(c.id, []), referencia.get(c.estado, {}), k, p)
-        carga_ = min(1.0, math.sqrt(FRACAO_NACIONAL * analise.var_s / sistematica))
-        x = np.zeros(1 + len(ORDEM_REGIOES))
-        x[0] = carga_
-        x[1 + ORDEM_REGIOES.index(REGIOES[c.estado])] = carga_
-        tau2 = analise.var_s - carga_**2 * sistematica
-        corridas.append(_Corrida(c, prior, analise, x, tau2))
+        tau2 = max(analise.var_s - comum, SD_MINIMO**2)
+        corridas.append(_Corrida(c, prior, analise, carga, tau2))
     return corridas
 
 
+@dataclass(frozen=True, slots=True)
+class _Comum:
+    """Sorteios dos fatores comuns (antitéticos) e o resumo do desvio nacional."""
+
+    sorteios: npt.NDArray[np.float64]
+    media_nacional: float
+    sd_nacional: float
+    informativas: int
+
+
 def _comum(
-    corridas: Sequence[_Corrida], sd_nacional: float, sd_regiao: float
-) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], int]:
-    """Posterior normal de (desvio nacional, regiões): média, covariância, corridas usadas."""
-    precisao = np.diag([1 / sd_nacional**2] + [1 / sd_regiao**2] * len(ORDEM_REGIOES))
-    vetor = np.zeros(1 + len(ORDEM_REGIOES))
+    corridas: Sequence[_Corrida], e: Estrutura, metade: int, rng: np.random.Generator
+) -> _Comum:
+    """Fatores comuns condicionados às corridas com votos.
+
+    Dada a escala ``lambda`` do erro nacional, o prior de ``F`` é normal e a posterior
+    também. Cada sorteio da escala pesa-se pela verosimilhança marginal das corridas
+    informativas, e a reamostragem sistemática escolhe ``metade`` escalas; sem votos os
+    pesos são iguais e cada escala sai exatamente uma vez (o prior da previsão).
+    """
+    gl = GRAUS_LIBERDADE
+    escala = gl / rng.chisquare(gl, metade) * (gl - 2) / gl
+    var_prior = np.tile(e.sd**2, (metade, 1))
+    var_prior[:, NACIONAL] *= escala
+
+    informacao = np.zeros((FATORES, FATORES))
+    vetor = np.zeros(FATORES)
     usadas = 0
     for c in corridas:
         a = c.analise
         if a.s_chapeu is None or a.var_chapeu is None:
             continue
         variancia = a.var_chapeu + c.tau2
-        precisao += np.outer(c.carga, c.carga) / variancia
+        informacao += np.outer(c.carga, c.carga) / variancia
         vetor += c.carga * (a.s_chapeu - a.s0) / variancia
         usadas += 1
+
+    precisao = informacao[None, :, :] + np.einsum("ij,ki->kij", np.eye(FATORES), 1 / var_prior)
     covariancia = np.linalg.inv(precisao)
-    return covariancia @ vetor, covariancia, usadas
+    media = covariancia @ vetor
+    if usadas:
+        _, logdet_p = np.linalg.slogdet(precisao)
+        logpeso = -0.5 * (np.log(var_prior).sum(axis=1) + logdet_p - media @ vetor)
+        pesos = np.exp(logpeso - logpeso.max())
+        pesos /= pesos.sum()
+    else:
+        pesos = np.full(metade, 1 / metade)
+    posicoes = (rng.random() + np.arange(metade)) / metade
+    escolhidos = np.minimum(np.searchsorted(np.cumsum(pesos), posicoes), metade - 1)
+
+    z = rng.standard_normal((metade, FATORES))
+    desvio = np.einsum("kij,kj->ki", np.linalg.cholesky(covariancia[escolhidos]), z)
+    centro = media[escolhidos]
+    sorteios = np.concatenate([centro + desvio, centro - desvio])
+    m = float(pesos @ media[:, NACIONAL])
+    segundo = float(pesos @ (covariancia[:, NACIONAL, NACIONAL] + media[:, NACIONAL] ** 2))
+    return _Comum(sorteios, m, math.sqrt(max(segundo - m**2, 0.0)), usadas)
 
 
 def _margens(
     corridas: Sequence[_Corrida],
-    media: npt.NDArray[np.float64],
-    covariancia: npt.NDArray[np.float64],
-    n: int,
+    comum: npt.NDArray[np.float64],
     rng: np.random.Generator,
 ) -> npt.NDArray[np.float64]:
     """Margens finais simuladas, uma coluna por corrida.
@@ -123,13 +221,12 @@ def _margens(
     Os sorteios são antitéticos (cada um tem o seu simétrico em torno da média), o que
     torna a simulação exatamente simétrica entre partidos e reduz o ruído de Monte Carlo.
     """
-    metade = n // 2
+    metade = len(comum) // 2
 
-    def normais(*forma: int) -> npt.NDArray[np.float64]:
-        z = rng.standard_normal((metade, *forma))
+    def normais() -> npt.NDArray[np.float64]:
+        z = rng.standard_normal(metade)
         return np.concatenate([z, -z])
 
-    comum = media + normais(len(media)) @ np.linalg.cholesky(covariancia).T
     margens = np.empty((2 * metade, len(corridas)))
     for j, c in enumerate(corridas):
         a = c.analise
@@ -241,15 +338,10 @@ def projetar(
     ``reconstruido`` marca resultados reconstruídos (ensaio ou repetição).
     """
     p = parametros or Parametros()
-    sd_nacional = previsao.ambiente.desvio_padrao
-    sd_regiao = next(f.desvio_regiao for f in previsao.fundamentos if f.camara == "camara")
-    sd_regiao = max(sd_regiao, 0.5)
-    corridas = _preparar(
-        previsao, instantaneo, referencia, p, sd_nacional=sd_nacional, sd_regiao=sd_regiao
-    )
-    media, covariancia, usadas = _comum(corridas, sd_nacional, sd_regiao)
+    corridas = _preparar(previsao, instantaneo, referencia, p, estrutura(previsao))
     rng = np.random.default_rng(semente)
-    margens = _margens(corridas, media, covariancia, simulacoes, rng)
+    comum = _comum(corridas, estrutura(previsao), simulacoes // 2, rng)
+    margens = _margens(corridas, comum.sorteios, rng)
     por_id = {c.previsao.id: _corrida(c, margens[:, j]) for j, c in enumerate(corridas)}
     linhas = tuple(por_id.get(c.id) or _decidida(c) for c in previsao.corridas)
     return ProjecaoNoite(
@@ -262,9 +354,9 @@ def projetar(
         simulacoes=simulacoes,
         semente=semente,
         desvio_nacional=DesvioNacionalNoite(
-            media=float(media[0]),
-            desvio_padrao=float(math.sqrt(covariancia[0, 0])),
-            corridas_informativas=usadas,
+            media=comum.media_nacional,
+            desvio_padrao=comum.sd_nacional,
+            corridas_informativas=comum.informativas,
         ),
         camara=_resumo(previsao.camara, previsao, corridas, margens, desempate),
         senado=_resumo(previsao.senado, previsao, corridas, margens, desempate),
