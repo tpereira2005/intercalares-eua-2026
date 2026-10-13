@@ -14,6 +14,9 @@ Verificámos a 13 de outubro de 2026, a partir do GitHub Actions (onde o pipelin
 | Geórgia, Texas                             | Ficheiros diários existem, mas o servidor bloqueia pedidos automáticos       | ·                                                                            | ·     | ·                               |
 | Michigan, Ohio, Nevada, Arizona (Maricopa) | Painéis oficiais com o mesmo bloqueio                                        | ·                                                                            | ·     | ·                               |
 | Iowa                                       | Relatórios diários em PDF do Secretary of State (por distrito e por condado) | Totais por distrito, condado, partido e forma de receção                     | Não   | 2022 e 2024, mesmo dia do ciclo |
+| Carolina do Sul                            | Relatórios da Election Commission (scvotes.gov), finais de 2022 e 2024       | Totais por condado e raça (sem partido nem idade)                            | Não   | Extensão possível, não feita    |
+
+A Carolina do Sul fica como extensão possível: sem partido nem idade, só com o retrato final do voto por correspondência nos anos anteriores e sem os ficheiros de 2026 publicados a 13 de outubro, o ganho é pequeno.
 
 Não contornamos bloqueios a robôs (desafios do Cloudflare, Akamai ou Incapsula): seria contra as condições das fontes. Esses estados ficam de fora até haver uma via oficial aberta.
 

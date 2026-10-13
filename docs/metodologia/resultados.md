@@ -25,6 +25,8 @@ O Alasca estava "de fora" por um erro de configuração, não por um bloqueio: o
 
 Os identificadores das eleições de 2026 na Carolina do Sul e no Iowa (sites Clarity) só existem quando o estado cria a página. O conector procura-os na lista `elections.json` que o próprio site publica (o Iowa usa-a; a Carolina do Sul devolve uma lista vazia, por isso o identificador acrescenta-se à mão em `connectors/results/clarity/conector.py`). Até lá, a recolha salta esses estados com um aviso.
 
+A 13 de outubro de 2026, o ficheiro da Florida (`flelectionfiles.floridados.gov`, servido pela Azure Front Door) respondeu uma vez `403` ao Actions e passou na repetição. Não é um bloqueio a robôs (não há desafio, e a resposta seguinte foi normal); na noite eleitoral, uma falha isolada mantém publicado o último ficheiro válido e o ciclo seguinte volta a tentar.
+
 ### Clarity e o GitHub Actions
 
 Os sites Clarity (Carolina do Sul, Iowa e os condados que o usam) estão atrás de um AWS WAF. A 13 de outubro de 2026, um diagnóstico a partir do GitHub Actions mostrou que todos os pedidos recebem `202 Accepted`, corpo vazio e o cabeçalho `x-amzn-waf-action: challenge`, com ou sem User-Agent e cabeçalhos de navegador: é um desafio anti-robô em JavaScript dirigido aos endereços do Actions. Fora do Actions, os mesmos pedidos com o nosso User-Agent identificado recebem os ficheiros normalmente.
