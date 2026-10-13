@@ -192,7 +192,7 @@ function PainelLimiares({ vista }: { vista: VistaPrevisao }) {
           return (
             <li key={c}>
               {limiar === null
-                ? t("previsao.limiares.semLimiar", { camara: nome })
+                ? t("previsao.limiares.semLimiar", { camara: t(`previsao.camaraA.${c}`) })
                 : t("previsao.limiares.leitura", {
                     camara: nome,
                     limiar: margem(limiar),
@@ -255,7 +255,7 @@ function PainelEvolucao({
                 <EvolucaoControlo
                   pontos={pontos}
                   titulo={t("previsao.evolucao.aria", {
-                    camara: t(`previsao.camaraNome.${c}`),
+                    camara: t(`previsao.camaraNa.${c}`),
                     de: formatarPercentagem(primeiro?.probD ?? 0, 0),
                     ate: formatarPercentagem(ultimo?.probD ?? 0, 0),
                   })}

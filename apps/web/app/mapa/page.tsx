@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 import { MapaEstados } from "@/components/mapa/MapaEstados.tsx";
 import { caminhoEstado } from "@/components/voto-antecipado/PaginaEstado.tsx";
+import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
 import { resumirTodos } from "@/lib/voto-antecipado/resumo.ts";
 
-export const metadata: Metadata = { title: t("seccoes.mapa.titulo") };
+export const metadata: Metadata = metadadosPagina({
+  titulo: t("seccoes.mapa.titulo"),
+  descricao: t("seccoes.mapa.descricao"),
+  caminho: "/mapa/",
+  cartao: "mapa.png",
+});
 
 export default function Pagina() {
   // Os estados sem ficheiro aparecem a tracejado: o mapa fica pronto para vários estados.
