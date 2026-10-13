@@ -11,11 +11,11 @@ Maine) não aparecem: ``dimensoes`` diz quais existem.
 from datetime import date
 from typing import Literal
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from contratos.base import Metadados, ModeloContrato
 from contratos.estados import CodigoEstado
-from contratos.voto_antecipado import Faixa, ModalidadeVoto, Partido
+from contratos.voto_antecipado import Faixa, FaixaLarga, ModalidadeVoto, Partido
 
 Contagem = Field(ge=0)
 
@@ -70,6 +70,10 @@ class LinhaComparacaoAgregada(ModeloContrato):
 
 
 class LinhaGeografiaAgregada(ModeloContrato):
+    # Campo acrescentado depois da primeira versão: opcional no esquema JSON, para que os
+    # ficheiros já publicados continuem válidos (os modelos pydantic usam o valor por omissão).
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
+
     ano: int
     nivel: Literal["condado", "distrito"]
     codigo: str
@@ -78,6 +82,9 @@ class LinhaGeografiaAgregada(ModeloContrato):
     nome: str
     partido: Partido
     votos: int = Contagem
+    faixa: FaixaLarga = "total"
+    """Faixa larga, nos estados com idade (Pensilvânia). As linhas por faixa têm
+    ``partido = "total"``; as linhas por partido têm ``faixa = "total"``."""
 
 
 class LinhaPedidos(ModeloContrato):
@@ -141,7 +148,23 @@ class LinhaEstadoNacional(ModeloContrato):
     quota_65_mais_base: float | None
 
 
+class EstadoSemDados(ModeloContrato):
+    """Estado prioritário que o site não acompanha, e porquê."""
+
+    estado: CodigoEstado
+    motivo: Literal["bloqueado", "sem_fonte_gratuita"]
+    """``bloqueado``: a fonte oficial existe, mas recusa pedidos automáticos (não contornamos
+    o bloqueio). ``sem_fonte_gratuita``: não há dados oficiais gratuitos."""
+
+    nota: str
+    """Explicação curta em PT-PT, para mostrar no site."""
+
+
 class VotoAntecipadoNacional(ModeloContrato):
+    # Campo acrescentado depois da primeira versão: opcional no esquema JSON, para que os
+    # ficheiros já publicados continuem válidos (os modelos pydantic usam o valor por omissão).
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
+
     metadados: Metadados
     ano: int
     estados: tuple[LinhaEstadoNacional, ...]
@@ -149,3 +172,5 @@ class VotoAntecipadoNacional(ModeloContrato):
     """Soma dos estados acompanhados (não é um total nacional)."""
 
     avisos: tuple[str, ...]
+    estados_sem_dados: tuple[EstadoSemDados, ...] = ()
+    """Estados prioritários sem ficheiro, para o site não os mostrar como "ainda sem dados"."""

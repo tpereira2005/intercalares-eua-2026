@@ -8,7 +8,7 @@ e vêm já calculadas para que o site e a API não reimplementem a metodologia.
 from datetime import date
 from typing import Literal
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from contratos.base import Metadados, ModeloContrato
 from contratos.estados import CodigoEstado
@@ -145,6 +145,27 @@ class LinhaGeografia(ModeloContrato):
     registados: int = Contagem
 
 
+class LinhaHistoricoGeografia(ModeloContrato):
+    """Contributo de um grupo histórico para a participação de uma unidade geográfica e
+    faixa larga até ao dia (o mesmo dia do ciclo em todos os anos, com o mapa de 2026)."""
+
+    ano: int
+    ano_referencia: int
+    nivel: Literal["condado", "distrito"]
+    codigo: str
+    """FIPS de cinco dígitos (condado) ou número do distrito no mapa de 2026."""
+
+    nome: str
+    faixa: FaixaLarga
+    grupo: GrupoHistorico
+    votos: int = Contagem
+    registados: int = Contagem
+    """Recenseados da unidade e faixa (todos os grupos)."""
+
+    contributo: float | None
+    """votos / registados: a soma dos grupos dá a taxa de participação da unidade e faixa."""
+
+
 class LinhaCruzamento(ModeloContrato):
     ano: int
     dimensao: Dimensao
@@ -157,6 +178,10 @@ class LinhaCruzamento(ModeloContrato):
 
 class VotoAntecipadoEstado(ModeloContrato):
     """Rastreador de voto antecipado de um estado, com a análise por idade."""
+
+    # Campo acrescentado depois da primeira versão: opcional no esquema JSON, para que os
+    # ficheiros já publicados continuem válidos (os modelos pydantic usam o valor por omissão).
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
 
     metadados: Metadados
     estado: CodigoEstado
@@ -176,3 +201,7 @@ class VotoAntecipadoEstado(ModeloContrato):
     cruzamentos: tuple[LinhaCruzamento, ...]
     avisos: tuple[str, ...]
     """Limitações conhecidas desta atualização, em PT-PT, para mostrar no site."""
+
+    historico_geografia: tuple[LinhaHistoricoGeografia, ...] = ()
+    """Histórico de voto (habituais, antecipação, voto novo) por condado e distrito e por
+    faixa larga. Vazio nos anos sem histórico individual de referência."""
