@@ -124,10 +124,14 @@ export function MapaEstados({
                     key={e.codigo}
                     {...linhaEscolhivel(
                       !r
-                        ? t("mapa.quadradoSemDados", { estado: e.nome })
+                        ? t("mapa.quadradoSemDados", { estado: e.nome, codigo: e.codigo })
                         : valor === null
-                          ? t("mapa.quadradoSemValor", { estado: e.nome })
-                          : t("mapa.quadrado", { estado: e.nome, valor: formatarVariacao(valor) }),
+                          ? t("mapa.quadradoSemValor", { estado: e.nome, codigo: e.codigo })
+                          : t("mapa.quadrado", {
+                              estado: e.nome,
+                              codigo: e.codigo,
+                              valor: formatarVariacao(valor),
+                            }),
                       () => {
                         setEscolhido(e.codigo);
                       },
