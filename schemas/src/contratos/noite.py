@@ -82,8 +82,8 @@ class ProjecaoNoite(ModeloContrato):
     """Data de corte da previsão congelada usada como ponto de partida."""
 
     prior_congelado: bool = True
-    """``False`` quando o ponto de partida não é a previsão congelada (ensaio antes de 1 de
-    novembro, ou repetição com a previsão de um backtest)."""
+    """``False`` quando o ponto de partida é uma previsão ainda não congelada (por exemplo,
+    um ensaio antes de 1 de novembro)."""
 
     reconstruido: bool = False
     """``True`` quando os resultados parciais são uma reconstrução (ensaio ou repetição) e

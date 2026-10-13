@@ -2890,7 +2890,7 @@
         },
         "prior_congelado": {
           "default": true,
-          "description": "``False`` quando o ponto de partida não é a previsão congelada (ensaio antes de 1 de\nnovembro, ou repetição com a previsão de um backtest).",
+          "description": "``False`` quando o ponto de partida é uma previsão ainda não congelada (por exemplo,\num ensaio antes de 1 de novembro).",
           "title": "Prior Congelado",
           "type": "boolean"
         },

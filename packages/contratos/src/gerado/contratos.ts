@@ -1010,8 +1010,8 @@ export interface ProjecaoNoite {
   metadados: Metadados;
   notas: string[];
   /**
-   * ``False`` quando o ponto de partida não é a previsão congelada (ensaio antes de 1 de
-   * novembro, ou repetição com a previsão de um backtest).
+   * ``False`` quando o ponto de partida é uma previsão ainda não congelada (por exemplo,
+   * um ensaio antes de 1 de novembro).
    */
   prior_congelado: boolean;
   /**
