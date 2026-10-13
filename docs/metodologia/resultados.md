@@ -55,7 +55,9 @@ Resolver o desafio seria contornar o bloqueio, por isso não o fazemos. O pipeli
 3. Compara com o retrato anterior. Uma descida de totais ou de secções apuradas fica registada; os números publicados são sempre os da fonte, sem alisamento.
 4. Guarda uma cópia dos ficheiros da fonte e de cada `parciais.json`. No fim do job vão para um artefacto, para rever a noite e para futuros ensaios com a ordem real.
 
-Um estado que falha não para os outros: o último ficheiro válido continua publicado.
+Um estado que falha não para os outros: o último ficheiro válido continua publicado. Isto vale para qualquer falha (fonte em baixo, resposta vazia, ficheiro corrompido, 403, desafio anti-robô, formato novo ou erro inesperado na leitura) e é testado em `test_robustez_noite.py` com falhas injetadas. As descargas repetem com recuo exponencial em falhas de rede, 408, 425, 429 e 5xx, respeitando o `Retry-After` de um 429; um 403 ou um 404 não se repete.
+
+A cada ciclo, `saude.json` regista por estado o último sucesso, a última alteração da fonte, as falhas seguidas e um alerta (6 falhas seguidas, ou 45 minutos sem dados novos com a contagem por acabar). O workflow `vigia-noite.yml` lê-o a cada 10 minutos nas datas da noite e abre um issue quando há alertas, incluindo quando o próprio `saude.json` deixa de ser atualizado. O guião da noite está em [`../noite-eleitoral-operacao.md`](../noite-eleitoral-operacao.md).
 
 ## 3. Definições
 

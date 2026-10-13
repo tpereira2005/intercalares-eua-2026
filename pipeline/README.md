@@ -75,6 +75,7 @@ Conectores em `connectors/results/` (Carolina do Norte, Florida, Geórgia, Alasc
 
 ```sh
 uv run python -m pipeline.jobs.resultados --duracao 600            # recolha a cada 30 s
+uv run python -m pipeline.jobs.vigia --saude data/publicado/resultados/saude.json  # alertas da noite
 uv run python -m pipeline.jobs.ensaio_resultados --estado NC --data 2022-11-08 --parciais ensaio/nc-2022
 uv run python -m pipeline.jobs.resultados_avaliacao --pasta data/publicado/resultados --saida resultados-2026.csv
 ```

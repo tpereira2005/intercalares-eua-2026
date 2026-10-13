@@ -15,12 +15,16 @@ pedidos condicionais (ETag, Last-Modified). Quando algum mudou:
    cópia por instante em ``--brutos/parciais/``) e, com ``--publicar``, envia os ficheiros
    alterados para a Release indicada.
 
-Um estado que falha (fonte em baixo, formato novo) não para os outros: o seu último
-ficheiro válido continua publicado. ``--espelho`` troca o servidor de cada fonte por um
-servidor local, para o ensaio geral.
+Um estado que falha (fonte em baixo, resposta vazia, ficheiro corrompido, 403/429,
+formato novo, ou qualquer erro inesperado na leitura) não para os outros: o seu último
+ficheiro válido continua publicado e nada inválido é escrito. A cada ciclo, ``saude.json``
+diz, por estado, o último sucesso, a última alteração da fonte, as falhas seguidas e se
+há alerta (ver ``pipeline.jobs.vigia``). ``--espelho`` troca o servidor de cada fonte por
+um servidor local, para o ensaio geral.
 """
 
 import argparse
+import json
 import logging
 import shutil
 import subprocess
@@ -55,6 +59,18 @@ registo = logging.getLogger(__name__)
 
 NACIONAL = "nacional.json"
 PARCIAIS = "parciais.json"
+SAUDE = "saude.json"
+FALHAS_ALERTA = 6
+"""Falhas seguidas (3 minutos com o intervalo de 30 s) que tornam o estado um alerta."""
+
+SEM_ALTERACAO_ALERTA = 45 * 60
+"""Segundos sem alteração da fonte, com a contagem por acabar, que tornam o estado um
+alerta. Na noite, os estados atualizam a cada poucos minutos; 45 minutos parados com
+secções por apurar quase sempre querem dizer uma fonte presa."""
+
+SAUDE_CICLOS = 10
+"""Com ``--publicar``, ``saude.json`` vai para a Release a cada tantos ciclos (5 minutos),
+ou logo que um alerta muda."""
 PEDIDOS_PARALELOS = 8
 """Pedidos simultâneos à mesma fonte, para os ficheiros de detalhe por condado."""
 
@@ -67,6 +83,31 @@ class EstadoRecolha:
     leitura: Leitura | None = None
     falhas_seguidas: int = 0
     problemas: list[str] = field(default_factory=list)
+    ultimo_sucesso: datetime | None = None
+    """Último ciclo em que a fonte respondeu e o ficheiro (novo ou igual) foi válido."""
+
+    ultima_alteracao: datetime | None = None
+    """Último ciclo em que a fonte trouxe dados novos."""
+
+    ultimo_erro: str | None = None
+
+    def apurado(self) -> bool:
+        """Todas as corridas com todas as unidades apuradas (a fonte pode parar)."""
+        if self.ultimo is None or not self.ultimo.corridas:
+            return False
+        return all(
+            c.unidades_totais is not None and c.unidades_reportadas == c.unidades_totais
+            for c in self.ultimo.corridas
+        )
+
+    def alerta(self, agora: datetime) -> str | None:
+        if self.falhas_seguidas >= FALHAS_ALERTA:
+            return f"{self.falhas_seguidas} falhas seguidas: {self.ultimo_erro}"
+        if self.ultima_alteracao is not None and not self.apurado():
+            parado = (agora - self.ultima_alteracao).total_seconds()
+            if parado >= SEM_ALTERACAO_ALERTA:
+                return f"sem dados novos há {int(parado // 60)} minutos, com a contagem por acabar"
+        return None
 
 
 @dataclass
@@ -102,17 +143,56 @@ class Recolha:
             estado = self.estados.setdefault(conector.estado, EstadoRecolha())
             try:
                 caminho = self._estado(conector, estado)
-            except (ErroPipeline, httpx.HTTPError, ValueError) as erro:
+            except Exception as erro:
                 estado.falhas_seguidas += 1
+                estado.ultimo_erro = f"{type(erro).__name__}: {erro}"[:300]
+                esperado = isinstance(erro, ErroPipeline | httpx.HTTPError | ValueError)
                 nivel = logging.WARNING if estado.falhas_seguidas < 3 else logging.ERROR
-                registo.log(nivel, "%s: %s", conector.estado, erro)
+                registo.log(nivel, "%s: %s", conector.estado, erro, exc_info=not esperado)
                 continue
+            agora = datetime.now(UTC)
             estado.falhas_seguidas = 0
+            estado.ultimo_erro = None
+            estado.ultimo_sucesso = agora
             if caminho is not None:
+                estado.ultima_alteracao = agora
                 alterados.append(caminho)
         if alterados:
-            alterados += [self._nacional(), self._parciais()]
+            try:
+                alterados += [self._nacional(), self._parciais()]
+            except Exception:
+                # Sem resumo nem parciais novos neste ciclo; os ficheiros dos estados, já
+                # validados, seguem. No ciclo seguinte volta a tentar-se.
+                registo.exception("Falhou o resumo nacional ou os parciais")
         return alterados
+
+    def saude(self, agora: datetime | None = None) -> dict[str, object]:
+        """Estado da recolha para o vigia (não é um contrato do site)."""
+        agora = agora or datetime.now(UTC)
+
+        def hora(valor: datetime | None) -> str | None:
+            return valor.isoformat() if valor else None
+
+        return {
+            "gerado_em": agora.isoformat(),
+            "data_eleicao": self.data.isoformat(),
+            "estados": {
+                uf.value: {
+                    "ultimo_sucesso": hora(e.ultimo_sucesso),
+                    "ultima_alteracao": hora(e.ultima_alteracao),
+                    "falhas_seguidas": e.falhas_seguidas,
+                    "ultimo_erro": e.ultimo_erro,
+                    "apurado": e.apurado(),
+                    "alerta": e.alerta(agora),
+                }
+                for uf, e in sorted(self.estados.items())
+            },
+        }
+
+    def escrever_saude(self) -> Path:
+        saida = self.saida / SAUDE
+        _escrever(saida, json.dumps(self.saude(), ensure_ascii=False, indent=2))
+        return saida
 
     def _estado(self, conector: ConectorResultados, estado: EstadoRecolha) -> Path | None:
         uf = conector.estado.value.lower()
@@ -220,11 +300,25 @@ def executar(
     """Corre ciclos até ``duracao`` segundos ou ``ciclos`` ciclos; devolve os ciclos feitos."""
     inicio = time.monotonic()
     feitos = 0
+    alertas_antes: set[str] = set()
     while (ciclos is None or feitos < ciclos) and (
         duracao is None or time.monotonic() - inicio < duracao
     ):
         comeco = time.monotonic()
-        recolha.enviar(recolha.ciclo(conectores))
+        alterados = recolha.ciclo(conectores)
+        saude = recolha.escrever_saude()
+        agora = datetime.now(UTC)
+        alertas = {
+            uf.value: texto
+            for uf, e in recolha.estados.items()
+            if (texto := e.alerta(agora)) is not None
+        }
+        for uf in sorted(set(alertas) - alertas_antes):
+            registo.error("ALERTA %s: %s", uf, alertas[uf])
+        if set(alertas) != alertas_antes or feitos % SAUDE_CICLOS == 0:
+            alterados.append(saude)
+        alertas_antes = set(alertas)
+        recolha.enviar(alterados)
         feitos += 1
         gasto = time.monotonic() - comeco
         if gasto > intervalo:
