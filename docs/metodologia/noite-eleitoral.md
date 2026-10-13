@@ -1,0 +1,116 @@
+# Metodologia: projeção da noite eleitoral (Modelo C)
+
+O Modelo C atualiza a previsão congelada (`PrevisaoCongresso`, ver `previsao.md`) com os votos que vão sendo contados na noite de 3 de novembro e nos dias seguintes. Publica uma `ProjecaoNoite` por instante de resultados. Nesse ficheiro estão:
+
+- a margem projetada de cada corrida, com o intervalo de 80% e a probabilidade de vitória;
+- a fração estimada já contada;
+- a probabilidade de controlo e a distribuição de lugares de cada câmara.
+
+O código está em `pipeline/src/pipeline/modelo/noite/`.
+
+## 1. Entradas
+
+- **Resultados parciais** (`ResultadosParciais`, da recolha de resultados).
+  - Há uma linha por corrida e por unidade: um condado, ou `total` quando a fonte só dá o total.
+  - Cada linha traz os votos do lado democrata, do lado republicano e dos outros candidatos.
+  - Quando a fonte as publica, traz também as secções reportadas.
+- **Previsão congelada.** Dá a margem prevista e o intervalo de 80% de cada corrida, e o desvio do ambiente nacional e das regiões.
+- **Eleição de referência por condado.** É a presidencial anterior (`data/reference/modelo/presidencial_condados_<ano>.csv`, compilada por Tony McGovern, licença MIT).
+  - Em 2026 usa-se 2024.
+  - Nas repetições de 2022 e 2024 usa-se 2020.
+  - Dá a base partidária de cada condado e o voto esperado.
+
+## 2. Uma corrida
+
+Cada unidade `u` tem uma margem de referência `b_u` e um voto esperado `E_u`. Ao fim da contagem, a sua margem é `F_u = b_u + s + e_u`:
+
+- `s` é o desvio da corrida face à referência;
+- `e_u` é o desvio próprio do condado (desvio-padrão de 6 pontos; entre presidenciais é de 3 a 5).
+
+Enquanto só está contada uma fração `c_u` da unidade, a parte contada e a que falta diferem:
+
+```
+contada:    m_u = F_u + (1 − c_u) · D_u
+por contar: r_u = F_u − c_u · D_u
+```
+
+`D_u` é a inclinação do voto contado primeiro. Tem uma parte comum à corrida (desvio-padrão de 25 pontos por unidade de fração por contar) e uma parte própria do condado (15 pontos). As duas partes têm **média zero**: o modelo não presume que o voto tardio favorece um partido. Admite apenas que a diferença existe e que desaparece quando a unidade fica completa.
+
+Os valores vêm de 2022. Nesse ano, na Carolina do Norte, na Geórgia e na Carolina do Sul, o voto antecipado e o voto por correspondência ficaram 15 a 45 pontos ao lado do resultado final, umas vezes para um lado e outras para o outro. Sem a parte própria de cada condado, a variação da fração contada entre condados deixaria extrapolar a margem final com uma confiança que os dados não justificam.
+
+**Voto esperado.** Usa-se, por esta ordem:
+
+1. A fração do voto esperado, se a fonte a publicar.
+2. As secções reportadas, se a unidade estiver completa. Mesmo assim, presume-se que ainda faltam 2% (provisórios, correio tardio).
+3. Caso contrário, a participação face à referência vezes os votos de referência. A participação parte de 0,72 num ano intercalar (2022/2020: 0,71) e aprende-se com as unidades completas.
+
+Sem fração declarada, uma unidade nunca passa dos 90% contados. Os distritos da Câmara sem referência própria somam as partes de condados numa unidade `total` e usam as secções reportadas.
+
+**Estimação.** O prior de `s` vem da previsão congelada: a média é a margem prevista menos a base dos condados, e a variância é a da previsão menos a parte explicada pelos condados. Tudo é linear e normal, por isso a margem final condicionada a `s` e às contagens é normal. A média e a variância calculam-se de forma exata, com a fórmula de Sherman–Morrison para a inclinação comum.
+
+Um condado cujo desvio está a mais de 3 desvios-padrão da mediana pesa menos (ponderação de Huber). Assim, um condado trocado na fonte ou um lote mal lançado não arrasta a corrida.
+
+**Volume do que falta.** Soma-se ainda a incerteza no volume do que falta (15%). Só pesa quando o que falta vota de forma diferente do que já foi contado, e desaparece no início e no fim da contagem.
+
+## 3. As câmaras
+
+O desvio de cada corrida tem três partes:
+
+- uma parte comum a todas as corridas, o desvio nacional `v` (com o desvio-padrão do ambiente da previsão);
+- uma parte da região do Census;
+- uma parte própria.
+
+As corridas com votos informam `v` e as regiões por pesos de precisão. As corridas sem feed (Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada e Alasca, além das que ainda não fecharam) ficam no prior, deslocadas apenas pelo que as outras já mostraram, e **mantêm a incerteza toda** da previsão.
+
+Cada simulação (20 000, antitéticas) sorteia `v` e as regiões, depois o desvio de cada corrida e, por fim, a margem final. Os lugares somam-se com as corridas decididas e os lugares que não vão a votos. Um Senado 50-50 é decidido pelo partido do vice-presidente.
+
+Os sorteios antitéticos tornam a simulação exatamente simétrica: trocar os partidos em todas as entradas troca exatamente todas as saídas, e há um teste que o confirma.
+
+## 4. Testes
+
+`pipeline/tests/modelo/test_noite_eleitoral.py` usa noites sintéticas com resultado conhecido e verifica que:
+
+- sem votos, a projeção é a previsão;
+- com tudo contado e declarado completo, a projeção é o resultado;
+- trocar os partidos troca a projeção;
+- os intervalos de 80% contêm o resultado entre 72% e 95% das vezes em cada fase da contagem;
+- o Brier desce à medida que se conta;
+- uma corrida sem feed mantém pelo menos 60% da largura do intervalo prior.
+
+## 5. Repetição com 2022 e 2024
+
+`pipeline.jobs.repeticao_noite` repete as noites com os resultados oficiais que o ensaio da recolha de resultados descarrega: Carolina do Norte, Geórgia e Carolina do Sul em 2022 e em 2024, Florida e Iowa em 2024.
+
+As fontes só guardam o resultado final, por isso a ordem da noite é reconstruída. Há duas reconstruções:
+
+- **ensaio**: a do ensaio da recolha, em que os condados chegam inteiros por ordem aleatória;
+- **modos**: em cada condado chega primeiro o voto antecipado e por correspondência, depois o dia da eleição aos poucos e no fim os provisórios. É a mais exigente, porque cada condado passa por estados parciais com a inclinação real do voto antecipado.
+
+Nenhuma é a sequência real da noite, por isso estes números medem a coerência do modelo e não a sua calibração temporal exata. O ponto de partida é a previsão do backtest de cada ano.
+
+| Repetição    | Brier no 1.º passo | Brier a 50–60% contado | Cobertura 80% (mín.–máx.) | Maior probabilidade dada a quem perdeu | Chamadas erradas (≥ 99%) |
+| ------------ | -----------------: | ---------------------: | ------------------------: | -------------------------------------- | -----------------------: |
+| 2022, ensaio |        0,011 (15%) |                  0,008 |                 0,89–1,00 | GA-S 0,51; NC-01 0,32                  |                        0 |
+| 2022, modos  |         0,038 (3%) |                  0,010 |                 0,94–1,00 | NC-13 0,76; GA-S 0,73                  |                        0 |
+| 2024, ensaio |        0,003 (22%) |                  0,002 |                 0,82–1,00 | NC-01 0,42; IA-01 0,34                 |                        0 |
+| 2024, modos  |        0,002 (23%) |                  0,002 |                 0,87–1,00 | IA-01 0,51; NC-01 0,32                 |                        0 |
+
+Leitura:
+
+- **Nenhuma chamada errada.** Em nenhuma repetição o modelo chegou a dar 99% a quem acabou por perder.
+- **GA-S 2022.** O voto antecipado de Warnock (D+7) seguido do dia da eleição de Walker (R+15) fez a projeção oscilar, como seria de esperar. Nunca passou dos 73% para Walker. NC-13 já tinha o republicano como favorito na previsão.
+- **2024.** A projeção afasta-se cedo da previsão (desvio nacional de cerca de 3 pontos para o lado republicano), o que bate certo com o erro real da previsão desse ano.
+- **Intervalos largos.** Estão um pouco largos (cobertura acima de 80%), o que é preferível numa noite em que as fontes falham. Os parâmetros não foram afinados com estas repetições.
+
+Durante a repetição apareceram dois problemas nos dados do ensaio da Carolina do Norte de 2022, comunicados à recolha de resultados:
+
+- os condados de Macon e Martin parecem ter os FIPS trocados;
+- os votos antecipado e do dia da eleição parecem ter os rótulos trocados.
+
+A ponderação robusta absorve o primeiro.
+
+## 6. Limitações
+
+- A inclinação do voto contado primeiro é independente entre corridas. Na realidade, o correio inclina para o mesmo lado em todo o país, o que torna a incerteza das câmaras no início da noite um pouco estreita. O desvio nacional aprende com as corridas já avançadas, o que compensa em parte.
+- Sem fração do voto esperado nas fontes (nenhuma das atuais a publica), o volume do que falta depende da participação estimada e das secções. Por isso o modelo nunca dá uma unidade por completa sem a fonte o dizer.
+- Os distritos da Câmara não têm referência própria por condado (os condados são partidos pelos distritos), por isso aprendem menos com os primeiros votos do que as corridas ao Senado.
