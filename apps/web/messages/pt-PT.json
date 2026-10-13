@@ -342,5 +342,58 @@
         "descricao": "Composição etária do eleitor provável nas sondagens, comparada com a composição projetada a partir de quem já votou."
       }
     }
+  },
+  "agregado": {
+    "titulo": "{estado}, voto antecipado",
+    "lede": {
+      "boletim": "Um registo por boletim, sem nomes. Sem os recenseados de cada grupo não há taxas de participação: comparamos votos com votos no mesmo dia do ciclo.",
+      "condado": "Só os totais por condado e partido que a fonte publica. Comparamos votos com votos no mesmo dia do ciclo, sem taxas de participação."
+    },
+    "kpis": {
+      "votos": "Votos antecipados até hoje",
+      "votosDetalhe": "{variacao} face ao mesmo dia de {ano}",
+      "quota65": "Quota dos eleitores com 65 ou mais anos",
+      "quota65Detalhe": "{pontos} face a {ano}",
+      "pendentes": "Boletins pedidos por devolver",
+      "pendentesDetalhe": "{valor} dos pedidos já voltaram"
+    },
+    "ritmo": {
+      "sobrelinha": "Ritmo",
+      "titulo": "Votos acumulados por dia do ciclo",
+      "texto": "Cada linha soma os votos antecipados até cada dia antes da eleição. A comparação é sempre no mesmo dia, nunca com o total final.",
+      "aria": "Votos antecipados acumulados por dia do ciclo, por ano",
+      "metodo": "votos com data de receção até cada dia do ciclo; os anos anteriores contam os dias antes da sua própria eleição."
+    },
+    "idade": {
+      "sobrelinha": "Composição",
+      "titulo": "Que parte do voto antecipado vem de cada idade",
+      "texto": "Quota de cada faixa nos votos até hoje, com o traço da mesma quota no mesmo dia dos anos de referência.",
+      "metodo": "idade no fim do ano da eleição, a partir do ano de nascimento; quota nos votos antecipados até ao dia."
+    },
+    "partido": {
+      "sobrelinha": "Composição",
+      "titulo": "Por partido de registo",
+      "texto": "Quota de cada partido de registo nos votos até hoje; o traço é a mesma quota no mesmo dia de {ano}. Registo não é voto.",
+      "aria": "Quota de cada partido de registo nos votos antecipados",
+      "ritmo": "ritmo {valor} face a {ano}",
+      "metodo": "quota nos votos antecipados até ao dia; ritmo = votos do partido / votos do partido no mesmo dia de {ano} − 1."
+    },
+    "pedidos": {
+      "sobrelinha": "Boletins pedidos",
+      "titulo": "Quanto dos pedidos já voltou",
+      "texto": "Boletins por correspondência pedidos até hoje e já devolvidos, por partido de registo. O traço é a mesma parte no mesmo dia de {ano}.",
+      "aria": "Parte dos boletins pedidos já devolvida, por partido",
+      "pendentes": "{valor} por devolver",
+      "metodo": "devolvidos / pedidos até ao dia; um boletim cancelado não conta como devolvido."
+    },
+    "modalidade": {
+      "sobrelinha": "Modalidade",
+      "titulo": "Correio e presencial",
+      "quota": "Quota em {ano}",
+      "ritmo": "Ritmo face a {ano}",
+      "metodo": "quota nos votos antecipados até ao dia e ritmo face ao mesmo dia de {ano}."
+    },
+    "semComparacao": "Ainda não há ano de referência para este estado: a série começa com as nossas próprias recolhas.",
+    "documentacao": "Metodologia dos estados sem ficheiro de eleitores"
   }
 }

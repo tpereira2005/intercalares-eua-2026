@@ -268,7 +268,7 @@ export default function Inicio() {
           {resumos.length > 0 ? (
             <EstadosAcompanhados
               resumos={resumos}
-              comPagina={new Set(todas.individuais.map((v) => v.estado))}
+              comPagina={new Set(resumos.map((r) => r.estado))}
             />
           ) : (
             <OQueVemAi />

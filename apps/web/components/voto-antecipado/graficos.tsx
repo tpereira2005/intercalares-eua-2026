@@ -9,6 +9,7 @@ import {
   linhaEscolhivel,
 } from "@/components/charts/base.tsx";
 import {
+  formatarCompacto,
   formatarDiaCiclo,
   formatarNumero,
   formatarPercentagem,
@@ -18,7 +19,6 @@ import {
 import { t } from "@/lib/mensagens.ts";
 import {
   PARTIDOS,
-  type ComparacaoAno,
   type CruzamentoFaixa,
   type CurvaAno,
   type FaixaEtaria,
@@ -26,7 +26,7 @@ import {
   type PartidoRegisto,
   type ReservaPartido,
 } from "@/lib/voto-antecipado/vista.ts";
-import { estiloAno, rotuloFaixa, type LinhaBarra } from "./anos.ts";
+import { estiloAno, rotuloFaixa, type AnoComparado, type LinhaBarra } from "./anos.ts";
 
 const ROTULO = 54;
 const TEXTO_EIXO = "fill-ink-3 font-mono text-[10.5px]";
@@ -117,7 +117,7 @@ export function BarrasIdade({
   linhas: readonly LinhaBarra[];
   anoAtual: number;
   anoComparar: number;
-  comparacoes: readonly ComparacaoAno[];
+  comparacoes: readonly AnoComparado[];
   /** Sem faixa ativa nem escolha, o gráfico é só de leitura (painel inicial). */
   faixaAtiva?: FaixaEtaria;
   aoEscolher?: (faixa: FaixaEtaria) => void;
@@ -543,14 +543,17 @@ export function CurvaCoorte({
   diasAntes,
   comparacoes,
   diaInicial,
+  formato = "percentagem",
 }: {
   titulo: string;
   curvas: readonly CurvaAno[];
   anoAtual: number;
   diasAntes: number;
-  comparacoes: readonly ComparacaoAno[];
+  comparacoes: readonly AnoComparado[];
   /** Primeiro dia (mais afastado da eleição) e último dia mostrados. */
   diaInicial: { de: number; ate: number };
+  /** Percentagem (taxas) ou número de votos (estados sem ficheiro de eleitores). */
+  formato?: "percentagem" | "numero";
 }) {
   const altura = 240;
   const margem = { esquerda: 44, direita: 54, topo: 14, fundo: 28 };
@@ -563,6 +566,10 @@ export function CurvaCoorte({
     Math.max(...visiveis.flatMap((c) => c.pontos.map((p) => p.taxa)), 0.001),
   );
   const decimais = casasMarcas(marcasY);
+  const eixo = (v: number) =>
+    formato === "numero" ? formatarCompacto(v) : formatarPercentagem(v, decimais);
+  const ponta = (v: number) =>
+    formato === "numero" ? formatarCompacto(v) : formatarPercentagem(v, casas(maximo));
   const ordem = [...visiveis].sort((a, b) =>
     a.ano === anoAtual ? 1 : b.ano === anoAtual ? -1 : a.ano - b.ano,
   );
@@ -606,7 +613,7 @@ export function CurvaCoorte({
                     textAnchor="end"
                     className={TEXTO_EIXO}
                   >
-                    {formatarPercentagem(v, decimais)}
+                    {eixo(v)}
                   </text>
                 </g>
               ))}
@@ -660,7 +667,7 @@ export function CurvaCoorte({
                         className="fill-ink text-[12.5px] font-bold"
                         style={HALO}
                       >
-                        {formatarPercentagem(ultimo.taxa, casas(maximo))}
+                        {ponta(ultimo.taxa)}
                       </text>
                     </>
                   ) : (
@@ -816,12 +823,15 @@ export function BarrasReserva({
   anoAtual,
   comparacoes,
   anoBase,
+  detalhes,
 }: {
   titulo: string;
   partidos: readonly ReservaPartido[];
   anoAtual: number;
-  comparacoes: readonly ComparacaoAno[];
+  comparacoes: readonly AnoComparado[];
   anoBase: number | null;
+  /** Texto por baixo de cada barra; por omissão, os habituais que faltam votar. */
+  detalhes?: readonly string[];
 }) {
   const alturaLinha = 44;
   const topo = 22;
@@ -878,9 +888,10 @@ export function BarrasReserva({
                     {formatarPercentagem(p.mobilizacao ?? 0, decimais)}
                   </text>
                   <text x={rotulo} y={centro + 22} className="fill-ink-3 font-mono text-[10.5px]">
-                    {t("votoAntecipado.reserva.restantes", {
-                      valor: formatarNumero(p.restantes),
-                    })}
+                    {detalhes?.[indice] ??
+                      t("votoAntecipado.reserva.restantes", {
+                        valor: formatarNumero(p.restantes),
+                      })}
                   </text>
                 </g>
               );

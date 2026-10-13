@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import type { VistaVotoAntecipado } from "@/lib/voto-antecipado/vista.ts";
-import { estiloAno } from "./anos.ts";
+import { estiloAno, type AnoComparado } from "./anos.ts";
 
 export function Legenda({ children }: { children: ReactNode }) {
   return (
@@ -29,7 +28,7 @@ export function AmostraAno({
 }: {
   ano: number;
   anoAtual: number;
-  vista: VistaVotoAntecipado;
+  vista: { comparacoes: readonly AnoComparado[] };
   forma?: "traco" | "linha";
 }) {
   const estilo = estiloAno(ano, anoAtual, vista.comparacoes);

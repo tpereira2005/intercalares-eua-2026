@@ -16,10 +16,13 @@ export interface EstiloAno {
   tracejado?: string;
 }
 
+/** O mínimo de cada comparação que o estilo precisa (serve as duas vistas). */
+export type AnoComparado = Pick<ComparacaoAno, "anoBase" | "tipo">;
+
 export function estiloAno(
   ano: number,
   anoAtual: number,
-  comparacoes: readonly ComparacaoAno[],
+  comparacoes: readonly AnoComparado[],
 ): EstiloAno {
   if (ano === anoAtual) return { classe: "stroke-signal", largura: 3 };
   const comparacao = comparacoes.find((c) => c.anoBase === ano);
