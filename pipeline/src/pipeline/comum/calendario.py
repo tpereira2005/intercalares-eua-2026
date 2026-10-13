@@ -72,6 +72,8 @@ ELEICOES_NC: dict[int, EleicaoGeral] = {
         (
             "Primeira eleição geral com identificação com fotografia obrigatória.",
             "A correspondência passou a ter de chegar até às 19h30 do dia da eleição.",
+            "O envio dos boletins por correio atrasou cerca de duas semanas (reimpressão "
+            "ordenada pelos tribunais), o que atrasa a curva de correio de 2024.",
             "O furacão Helene (fim de setembro) afetou o oeste do estado.",
         ),
     ),

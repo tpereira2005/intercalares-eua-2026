@@ -21,7 +21,7 @@ Os ficheiros da NCSBE têm aspas por fechar e bytes fora de UTF-8. Os leitores C
 
 ### Validação
 
-Cada ano de referência é conferido com uma fonte independente: o total de votos antecipados reconstruído a partir dos boletins tem de coincidir, a menos de 1%, com o histórico individual oficial. Em 2022: 2 201 705 votos nos boletins contra 2 199 518 no histórico (diferença de 0,1%).
+Cada ano de referência é conferido com uma fonte independente: o total de votos antecipados reconstruído a partir dos boletins tem de coincidir, a menos de 1%, com o histórico individual oficial. Em 2018: 2 074 734 votos nos boletins contra 2 069 792 no histórico (0,24%). Em 2022: 2 201 705 contra 2 199 518 (0,10%). Em 2024: 4 530 345 contra 4 521 970 (0,19%).
 
 ## 2. Definições
 
@@ -78,11 +78,11 @@ Eleitores que votaram na eleição de referência (por qualquer método) e ainda
 ## 6. Limitações conhecidas
 
 - **Mudanças de regras**: em 2024 passou a ser obrigatória a identificação com fotografia e o correio passou a ter de chegar até ao fecho das urnas; em 2018 e 2022 havia três dias de tolerância. As séries até ao dia da eleição não são afetadas pela tolerância, mas o total final de correio sim.
-- **2024 é presidencial** e teve o furacão Helene no oeste do estado: é uma referência de ritmo, não de nível.
+- **2024 é presidencial**, teve o furacão Helene no oeste do estado e o envio dos boletins por correio atrasou cerca de duas semanas por ordem judicial: é uma referência de ritmo do voto presencial, não de nível nem do correio.
 - **2020** (pandemia) não é usado como referência.
 - **Antes do voto presencial** (até 15 de outubro de 2026) só há correio, onde os mais velhos pesam muito mais: a composição etária nessa fase não é comparável com o total final.
 - **Denominador de 2026**: o ficheiro de eleitores é semanal e não inclui ainda quem se recensear durante o voto antecipado; esses eleitores entram pelo boletim.
-- **Histórico**: o ficheiro individual guarda cerca de dez anos e inclui eleitores removidos; a cobertura de 2018 confere com o total oficial a menos de 0,5%.
+- **Histórico**: o ficheiro individual guarda cerca de dez anos (desde 2016) e inclui eleitores removidos; os totais de votos antecipados conferem com os ficheiros de boletins a menos de 0,3% (secção 1).
 
 ## 7. Reprodução
 
