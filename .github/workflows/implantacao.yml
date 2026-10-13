@@ -1,12 +1,12 @@
 name: Implantação
 
 # Publica o site e o Worker na Cloudflare (plano gratuito) depois de cada CI verde no main
-# e de cada atualização dos dados do voto antecipado. Enquanto a variável
+# e de cada atualização dos dados (voto antecipado e previsão). Enquanto a variável
 # CLOUDFLARE_ACCOUNT_ID não existir no repositório, o job é saltado sem erro
 # (ver docs/implantacao.md).
 on:
   workflow_run:
-    workflows: [CI, Voto antecipado]
+    workflows: [CI, Voto antecipado, Previsão]
     types: [completed]
     branches: [main]
   workflow_dispatch:

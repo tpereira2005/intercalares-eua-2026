@@ -3,8 +3,10 @@ import {
   diasAteEleicao,
   formatarCompacto,
   formatarData,
+  formatarDataCurta,
   formatarDiaCiclo,
   formatarMargem,
+  formatarMargemPontos,
   formatarNumero,
   formatarPercentagem,
   formatarPontos,
@@ -25,6 +27,16 @@ describe("formatação pt-PT", () => {
     expect(formatarPontos(0.032)).toBe("+3,2 pp");
     expect(formatarPontos(-0.015)).toBe("-1,5 pp");
     expect(formatarPontos(0)).toBe("0,0 pp");
+  });
+
+  it("escreve margens dadas em pontos", () => {
+    expect(formatarMargemPontos(8.44)).toBe("D +8,4");
+    expect(formatarMargemPontos(-2, 0)).toBe("R +2");
+    expect(formatarMargemPontos(0.01)).toBe("Empate");
+  });
+
+  it("escreve datas curtas para eixos", () => {
+    expect(formatarDataCurta(new Date("2026-10-13T12:00:00Z"))).toBe("13 out.");
   });
 
   it("escreve datas por extenso", () => {

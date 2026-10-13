@@ -40,6 +40,16 @@ Os testes usam `apps/web/test/fixtures/voto-antecipado-sintetico.json`, gerado c
 
 Um estado novo só precisa de publicar o seu ficheiro na Release: ganha uma página, um quadrado colorido no mapa e uma linha em "Estados acompanhados" no início, sem alterações no site.
 
+### Previsão no site
+
+A página `/previsao/` lê dois ficheiros da Release `dados-previsao`, que o workflow Previsão substitui uma vez por dia até ao congelamento (1 de novembro de 2026):
+
+1. `dados:obter` descarrega `previsao-2026.json` (contrato `PrevisaoCongresso`) e `historico-previsao-2026.json` (`HistoricoPrevisao`) para `apps/web/dados/previsao/2026.json` e `historico-2026.json`. `URL_DADOS_PREVISAO` e `URL_HISTORICO_PREVISAO` aceitam outras origens; `DADOS_PREVISAO` muda a pasta lida no build.
+2. `lib/previsao/carregar.ts` valida os dois contra o esquema. Sem previsão, a página mostra "em preparação"; sem histórico, só o painel da evolução fica em preparação. Um ficheiro inválido faz falhar o build.
+3. `lib/previsao/vista.ts` só seleciona e ordena: probabilidades, margens e intervalos vêm do modelo (`docs/metodologia/previsao.md`). As categorias de leitura (sólida, provável, inclinada, renhida) e o intervalo de 80% do ambiente nacional (t de Student com 5 graus de liberdade, como na simulação) são os únicos cálculos do site.
+
+A implantação corre depois de cada execução bem-sucedida do workflow Previsão, para o site mostrar a atualização do dia. As tabelas de corridas são componentes de cliente para o HTML levar só os dados de cada linha; os distritos além dos 25 mais renhidos só se desenham quando se pedem.
+
 ## Limites do plano gratuito
 
 | Recurso                              | Limite                                                 | Comportamento ao exceder                |

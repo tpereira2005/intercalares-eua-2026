@@ -83,3 +83,15 @@ export function formatarCompacto(valor: number): string {
     maximumSignificantDigits: 3,
   }).format(valor);
 }
+
+/** Data curta para eixos e tabelas, por exemplo "13 out.", no fuso da costa leste. */
+export function formatarDataCurta(data: Date, fuso: string = FUSO_ELEICAO): string {
+  const dia = new Intl.DateTimeFormat(LOCALE, { day: "numeric", timeZone: fuso }).format(data);
+  const mes = new Intl.DateTimeFormat(LOCALE, { month: "short", timeZone: fuso }).format(data);
+  return `${dia} ${mes}`;
+}
+
+/** Margem já em pontos percentuais (D − R), como nos ficheiros da previsão: "D +8,4". */
+export function formatarMargemPontos(pontos: number, casasDecimais = 1): string {
+  return formatarMargem(pontos / 100, casasDecimais);
+}
