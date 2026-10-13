@@ -19,6 +19,7 @@ export const SECCOES: readonly Seccao[] = [
   },
   { href: "/mapa/", rotulo: "navegacao.mapa" },
   { href: "/previsao/", rotulo: "navegacao.previsao" },
+  { href: "/sondagens/", rotulo: "navegacao.sondagens" },
   { href: "/resultados/", rotulo: "navegacao.resultados" },
   { href: "/metodologia/", rotulo: "navegacao.metodologia" },
 ];

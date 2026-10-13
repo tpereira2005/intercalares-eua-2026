@@ -42,6 +42,7 @@ const PAGINAS = [
   "/",
   "/mapa/",
   "/previsao/",
+  "/sondagens/",
   "/resultados/",
   "/voto-antecipado/",
   "/metodologia/",
@@ -85,11 +86,11 @@ function servir() {
   });
 }
 
-/** Páginas dos estados, lidas da pasta exportada. */
-async function paginasEstados() {
+/** Subpáginas de uma secção (estados, corridas), lidas da pasta exportada. */
+async function subpaginas(seccao) {
   try {
-    const entradas = await readdir(path.join(RAIZ, "voto-antecipado"), { withFileTypes: true });
-    return entradas.filter((e) => e.isDirectory()).map((e) => `/voto-antecipado/${e.name}/`);
+    const entradas = await readdir(path.join(RAIZ, seccao), { withFileTypes: true });
+    return entradas.filter((e) => e.isDirectory()).map((e) => `/${seccao}/${e.name}/`);
   } catch {
     return [];
   }
@@ -103,7 +104,12 @@ const { servidor, base } = await servir();
 const navegador = await chromium.launch(
   process.env.CAMINHO_CHROMIUM ? { executablePath: process.env.CAMINHO_CHROMIUM } : {},
 );
-const paginas = [...PAGINAS, ...(await paginasEstados())];
+const paginas = [
+  ...PAGINAS,
+  ...(await subpaginas("voto-antecipado")),
+  // Uma corrida basta: as páginas das sondagens partilham o mesmo modelo.
+  ...(await subpaginas("sondagens")).slice(0, 1),
+];
 let problemas = 0;
 
 for (const configuracao of CONFIGURACOES) {

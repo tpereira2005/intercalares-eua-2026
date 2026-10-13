@@ -1,0 +1,340 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-10-13T21:29:14.368490Z",
+    "fontes": [
+      {
+        "nome": "Wikipédia: 2026 United States House of Representatives elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-13T21:29:14.368490Z"
+      },
+      {
+        "nome": "Wikipédia: 2026 United States Senate elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_Senate_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-13T21:29:14.368490Z"
+      },
+      {
+        "nome": "FiveThirtyEight: raw_polls.csv (sondagens e resultados até 2022)",
+        "url": "https://raw.githubusercontent.com/fivethirtyeight/data/master/pollster-ratings/raw_polls.csv",
+        "licenca": "CC BY 4.0",
+        "obtida_em": "2026-10-13T21:29:14.368490Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "corte": "2026-10-13",
+  "metodo": {
+    "meia_vida_dias": 14.0,
+    "janela_dias": 60,
+    "amostra_referencia": 600,
+    "amostra_maxima": 2000,
+    "peso_partidaria": 0.5
+  },
+  "voto_generico": [
+    {
+      "data": "2026-10-13",
+      "margem": 8.26,
+      "agregadores": [
+        {
+          "nome": "Decision Desk HQ",
+          "margem": 7.7
+        },
+        {
+          "nome": "FiftyPlusOne",
+          "margem": 7.7
+        },
+        {
+          "nome": "NBC News",
+          "margem": 9.0
+        },
+        {
+          "nome": "RealClearPolitics",
+          "margem": 8.3
+        },
+        {
+          "nome": "Silver Bulletin",
+          "margem": 8.6
+        }
+      ]
+    }
+  ],
+  "corridas": [
+    {
+      "id": "AK-S",
+      "camara": "senado",
+      "estado": "AK",
+      "candidato_d": "Mary Peltola",
+      "candidato_r": "Dan S. Sullivan",
+      "media": {
+        "data": "2026-10-13",
+        "margem": 3.7392990022572414,
+        "institutos": 3,
+        "sondagens": 4
+      },
+      "serie": [
+        {
+          "data": "2026-10-04",
+          "margem": 2.7334345177619124,
+          "institutos": 2,
+          "sondagens": 3
+        },
+        {
+          "data": "2026-10-05",
+          "margem": 2.733434517761912,
+          "institutos": 2,
+          "sondagens": 3
+        },
+        {
+          "data": "2026-10-06",
+          "margem": 2.7334345177619124,
+          "institutos": 2,
+          "sondagens": 3
+        },
+        {
+          "data": "2026-10-07",
+          "margem": 2.7334345177619124,
+          "institutos": 2,
+          "sondagens": 3
+        },
+        {
+          "data": "2026-10-08",
+          "margem": 2.7334345177619124,
+          "institutos": 2,
+          "sondagens": 3
+        },
+        {
+          "data": "2026-10-09",
+          "margem": 2.7334345177619124,
+          "institutos": 2,
+          "sondagens": 3
+        },
+        {
+          "data": "2026-10-10",
+          "margem": 2.7334345177619124,
+          "institutos": 2,
+          "sondagens": 3
+        },
+        {
+          "data": "2026-10-11",
+          "margem": 3.739299002257242,
+          "institutos": 3,
+          "sondagens": 4
+        },
+        {
+          "data": "2026-10-12",
+          "margem": 3.7392990022572414,
+          "institutos": 3,
+          "sondagens": 4
+        },
+        {
+          "data": "2026-10-13",
+          "margem": 3.7392990022572414,
+          "institutos": 3,
+          "sondagens": 4
+        }
+      ],
+      "sondagens": [
+        {
+          "instituto": "InsiderAdvantage",
+          "fim": "2026-10-10",
+          "amostra": 1200,
+          "populacao": "lv",
+          "partidaria": true,
+          "percentagem_d": 48.0,
+          "percentagem_r": 43.0,
+          "margem": 5.0,
+          "peso": 0.44378355374145323
+        },
+        {
+          "instituto": "Alaska Survey Research",
+          "fim": "2026-10-03",
+          "amostra": 1512,
+          "populacao": "lv",
+          "partidaria": false,
+          "percentagem_d": 47.0,
+          "percentagem_r": 45.0,
+          "margem": 2.0,
+          "peso": 0.35224227574210587
+        },
+        {
+          "instituto": "Alaska Survey Research",
+          "fim": "2026-09-12",
+          "amostra": 1352,
+          "populacao": "lv",
+          "partidaria": false,
+          "percentagem_d": 48.0,
+          "percentagem_r": 44.0,
+          "margem": 4.0,
+          "peso": 0.11776302014810197
+        },
+        {
+          "instituto": "Fabrizio Ward (R)/ Impact Research",
+          "fim": "2026-09-11",
+          "amostra": 800,
+          "populacao": "lv",
+          "partidaria": true,
+          "percentagem_d": 45.0,
+          "percentagem_r": 41.0,
+          "margem": 4.0,
+          "peso": 0.08621115036833893
+        },
+        {
+          "instituto": "Data for Progress",
+          "fim": "2026-08-04",
+          "amostra": 605,
+          "populacao": "lv",
+          "partidaria": true,
+          "percentagem_d": 45.0,
+          "percentagem_r": 41.0,
+          "margem": 4.0,
+          "peso": 0.0
+        }
+      ]
+    },
+    {
+      "id": "NC-S",
+      "camara": "senado",
+      "estado": "NC",
+      "candidato_d": "Roy Cooper",
+      "candidato_r": "Michael Whatley",
+      "media": {
+        "data": "2026-10-13",
+        "margem": 10.370510286932475,
+        "institutos": 15,
+        "sondagens": 16
+      },
+      "serie": [
+        {
+          "data": "2026-10-04",
+          "margem": 9.666941657665475,
+          "institutos": 14,
+          "sondagens": 16
+        },
+        {
+          "data": "2026-10-05",
+          "margem": 9.666941657665477,
+          "institutos": 14,
+          "sondagens": 16
+        },
+        {
+          "data": "2026-10-06",
+          "margem": 9.683286878656554,
+          "institutos": 13,
+          "sondagens": 15
+        },
+        {
+          "data": "2026-10-07",
+          "margem": 9.683286878656554,
+          "institutos": 13,
+          "sondagens": 15
+        },
+        {
+          "data": "2026-10-08",
+          "margem": 9.718633595342691,
+          "institutos": 14,
+          "sondagens": 16
+        },
+        {
+          "data": "2026-10-09",
+          "margem": 9.718633595342688,
+          "institutos": 14,
+          "sondagens": 16
+        },
+        {
+          "data": "2026-10-10",
+          "margem": 9.793732866477907,
+          "institutos": 14,
+          "sondagens": 15
+        },
+        {
+          "data": "2026-10-11",
+          "margem": 9.56443296614611,
+          "institutos": 15,
+          "sondagens": 16
+        },
+        {
+          "data": "2026-10-12",
+          "margem": 10.370510286932477,
+          "institutos": 15,
+          "sondagens": 16
+        },
+        {
+          "data": "2026-10-13",
+          "margem": 10.370510286932475,
+          "institutos": 15,
+          "sondagens": 16
+        }
+      ],
+      "sondagens": [
+        {
+          "instituto": "SurveyUSA",
+          "fim": "2026-10-11",
+          "amostra": 643,
+          "populacao": "lv",
+          "partidaria": false,
+          "percentagem_d": 54.0,
+          "percentagem_r": 40.0,
+          "margem": 14.0,
+          "peso": 0.17250918043763
+        },
+        {
+          "instituto": "Trafalgar Group",
+          "fim": "2026-10-10",
+          "amostra": 1091,
+          "populacao": "lv",
+          "partidaria": true,
+          "percentagem_d": 49.0,
+          "percentagem_r": 41.0,
+          "margem": 8.0,
+          "peso": 0.10692689667505893
+        },
+        {
+          "instituto": "Change Research",
+          "fim": "2026-10-07",
+          "amostra": 829,
+          "populacao": "lv",
+          "partidaria": true,
+          "percentagem_d": 50.0,
+          "percentagem_r": 40.0,
+          "margem": 10.0,
+          "peso": 0.08034251543277998
+        },
+        {
+          "instituto": "East Carolina University",
+          "fim": "2026-10-03",
+          "amostra": 810,
+          "populacao": "lv",
+          "partidaria": false,
+          "percentagem_d": 50.0,
+          "percentagem_r": 43.0,
+          "margem": 7.0,
+          "peso": 0.06514815168098381
+        },
+        {
+          "instituto": "Big Data Poll",
+          "fim": "2026-09-29",
+          "amostra": 642,
+          "populacao": "lv",
+          "partidaria": false,
+          "percentagem_d": 47.0,
+          "percentagem_r": 35.0,
+          "margem": 12.0,
+          "peso": 0.09515870626190147
+        },
+        {
+          "instituto": "Big Data Poll",
+          "fim": "2026-09-29",
+          "amostra": 698,
+          "populacao": "rv",
+          "partidaria": false,
+          "percentagem_d": 45.0,
+          "percentagem_r": 34.0,
+          "margem": 11.0,
+          "peso": 0.0
+        }
+      ]
+    }
+  ]
+}

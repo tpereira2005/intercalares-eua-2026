@@ -5,6 +5,8 @@
  *   cada ficheiro de estado (`nc.json`, `ga.json`, ...);
  * - previsão: `previsao-2026.json` e `historico-previsao-2026.json` da Release
  *   `dados-previsao`, gravados como dados/previsao/2026.json e historico-2026.json.
+ * - sondagens: `sondagens-2026.json` da Release `dados-previsao`, gravado como
+ *   dados/sondagens/2026.json;
  * - resultados: `parciais.json` da Release `resultados-2026` (contrato ResultadosParciais),
  *   gravado como dados/resultados/parciais.json;
  * - projeção da noite: `projecao-noite-2026.json` e `historico-noite-2026.json` da Release
@@ -14,7 +16,7 @@
  * Uso: pnpm --filter @intercalares/web dados:obter
  *   URL_DADOS_VOTO_ANTECIPADO=https://.../nc.json,caminho/local/ga.json
  *   URL_DADOS_PREVISAO=caminho/2026.json  URL_HISTORICO_PREVISAO=caminho/historico.json
- *   URL_DADOS_RESULTADOS=caminho/parciais.json
+ *   URL_DADOS_SONDAGENS=caminho/sondagens.json  URL_DADOS_RESULTADOS=caminho/parciais.json
  *   URL_PROJECAO_NOITE=caminho/projecao.json  URL_HISTORICO_NOITE=caminho/historico.json
  *   GITHUB_TOKEN (opcional) evita o limite de pedidos anónimos à API.
  *
@@ -120,6 +122,22 @@ async function obterPrevisao() {
   }
 }
 
+async function obterSondagens() {
+  // Pasta limpa: sem sondagens publicadas, as páginas voltam a "em preparação".
+  const pasta = path.join(RAIZ_WEB, "dados", "sondagens");
+  await rm(pasta, { recursive: true, force: true });
+  await mkdir(pasta, { recursive: true });
+  const origem =
+    process.env.URL_DADOS_SONDAGENS ??
+    `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA_PREVISAO}/sondagens-2026.json`;
+  try {
+    const gravado = await gravar(origem, path.join(pasta, "2026.json"));
+    console.log(`Sondagens em ${path.relative(process.cwd(), gravado)}`);
+  } catch (erro) {
+    console.warn(`Sem sondagens-2026.json (${String(erro)}).`);
+  }
+}
+
 async function obterResultados() {
   // Pasta limpa: sem contagem publicada, a página volta a "em preparação".
   await rm(PASTA_RESULTADOS, { recursive: true, force: true });
@@ -200,4 +218,10 @@ try {
   await obterNoite();
 } catch (erro) {
   console.warn(`Sem projeção da noite (${String(erro)}).`);
+}
+
+try {
+  await obterSondagens();
+} catch (erro) {
+  console.warn(`Sem sondagens (${String(erro)}); as páginas ficam em preparação.`);
 }

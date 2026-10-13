@@ -28,6 +28,7 @@
     "votoAntecipadoMarca": "Idade",
     "mapa": "Mapa",
     "previsao": "Previsão",
+    "sondagens": "Sondagens",
     "resultados": "Noite eleitoral",
     "metodologia": "Metodologia"
   },
@@ -107,6 +108,10 @@
     "previsao": {
       "titulo": "Previsão",
       "descricao": "Probabilidades para a Câmara e o Senado, corridas a seguir e auditoria das sondagens."
+    },
+    "sondagens": {
+      "titulo": "Sondagens",
+      "descricao": "As sondagens que entram na previsão: voto genérico e médias de cada corrida ao Senado, com o peso de cada sondagem."
     },
     "resultados": {
       "titulo": "Noite eleitoral",
@@ -444,7 +449,8 @@
       "especial": "eleição especial",
       "legendaD": "Vitória democrata mais provável",
       "legendaR": "Vitória republicana mais provável",
-      "legendaTabela": "Corridas ao Senado, da mais renhida para a menos renhida"
+      "legendaTabela": "Corridas ao Senado, da mais renhida para a menos renhida",
+      "sondagens": "Ver as sondagens de cada corrida e o peso de cada uma na média"
     },
     "tabela": {
       "corrida": "Corrida",
@@ -694,5 +700,69 @@
     "senadoEspecial": "Senado (eleição especial): {favorito}",
     "distrito": "1 distrito em disputa",
     "distritos": "{n} distritos em disputa"
+  },
+  "sondagens": {
+    "sobrelinha": "Sondagens · {ano}",
+    "titulo": "Sondagens",
+    "lede": "As sondagens que entram na previsão, com as médias calculadas pelo mesmo método do modelo. Cada sondagem é um retrato com margem de erro, não uma previsão; a média reduz o ruído, mas os erros das sondagens costumam ir no mesmo sentido em vários estados.",
+    "atualizado": "Médias de {data}",
+    "fonte": "Wikipédia (CC BY-SA)",
+    "generico": {
+      "sobrelinha": "Voto genérico",
+      "titulo": "Ambiente nacional",
+      "texto": "Que partido os eleitores preferem para a Câmara, segundo a média simples dos agregadores lida a {data}.",
+      "media": "Média dos agregadores",
+      "agregador": "Agregador",
+      "margem": "Margem",
+      "legenda": "Voto genérico por agregador",
+      "metodo": "média simples dos valores publicados por cada agregador no dia; margem D − R em pontos.",
+      "aria": "Voto genérico ao longo do tempo: a média passou de {de} para {ate}.",
+      "evolucaoNota": "A série começa no primeiro dia em que o modelo guardou os agregadores."
+    },
+    "senado": {
+      "sobrelinha": "Senado",
+      "titulo": "Média de cada corrida",
+      "texto": "Média ponderada das sondagens de cada corrida, como entra no modelo. Escolhe uma corrida para ver as sondagens.",
+      "legenda": "Média de sondagens das corridas ao Senado",
+      "corrida": "Corrida",
+      "media": "Média",
+      "base": "Base",
+      "base2": "{institutos} institutos · {sondagens} sondagens",
+      "base1": "1 instituto · {sondagens} sondagens",
+      "semMedia": "sem sondagens na janela",
+      "metodo": "média ponderada com meia-vida de {meia} dias numa janela de {janela} dias; peso pela raiz de n/{referencia} (n até {maxima}), pela população e com {partidaria} do peso nas sondagens partidárias; cada instituto conta uma vez."
+    },
+    "corrida": {
+      "sobrelinha": "Sondagens · Senado",
+      "candidatos": "{d} (D) contra {r} (R)",
+      "mediaTitulo": "Média de sondagens",
+      "mediaTexto": "A linha é a média dia a dia; cada ponto é uma sondagem (cheio se entra na média atual, vazio se já não entra).",
+      "mediaAtual": "Média a {data}: {margem}, com {base}.",
+      "semMedia": "Não há sondagens desta corrida na janela de {janela} dias: a previsão usa só os fundamentos.",
+      "aria": "Média de sondagens em {estado} ao longo do tempo; a média atual é {margem}.",
+      "legendaMedia": "Média",
+      "legendaDentro": "Sondagem na média",
+      "legendaFora": "Fora da média",
+      "tabelaTitulo": "Todas as sondagens",
+      "tabelaTexto": "Da mais recente para a mais antiga. O peso é a fração da média atual que cada sondagem representa; zero quando já saiu da janela ou foi substituída por outra população da mesma sondagem.",
+      "legenda": "Sondagens da corrida, da mais recente para a mais antiga",
+      "instituto": "Instituto",
+      "fim": "Fim do campo",
+      "amostra": "Amostra",
+      "populacao": "População",
+      "resultado": "D · R",
+      "margem": "Margem",
+      "peso": "Peso",
+      "partidaria": "partidária",
+      "populacoes": {
+        "lv": "prováveis",
+        "rv": "registados",
+        "a": "adultos",
+        "?": "n.d."
+      },
+      "previsao": "Ver a previsão desta corrida",
+      "metodologia": "Como se calcula a média",
+      "voltar": "Todas as sondagens"
+    }
   }
 }
