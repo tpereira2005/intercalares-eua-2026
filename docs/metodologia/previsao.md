@@ -79,6 +79,13 @@ O centro das simulações é a margem nacional no voto genérico:
 - nos backtests de 2018 e 2022, a nossa média das sondagens do voto genérico de `raw_polls.csv`;
 - no backtest de 2024 não há sondagens do voto genérico nesse ficheiro, por isso o ambiente lê-se das sondagens do Senado: cada corrida dá uma leitura (média − fundamentos sem ambiente) e combina-se pela precisão. A incerteza soma o erro comum das sondagens do Senado.
 
+**Decisão (13 de outubro de 2026, Tomás).** Em 2026 o ambiente vem dos agregadores e não da leitura pelas sondagens do Senado, a única alternativa disponível. A Wikipédia de 2026 não lista sondagens individuais do voto genérico, por isso não há média própria. A decisão tem dois motivos:
+
+- **Precisão.** A leitura pelo Senado é menos precisa: soma ao erro do voto genérico o erro comum das sondagens do Senado, ficando com 4,5 pontos contra 3,2. No backtest de 2024, o único em que foi usada, errou 4,6 pontos.
+- **Testes.** Não há histórico gratuito dos agregadores para os testar nos backtests. Por isso a escolha não pode ser decidida pelos resultados de 2018, 2022 e 2024, e fica a medida direta do voto genérico.
+
+Para ficar transparente, a secção 8 mostra o efeito da alternativa: D+6,6 em vez de D+8,4, com 87% em vez de 97% para o controlo democrata da Câmara e 67% em vez de 73% no Senado.
+
 O erro do ambiente é a **raiz do erro quadrático médio** das médias do voto genérico face ao resultado, de 1998 até ao ciclo anterior (3,2 pontos para 2026). **Não se corrige o sinal** do erro histórico: o desvio médio dos últimos ciclos não é estável de ciclo para ciclo, e corrigi-lo seria escolher um lado. O erro entra só como dimensão da incerteza, igual nos dois sentidos.
 
 ## 4. Sondagens do Senado
@@ -175,13 +182,29 @@ Leitura:
 - **As caudas e a recência pesam pouco.** A t de Student com 3 ou 30 graus de liberdade e a meia-vida de 7 ou 28 dias mudam as probabilidades no máximo 1 ponto.
 - **Os parâmetros publicados não se afinam com estes números.** Nenhuma variante melhora o Brier dos backtests de forma consistente nas duas câmaras. As diferenças (0,036 a 0,042 no Senado) cabem no ruído de três eleições. Escolher a variante com o melhor Brier seria ajustar o modelo a 2018, 2022 e 2024. A cobertura de 88% a 90% confirma que os intervalos já são, se algo, um pouco largos.
 
+### Sondagens para o site
+
+A mesma execução publica `sondagens-2026.json` (contrato `SondagensCongresso`), para a página de sondagens.
+
+Por corrida ao Senado com sondagens, o ficheiro traz:
+
+- todas as perguntas com os dois candidatos reais, com o peso de cada uma na média do dia (0 quando fica fora da janela ou é substituída por outra população da mesma sondagem);
+- a média no dia do corte;
+- a série diária da média, nos últimos 150 dias.
+
+Tudo se calcula com o mesmo código da previsão (`media.pesos` e `previsao.sondagens_por_corrida`), por isso a página mostra exatamente o que entra no modelo.
+
+O voto genérico é diferente: a Wikipédia de 2026 só publica os valores atuais dos agregadores, não as sondagens individuais. A série guarda, dia a dia, os valores lidos em cada execução e a sua média simples. Recupera-se o ficheiro anterior da Release e acrescenta-se o dia, como no histórico. Por isso a série só começa no dia em que o ficheiro passou a ser publicado.
+
+As sondagens continuam a atualizar-se depois do congelamento da previsão, até ao dia da eleição. De 2 a 3 de novembro, a execução diária corre `pipeline.jobs.previsao --apenas-sondagens`, com o corte do próprio dia, e publica só `sondagens-2026.json`. A previsão congelada e o histórico nunca são reenviados.
+
 ## 10. Congelamento
 
 A previsão congela com os dados até 31 de outubro: o corte é 1 de novembro de 2026, exclusive para as sondagens. Nesse dia:
 
 1. A execução agendada (06h41 UTC) corre com corte de 1 de novembro e marca o ficheiro como `congelada`. O histórico ganha o último dia, também marcado.
 2. Antes de publicar, o workflow exige que o ficheiro do último dia seja `congelada` com corte de 1 de novembro, e que o último dia do histórico também o seja.
-3. A partir de 2 de novembro, a execução agendada não faz nada, e uma versão congelada já publicada nunca é substituída.
+3. A partir de 2 de novembro, a execução agendada só atualiza as sondagens (até 3 de novembro). Uma versão congelada já publicada nunca é substituída.
 
 Se a execução de 1 de novembro falhar (Wikipédia em baixo, por exemplo), uma execução à mão depois dessa data ainda publica a versão congelada, com o corte em 1 de novembro, mas só enquanto a Release não tiver nenhuma. Nesse caso, os agregadores do voto genérico são lidos no momento dessa execução (ver as limitações). As sondagens continuam limitadas às terminadas antes do corte.
 

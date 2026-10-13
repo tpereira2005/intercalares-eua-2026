@@ -26,6 +26,14 @@ class PaginaInexistente(ErroDescarga):
     """A página pedida não existe na Wikipedia (404)."""
 
 
+def espera(resposta: httpx.Response, tentativa: int) -> float:
+    """Pausa antes de repetir um pedido recusado: recuo exponencial (16, 32, 64 s, ...),
+    nunca menos do que o ``Retry-After`` que a Wikipedia indicar."""
+    recuo: float = PAUSA_SEGUNDOS * 4 * 2**tentativa
+    indicado = resposta.headers.get("retry-after", "")
+    return max(recuo, float(indicado)) if indicado.isdigit() else recuo
+
+
 def _nome_ficheiro(titulo: str, oldid: int | None) -> str:
     base = titulo.replace(" ", "_").replace("/", "_")
     return f"{base}@{oldid}.wiki" if oldid else f"{base}.wiki"
@@ -62,7 +70,7 @@ def obter(
                 time.sleep(PAUSA_SEGUNDOS)
                 return resposta.text
             # 429 e 5xx: a Wikipedia pede para abrandar.
-            time.sleep(PAUSA_SEGUNDOS * (tentativa + 1) * 4)
+            time.sleep(espera(resposta, tentativa))
         raise ErroDescarga(f"Não foi possível obter {titulo!r} da Wikipedia")
     finally:
         if proprio:
