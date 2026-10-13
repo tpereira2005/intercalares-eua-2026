@@ -1,0 +1,38 @@
+name: Diagnóstico Clarity (temporário)
+
+on:
+  push:
+    branches: [claude/voto-antecipado-idade-h01np9]
+    paths: [.github/workflows/diagnostico-clarity.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Pedidos ao Clarity
+        run: |
+          UA="intercalares-eua-2026/0.1 (+https://github.com/tpereira2005/intercalares-eua-2026)"
+          curl -s https://api.ipify.org; echo
+          for u in \
+            https://www.enr-scvotes.org/SC/115412/current_ver.txt \
+            https://results.enr.clarityelections.com/IA/122322/current_ver.txt \
+            https://electionresults.iowa.gov/IA/122322/current_ver.txt \
+            https://results.enr.clarityelections.com/IA/elections.json \
+            https://results.enr.clarityelections.com/TX/Dallas/elections.json \
+            https://er.ncsbe.gov/enr/20221108/data/results_0.txt ; do
+            echo "=================== $u"
+            for modo in ua ua-accept sem-ua; do
+              case $modo in
+                ua) extra=(-A "$UA") ;;
+                ua-accept) extra=(-A "$UA" -H "Accept: */*" -H "Accept-Language: en-US" --compressed) ;;
+                sem-ua) extra=() ;;
+              esac
+              echo "--- $modo"
+              curl -sS -m 20 -D - -o corpo "${extra[@]}" "$u" | grep -iE '^(HTTP|server|content-|x-|via|set-cookie|location|cache)' || true
+              echo "corpo: $(wc -c < corpo) bytes: $(head -c 120 corpo | tr -d '\0' | tr '\n' ' ')"
+            done
+          done
