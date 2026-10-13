@@ -9,6 +9,7 @@ from contratos.base import Fonte, Metadados
 from contratos.noite import HistoricoNoite, ProjecaoNoite
 from contratos.previsao import AvaliacaoPrevisao, HistoricoPrevisao, PrevisaoCongresso
 from contratos.resultados import ResultadosEstado, ResultadosNacional, ResultadosParciais
+from contratos.sondagens import SondagensCongresso
 from contratos.voto_antecipado import VotoAntecipadoEstado
 from contratos.voto_antecipado_agregado import VotoAntecipadoAgregado, VotoAntecipadoNacional
 
@@ -26,4 +27,5 @@ MODELOS: tuple[type[BaseModel], ...] = (
     ResultadosParciais,
     ProjecaoNoite,
     HistoricoNoite,
+    SondagensCongresso,
 )

@@ -1986,6 +1986,46 @@
       "title": "Metadados",
       "type": "object"
     },
+    "MetodoMedia": {
+      "additionalProperties": false,
+      "description": "Parâmetros da média de sondagens, para o site os poder explicar.",
+      "properties": {
+        "amostra_maxima": {
+          "exclusiveMinimum": 0,
+          "title": "Amostra Maxima",
+          "type": "integer"
+        },
+        "amostra_referencia": {
+          "exclusiveMinimum": 0,
+          "title": "Amostra Referencia",
+          "type": "integer"
+        },
+        "janela_dias": {
+          "exclusiveMinimum": 0,
+          "title": "Janela Dias",
+          "type": "integer"
+        },
+        "meia_vida_dias": {
+          "exclusiveMinimum": 0,
+          "title": "Meia Vida Dias",
+          "type": "number"
+        },
+        "peso_partidaria": {
+          "minimum": 0,
+          "title": "Peso Partidaria",
+          "type": "number"
+        }
+      },
+      "required": [
+        "meia_vida_dias",
+        "janela_dias",
+        "amostra_referencia",
+        "amostra_maxima",
+        "peso_partidaria"
+      ],
+      "title": "MetodoMedia",
+      "type": "object"
+    },
     "ParametrosErroSondagens": {
       "additionalProperties": false,
       "description": "Erro histórico das médias de sondagens do Senado.",
@@ -2185,6 +2225,39 @@
         "margem_prevista"
       ],
       "title": "PontoHistoricoCorrida",
+      "type": "object"
+    },
+    "PontoMedia": {
+      "additionalProperties": false,
+      "description": "Média de sondagens de uma corrida num dia.",
+      "properties": {
+        "data": {
+          "format": "date",
+          "title": "Data",
+          "type": "string"
+        },
+        "institutos": {
+          "minimum": 1,
+          "title": "Institutos",
+          "type": "integer"
+        },
+        "margem": {
+          "title": "Margem",
+          "type": "number"
+        },
+        "sondagens": {
+          "minimum": 1,
+          "title": "Sondagens",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data",
+        "margem",
+        "institutos",
+        "sondagens"
+      ],
+      "title": "PontoMedia",
       "type": "object"
     },
     "PontoNoite": {
@@ -2457,6 +2530,36 @@
         "votos"
       ],
       "title": "PontoSerieAgregado",
+      "type": "object"
+    },
+    "PontoVotoGenerico": {
+      "additionalProperties": false,
+      "description": "Valores dos agregadores do voto genérico lidos num dia, e a sua média simples.",
+      "properties": {
+        "agregadores": {
+          "items": {
+            "$ref": "#/$defs/ValorAgregador"
+          },
+          "minItems": 1,
+          "title": "Agregadores",
+          "type": "array"
+        },
+        "data": {
+          "format": "date",
+          "title": "Data",
+          "type": "string"
+        },
+        "margem": {
+          "title": "Margem",
+          "type": "number"
+        }
+      },
+      "required": [
+        "data",
+        "margem",
+        "agregadores"
+      ],
+      "title": "PontoVotoGenerico",
       "type": "object"
     },
     "PrevisaoCongresso": {
@@ -3336,6 +3439,213 @@
       "title": "ResumoCamaraNoite",
       "type": "object"
     },
+    "SondagemPublicada": {
+      "additionalProperties": false,
+      "description": "Uma sondagem entre os dois candidatos da corrida.",
+      "properties": {
+        "amostra": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Amostra"
+        },
+        "fim": {
+          "description": "Último dia do trabalho de campo.",
+          "format": "date",
+          "title": "Fim",
+          "type": "string"
+        },
+        "instituto": {
+          "minLength": 1,
+          "title": "Instituto",
+          "type": "string"
+        },
+        "margem": {
+          "title": "Margem",
+          "type": "number"
+        },
+        "partidaria": {
+          "description": "Encomendada por um partido ou campanha (de qualquer lado).",
+          "title": "Partidaria",
+          "type": "boolean"
+        },
+        "percentagem_d": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Percentagem D",
+          "type": "number"
+        },
+        "percentagem_r": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Percentagem R",
+          "type": "number"
+        },
+        "peso": {
+          "description": "Peso relativo na média atual (os pesos das sondagens de uma corrida somam 1); 0\nquando a sondagem não entra (fora da janela ou substituída por outra população da\nmesma sondagem).",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Peso",
+          "type": "number"
+        },
+        "populacao": {
+          "enum": [
+            "lv",
+            "rv",
+            "a",
+            "?"
+          ],
+          "title": "Populacao",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instituto",
+        "fim",
+        "amostra",
+        "populacao",
+        "partidaria",
+        "percentagem_d",
+        "percentagem_r",
+        "margem",
+        "peso"
+      ],
+      "title": "SondagemPublicada",
+      "type": "object"
+    },
+    "SondagensCongresso": {
+      "additionalProperties": false,
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "corridas": {
+          "items": {
+            "$ref": "#/$defs/SondagensCorrida"
+          },
+          "title": "Corridas",
+          "type": "array"
+        },
+        "corte": {
+          "format": "date",
+          "title": "Corte",
+          "type": "string"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "metodo": {
+          "$ref": "#/$defs/MetodoMedia"
+        },
+        "voto_generico": {
+          "description": "Por ordem cronológica (o mais recente no fim).",
+          "items": {
+            "$ref": "#/$defs/PontoVotoGenerico"
+          },
+          "title": "Voto Generico",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "corte",
+        "metodo",
+        "voto_generico",
+        "corridas"
+      ],
+      "title": "SondagensCongresso",
+      "type": "object"
+    },
+    "SondagensCorrida": {
+      "additionalProperties": false,
+      "properties": {
+        "camara": {
+          "enum": [
+            "camara",
+            "senado"
+          ],
+          "title": "Camara",
+          "type": "string"
+        },
+        "candidato_d": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Candidato D"
+        },
+        "candidato_r": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Candidato R"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "id": {
+          "pattern": "^[A-Z]{2}-(\\d{2}|S|S-especial)$",
+          "title": "Id",
+          "type": "string"
+        },
+        "media": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PontoMedia"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Média no dia do corte (``None`` sem sondagens na janela)."
+        },
+        "serie": {
+          "description": "Média dia a dia, só nos dias com sondagens na janela.",
+          "items": {
+            "$ref": "#/$defs/PontoMedia"
+          },
+          "title": "Serie",
+          "type": "array"
+        },
+        "sondagens": {
+          "description": "Da mais recente para a mais antiga.",
+          "items": {
+            "$ref": "#/$defs/SondagemPublicada"
+          },
+          "title": "Sondagens",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "camara",
+        "estado",
+        "candidato_d",
+        "candidato_r",
+        "media",
+        "serie",
+        "sondagens"
+      ],
+      "title": "SondagensCorrida",
+      "type": "object"
+    },
     "UnidadeContagem": {
       "additionalProperties": false,
       "description": "Votos de uma corrida numa unidade geográfica, no formato do estimador ao vivo.",
@@ -3444,6 +3754,26 @@
         "atualizado_em"
       ],
       "title": "UnidadeContagem",
+      "type": "object"
+    },
+    "ValorAgregador": {
+      "additionalProperties": false,
+      "properties": {
+        "margem": {
+          "title": "Margem",
+          "type": "number"
+        },
+        "nome": {
+          "minLength": 1,
+          "title": "Nome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nome",
+        "margem"
+      ],
+      "title": "ValorAgregador",
       "type": "object"
     },
     "VotoAntecipadoAgregado": {
