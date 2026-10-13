@@ -13,9 +13,9 @@ export const metadata: Metadata = metadadosPagina({
 });
 
 export default function Pagina() {
-  // Lido e validado no build; sem contagem publicada, a página fica em preparação.
-  const vista = carregarResultados();
-  if (!vista) {
+  // Lidos e validados no build; sem contagem nem projeção, a página fica em preparação.
+  const dados = carregarResultados();
+  if (!dados) {
     return (
       <SeccaoEmPreparacao
         titulo={t("seccoes.resultados.titulo")}
@@ -23,5 +23,5 @@ export default function Pagina() {
       />
     );
   }
-  return <PaginaResultados vista={vista} />;
+  return <PaginaResultados resultados={dados.resultados} noite={dados.noite} />;
 }

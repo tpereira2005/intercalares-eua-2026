@@ -5,6 +5,7 @@ import {
   formatarData,
   formatarDataCurta,
   formatarDataHora,
+  formatarHora,
   formatarDiaCiclo,
   formatarMargem,
   formatarMargemPontos,
@@ -76,5 +77,9 @@ describe("formatação pt-PT", () => {
   it("escreve dia e hora na costa leste, em 24 horas", () => {
     // 02:34 UTC de 4 de novembro são 21:34 de 3 de novembro em Nova Iorque (EST).
     expect(formatarDataHora(new Date("2026-11-04T02:34:00Z"))).toBe("3 de novembro, 21:34");
+  });
+
+  it("escreve a hora na costa leste", () => {
+    expect(formatarHora(new Date("2026-11-04T02:34:00Z"))).toBe("21:34");
   });
 });

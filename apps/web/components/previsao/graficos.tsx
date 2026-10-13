@@ -4,6 +4,7 @@ import { Grafico, HALO } from "@/components/charts/base.tsx";
 import { COLUNAS_GRELHA, ESTADOS, LINHAS_GRELHA } from "@/lib/estados.ts";
 import {
   formatarDataCurta,
+  formatarHora,
   formatarMargemPontos as margem,
   formatarNumero,
   formatarPercentagem,
@@ -14,8 +15,9 @@ import type { CorridaVista, PontoEvolucao, ResumoVista } from "@/lib/previsao/vi
 const TEXTO_EIXO = "fill-ink-3 font-mono text-[10.5px]";
 const REP = { fill: "url(#padrao-rep)" } as const;
 
+/** Um dia ("2026-10-13") ao meio-dia UTC, ou um instante ISO com hora tal como vem. */
 function data(dia: string): Date {
-  return new Date(`${dia}T12:00:00Z`);
+  return new Date(dia.includes("T") ? dia : `${dia}T12:00:00Z`);
 }
 
 /** Marcas redondas entre dois valores, com no máximo `n` divisões. */
@@ -35,7 +37,11 @@ function marcasEntre(de: number, ate: number, n = 6): number[] {
  * democrata, tracejado republicano quando não dão, faixa do intervalo de 80%
  * e linha da maioria.
  */
-export function DistribuicaoLugares({ resumo }: { resumo: ResumoVista }) {
+export function DistribuicaoLugares({
+  resumo,
+}: {
+  resumo: Pick<ResumoVista, "camara" | "distribuicao" | "maioria" | "mediana" | "p10" | "p90">;
+}) {
   const altura = 200;
   const m = { esquerda: 8, direita: 8, topo: 26, fundo: 26 };
   const pontos = resumo.distribuicao;
@@ -414,10 +420,15 @@ export function MapaSenado({ corridas }: { corridas: readonly CorridaVista[] }) 
 export function EvolucaoControlo({
   pontos,
   titulo,
+  escala = "dia",
 }: {
+  /** `corte` é um dia ("2026-10-13") ou um instante ISO com hora (noite eleitoral). */
   pontos: readonly PontoEvolucao[];
   titulo: string;
+  /** Rótulos do eixo: data curta ("13 out.") ou hora de Nova Iorque ("21:34"). */
+  escala?: "dia" | "hora";
 }) {
+  const rotuloTempo = escala === "hora" ? formatarHora : formatarDataCurta;
   const altura = 180;
   const m = { esquerda: 38, direita: 50, topo: 10, fundo: 24 };
   const primeiro = pontos[0];
@@ -482,7 +493,7 @@ export function EvolucaoControlo({
                   }
                   className={TEXTO_EIXO}
                 >
-                  {formatarDataCurta(data(p.corte))}
+                  {rotuloTempo(data(p.corte))}
                 </text>
               ))}
               <line

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DestaqueNoite } from "@/components/inicio/DestaqueNoite.tsx";
 import { QuemVotou } from "@/components/inicio/QuemVotou.tsx";
 import { CodigoDia } from "@/components/ui/CodigoDia.tsx";
 import { FaixaKpis, Kpi } from "@/components/ui/Kpi.tsx";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/formatacao.ts";
 import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
+import { carregarNoite } from "@/lib/noite/carregar.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
 import { resumirEstado, resumirTodos, type ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 import type { VistaVotoAntecipado } from "@/lib/voto-antecipado/vista.ts";
@@ -201,11 +203,13 @@ export default function Inicio() {
   const principal = todas.individuais[0];
   const resumoPrincipal = principal ? resumirEstado(principal) : undefined;
   const frase = resumoPrincipal ? narrativa(resumoPrincipal) : null;
+  const noite = carregarNoite();
 
   return (
     <>
       <h1 className="sr-only">{t("inicio.titulo")}</h1>
       <div className="flex flex-col gap-4">
+        {noite ? <DestaqueNoite noite={noite} /> : null}
         <div className="grid gap-4 min-[860px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
           <Painel
             sobrelinha={t("inicio.sobrelinha")}

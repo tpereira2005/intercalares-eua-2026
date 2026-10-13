@@ -9,6 +9,7 @@
  */
 
 import type { CodigoEstado, ResultadosParciais } from "@intercalares/contratos";
+import type { CorridaNoite, VistaNoite } from "../noite/vista.ts";
 import { categoria, type CorridaVista, type VistaPrevisao } from "../previsao/vista.ts";
 
 /**
@@ -46,6 +47,8 @@ export interface LinhaResultados {
   senado: boolean;
   contagem: ContagemCorrida | null;
   previsao: CorridaVista | null;
+  /** Projeção ao vivo do modelo para a corrida, quando a projeção é do mesmo ano. */
+  projecao: CorridaNoite | null;
 }
 
 export interface EstadoCobertura {
@@ -137,7 +140,13 @@ function naoSolida(c: CorridaVista): boolean {
 export function construirVistaResultados(
   parciais: ResultadosParciais,
   previsao: VistaPrevisao | null,
+  noite: VistaNoite | null = null,
 ): VistaResultados {
+  // A projeção só se junta à contagem do mesmo ano e da mesma natureza (real ou ensaio).
+  const projecoes =
+    noite?.ano === parciais.ano && noite.reconstruido === parciais.reconstruido
+      ? noite.corridas
+      : new Map<string, CorridaNoite>();
   // Um ensaio de outro ano não se cruza com a previsão de 2026: os distritos mudaram.
   const ensaio = parciais.reconstruido || (previsao !== null && parciais.ano !== previsao.ano);
   const previstas = new Map<string, CorridaVista>();
@@ -154,6 +163,7 @@ export function construirVistaResultados(
       senado: c.id.includes("-S"),
       contagem: c,
       previsao: previstas.get(c.id) ?? null,
+      projecao: projecoes.get(c.id) ?? null,
     }))
     .sort(ordenar);
   const semDados = previsao
@@ -165,6 +175,7 @@ export function construirVistaResultados(
           senado: c.camara === "senado",
           contagem: null,
           previsao: c,
+          projecao: ensaio ? null : (projecoes.get(c.id) ?? null),
         }))
         .sort(ordenar)
     : [];

@@ -6,13 +6,16 @@
  * - previsão: `previsao-2026.json` e `historico-previsao-2026.json` da Release
  *   `dados-previsao`, gravados como dados/previsao/2026.json e historico-2026.json.
  * - resultados: `parciais.json` da Release `resultados-2026` (contrato ResultadosParciais),
- *   gravado como dados/resultados/parciais.json.
+ *   gravado como dados/resultados/parciais.json;
+ * - projeção da noite: `projecao-noite-2026.json` e `historico-noite-2026.json` da Release
+ *   `dados-noite`, gravados como dados/noite/projecao.json e historico.json.
  * Variáveis de ambiente permitem indicar outras origens (endereços ou ficheiros locais).
  *
  * Uso: pnpm --filter @intercalares/web dados:obter
  *   URL_DADOS_VOTO_ANTECIPADO=https://.../nc.json,caminho/local/ga.json
  *   URL_DADOS_PREVISAO=caminho/2026.json  URL_HISTORICO_PREVISAO=caminho/historico.json
  *   URL_DADOS_RESULTADOS=caminho/parciais.json
+ *   URL_PROJECAO_NOITE=caminho/projecao.json  URL_HISTORICO_NOITE=caminho/historico.json
  *   GITHUB_TOKEN (opcional) evita o limite de pedidos anónimos à API.
  *
  * Sem rede ou sem Release, o script avisa e termina sem erro: as páginas mostram
@@ -40,6 +43,16 @@ const FICHEIROS_PREVISAO = [
 ];
 const PASTA_RESULTADOS = path.join(RAIZ_WEB, "dados", "resultados");
 const ETIQUETA_RESULTADOS = "resultados-2026";
+const PASTA_NOITE = path.join(RAIZ_WEB, "dados", "noite");
+const ETIQUETA_NOITE = "dados-noite";
+const FICHEIROS_NOITE = [
+  { destino: "projecao.json", asset: "projecao-noite-2026.json", variavel: "URL_PROJECAO_NOITE" },
+  {
+    destino: "historico.json",
+    asset: "historico-noite-2026.json",
+    variavel: "URL_HISTORICO_NOITE",
+  },
+];
 const LIMITE_BYTES = 20 * 1024 * 1024;
 const NOME_ESTADO = /^[a-z]{2}\.json$/;
 const AGENTE = `Escrutinio/0.1 (+https://github.com/${REPOSITORIO})`;
@@ -122,6 +135,23 @@ async function obterResultados() {
   }
 }
 
+async function obterNoite() {
+  // Pasta limpa: sem projeção publicada, a página mostra só a contagem e a previsão.
+  await rm(PASTA_NOITE, { recursive: true, force: true });
+  await mkdir(PASTA_NOITE, { recursive: true });
+  for (const { destino, asset, variavel } of FICHEIROS_NOITE) {
+    const origem =
+      process.env[variavel] ??
+      `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA_NOITE}/${asset}`;
+    try {
+      const gravado = await gravar(origem, path.join(PASTA_NOITE, destino));
+      console.log(`Projeção da noite em ${path.relative(process.cwd(), gravado)}`);
+    } catch (erro) {
+      console.warn(`Sem ${asset} (${String(erro)}).`);
+    }
+  }
+}
+
 async function obter() {
   const indicadas = process.env.URL_DADOS_VOTO_ANTECIPADO;
   const origens = indicadas
@@ -164,4 +194,10 @@ try {
   await obterResultados();
 } catch (erro) {
   console.warn(`Sem resultados (${String(erro)}); a página fica em preparação.`);
+}
+
+try {
+  await obterNoite();
+} catch (erro) {
+  console.warn(`Sem projeção da noite (${String(erro)}).`);
 }

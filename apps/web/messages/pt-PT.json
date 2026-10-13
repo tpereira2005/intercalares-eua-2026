@@ -592,7 +592,8 @@
       "metodo": "todas as corridas ao Senado e os distritos da Câmara que a previsão não dá como sólidos (abaixo de 95% para um dos lados).",
       "legenda": "Corridas sem dados ao vivo, com a previsão congelada",
       "nota": "Sem dados ao vivo",
-      "fonte": "Previsão do Escrutínio"
+      "fonte": "Previsão do Escrutínio",
+      "textoComProjecao": "Estes estados não publicam resultados numa fonte oficial aberta a pedidos automáticos, ou a recolha ainda não os cobre. A projeção destas corridas só muda com o desvio nacional estimado a partir das corridas com votos; não há contagem ao vivo no site."
     },
     "tabela": {
       "corrida": "Corrida",
@@ -643,6 +644,40 @@
     "resultados": {
       "titulo": "Noite eleitoral",
       "texto": "Contagem oficial por corrida ao lado da previsão congelada."
+    }
+  },
+  "noite": {
+    "sobrelinha": "Projeção ao vivo · votos até às {hora} (Nova Iorque)",
+    "titulo": "Quem controla o Congresso",
+    "texto": "O modelo parte da previsão (congelada a 1 de novembro) e atualiza-a com os votos já contados em cada corrida. Não é uma chamada de vencedor: as probabilidades mudam à medida que chegam votos, e o voto por correspondência pode chegar no fim.",
+    "metodo": "estimador da noite eleitoral do Escrutínio: margem projetada por corrida a partir dos votos contados e da previsão congelada, com um desvio nacional comum; {simulacoes} simulações.",
+    "documentacao": "Como funciona a projeção da noite",
+    "selos": {
+      "ensaio": "Ensaio",
+      "provisoria": "Previsão de partida provisória"
+    },
+    "avisoEnsaio": "Ensaio com a noite de {ano} reconstruída: os votos chegam por uma ordem simulada a partir do resultado final. Não são resultados nem probabilidades de 2026.",
+    "avisoProvisoria": "Esta projeção parte da previsão de {data}, ainda não congelada. A previsão congela a 1 de novembro.",
+    "camara": {
+      "controlo": "contra {outro} {prob}",
+      "prior": "Previsão de partida: D {prob} ({data})",
+      "lugares": "Lugares democratas: mediana {mediana}, de {de} a {ate} (80%). Maioria: {maioria}. Corridas com votos: {corridas}.",
+      "evolucao": "Ao longo da noite"
+    },
+    "desvio": "Desvio nacional estimado: {margem} face à previsão de partida (desvio-padrão de {dp}, em {n} corridas com votos suficientes).",
+    "desvioSemDados": "Ainda não há votos suficientes para estimar o desvio nacional face à previsão.",
+    "tabela": {
+      "projecao": "Projeção",
+      "margem": "{margem} ({de} a {ate})",
+      "prior": "partida {prob}",
+      "decidida": "decidida"
+    },
+    "inicio": {
+      "sobrelinha": "Noite eleitoral · ao vivo",
+      "titulo": "Quem controla o Congresso",
+      "camara": "Câmara",
+      "senado": "Senado",
+      "ligacao": "Ver a noite eleitoral"
     }
   }
 }

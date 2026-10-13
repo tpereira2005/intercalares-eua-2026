@@ -3,6 +3,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import type { ResultadosParciais } from "@intercalares/contratos";
 import { describe, expect, it } from "vitest";
+import { lerProjecao } from "../noite/carregar.ts";
+import { construirVistaNoite } from "../noite/vista.ts";
 import { lerPrevisao } from "../previsao/carregar.ts";
 import { construirVistaPrevisao } from "../previsao/vista.ts";
 import { DadosInvalidos } from "../validacao.ts";
@@ -133,6 +135,19 @@ describe("construirVistaResultados", () => {
   it("um ficheiro de outro ano é tratado como ensaio", () => {
     const vista = construirVistaResultados({ ...exemplo(), ano: 2022 }, previsao());
     expect(vista.ensaio).toBe(true);
+  });
+
+  it("junta a projeção do mesmo ano a cada corrida, e nunca a de um ensaio", () => {
+    const projecao = lerProjecao("test/fixtures/noite/projecao.json");
+    if (!projecao) throw new Error("Falta a projeção de teste");
+    const noite = construirVistaNoite(projecao, null);
+    const vista = construirVistaResultados(exemplo(), previsao(), noite);
+    expect(vista.aoVivo.find((l) => l.id === "IA-S")?.projecao?.probD).toBe(
+      noite.corridas.get("IA-S")?.probD,
+    );
+    expect(vista.semDados.find((l) => l.id === "TX-S")?.projecao).not.toBeNull();
+    const outroAno = construirVistaResultados(exemplo(), previsao(), { ...noite, ano: 2024 });
+    expect(outroAno.aoVivo.every((l) => l.projecao === null)).toBe(true);
   });
 
   it("funciona sem previsão", () => {

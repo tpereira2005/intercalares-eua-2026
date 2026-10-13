@@ -4,7 +4,9 @@ import { Selo } from "@/components/ui/Selo.tsx";
 import { nomeEstado } from "@/lib/estados.ts";
 import { formatarData, formatarDataHora } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
+import type { DadosNoiteEleitoral } from "@/lib/resultados/carregar.ts";
 import type { VistaResultados } from "@/lib/resultados/vista.ts";
+import { PainelProjecao } from "./PainelProjecao.tsx";
 import { TabelaResultados } from "./TabelaResultados.tsx";
 
 const METODOLOGIA =
@@ -83,8 +85,8 @@ function Cobertura({ vista }: { vista: VistaResultados }) {
   );
 }
 
-/** Página da noite eleitoral: contagem oficial por corrida e previsão congelada. */
-export function PaginaResultados({ vista }: { vista: VistaResultados }) {
+/** Contagem oficial por corrida, cobertura e corridas sem dados ao vivo. */
+function Contagem({ vista }: { vista: VistaResultados }) {
   const notaPrevisao =
     vista.cortePrevisao === null
       ? null
@@ -95,36 +97,7 @@ export function PaginaResultados({ vista }: { vista: VistaResultados }) {
           },
         );
   return (
-    <div className="flex flex-col gap-4">
-      <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
-        <div className="min-w-0">
-          <p className="rotulo mb-1">{t("resultados.sobrelinha")}</p>
-          <h1 className="font-display text-[clamp(30px,5vw,40px)] leading-[1.02] font-bold">
-            {t("resultados.titulo")}
-          </h1>
-          <p className="mt-1.5 max-w-[68ch] text-[15.5px] text-ink-2">{t("resultados.lede")}</p>
-        </div>
-        <div className="flex flex-col items-start gap-1.5 sm:items-end">
-          {vista.ensaio ? (
-            <Selo variante="tracejado">{t("resultados.ensaio")}</Selo>
-          ) : (
-            <Selo variante="solido">{t("comum.selos.oficial")}</Selo>
-          )}
-          <span className="font-mono text-[11px] text-ink-3">
-            {t("resultados.retrato", { hora: hora(vista.instante) })}
-          </span>
-        </div>
-      </header>
-
-      {vista.ensaio ? (
-        <p
-          role="note"
-          className="rounded-md border border-dashed border-ink-3 bg-sheet px-[18px] py-3 text-sm text-ink-2"
-        >
-          {t("resultados.ensaioAviso", { ano: vista.ano })}
-        </p>
-      ) : null}
-
+    <>
       <Indicadores vista={vista} />
 
       <div className="grid gap-4 min-[960px]:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -158,11 +131,16 @@ export function PaginaResultados({ vista }: { vista: VistaResultados }) {
         <Painel
           sobrelinha={t("resultados.semDados.sobrelinha")}
           titulo={t("resultados.semDados.titulo")}
-          descricao={
-            notaPrevisao
-              ? `${t("resultados.semDados.texto")} ${notaPrevisao}`
-              : t("resultados.semDados.texto")
-          }
+          descricao={[
+            t(
+              vista.semDados.some((l) => l.projecao !== null)
+                ? "resultados.semDados.textoComProjecao"
+                : "resultados.semDados.texto",
+            ),
+            notaPrevisao,
+          ]
+            .filter(Boolean)
+            .join(" ")}
           acessorio={<Selo variante="tracejado">{t("comum.selos.estimativa")}</Selo>}
           fontes={[{ nome: t("resultados.semDados.fonte"), url: "/previsao/" }]}
           metodo={t("resultados.semDados.metodo")}
@@ -175,6 +153,51 @@ export function PaginaResultados({ vista }: { vista: VistaResultados }) {
           />
         </Painel>
       ) : null}
+    </>
+  );
+}
+
+/** Página da noite eleitoral: projeção do modelo, contagem oficial e previsão congelada. */
+export function PaginaResultados({ resultados, noite }: DadosNoiteEleitoral) {
+  const instante = resultados?.instante ?? noite?.instante;
+  return (
+    <div className="flex flex-col gap-4">
+      <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0">
+          <p className="rotulo mb-1">{t("resultados.sobrelinha")}</p>
+          <h1 className="font-display text-[clamp(30px,5vw,40px)] leading-[1.02] font-bold">
+            {t("resultados.titulo")}
+          </h1>
+          <p className="mt-1.5 max-w-[68ch] text-[15.5px] text-ink-2">{t("resultados.lede")}</p>
+        </div>
+        <div className="flex flex-col items-start gap-1.5 sm:items-end">
+          {resultados ? (
+            resultados.ensaio ? (
+              <Selo variante="tracejado">{t("resultados.ensaio")}</Selo>
+            ) : (
+              <Selo variante="solido">{t("comum.selos.oficial")}</Selo>
+            )
+          ) : null}
+          {instante ? (
+            <span className="font-mono text-[11px] text-ink-3">
+              {t("resultados.retrato", { hora: hora(instante) })}
+            </span>
+          ) : null}
+        </div>
+      </header>
+
+      {resultados?.ensaio ? (
+        <p
+          role="note"
+          className="rounded-md border border-dashed border-ink-3 bg-sheet px-[18px] py-3 text-sm text-ink-2"
+        >
+          {t("resultados.ensaioAviso", { ano: resultados.ano })}
+        </p>
+      ) : null}
+
+      {noite ? <PainelProjecao noite={noite} /> : null}
+
+      {resultados ? <Contagem vista={resultados} /> : null}
     </div>
   );
 }
