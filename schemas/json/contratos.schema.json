@@ -1,5 +1,79 @@
 {
   "$defs": {
+    "CicloAgregado": {
+      "additionalProperties": false,
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "data_eleicao": {
+          "format": "date",
+          "title": "Data Eleicao",
+          "type": "string"
+        },
+        "notas": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notas",
+          "type": "array"
+        },
+        "pedidos": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Boletins por correspondência pedidos até ao mesmo dia, quando a fonte os tem.",
+          "title": "Pedidos"
+        },
+        "tipo": {
+          "enum": [
+            "intercalar",
+            "presidencial"
+          ],
+          "title": "Tipo",
+          "type": "string"
+        },
+        "votos": {
+          "description": "Final nos anos anteriores; acumulado até ``dias_antes`` em 2026.",
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        },
+        "votos_mesmo_dia": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Votos até ao mesmo dia do ciclo que o ano atual (só nos anos de comparação).",
+          "title": "Votos Mesmo Dia"
+        }
+      },
+      "required": [
+        "ano",
+        "tipo",
+        "data_eleicao",
+        "votos",
+        "votos_mesmo_dia",
+        "pedidos",
+        "notas"
+      ],
+      "title": "CicloAgregado",
+      "type": "object"
+    },
     "CicloVotoAntecipado": {
       "additionalProperties": false,
       "description": "Uma eleição comparável (2026 ou um ano de referência).",
@@ -328,6 +402,86 @@
       "title": "LinhaComparacao",
       "type": "object"
     },
+    "LinhaComparacaoAgregada": {
+      "additionalProperties": false,
+      "description": "Uma categoria em 2026 face ao ano de referência, no mesmo dia do ciclo.",
+      "properties": {
+        "ano_base": {
+          "title": "Ano Base",
+          "type": "integer"
+        },
+        "categoria": {
+          "title": "Categoria",
+          "type": "string"
+        },
+        "dimensao": {
+          "enum": [
+            "faixa",
+            "partido",
+            "modalidade"
+          ],
+          "title": "Dimensao",
+          "type": "string"
+        },
+        "quota": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Quota da categoria nos votos antecipados de 2026 (composição).",
+          "title": "Quota"
+        },
+        "quota_base": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quota Base"
+        },
+        "ritmo": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "votos / votos_base - 1: positivo quando a categoria vai à frente do ano de referência.",
+          "title": "Ritmo"
+        },
+        "votos": {
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        },
+        "votos_base": {
+          "minimum": 0,
+          "title": "Votos Base",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ano_base",
+        "dimensao",
+        "categoria",
+        "votos",
+        "votos_base",
+        "quota",
+        "quota_base",
+        "ritmo"
+      ],
+      "title": "LinhaComparacaoAgregada",
+      "type": "object"
+    },
     "LinhaCruzamento": {
       "additionalProperties": false,
       "properties": {
@@ -388,6 +542,176 @@
       "title": "LinhaCruzamento",
       "type": "object"
     },
+    "LinhaEstadoNacional": {
+      "additionalProperties": false,
+      "description": "Resumo de um estado para a página inicial.",
+      "properties": {
+        "ano_base": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ano Base"
+        },
+        "dados_ate": {
+          "format": "date",
+          "title": "Dados Ate",
+          "type": "string"
+        },
+        "dias_antes": {
+          "title": "Dias Antes",
+          "type": "integer"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "ficheiro": {
+          "description": "Nome do ficheiro completo do estado, publicado ao lado deste.",
+          "title": "Ficheiro",
+          "type": "string"
+        },
+        "granularidade": {
+          "enum": [
+            "boletim",
+            "condado"
+          ],
+          "title": "Granularidade",
+          "type": "string"
+        },
+        "modalidades": {
+          "items": {
+            "enum": [
+              "correio",
+              "presencial"
+            ],
+            "type": "string"
+          },
+          "title": "Modalidades",
+          "type": "array"
+        },
+        "quota_65_mais": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Quota de eleitores com 65 ou mais anos (só nos estados com idade).",
+          "title": "Quota 65 Mais"
+        },
+        "quota_65_mais_base": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quota 65 Mais Base"
+        },
+        "quota_dem": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Quota de eleitores registados como democratas nos votos (registo, não voto).",
+          "title": "Quota Dem"
+        },
+        "quota_dem_base": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quota Dem Base"
+        },
+        "quota_rep": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quota Rep"
+        },
+        "quota_rep_base": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quota Rep Base"
+        },
+        "ritmo": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ritmo"
+        },
+        "votos": {
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        },
+        "votos_base": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Votos do ano de referência até ao mesmo dia do ciclo.",
+          "title": "Votos Base"
+        }
+      },
+      "required": [
+        "estado",
+        "ficheiro",
+        "granularidade",
+        "dados_ate",
+        "dias_antes",
+        "modalidades",
+        "votos",
+        "ano_base",
+        "votos_base",
+        "ritmo",
+        "quota_dem",
+        "quota_rep",
+        "quota_dem_base",
+        "quota_rep_base",
+        "quota_65_mais",
+        "quota_65_mais_base"
+      ],
+      "title": "LinhaEstadoNacional",
+      "type": "object"
+    },
     "LinhaGeografia": {
       "additionalProperties": false,
       "properties": {
@@ -445,6 +769,58 @@
         "registados"
       ],
       "title": "LinhaGeografia",
+      "type": "object"
+    },
+    "LinhaGeografiaAgregada": {
+      "additionalProperties": false,
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "codigo": {
+          "description": "FIPS de cinco dígitos (condado) ou número do distrito em vigor em 2026.",
+          "title": "Codigo",
+          "type": "string"
+        },
+        "nivel": {
+          "enum": [
+            "condado",
+            "distrito"
+          ],
+          "title": "Nivel",
+          "type": "string"
+        },
+        "nome": {
+          "title": "Nome",
+          "type": "string"
+        },
+        "partido": {
+          "enum": [
+            "dem",
+            "rep",
+            "nao_afiliado",
+            "outro",
+            "total"
+          ],
+          "title": "Partido",
+          "type": "string"
+        },
+        "votos": {
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ano",
+        "nivel",
+        "codigo",
+        "nome",
+        "partido",
+        "votos"
+      ],
+      "title": "LinhaGeografiaAgregada",
       "type": "object"
     },
     "LinhaHistorico": {
@@ -519,6 +895,67 @@
         "contributo"
       ],
       "title": "LinhaHistorico",
+      "type": "object"
+    },
+    "LinhaPedidos": {
+      "additionalProperties": false,
+      "description": "Boletins por correspondência pedidos, devolvidos e por devolver até ao dia.",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "devolvidos": {
+          "minimum": 0,
+          "title": "Devolvidos",
+          "type": "integer"
+        },
+        "faixa": {
+          "enum": [
+            "18-24",
+            "25-29",
+            "30-39",
+            "40-49",
+            "50-64",
+            "65-74",
+            "75+",
+            "desconhecida",
+            "total"
+          ],
+          "title": "Faixa",
+          "type": "string"
+        },
+        "partido": {
+          "enum": [
+            "dem",
+            "rep",
+            "nao_afiliado",
+            "outro",
+            "total"
+          ],
+          "title": "Partido",
+          "type": "string"
+        },
+        "pedidos": {
+          "minimum": 0,
+          "title": "Pedidos",
+          "type": "integer"
+        },
+        "pendentes": {
+          "minimum": 0,
+          "title": "Pendentes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ano",
+        "faixa",
+        "partido",
+        "pedidos",
+        "devolvidos",
+        "pendentes"
+      ],
+      "title": "LinhaPedidos",
       "type": "object"
     },
     "LinhaReserva": {
@@ -687,6 +1124,189 @@
       "title": "PontoSerie",
       "type": "object"
     },
+    "PontoSerieAgregado": {
+      "additionalProperties": false,
+      "description": "Votos acumulados até um dia do ciclo.",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "dias_antes": {
+          "title": "Dias Antes",
+          "type": "integer"
+        },
+        "faixa": {
+          "enum": [
+            "18-24",
+            "25-29",
+            "30-39",
+            "40-49",
+            "50-64",
+            "65-74",
+            "75+",
+            "desconhecida",
+            "total"
+          ],
+          "title": "Faixa",
+          "type": "string"
+        },
+        "modalidade": {
+          "enum": [
+            "correio",
+            "presencial",
+            "total"
+          ],
+          "title": "Modalidade",
+          "type": "string"
+        },
+        "partido": {
+          "enum": [
+            "dem",
+            "rep",
+            "nao_afiliado",
+            "outro",
+            "total"
+          ],
+          "title": "Partido",
+          "type": "string"
+        },
+        "votos": {
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ano",
+        "dias_antes",
+        "faixa",
+        "partido",
+        "modalidade",
+        "votos"
+      ],
+      "title": "PontoSerieAgregado",
+      "type": "object"
+    },
+    "VotoAntecipadoAgregado": {
+      "additionalProperties": false,
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "avisos": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Avisos",
+          "type": "array"
+        },
+        "ciclos": {
+          "items": {
+            "$ref": "#/$defs/CicloAgregado"
+          },
+          "title": "Ciclos",
+          "type": "array"
+        },
+        "comparacao": {
+          "items": {
+            "$ref": "#/$defs/LinhaComparacaoAgregada"
+          },
+          "title": "Comparacao",
+          "type": "array"
+        },
+        "dados_ate": {
+          "format": "date",
+          "title": "Dados Ate",
+          "type": "string"
+        },
+        "dias_antes": {
+          "title": "Dias Antes",
+          "type": "integer"
+        },
+        "dimensoes": {
+          "description": "Dimensões que a fonte permite analisar neste estado.",
+          "items": {
+            "enum": [
+              "faixa",
+              "partido",
+              "modalidade",
+              "condado",
+              "distrito"
+            ],
+            "type": "string"
+          },
+          "title": "Dimensoes",
+          "type": "array"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "geografia": {
+          "items": {
+            "$ref": "#/$defs/LinhaGeografiaAgregada"
+          },
+          "title": "Geografia",
+          "type": "array"
+        },
+        "granularidade": {
+          "enum": [
+            "boletim",
+            "condado"
+          ],
+          "title": "Granularidade",
+          "type": "string"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "modalidades": {
+          "description": "Modalidades que a fonte cobre (na Pensilvânia, por exemplo, só há correio).",
+          "items": {
+            "enum": [
+              "correio",
+              "presencial"
+            ],
+            "type": "string"
+          },
+          "title": "Modalidades",
+          "type": "array"
+        },
+        "pedidos": {
+          "items": {
+            "$ref": "#/$defs/LinhaPedidos"
+          },
+          "title": "Pedidos",
+          "type": "array"
+        },
+        "serie": {
+          "items": {
+            "$ref": "#/$defs/PontoSerieAgregado"
+          },
+          "title": "Serie",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metadados",
+        "estado",
+        "ano",
+        "dados_ate",
+        "dias_antes",
+        "granularidade",
+        "dimensoes",
+        "modalidades",
+        "ciclos",
+        "serie",
+        "comparacao",
+        "geografia",
+        "pedidos",
+        "avisos"
+      ],
+      "title": "VotoAntecipadoAgregado",
+      "type": "object"
+    },
     "VotoAntecipadoEstado": {
       "additionalProperties": false,
       "description": "Rastreador de voto antecipado de um estado, com a análise por idade.",
@@ -786,6 +1406,47 @@
         "avisos"
       ],
       "title": "VotoAntecipadoEstado",
+      "type": "object"
+    },
+    "VotoAntecipadoNacional": {
+      "additionalProperties": false,
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "avisos": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Avisos",
+          "type": "array"
+        },
+        "estados": {
+          "items": {
+            "$ref": "#/$defs/LinhaEstadoNacional"
+          },
+          "title": "Estados",
+          "type": "array"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "votos": {
+          "description": "Soma dos estados acompanhados (não é um total nacional).",
+          "minimum": 0,
+          "title": "Votos",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "estados",
+        "votos",
+        "avisos"
+      ],
+      "title": "VotoAntecipadoNacional",
       "type": "object"
     }
   },

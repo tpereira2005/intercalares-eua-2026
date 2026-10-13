@@ -4,13 +4,13 @@ Os painéis são aleatórios (semente fixa): nenhum dado vem de eleitores reais.
 """
 
 from collections.abc import Callable
-from datetime import date
+from datetime import date, timedelta
 
 import numpy as np
 import polars as pl
 import pytest
 
-from pipeline.comum.calendario import EleicaoGeral
+from pipeline.comum.calendario import EleicaoGeral, eleicao_geral
 from pipeline.comum.faixas_etarias import CANONICA
 
 
@@ -65,3 +65,35 @@ def eleicao_teste() -> EleicaoGeral:
     return EleicaoGeral(
         "NC", date(2026, 11, 3), "intercalar", date(2026, 10, 15), date(2026, 10, 31), 2022
     )
+
+
+def boletins_sinteticos(semente: int, n: int = 3000, ano: int = 2026) -> pl.DataFrame:
+    """Boletins aleatórios (nenhum dado real) com a forma que os conectores produzem."""
+    rng = np.random.default_rng(semente)
+    eleicao = eleicao_geral("PA", ano).data
+    pedido = [eleicao - timedelta(days=int(d)) for d in rng.integers(20, 120, n)]
+    devolvido = rng.random(n) < 0.6
+    atraso = rng.integers(1, 20, n)
+    return pl.DataFrame(
+        {
+            "idade": pl.Series(rng.integers(18, 95, n), dtype=pl.Int16),
+            "partido": rng.choice(["dem", "rep", "nao_afiliado", "outro"], n),
+            "modalidade": rng.choice(["correio", "presencial"], n),
+            "fips_condado": rng.choice(["42001", "42003", "42101"], n),
+            "distrito": pl.Series(rng.integers(1, 4, n), dtype=pl.Int8),
+            "data_pedido": pl.Series(pedido, dtype=pl.Date),
+            "data_devolucao": pl.Series(
+                [
+                    min(p + timedelta(days=int(a)), eleicao) if v else None
+                    for p, a, v in zip(pedido, atraso, devolvido, strict=True)
+                ],
+                dtype=pl.Date,
+            ),
+        }
+    )
+
+
+@pytest.fixture
+def fb() -> FabricaPainel:
+    """Fábrica de boletins sintéticos para os estados agregados."""
+    return boletins_sinteticos

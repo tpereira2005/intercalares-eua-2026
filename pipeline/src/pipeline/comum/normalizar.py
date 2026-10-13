@@ -1,4 +1,4 @@
-"""Expressões polars partilhadas para normalizar campos da NCSBE."""
+"""Expressões polars partilhadas para normalizar campos das fontes estaduais."""
 
 from collections.abc import Mapping
 from enum import StrEnum

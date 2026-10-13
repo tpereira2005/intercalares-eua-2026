@@ -101,3 +101,18 @@ DATAS_ELEICOES_GERAIS: dict[int, date] = {
     2026: date(2026, 11, 3),
 }
 """Primeira terça-feira depois da primeira segunda-feira de novembro (igual em todos os estados)."""
+
+
+def eleicao_geral(estado: str, ano: int, notas: tuple[str, ...] = ()) -> EleicaoGeral:
+    """Eleição geral de ``ano`` num estado sem janela de voto presencial modelada aqui.
+
+    Para estados onde o voto antecipado presencial não existe ou não se distingue na fonte
+    (na Pensilvânia, por exemplo, tudo é voto por correspondência).
+    """
+    try:
+        data = DATAS_ELEICOES_GERAIS[ano]
+    except KeyError as erro:
+        msg = f"Ano sem eleição geral conhecida: {ano}"
+        raise ValueError(msg) from erro
+    tipo = "presidencial" if ano % 4 == 0 else "intercalar"
+    return EleicaoGeral(estado, data, tipo, None, None, None, notas)

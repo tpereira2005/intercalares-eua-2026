@@ -51,13 +51,125 @@ jobs:
           path: data/publicado/voto-antecipado
           retention-days: 30
 
-  # Publica o JSON num asset de uma Release fixa, substituído a cada execução: o build do
-  # site descarrega-o daí. Assim não há commits a cada duas horas e continua a custo zero.
-  # Job separado para que só ele tenha permissão de escrita, sem código de terceiros.
+  # Estados com boletins mas sem ficheiro de eleitores gratuito (ver
+  # pipeline/src/pipeline/connectors/early_vote/agregados.py).
+  estados:
+    name: Estado ${{ matrix.estado }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        estado: [PA, ME]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Pasta do estado
+        id: pasta
+        run: echo "nome=$(echo '${{ matrix.estado }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+      # Só ficheiros públicos tal como vêm da fonte, para os pedidos condicionais.
+      - name: Restaurar ficheiros da fonte
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/brutos/${{ steps.pasta.outputs.nome }}
+          key: ${{ steps.pasta.outputs.nome }}-brutos-${{ github.run_id }}
+          restore-keys: ${{ steps.pasta.outputs.nome }}-brutos-
+      - name: Recolher e calcular
+        run: >-
+          uv run python -m pipeline.jobs.voto_antecipado_estado
+          --estado ${{ matrix.estado }}
+          --saida data/publicado/voto-antecipado/${{ steps.pasta.outputs.nome }}.json
+      - name: Guardar o resultado
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: voto-antecipado-${{ steps.pasta.outputs.nome }}
+          path: data/publicado/voto-antecipado
+          retention-days: 30
+
+  # A Florida só publica o retrato do dia: o arquivo diário vive na Release, ao lado do JSON.
+  florida:
+    name: Florida
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ARQUIVO: data/publicado/voto-antecipado/historico-fl-2026.csv
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Obter o arquivo publicado
+        run: |
+          mkdir -p "$(dirname "$ARQUIVO")"
+          url="https://github.com/${{ github.repository }}/releases/download/dados-voto-antecipado/historico-fl-2026.csv"
+          curl -fsSL -o "$ARQUIVO" "$url" || echo "Ainda não há arquivo publicado; começa hoje."
+      - name: Recolher e calcular
+        run: >-
+          uv run python -m pipeline.jobs.voto_antecipado_fl
+          --saida data/publicado/voto-antecipado/fl.json
+          --arquivo "$ARQUIVO"
+      - name: Guardar o resultado
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: voto-antecipado-fl
+          path: data/publicado/voto-antecipado
+          retention-days: 30
+
+  # Resumo para a página inicial. Corre mesmo que um estado falhe: esse estado entra com o
+  # último ficheiro já publicado (com a sua data), nunca com dados por validar.
+  nacional:
+    name: Resumo nacional
+    needs: [carolina-do-norte, estados, florida]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Juntar os ficheiros dos estados
+        run: |
+          mkdir -p estados novos
+          gh release download dados-voto-antecipado --pattern '*.json' --dir estados || true
+          rm -f estados/nacional.json
+          gh run download "$GITHUB_RUN_ID" --pattern 'voto-antecipado-*' --dir novos
+          find novos -mindepth 2 -maxdepth 2 -name '*.json' -exec cp {} estados/ \;
+          ls -la estados
+      - name: Calcular
+        run: uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta estados
+      - name: Guardar o resultado
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: voto-antecipado-nacional
+          path: estados/nacional.json
+          retention-days: 30
+
+  # Publica os ficheiros em assets de uma Release fixa, substituídos a cada execução: o
+  # build do site descarrega-os daí. Assim não há commits a cada duas horas e continua a
+  # custo zero. Job separado para que só ele tenha permissão de escrita, sem código de
+  # terceiros. Só publica os ficheiros produzidos nesta execução.
   publicar:
-    name: Publicar nc.json
-    needs: carolina-do-norte
-    if: github.ref == 'refs/heads/main'
+    name: Publicar na Release
+    needs: nacional
+    if: ${{ !cancelled() && needs.nacional.result == 'success' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -68,14 +180,18 @@ jobs:
       GH_REPO: ${{ github.repository }}
       ETIQUETA: dados-voto-antecipado
     steps:
-      - name: Descarregar o resultado
-        run: gh run download "$GITHUB_RUN_ID" --name voto-antecipado-nc --dir resultado
+      - name: Descarregar os resultados
+        run: gh run download "$GITHUB_RUN_ID" --pattern 'voto-antecipado-*' --dir resultado
       - name: Validar
-        run: jq -e '.estado == "NC" and (.ciclos | length) > 0' resultado/nc.json
-      - name: Substituir o asset da Release
+        run: |
+          for f in $(find resultado -mindepth 2 -maxdepth 2 -name '*.json'); do
+            jq -e '.metadados.fontes | length > 0' "$f" > /dev/null || { echo "Inválido: $f"; exit 1; }
+          done
+      - name: Substituir os assets da Release
         run: |
           if ! gh release view "$ETIQUETA" > /dev/null 2>&1; then
             gh release create "$ETIQUETA" --title "Dados do voto antecipado" --latest=false \
               --notes "Ficheiros publicados pelo workflow Voto antecipado. Substituídos a cada execução; só contagens agregadas."
           fi
-          gh release upload "$ETIQUETA" resultado/nc.json --clobber
+          find resultado -mindepth 2 -maxdepth 2 \( -name '*.json' -o -name '*.csv' \) -print0 \
+            | xargs -0 gh release upload "$ETIQUETA" --clobber
