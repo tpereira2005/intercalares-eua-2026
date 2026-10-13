@@ -1,0 +1,52 @@
+name: Voto antecipado
+
+# Recolhe os ficheiros oficiais de voto antecipado e produz o ficheiro publicado.
+# O cron do GitHub atrasa-se com frequência; quando o Worker da Cloudflare estiver ativo,
+# passa a ser ele a disparar este workflow (workflow_dispatch) na hora certa.
+on:
+  schedule:
+    - cron: "17 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: voto-antecipado
+  cancel-in-progress: false
+
+env:
+  UV_LOCKED: "1"
+
+jobs:
+  carolina-do-norte:
+    name: Carolina do Norte
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      # Só ficheiros públicos tal como vêm da fonte (registos públicos da NCSBE), para que os
+      # pedidos condicionais respondam 304 quando nada mudou. Nunca tabelas derivadas.
+      - name: Restaurar ficheiros da fonte
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/brutos/nc
+          key: nc-brutos-${{ github.run_id }}
+          restore-keys: nc-brutos-
+      - name: Recolher e calcular
+        run: >-
+          uv run python -m pipeline.jobs.voto_antecipado_nc
+          --saida data/publicado/voto-antecipado/nc.json
+          --cubos data/publicado/voto-antecipado/cubos
+      - name: Guardar o resultado
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: voto-antecipado-nc
+          path: data/publicado/voto-antecipado
+          retention-days: 30
