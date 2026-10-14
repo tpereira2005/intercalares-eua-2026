@@ -7,6 +7,7 @@ uv.lock
 **/node_modules/
 .venv/
 packages/contratos/src/gerado/
+apps/edge/src/gerado/validadores.js
 schemas/json/
 apps/web/test/fixtures/*.json
 # Tabelas de referência do modelo, geradas pelo pipeline.

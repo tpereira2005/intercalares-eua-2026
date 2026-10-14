@@ -622,11 +622,20 @@
       "comDadosSemHora": "{n} corridas",
       "aEspera": "à espera de dados",
       "soTotal": "só o total, sem condados",
-      "fora": "Pensilvânia, Arizona, Texas, Ohio, Michigan, Nevada e Alasca recusam pedidos automáticos ou não responderam; não contornamos esses bloqueios.",
-      "documentacao": "Fontes, definições e limites dos resultados"
+      "fora": "Pensilvânia, Arizona, Ohio, Michigan e Nevada recusam pedidos automáticos, e a Carolina do Sul e o Iowa bloqueiam-nos a partir do GitHub Actions; não contornamos esses bloqueios.",
+      "documentacao": "Fontes, definições e limites dos resultados",
+      "parcial": "só alguns condados"
     },
     "previsaoNota": "Previsão de {data}, congelada a 1 de novembro.",
-    "previsaoNotaProvisoria": "Previsão de {data}; congela a 1 de novembro."
+    "previsaoNotaProvisoria": "Previsão de {data}; congela a 1 de novembro.",
+    "aoVivoApi": {
+      "ativa": "Atualiza sozinha a cada minuto · confirmado na fonte às {hora}",
+      "antiga": "A última consulta à fonte falhou · dados confirmados às {hora}; nova tentativa dentro de um minuto",
+      "aProcurar": "A procurar dados mais recentes…",
+      "semDados": "Ainda não há dados ao vivo publicados: mostra-se o retrato incluído no site",
+      "falha": "Sem ligação aos dados ao vivo · mostra-se o último retrato, das {hora}; nova tentativa dentro de um minuto",
+      "falhaSemDados": "Sem ligação aos dados ao vivo; nova tentativa dentro de um minuto"
+    }
   },
   "cartoes": {
     "inicio": {

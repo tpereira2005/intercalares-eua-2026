@@ -13,6 +13,7 @@ export default tseslint.config(
       "**/.wrangler/",
       "**/next-env.d.ts",
       "packages/contratos/src/gerado/",
+      "apps/edge/src/gerado/validadores.js",
       ".venv/",
     ],
   },

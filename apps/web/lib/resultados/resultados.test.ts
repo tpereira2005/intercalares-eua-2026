@@ -9,7 +9,7 @@ import { lerPrevisao } from "../previsao/carregar.ts";
 import { construirVistaPrevisao } from "../previsao/vista.ts";
 import { DadosInvalidos } from "../validacao.ts";
 import { lerParciais } from "./carregar.ts";
-import { construirVistaResultados, contarCorridas } from "./vista.ts";
+import { construirVistaResultados, contarCorridas, previsaoParaResultados } from "./vista.ts";
 
 const PARCIAIS = "test/fixtures/resultados/parciais.json";
 
@@ -120,10 +120,30 @@ describe("construirVistaResultados", () => {
       ["NC", 1],
       ["FL", 0],
       ["GA", 1],
-      ["SC", 0],
+      ["AK", 0],
+      ["TX", 0],
       ["IA", 1],
     ]);
     expect(vista.cobertura.find((c) => c.estado === "GA")?.soTotal).toBe(true);
+    expect(vista.cobertura.find((c) => c.estado === "TX")?.parcial).toBe(true);
+  });
+
+  it("mostra a nota da fonte sobre os estados com só alguns condados", () => {
+    const nota = "Só o condado de Harris.";
+    const vista = construirVistaResultados(
+      { ...exemplo(), cobertura_parcial: [{ estado: "TX", condados: ["48201"], nota }] },
+      previsao(),
+    );
+    expect(vista.cobertura.find((c) => c.estado === "TX")?.nota).toBe(nota);
+  });
+
+  it("a previsão reduzida para o browser dá a mesma vista que a completa", () => {
+    const completa = previsao();
+    const reduzida = previsaoParaResultados(completa);
+    expect(reduzida.corridasCamara.length).toBeLessThan(completa.corridasCamara.length);
+    expect(construirVistaResultados(exemplo(), reduzida)).toEqual(
+      construirVistaResultados(exemplo(), completa),
+    );
   });
 
   it("um ensaio reconstruído não se cruza com a previsão de 2026", () => {
