@@ -22,9 +22,11 @@ import {
   type VistaPrevisao,
 } from "@/lib/previsao/vista.ts";
 import { DistribuicaoLugares, EvolucaoControlo, LinhaLimiares, MapaSenado } from "./graficos.tsx";
+import { PainelAlteracoes } from "./PainelAlteracoes.tsx";
 import { TabelaCorridas } from "./TabelaCorridas.tsx";
 
 const METODOLOGIA = "/metodologia/previsao/";
+const REPOSITORIO = "https://github.com/tpereira2005/intercalares-eua-2026";
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
 /** Distritos da Câmara mostrados antes de "ver os outros". */
 const DISTRITOS_VISIVEIS = 25;
@@ -161,7 +163,7 @@ export function PainelLugares({
   );
 }
 
-function PainelLimiares({ vista }: { vista: VistaPrevisao }) {
+function PainelLimiares({ vista, comCenarios }: { vista: VistaPrevisao; comCenarios: boolean }) {
   const { ambiente } = vista;
   return (
     <Painel
@@ -230,6 +232,13 @@ function PainelLimiares({ vista }: { vista: VistaPrevisao }) {
             ))}
           </dl>
         </div>
+      ) : null}
+      {comCenarios ? (
+        <p className="text-sm">
+          <Link href="/previsao/cenarios/" className={LIGACAO}>
+            {t("previsao.cenarios.ligacao")}
+          </Link>
+        </p>
       ) : null}
     </Painel>
   );
@@ -585,6 +594,16 @@ export function VersaoPrevisao({ vista }: { vista: VistaPrevisao }) {
       <span className="font-mono text-[11px] text-ink-3">
         {t("previsao.corte", { data: formatarData(data(vista.corte)) })}
       </span>
+      {vista.commit === null ? null : (
+        <a
+          href={`${REPOSITORIO}/commit/${vista.commit}`}
+          rel="noopener noreferrer"
+          title={t("previsao.commitTitulo")}
+          className={`font-mono text-[11px] ${LIGACAO}`}
+        >
+          {t("previsao.commit", { commit: vista.commit.slice(0, 7) })}
+        </a>
+      )}
       {vista.congelada ? null : (
         <span className="font-mono text-[11px] text-ink-3">{t("previsao.congela")}</span>
       )}
@@ -615,13 +634,14 @@ export function PaginaPrevisao({ dados }: { dados: DadosPrevisao }) {
       <div className="grid gap-4 min-[860px]:grid-cols-2">
         <PainelLugares vista={vista} camara="camara" comLigacao />
         <PainelLugares vista={vista} camara="senado" comLigacao />
-        <PainelLimiares vista={vista} />
+        <PainelLimiares vista={vista} comCenarios={dados.cenarios !== null} />
         <PainelEvolucao vista={vista} evolucao={evolucao} />
       </div>
 
       <PainelSenado vista={vista} evolucao={evolucao} />
       <PainelCamara vista={vista} evolucao={evolucao} />
       <PainelBacktests vista={vista} />
+      {dados.alteracoes ? <PainelAlteracoes alteracoes={dados.alteracoes} /> : null}
 
       <section className="rounded-md border border-rule bg-sheet px-[18px] py-3.5 text-sm">
         <h2 className="rotulo mb-2">{t("previsao.notas")}</h2>
