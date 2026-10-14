@@ -71,4 +71,17 @@ describe("construirVistaNoite", () => {
     expect(construirVistaNoite(p, { ...h, reconstruido: !h.reconstruido }).evolucao).toBeNull();
     expect(construirVistaNoite(p, { ...h, ano: 2024 }).evolucao).toBeNull();
   });
+
+  it("junta a cada corrida o intervalo de cada instante do histórico", () => {
+    const p = projecao();
+    const h = historico();
+    const v = construirVistaNoite(p, h);
+    const nc = v.corridas.get("NC-01")?.evolucao ?? [];
+    expect(nc.map((ponto) => ponto.instante)).toEqual(h.pontos.map((ponto) => ponto.instante));
+    const ultimo = h.pontos.at(-1)?.corridas.find((c) => c.id === "NC-01");
+    expect(nc.at(-1)).toMatchObject({ p10: ultimo?.margem_p10, p90: ultimo?.margem_p90 });
+    // Uma corrida que só aparece na projeção não tem histórico.
+    expect(v.corridas.get("PA-07")?.evolucao).toEqual([]);
+    expect(construirVistaNoite(p, null).corridas.get("NC-01")?.evolucao).toEqual([]);
+  });
 });

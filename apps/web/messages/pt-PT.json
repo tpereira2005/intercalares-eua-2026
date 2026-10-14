@@ -896,7 +896,7 @@
       "texto": "Em cada corrida em aberto, os votos já contados de cada modalidade e o voto que o modelo ainda espera. Em alguns estados o voto por correspondência e o antecipado chegam primeiro; noutros chegam no fim. Uma vantagem cedo pode não aguentar.",
       "mais": "Mostram-se as {n} mais renhidas na projeção, de {total}.",
       "metodo": "voto esperado do estimador da noite (Modelo C); votos por modalidade da contagem oficial de cada estado; a margem necessária é a vantagem contada a dividir pelo voto que falta, se o voto esperado estiver certo.",
-      "leituraGrafico": "Barra: contado por modalidade e, a tracejado, o que falta. Eixo: traço = margem projetada, faixa = intervalo de 80%, círculo = margem contada.",
+      "leituraGrafico": "Barra: contado por modalidade e, a tracejado, o que falta. Eixo: traço = margem projetada, faixa = intervalo de 80%, círculo = margem contada. Por baixo, a faixa do intervalo de 80% e a linha da margem projetada ao longo da noite.",
       "contado": "{pct} contado · faltam cerca de {falta} votos",
       "legendaModos": "Votos contados por modalidade em {corrida}",
       "colunas": {
@@ -925,7 +925,9 @@
       "inalcancavel": {
         "D": "Mesmo com todo o voto que falta, os democratas não chegariam ao empate, se o voto esperado estiver certo.",
         "R": "Mesmo com todo o voto que falta, os republicanos não chegariam ao empate, se o voto esperado estiver certo."
-      }
+      },
+      "evolucao": "Intervalo de 80% da margem em {n} projeções, das {inicio} às {fim}: passou de {de} para {ate} pontos de largura.",
+      "evolucaoLegenda": "intervalo de 80% ao longo da noite"
     }
   },
   "fecho": {

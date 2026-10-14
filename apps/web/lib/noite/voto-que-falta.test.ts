@@ -35,6 +35,7 @@ function projecao(esperados: number | null, decidida = false): CorridaNoite {
     votosContados: 1000,
     votosEsperados: esperados,
     decidida,
+    evolucao: [],
   };
 }
 

@@ -6,7 +6,9 @@
  * <entrada> tem os ficheiros descarregados das Releases (parciais.json,
  * projecao-noite-2026.json, historico-noite-2026.json, chamadas-2026.json; os que
  * faltarem ficam de fora).
- * <saida> recebe resultados.json e noite.json, na forma das respostas da API.
+ * <saida> recebe resultados.json e noite.json, na forma das respostas da API, e sempre
+ * estado.json, com a hora da cópia e os ficheiros incluídos. Assim o Pages é publicado
+ * mesmo antes da noite e dá para confirmar que o caminho funciona.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -42,6 +44,14 @@ if (espelho.resultados) {
 if (espelho.noite) {
   writeFileSync(path.join(saida, FICHEIRO_NOITE), JSON.stringify(espelho.noite));
 }
+writeFileSync(
+  path.join(saida, "estado.json"),
+  JSON.stringify({
+    gerado_em: new Date().toISOString(),
+    resultados: espelho.resultados !== null,
+    noite: espelho.noite !== null,
+  }),
+);
 console.log(
   `Espelho: resultados ${espelho.resultados ? "sim" : "não"}, noite ${espelho.noite ? "sim" : "não"}.`,
 );

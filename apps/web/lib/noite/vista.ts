@@ -41,6 +41,20 @@ export interface CorridaNoite {
   /** Votos que o modelo espera no total da corrida (contados e por contar). */
   votosEsperados: number | null;
   decidida: boolean;
+  /**
+   * Margem e intervalo de 80% em cada projeção guardada da noite, do mais antigo ao mais
+   * recente; vazio sem histórico compatível.
+   */
+  evolucao: PontoIntervalo[];
+}
+
+/** Uma corrida num instante do histórico da noite (margens em pontos, D − R). */
+export interface PontoIntervalo {
+  instante: string;
+  margem: number;
+  p10: number;
+  p90: number;
+  fracaoContada: number | null;
 }
 
 export interface VistaNoite {
@@ -84,21 +98,24 @@ function camara(r: ResumoCamaraNoite): CamaraNoite {
  * Evolução do histórico que corresponde à projeção mostrada: mesmo ano, mesmo ponto de
  * partida e mesma natureza (real ou reconstruída), e só até ao instante da projeção.
  */
-function evolucao(
+function pontosCompativeis(
   projecao: ProjecaoNoite,
   historico: HistoricoNoite | null,
-): VistaNoite["evolucao"] {
+): HistoricoNoite["pontos"][number][] {
   if (
     historico?.ano !== projecao.ano ||
     historico.corte_prior !== projecao.corte_prior ||
     historico.reconstruido !== projecao.reconstruido
   ) {
-    return null;
+    return [];
   }
   const limite = Date.parse(projecao.instante);
-  const pontos = [...historico.pontos]
+  return [...historico.pontos]
     .filter((p) => Date.parse(p.instante) <= limite)
     .sort((a, b) => Date.parse(a.instante) - Date.parse(b.instante));
+}
+
+function evolucao(pontos: HistoricoNoite["pontos"][number][]): VistaNoite["evolucao"] {
   if (pontos.length === 0) return null;
   const serie = (c: Camara): PontoEvolucao[] =>
     pontos.map((p) => ({
@@ -116,6 +133,22 @@ export function construirVistaNoite(
   projecao: ProjecaoNoite,
   historico: HistoricoNoite | null,
 ): VistaNoite {
+  const pontos = pontosCompativeis(projecao, historico);
+  const intervalos = new Map<string, PontoIntervalo[]>();
+  for (const p of pontos) {
+    for (const c of p.corridas) {
+      const ponto = {
+        instante: p.instante,
+        margem: c.margem_projetada,
+        p10: c.margem_p10,
+        p90: c.margem_p90,
+        fracaoContada: c.fracao_contada,
+      };
+      const lista = intervalos.get(c.id);
+      if (lista) lista.push(ponto);
+      else intervalos.set(c.id, [ponto]);
+    }
+  }
   return {
     ano: projecao.ano,
     instante: projecao.instante,
@@ -153,9 +186,10 @@ export function construirVistaNoite(
           votosContados: c.votos_contados,
           votosEsperados: c.votos_esperados,
           decidida: c.decidida,
+          evolucao: intervalos.get(c.id) ?? [],
         },
       ]),
     ),
-    evolucao: evolucao(projecao, historico),
+    evolucao: evolucao(pontos),
   };
 }
