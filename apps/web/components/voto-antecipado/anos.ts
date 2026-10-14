@@ -1,3 +1,4 @@
+import type { FaixaAgregada } from "@/lib/voto-antecipado/agregado.ts";
 import {
   FAIXAS,
   type ComparacaoAno,
@@ -34,12 +35,13 @@ export function estiloAno(
 }
 
 /** Rótulo de uma faixa etária com traço de intervalo ("18–24"). */
-export function rotuloFaixa(faixa: FaixaEtaria): string {
+export function rotuloFaixa(faixa: FaixaAgregada): string {
   return faixa.replace("-", "–");
 }
 
-export interface LinhaBarra {
-  faixa: FaixaEtaria;
+/** Uma barra por faixa: as canónicas, ou as de dez anos nos estados agregados que as usam. */
+export interface LinhaBarra<F extends FaixaAgregada = FaixaEtaria> {
+  faixa: F;
   valor: number;
   referencias: { ano: number; valor: number }[];
 }

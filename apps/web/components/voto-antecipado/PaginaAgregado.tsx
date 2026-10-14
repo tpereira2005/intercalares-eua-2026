@@ -178,7 +178,11 @@ export function PaginaAgregado({
           <Painel
             sobrelinha={t("agregado.idade.sobrelinha")}
             titulo={t("agregado.idade.titulo")}
-            descricao={t("agregado.idade.texto")}
+            descricao={
+              vista.faixasDezAnos
+                ? `${t("agregado.idade.texto")} ${t("agregado.idade.dezAnos")}`
+                : t("agregado.idade.texto")
+            }
             fontes={fontes}
             metodo={t("agregado.idade.metodo")}
           >
