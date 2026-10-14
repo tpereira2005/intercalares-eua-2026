@@ -13,6 +13,7 @@ const ESQUEMA = "../../schemas/json/contratos.schema.json";
 export type NomeContrato =
   | "VotoAntecipadoEstado"
   | "VotoAntecipadoAgregado"
+  | "VotoAntecipadoNacional"
   | "PrevisaoCongresso"
   | "HistoricoPrevisao"
   | "ResultadosParciais"

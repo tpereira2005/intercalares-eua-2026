@@ -194,6 +194,16 @@ async function obter() {
     }
   }
   if (origens.length === 0) console.warn("A Release não tem ficheiros de estado.");
+  // O resumo nacional diz que estados prioritários ficam de fora, e porquê.
+  if (!indicadas) {
+    const origem = `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA}/nacional.json`;
+    try {
+      await gravar(origem, path.join(PASTA, "nacional.json"));
+      console.log("Resumo nacional do voto antecipado obtido.");
+    } catch (erro) {
+      console.warn(`Sem nacional.json (${String(erro)}).`);
+    }
+  }
 }
 
 try {

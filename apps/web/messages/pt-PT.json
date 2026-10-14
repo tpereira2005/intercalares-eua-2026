@@ -327,7 +327,7 @@
   "mapa": {
     "sobrelinha": "Voto antecipado · 50 estados e DC",
     "titulo": "Voto antecipado por estado",
-    "lede": "Cada quadrado é um estado. Por omissão, a cor compara os votos antecipados com os do mesmo dia do ciclo em {ano}. Onde há ficheiro de eleitores, também se vê a participação face ao esperado. Os estados a tracejado ainda não têm dados no site.",
+    "lede": "Cada quadrado é um estado. Por omissão, a cor compara os votos antecipados com os do mesmo dia do ciclo em {ano}. Onde há ficheiro de eleitores, também se vê a participação face ao esperado. Os estados a tracejado ainda não têm dados no site; os riscados ficam de fora, e escolhê-los mostra porquê.",
     "indicador": "Indicador",
     "indicadores": {
       "ritmo": "Ritmo",
@@ -354,7 +354,13 @@
     "semValor": "sem comparação",
     "metodoRitmo": "Método: votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1. Mede o ritmo, não a participação: as regras e os hábitos de voto mudam entre ciclos.",
     "soIndividuais": "A participação face ao esperado só existe nos estados com ficheiro de eleitores; os outros ficam sem cor.",
-    "pendentes": "Boletins pedidos por devolver"
+    "pendentes": "Boletins pedidos por devolver",
+    "fora": "fora do site, com motivo",
+    "quadradoFora": "{estado}, {codigo}: {motivo}",
+    "motivos": {
+      "bloqueado": "Fonte bloqueia pedidos automáticos",
+      "sem_fonte_gratuita": "Sem fonte oficial gratuita"
+    }
   },
   "previsao": {
     "sobrelinha": "Modelo Escrutínio · {ano}",

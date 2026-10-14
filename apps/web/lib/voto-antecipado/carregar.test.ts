@@ -8,6 +8,7 @@ import {
   carregarVistas,
   lerEstado,
   lerEstados,
+  lerEstadosSemDados,
 } from "./carregar.ts";
 
 const FIXTURE = "test/fixtures/voto-antecipado-sintetico.json";
@@ -70,5 +71,41 @@ describe("lerEstado", () => {
       dados.estado = "XX";
     });
     expect(() => lerEstado(estado)).toThrow(DadosInvalidos);
+  });
+});
+
+describe("lerEstadosSemDados", () => {
+  function pastaCom(dados: unknown): string {
+    const pasta = mkdtempSync(path.join(tmpdir(), "va-nacional-"));
+    writeFileSync(path.join(pasta, "nacional.json"), JSON.stringify(dados));
+    return pasta;
+  }
+  const nacional = JSON.parse(
+    readFileSync("test/fixtures/nacional/voto-antecipado.json", "utf-8"),
+  ) as Record<string, unknown>;
+
+  it("lê os estados prioritários sem dados e o motivo", () => {
+    const fora = lerEstadosSemDados(pastaCom(nacional));
+    expect(fora.map((e) => e.estado)).toContain("GA");
+    expect(fora.every((e) => e.motivo === "bloqueado" && e.nota.length > 0)).toBe(true);
+  });
+
+  it("sem resumo, ou num resumo antigo sem o campo, devolve uma lista vazia", () => {
+    expect(lerEstadosSemDados(mkdtempSync(path.join(tmpdir(), "va-vazia-")))).toEqual([]);
+    const antigo = { ...nacional };
+    delete antigo.estados_sem_dados;
+    expect(lerEstadosSemDados(pastaCom(antigo))).toEqual([]);
+  });
+
+  it("rejeita um motivo fora do contrato", () => {
+    const invalido = {
+      ...nacional,
+      estados_sem_dados: [{ estado: "GA", motivo: "outro", nota: "x" }],
+    };
+    expect(() => lerEstadosSemDados(pastaCom(invalido))).toThrow(DadosInvalidos);
+  });
+
+  it("não confunde o resumo com um ficheiro de estado", () => {
+    expect(() => lerEstados(pastaCom(nacional))).not.toThrow();
   });
 });
