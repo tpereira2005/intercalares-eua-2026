@@ -15,8 +15,7 @@ import { t } from "@/lib/mensagens.ts";
 import { caminhoCorrida, nomeCorrida, type VistaSondagens } from "@/lib/sondagens/vista.ts";
 import { EvolucaoVotoGenerico, SerieSondagens } from "./graficos.tsx";
 
-const METODOLOGIA =
-  "https://github.com/tpereira2005/intercalares-eua-2026/blob/main/docs/metodologia/previsao.md#4-sondagens-do-senado";
+const METODOLOGIA = "/metodologia/previsao/#4-sondagens-do-senado";
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
 
 function data(dia: string): Date {

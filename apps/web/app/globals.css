@@ -141,3 +141,107 @@
     opacity: 0.25;
   }
 }
+
+/* Texto corrido dos documentos de metodologia (HTML gerado a partir do Markdown). */
+@layer components {
+  .prosa {
+    max-width: 72ch;
+    color: var(--ink);
+    font-size: 15.5px;
+    line-height: 1.6;
+  }
+  .prosa > * + * {
+    margin-top: 0.85em;
+  }
+  .prosa h2 {
+    margin-top: 2em;
+    font-family: var(--f-display);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+    scroll-margin-top: 16px;
+  }
+  .prosa h3,
+  .prosa h4 {
+    margin-top: 1.5em;
+    font-size: 16.5px;
+    font-weight: 650;
+    scroll-margin-top: 16px;
+  }
+  .prosa p,
+  .prosa li {
+    color: var(--ink-2);
+  }
+  .prosa strong {
+    color: var(--ink);
+    font-weight: 650;
+  }
+  .prosa a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+  .prosa ul,
+  .prosa ol {
+    padding-left: 1.3em;
+  }
+  .prosa ul {
+    list-style: disc;
+  }
+  .prosa ol {
+    list-style: decimal;
+  }
+  .prosa li + li {
+    margin-top: 0.3em;
+  }
+  .prosa code {
+    font-family: var(--f-data);
+    font-size: 0.86em;
+    overflow-wrap: anywhere;
+  }
+  .prosa pre {
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-sm);
+    background: var(--sheet);
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .prosa pre code {
+    overflow-wrap: normal;
+  }
+  .prosa blockquote {
+    border-left: 3px solid var(--rule);
+    padding-left: 12px;
+  }
+  .prosa .tabela-deslizante {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--rule-2);
+    border-radius: var(--r-sm);
+  }
+  .prosa table {
+    border-collapse: collapse;
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+  .prosa th,
+  .prosa td {
+    border-bottom: 1px solid var(--rule-2);
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+    min-width: 9ch;
+  }
+  .prosa th {
+    color: var(--ink);
+    font-weight: 600;
+    background: var(--sheet);
+  }
+  .prosa td {
+    color: var(--ink-2);
+  }
+}

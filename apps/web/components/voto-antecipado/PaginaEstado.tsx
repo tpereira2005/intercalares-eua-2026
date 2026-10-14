@@ -14,8 +14,7 @@ import { t } from "@/lib/mensagens.ts";
 import { resumirEstado } from "@/lib/voto-antecipado/resumo.ts";
 import type { VistaVotoAntecipado } from "@/lib/voto-antecipado/vista.ts";
 
-const METODOLOGIA =
-  "https://github.com/tpereira2005/intercalares-eua-2026/blob/main/docs/metodologia/voto-antecipado.md";
+const METODOLOGIA = "/metodologia/voto-antecipado/";
 
 /** Endereço da página de um estado (ex.: /voto-antecipado/nc/). */
 export function caminhoEstado(codigo: string): string {
