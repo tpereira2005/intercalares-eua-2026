@@ -44,6 +44,15 @@ jobs:
           uv run python -m pipeline.jobs.voto_antecipado_nc
           --saida data/publicado/voto-antecipado/nc.json
           --cubos data/publicado/voto-antecipado/cubos
+      # Diagnóstico etário do modelo (peso zero). Com menos de 10 000 votos antecipados não
+      # escreve nada e termina com sucesso; a publicação só envia os ficheiros que existem.
+      # Uma falha aqui não impede a publicação do nc.json.
+      - name: Sinal etário
+        continue-on-error: true
+        run: >-
+          uv run python -m pipeline.jobs.idade_nc
+          --cubo data/publicado/voto-antecipado/cubos/cubo_demografico_2026.parquet
+          --saida data/publicado/voto-antecipado/idade-nc.json
       - name: Guardar o resultado
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -214,9 +223,9 @@ jobs:
         run: |
           mkdir -p estados novos
           gh release download dados-voto-antecipado --pattern '*.json' --dir estados || true
-          rm -f estados/nacional.json
+          rm -f estados/nacional.json estados/idade-*.json
           gh run download "$GITHUB_RUN_ID" --pattern 'voto-antecipado-*' --dir novos
-          find novos -mindepth 2 -maxdepth 2 -name '*.json' -exec cp {} estados/ \;
+          find novos -mindepth 2 -maxdepth 2 -name '*.json' ! -name 'idade-*' -exec cp {} estados/ \;
           ls -la estados
       - name: Calcular
         run: uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta estados
