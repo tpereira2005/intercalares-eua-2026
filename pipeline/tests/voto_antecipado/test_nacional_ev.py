@@ -53,3 +53,25 @@ def test_estados_sem_dados_saem_quando_ha_ficheiro(fb: Callable[..., pl.DataFram
     sem_linhas = nacional.montar([], [_fonte()], ano=2026)
     assert {e.estado.value for e in sem_linhas.estados_sem_dados} >= {"GA", "TX"}
     assert all(e.motivo == "bloqueado" and e.nota for e in sem_linhas.estados_sem_dados)
+
+
+def test_sinal_condados_separa_por_vencedor_e_pondera_a_margem() -> None:
+    margens = {"37001": -20.0, "37003": 10.0, "37005": 0.0}
+    sinal = nacional.sinal_condados(
+        {"37001": 300, "37003": 100, "37005": 100, "99999": 50}, margens, 2026
+    )
+    assert sinal is not None
+    assert (sinal.votos_trump, sinal.votos_harris) == (300, 100)
+    assert sinal.margem_ponderada == pytest.approx((300 * -20 + 100 * 10) / 500)
+    assert nacional.sinal_condados({"99999": 50}, margens, 2026) is None
+
+
+def test_sinal_condados_e_simetrico() -> None:
+    votos = {"37001": 300, "37003": 100}
+    margens = {"37001": -20.0, "37003": 10.0}
+    a = nacional.sinal_condados(votos, margens, 2026)
+    b = nacional.sinal_condados(votos, {k: -v for k, v in margens.items()}, 2026)
+    assert a is not None
+    assert b is not None
+    assert (a.votos_trump, a.votos_harris) == (b.votos_harris, b.votos_trump)
+    assert a.margem_ponderada == pytest.approx(-(b.margem_ponderada or 0))

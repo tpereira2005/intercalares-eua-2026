@@ -1583,6 +1583,15 @@
           ],
           "title": "Ano Base"
         },
+        "condados_presidenciais": {
+          "default": [],
+          "description": "2026 e o ano de referência, nos estados com votos por condado.",
+          "items": {
+            "$ref": "#/$defs/SinalCondados"
+          },
+          "title": "Condados Presidenciais",
+          "type": "array"
+        },
         "dados_ate": {
           "format": "date",
           "title": "Dados Ate",
@@ -3667,6 +3676,49 @@
         "distribuicao"
       ],
       "title": "ResumoCamaraNoite",
+      "type": "object"
+    },
+    "SinalCondados": {
+      "additionalProperties": false,
+      "description": "De que condados vêm os votos antecipados, pela margem presidencial de 2024.",
+      "properties": {
+        "ano": {
+          "description": "2026 ou o ano de referência, sempre até ao mesmo dia do ciclo.",
+          "title": "Ano",
+          "type": "integer"
+        },
+        "margem_ponderada": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Margem presidencial de 2024 (D-R, em pontos) dos condados, ponderada pelos votos\nantecipados de cada um. Descreve a geografia de onde vêm os votos, não o voto.",
+          "title": "Margem Ponderada"
+        },
+        "votos_harris": {
+          "description": "Votos antecipados nos condados que Harris venceu em 2024.",
+          "minimum": 0,
+          "title": "Votos Harris",
+          "type": "integer"
+        },
+        "votos_trump": {
+          "description": "Votos antecipados nos condados que Trump venceu em 2024.",
+          "minimum": 0,
+          "title": "Votos Trump",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ano",
+        "votos_trump",
+        "votos_harris",
+        "margem_ponderada"
+      ],
+      "title": "SinalCondados",
       "type": "object"
     },
     "SondagemPublicada": {

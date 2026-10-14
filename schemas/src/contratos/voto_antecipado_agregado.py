@@ -129,8 +129,29 @@ class VotoAntecipadoAgregado(ModeloContrato):
     avisos: tuple[str, ...]
 
 
+class SinalCondados(ModeloContrato):
+    """De que condados vêm os votos antecipados, pela margem presidencial de 2024."""
+
+    ano: int
+    """2026 ou o ano de referência, sempre até ao mesmo dia do ciclo."""
+
+    votos_trump: int = Contagem
+    """Votos antecipados nos condados que Trump venceu em 2024."""
+
+    votos_harris: int = Contagem
+    """Votos antecipados nos condados que Harris venceu em 2024."""
+
+    margem_ponderada: float | None
+    """Margem presidencial de 2024 (D-R, em pontos) dos condados, ponderada pelos votos
+    antecipados de cada um. Descreve a geografia de onde vêm os votos, não o voto."""
+
+
 class LinhaEstadoNacional(ModeloContrato):
     """Resumo de um estado para a página inicial."""
+
+    # Campo acrescentado depois da primeira versão: opcional no esquema JSON, para que os
+    # ficheiros já publicados continuem válidos (os modelos pydantic usam o valor por omissão).
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
 
     estado: CodigoEstado
     ficheiro: str
@@ -156,6 +177,8 @@ class LinhaEstadoNacional(ModeloContrato):
     """Quota de eleitores com 65 ou mais anos (só nos estados com idade)."""
 
     quota_65_mais_base: float | None
+    condados_presidenciais: tuple[SinalCondados, ...] = ()
+    """2026 e o ano de referência, nos estados com votos por condado."""
 
 
 class EstadoSemDados(ModeloContrato):
