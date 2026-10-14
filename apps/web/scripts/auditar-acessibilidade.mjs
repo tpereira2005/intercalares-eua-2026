@@ -18,30 +18,21 @@
 // O código dentro de evaluate e addInitScript corre no navegador.
 /* global window, document */
 
-import { createReadStream } from "node:fs";
-import { readdir, readFile, stat } from "node:fs/promises";
-import { createServer } from "node:http";
+import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
+import { RAIZ, servir } from "./servidor-estatico.mjs";
 
-const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "out");
 const AXE = await readFile(createRequire(import.meta.url).resolve("axe-core/axe.min.js"), "utf8");
-const TIPOS = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript",
-  ".css": "text/css",
-  ".json": "application/json",
-  ".svg": "image/svg+xml",
-  ".woff2": "font/woff2",
-  ".woff": "font/woff",
-  ".txt": "text/plain; charset=utf-8",
-};
 const PAGINAS = [
   "/",
   "/mapa/",
   "/previsao/",
+  "/previsao/camara/",
+  "/previsao/senado/",
+  "/previsao/cenarios/",
+  "/demografia/",
   "/sondagens/",
   "/resultados/",
   "/voto-antecipado/",
@@ -56,35 +47,6 @@ const CONFIGURACOES = [
   { nome: "telemóvel escuro", largura: 320, esquema: "dark" },
 ];
 const LIMITE_CLS = 0.1;
-
-/** Servidor estático mínimo sobre a pasta exportada. */
-function servir() {
-  const servidor = createServer(async (pedido, resposta) => {
-    const caminho = decodeURIComponent(new URL(pedido.url ?? "/", "http://x").pathname);
-    let ficheiro = path.join(RAIZ, caminho);
-    if (!ficheiro.startsWith(RAIZ)) {
-      resposta.writeHead(403).end();
-      return;
-    }
-    try {
-      if ((await stat(ficheiro)).isDirectory()) ficheiro = path.join(ficheiro, "index.html");
-      await stat(ficheiro);
-    } catch {
-      resposta.writeHead(404).end();
-      return;
-    }
-    resposta.writeHead(200, {
-      "Content-Type": TIPOS[path.extname(ficheiro)] ?? "application/octet-stream",
-    });
-    createReadStream(ficheiro).pipe(resposta);
-  });
-  return new Promise((resolver) => {
-    servidor.listen(0, "127.0.0.1", () => {
-      const endereco = servidor.address();
-      resolver({ servidor, base: `http://127.0.0.1:${String(endereco.port)}` });
-    });
-  });
-}
 
 /** Subpáginas de uma secção (estados, corridas), lidas da pasta exportada. */
 async function subpaginas(seccao) {
@@ -107,6 +69,7 @@ const navegador = await chromium.launch(
 const paginas = [
   ...PAGINAS,
   ...(await subpaginas("voto-antecipado")),
+  ...(await subpaginas("metodologia")),
   // Uma corrida basta: as páginas das sondagens partilham o mesmo modelo.
   ...(await subpaginas("sondagens")).slice(0, 1),
 ];

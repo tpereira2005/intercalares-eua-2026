@@ -17,7 +17,7 @@ interface Parametros {
 
 export async function generateMetadata({ params }: Parametros): Promise<Metadata> {
   const { documento } = await params;
-  const lido = lerDocumento(documento, t("metodologia.tabela"));
+  const lido = lerDocumento(documento, t("metodologia.tabela"), t("metodologia.blocoCodigo"));
   return metadadosPagina({
     titulo: lido?.titulo ?? t("seccoes.metodologia.titulo"),
     descricao: lido?.resumo.slice(0, 200) ?? t("seccoes.metodologia.descricao"),
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Parametros): Promise<Metadata
 
 export default async function Pagina({ params }: Parametros) {
   const { documento } = await params;
-  const lido = lerDocumento(documento, t("metodologia.tabela"));
+  const lido = lerDocumento(documento, t("metodologia.tabela"), t("metodologia.blocoCodigo"));
   if (!lido) notFound();
   return <PaginaDocumento documento={lido} />;
 }

@@ -33,6 +33,20 @@ describe("documentos de metodologia", () => {
     expect(d.html).not.toContain("<h1");
   });
 
+  it("dá um nome único a cada tabela e a cada bloco de código com deslocamento", () => {
+    const tabela = "| a |\n|---|\n| 1 |\n";
+    const d = converter(
+      "previsao",
+      `# T\n\n${tabela}\n${tabela}\n\`\`\`\ncódigo\n\`\`\`\n\n\`\`\`\noutro\n\`\`\`\n`,
+      "Tabela {n}",
+      "Código {n}",
+    );
+    expect(d.html).toContain('aria-label="Tabela 1"');
+    expect(d.html).toContain('aria-label="Tabela 2"');
+    expect(d.html).toContain('<pre tabindex="0" role="region" aria-label="Código 1">');
+    expect(d.html).toContain('aria-label="Código 2"');
+  });
+
   it("tira o prefixo Metodologia do título", () => {
     expect(converter("previsao", "# Metodologia: previsão da Câmara\n\nTexto.", "T").titulo).toBe(
       "Previsão da Câmara",

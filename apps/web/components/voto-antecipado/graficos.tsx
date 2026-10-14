@@ -175,6 +175,7 @@ export function BarrasIdade<F extends FaixaAgregada = FaixaEtaria>({
                           aoEscolher(linha.faixa);
                         }
                       : undefined,
+                    ativa,
                   )}
                 >
                   <FundoLinha y={y} largura={largura} altura={alturaLinha} ativa={ativa} />
@@ -290,6 +291,7 @@ export function BarrasMomento({
                 () => {
                   aoEscolher(linha.faixa);
                 },
+                ativa,
               )}
             >
               <FundoLinha y={y} largura={largura} altura={alturaLinha} ativa={ativa} />
@@ -414,6 +416,7 @@ export function BarrasDesvio({
                     () => {
                       aoEscolher(linha.faixa);
                     },
+                    ativa,
                   )}
                 >
                   <FundoLinha y={y} largura={largura} altura={alturaLinha} ativa={ativa} />
@@ -799,6 +802,7 @@ export function Cruzamento<F extends FaixaAgregada = FaixaEtaria>({
                       aoEscolher(linha.faixa);
                     }
                   : undefined,
+                ativa,
               )}
             >
               <FundoLinha y={y} largura={largura} altura={alturaLinha} ativa={ativa} />

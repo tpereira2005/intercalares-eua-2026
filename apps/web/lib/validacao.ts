@@ -22,7 +22,8 @@ export type NomeContrato =
   | "ChamadasRedacoes"
   | "ProjecaoNoite"
   | "HistoricoNoite"
-  | "SondagensCongresso";
+  | "SondagensCongresso"
+  | "DiagnosticoIdade";
 
 let ajv: Ajv2020 | undefined;
 let id = "";

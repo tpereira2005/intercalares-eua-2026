@@ -27,7 +27,7 @@ const VISIVEIS = 12;
 /** O que a tabela mostra: a idade de quem vota, ou se são eleitores habituais ou novos. */
 type Pergunta = "composicao" | "momento";
 
-const CELULA = "py-1.5 pr-3 text-right font-mono text-[13px] whitespace-nowrap";
+const CELULA = "py-1.5 pr-2 sm:pr-3 text-right font-mono text-[13px] whitespace-nowrap";
 
 function rotulo(faixa: FaixaMomento): string {
   // O travessão leva um "word joiner" a seguir, para "18–29" não partir entre linhas.
@@ -233,15 +233,15 @@ export function PainelGeografia({
         </caption>
         <thead>
           <tr className="rotulo text-left">
-            <th scope="col" className="pr-3 pb-1.5 font-medium">
+            <th scope="col" className="pr-2 pb-1.5 sm:pr-3 font-medium">
               {t(`votoAntecipado.geografia.niveis.${nivel}`)}
             </th>
-            <th scope="col" className="pr-3 pb-1.5 text-right font-medium">
+            <th scope="col" className="pr-2 pb-1.5 sm:pr-3 text-right font-medium">
               {t(momento ? "votoAntecipado.geografia.novos" : "votoAntecipado.geografia.quota", {
                 ano,
               })}
             </th>
-            <th scope="col" className="pr-3 pb-1.5 text-right font-medium">
+            <th scope="col" className="pr-2 pb-1.5 sm:pr-3 text-right font-medium">
               {t("votoAntecipado.geografia.diferenca", { ano: anoBase })}
             </th>
             {momento ? (
@@ -261,7 +261,7 @@ export function PainelGeografia({
               key={l.codigo}
               className={`border-t border-rule-2 align-top ${l.poucosVotos ? "text-ink-3" : ""}`}
             >
-              <th scope="row" className="py-1.5 pr-3 text-left font-semibold">
+              <th scope="row" className="py-1.5 pr-2 sm:pr-3 text-left font-semibold">
                 {nomeUnidade(l.codigo, l.nome)}
                 <span className="block font-mono text-[11px] font-normal text-ink-3">
                   {t("votoAntecipado.geografia.votos", { n: formatarNumero(l.votos) })}

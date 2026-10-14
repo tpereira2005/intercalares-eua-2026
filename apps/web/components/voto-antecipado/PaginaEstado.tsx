@@ -1,3 +1,5 @@
+import { PainelSinalEtario } from "./PainelSinalEtario.tsx";
+import type { VistaIdade } from "@/lib/voto-antecipado/idade.ts";
 import Link from "next/link";
 import { FaixaKpis, Kpi } from "@/components/ui/Kpi.tsx";
 import { QualidadeDados } from "@/components/ui/QualidadeDados.tsx";
@@ -146,9 +148,12 @@ export function ComoLer() {
 export function PaginaEstado({
   vista,
   estados,
+  idade,
 }: {
   vista: VistaVotoAntecipado;
   estados: readonly VistaVotoAntecipado["estado"][];
+  /** Sinal etário: `undefined` sem modelo para o estado, `null` ainda por publicar. */
+  idade?: VistaIdade | null | undefined;
 }) {
   const qualidade = resumirEstado(vista).qualidade;
   const estado = nomeEstado(vista.estado);
@@ -182,6 +187,8 @@ export function PaginaEstado({
       <Avisos avisos={vista.avisos} />
 
       <ComoLer />
+
+      {idade === undefined ? null : <PainelSinalEtario vista={idade} />}
 
       <Rastreador
         vista={vista}
