@@ -43,6 +43,7 @@ src/pipeline/
     ├── referencia_voto_antecipado_estado.py
     ├── voto_antecipado_fl.py              # Florida (arquivo diário próprio)
     ├── voto_antecipado_ia.py              # Iowa (PDF diários; --referencia para 2022 e 2024)
+    ├── voto_antecipado_co.py              # Colorado (folhas diárias; --referencia para 2022 e 2024)
     └── voto_antecipado_nacional.py        # resumo para a página inicial
 ```
 
@@ -59,7 +60,7 @@ uv run python -m pipeline.jobs.voto_antecipado_nc --saida data/publicado/voto-an
 
 ### Outros estados e resumo nacional
 
-Pensilvânia e Maine publicam um registo por boletim (sem ficheiro de eleitores), a Florida só totais diários por condado e o Iowa relatórios diários em PDF por distrito e condado. Usam o contrato `VotoAntecipadoAgregado` e o mesmo fluxo de cubos (`transform/early_vote/agregado.py`); o resumo da página inicial (`VotoAntecipadoNacional`) cita os ficheiros de cada estado. Detalhes e limites em `docs/metodologia/voto-antecipado-estados.md`.
+Pensilvânia e Maine publicam um registo por boletim (sem ficheiro de eleitores), a Florida só totais diários por condado o Iowa relatórios diários em PDF por distrito e condado e o Colorado folhas de cálculo diárias por idade, partido e condado. Usam o contrato `VotoAntecipadoAgregado` e o mesmo fluxo de cubos (`transform/early_vote/agregado.py`); o resumo da página inicial (`VotoAntecipadoNacional`) cita os ficheiros de cada estado. Detalhes e limites em `docs/metodologia/voto-antecipado-estados.md`.
 
 ```sh
 uv run python -m pipeline.jobs.referencia_voto_antecipado_estado --estado PA   # cubos de referência

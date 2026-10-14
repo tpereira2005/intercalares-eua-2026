@@ -157,9 +157,42 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
+  # Colorado: folha de cálculo diária do Secretary of State, encontrada pelos comunicados
+  # de imprensa. Antes da primeira folha da eleição geral o job avisa e não produz ficheiro.
+  colorado:
+    name: Colorado
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      # Só os comunicados e folhas públicos tal como vêm da fonte, para os pedidos condicionais.
+      - name: Restaurar ficheiros da fonte
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/brutos/co
+          key: co-brutos-${{ github.run_id }}
+          restore-keys: co-brutos-
+      - name: Recolher e calcular
+        run: >-
+          uv run python -m pipeline.jobs.voto_antecipado_co
+          --saida data/publicado/voto-antecipado/co.json
+      - name: Guardar o resultado
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: voto-antecipado-co
+          path: data/publicado/voto-antecipado
+          retention-days: 30
+          if-no-files-found: ignore
+
   nacional:
     name: Resumo nacional
-    needs: [carolina-do-norte, estados, florida, iowa]
+    needs: [carolina-do-norte, estados, florida, iowa, colorado]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 10

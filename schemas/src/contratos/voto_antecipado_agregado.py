@@ -21,6 +21,16 @@ Contagem = Field(ge=0)
 
 DimensaoAgregada = Literal["faixa", "partido", "modalidade", "condado", "distrito"]
 
+FaixaAgregada = Literal[
+    "18-24", "25-29", "30-39", "40-49", "50-64", "65-74", "75+",
+    "25-34", "35-44", "45-54", "55-64",
+    "desconhecida", "total",
+]  # fmt: skip
+"""Faixa etária nos estados agregados: a canónica, quando a fonte dá a idade de cada
+boletim, ou as faixas de dez anos que a fonte publica (Colorado: 18-24, 25-34, 35-44,
+45-54, 55-64, 65-74, 75+). As duas não se misturam no mesmo estado, e as faixas comuns
+(18-24, 65-74, 75+) têm os mesmos limites."""
+
 Granularidade = Literal["boletim", "condado"]
 """``boletim``: um registo por boletim (contagens exatas por dia do ciclo).
 ``condado``: só totais por condado publicados pela fonte, sem histórico diário próprio."""
@@ -47,7 +57,7 @@ class PontoSerieAgregado(ModeloContrato):
 
     ano: int
     dias_antes: int
-    faixa: Faixa
+    faixa: FaixaAgregada
     partido: Partido
     modalidade: ModalidadeVoto
     votos: int = Contagem
