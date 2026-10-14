@@ -30,12 +30,14 @@ BASE = "https://er.ncsbe.gov/enr/{data:%Y%m%d}/data/results_{codigo}.txt"
 CAMPOS = {"cnm", "bnm", "pty", "vct", "prt", "ptl", "cid"}
 NOMES_GEO = NOME_CONDADO
 MODALIDADES = {
-    "evc": "antecipado_presencial",
-    "ovc": "dia_eleicao",
+    "evc": "dia_eleicao",
+    "ovc": "antecipado_presencial",
     "avc": "correio",
     "pvc": "provisorio",
 }
-"""Colunas da NCSBE com os votos por tipo: one-stop, dia da eleição, correio, provisório."""
+"""Colunas da NCSBE com os votos por tipo: ``evc`` dia da eleição (Election Day), ``ovc``
+one-stop (antecipado presencial), ``avc`` correio, ``pvc`` provisório. Conferido com 2024:
+o one-stop foi cerca de 3/4 do voto, como no histórico individual."""
 
 
 def _fips(cid: int) -> str:
