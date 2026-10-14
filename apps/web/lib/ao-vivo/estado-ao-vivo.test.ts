@@ -50,6 +50,7 @@ describe("atualizarEstado", () => {
       tipo: "aoVivo",
       confirmadoEm: "2026-11-04T01:00:00Z",
       antiga: false,
+      espelho: false,
     });
   });
 

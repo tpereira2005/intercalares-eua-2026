@@ -30,7 +30,9 @@ function hora(instante: string): string {
 
 function EstadoLigacao({ ligacao, instante }: { ligacao: Ligacao; instante: string | null }) {
   let texto: string;
-  if (ligacao.tipo === "aoVivo") {
+  if (ligacao.tipo === "aoVivo" && ligacao.espelho) {
+    texto = t("resultados.aoVivoApi.espelho", { hora: hora(ligacao.confirmadoEm) });
+  } else if (ligacao.tipo === "aoVivo") {
     texto = t(ligacao.antiga ? "resultados.aoVivoApi.antiga" : "resultados.aoVivoApi.ativa", {
       hora: hora(ligacao.confirmadoEm),
     });

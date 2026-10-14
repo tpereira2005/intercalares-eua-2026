@@ -4,7 +4,8 @@
  * O HTML traz as vistas calculadas no build. Durante a noite, o browser consulta a API
  * do Worker (/api/resultados e /api/noite) e reconstrói as vistas com as mesmas funções
  * puras do build. Os ficheiros já chegam validados pelo Worker; aqui só se confirma a
- * forma mínima antes de os usar. Se a API falhar, fica o que já está no ecrã.
+ * forma mínima antes de os usar. Se a API falhar, o browser lê o espelho de emergência no
+ * GitHub Pages (espelho.ts); se também falhar, fica o que já está no ecrã.
  */
 
 import type { HistoricoNoite, ProjecaoNoite, ResultadosParciais } from "@intercalares/contratos";
@@ -20,8 +21,17 @@ export const INTERVALO_SEM_DADOS_MS = 10 * 60_000;
 export const URL_RESULTADOS = "/api/resultados";
 export const URL_NOITE = "/api/noite";
 
-/** Origem declarada pelo Worker: `copia-antiga` quando a fonte falhou. */
-type OrigemApi = "memoria" | "fonte" | "copia-antiga";
+/** Espelho de emergência no GitHub Pages; `URL_ESPELHO` no build substitui-o. */
+export const URL_ESPELHO = (
+  process.env.NEXT_PUBLIC_URL_ESPELHO ??
+  "https://tpereira2005.github.io/intercalares-eua-2026/espelho"
+).replace(/\/$/, "");
+
+/**
+ * Origem declarada pelo Worker (`copia-antiga` quando a fonte falhou) ou `espelho`
+ * quando a resposta veio da cópia de emergência.
+ */
+type OrigemApi = "memoria" | "fonte" | "copia-antiga" | "espelho";
 
 export interface RespostaResultados {
   origem: OrigemApi;
@@ -41,8 +51,11 @@ export type Consulta<T> = { tipo: "dados"; dados: T } | { tipo: "ausente" } | { 
 export type Ligacao =
   /** Ainda não houve resposta: o ecrã mostra o que veio no build. */
   | { tipo: "build" }
-  /** `antiga`: a fonte ou uma das consultas falhou e há dados mais antigos à vista. */
-  | { tipo: "aoVivo"; confirmadoEm: string; antiga: boolean }
+  /**
+   * `antiga`: a fonte ou uma das consultas falhou e há dados mais antigos à vista.
+   * `espelho`: a API não respondeu e os dados vêm da cópia de emergência.
+   */
+  | { tipo: "aoVivo"; confirmadoEm: string; antiga: boolean; espelho: boolean }
   /** A API diz que ainda não há ficheiros publicados. */
   | { tipo: "semDados" }
   /** A API não respondeu: fica o que está no ecrã. */
@@ -93,12 +106,33 @@ async function consultar<T>(
   }
 }
 
+/**
+ * Consulta a API e, se ela falhar (limite atingido, erro ou sem rede), o espelho. Um
+ * `404` da API quer dizer que ainda não há nada publicado: aí não se vai ao espelho.
+ */
+async function consultarComEspelho<T>(
+  url: string,
+  urlEspelho: string,
+  forma: (corpo: unknown) => corpo is T,
+  buscar: typeof fetch,
+): Promise<Consulta<T>> {
+  const api = await consultar(url, forma, buscar);
+  if (api.tipo !== "erro") return api;
+  const espelho = await consultar(urlEspelho, forma, buscar);
+  return espelho.tipo === "dados" ? espelho : api;
+}
+
 export function consultarResultados(buscar: typeof fetch = fetch) {
-  return consultar(URL_RESULTADOS, formaResultados, buscar);
+  return consultarComEspelho(
+    URL_RESULTADOS,
+    `${URL_ESPELHO}/resultados.json`,
+    formaResultados,
+    buscar,
+  );
 }
 
 export function consultarNoite(buscar: typeof fetch = fetch) {
-  return consultar(URL_NOITE, formaNoite, buscar);
+  return consultarComEspelho(URL_NOITE, `${URL_ESPELHO}/noite.json`, formaNoite, buscar);
 }
 
 /** Junta as respostas da API ao que está no ecrã. Função pura, testada à parte. */
@@ -131,6 +165,7 @@ export function atualizarEstado(
       tipo: "aoVivo",
       confirmadoEm,
       antiga: erro || respostas.some((r) => r.origem === "copia-antiga"),
+      espelho: respostas.some((r) => r.origem === "espelho"),
     },
   };
 }

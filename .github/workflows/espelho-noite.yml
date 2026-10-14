@@ -1,0 +1,80 @@
+name: Espelho da noite
+
+# Cópia de emergência das respostas da API ao vivo no GitHub Pages (plano, secção 8.4;
+# docs/api-ao-vivo.md). Se o Worker deixar de responder, o browser lê
+# https://tpereira2005.github.io/intercalares-eua-2026/espelho/{resultados,noite}.json.
+#
+# Corre a cada 10 minutos entre 3 e 10 de novembro (UTC) e à mão. Só publica ficheiros
+# que cumprem o contrato; se nenhum existir ainda, não publica nada.
+# Requer o GitHub Pages ativo com a origem "GitHub Actions" (Settings > Pages).
+on:
+  schedule:
+    - cron: "*/10 * 3-10 11 *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: espelho-noite
+  cancel-in-progress: false
+
+jobs:
+  preparar:
+    name: Preparar a cópia
+    if: ${{ github.repository == 'tpereira2005/intercalares-eua-2026' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      publicar: ${{ steps.copia.outputs.publicar }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Um ficheiro que ainda não exista (antes da noite) fica de fora.
+      - name: Descarregar das Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p entrada
+          gh release download resultados-2026 -p parciais.json -D entrada --clobber \
+            || echo "::notice::Sem parciais.json"
+          gh release download dados-noite -p projecao-noite-2026.json \
+            -p historico-noite-2026.json -D entrada --clobber \
+            || echo "::notice::Sem ficheiros da projeção de 2026"
+      - name: Montar a cópia
+        id: copia
+        # O validador lê os esquemas a partir da pasta do site.
+        working-directory: apps/web
+        run: |
+          node --experimental-strip-types scripts/espelho-noite.ts \
+            "$GITHUB_WORKSPACE/entrada" "$GITHUB_WORKSPACE/site/espelho"
+          if [ -n "$(ls -A "$GITHUB_WORKSPACE/site/espelho")" ]; then
+            echo "publicar=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: ${{ steps.copia.outputs.publicar == 'true' }}
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+  publicar:
+    name: Publicar no Pages
+    needs: preparar
+    if: ${{ needs.preparar.outputs.publicar == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
