@@ -310,7 +310,23 @@
       "votos": "{n} votos",
       "poucosVotos": "poucos votos",
       "mais": "Ver os outros {n}",
-      "menos": "Mostrar só os primeiros"
+      "menos": "Mostrar só os primeiros",
+      "textoSemParticipacao": "Quota da faixa nos votos antecipados de cada distrito ou condado, comparada com o mesmo dia do ciclo de {ano}. Sem ficheiro de eleitores não há recenseados por faixa, por isso não há participação. Ordenado da maior subida para a maior descida.",
+      "metodoSemParticipacao": "votos da faixa / votos da unidade até ao mesmo dia do ciclo. Unidades com menos de {minimo} votos num dos anos aparecem no fim, a cinzento: com tão poucos votos, a quota varia muito ao acaso. Distritos no mapa de 2026.",
+      "todas": "Todas",
+      "perguntaAria": "O que mostrar",
+      "perguntas": {
+        "composicao": "Idade",
+        "momento": "Habituais ou voto novo"
+      },
+      "tituloMomento": "Voto novo entre os {faixa} anos em cada território",
+      "tituloMomentoTodas": "Voto novo em cada território",
+      "textoMomento": "Parte do voto novo nos votos antecipados até este dia do ciclo: quem não votou em {referencia} ou se recenseou depois. Compara-se com a mesma parte no mesmo dia de {ano} (face à eleição anterior desse ano). Os habituais já votavam antecipadamente; a antecipação são eleitores que votavam no dia e passaram a votar mais cedo. Ordenado da maior subida para a maior descida.",
+      "metodoMomento": "cada eleitor classificado pelo que fez na eleição anterior do mesmo tipo ({referencia} para 2026); os eleitores sem histórico ficam fora. Unidades com menos de {minimo} votos num dos anos aparecem no fim, a cinzento. Distritos no mapa de 2026 em todos os anos.",
+      "legendaMomento": "Parte do voto novo entre os {faixa} anos por {nivel}, face a {ano}",
+      "novos": "Voto novo {ano}",
+      "habituais": "Habituais",
+      "legendaMomentoTodas": "Parte do voto novo por {nivel}, face a {ano}"
     },
     "leitura": {
       "titulo": "Como ler estes números",

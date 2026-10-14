@@ -376,6 +376,6 @@ export function construirVista(dados: VotoAntecipadoEstado): VistaVotoAntecipado
       dados.ano,
       principal !== null && anosReserva.has(principal) ? principal : null,
     ),
-    geografia: agruparGeografia(dados.geografia),
+    geografia: agruparGeografia(dados.geografia, dados.historico_geografia ?? []),
   };
 }
