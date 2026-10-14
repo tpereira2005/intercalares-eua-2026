@@ -2,10 +2,8 @@
 
 Usa os ficheiros pequenos de ``dados/`` (Florida, Geórgia e Alasca, 2024), sem rede. A
 Florida nunca falha; a Geórgia e o Alasca recebem todos os tipos de falha em janelas
-curtas. Os dois invariantes de tempo (``ciclo_dentro_do_intervalo`` e ``lento_isolado``)
-falham de propósito: a recolha de produção repete e espera de forma sequencial, por isso
-uma fonte lenta ou com 429 alonga o ciclo de todos os estados. O teste confirma que só
-falham por essa razão.
+curtas. Todos os invariantes têm de passar, incluindo os de tempo: os estados correm em
+paralelo, por isso a fonte lenta e o 429 só atrasam o próprio estado.
 """
 
 import shutil
@@ -82,17 +80,7 @@ def test_ensaio_curto_com_todas_as_falhas(tmp_path: Path) -> None:
     )
     cliente.close()
     assert not relatorio.erros_ensaio
-    # Só os invariantes de tempo podem falhar, e só por causa de falhas lentas ou de 429.
-    assert set(relatorio.falhados()) <= {
-        "ciclo_dentro_do_intervalo",
-        "lento_isolado",
-        "falha_persistente",
-    }, para_markdown(relatorio)
-    for invariante in relatorio.invariantes:
-        if invariante.id == "ciclo_dentro_do_intervalo":
-            assert all(
-                "lento" in p or "limite" in p or "erro_servidor" in p for p in invariante.problemas
-            ), invariante.problemas
+    assert relatorio.falhados() == [], para_markdown(relatorio)
     # Todos os tipos de falha foram servidos e o Alasca chegou a alerta e recuperou.
     assert {p.falha for p in relatorio.pedidos if p.falha} == {
         "ausente", "corrompido", "vazio", "erro_servidor", "bloqueio", "lento", "limite",

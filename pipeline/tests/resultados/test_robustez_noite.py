@@ -179,3 +179,60 @@ def test_vigia_nao_avisa_depois_de_tudo_apurado() -> None:
     gerado = datetime(2026, 11, 4, 9, 0, tzinfo=UTC)
     saude = {"gerado_em": gerado.isoformat(), "estados": {"NC": {"apurado": True}}}
     assert vigia.alertas(saude, gerado + timedelta(hours=3), 12) == []
+
+
+def test_fonte_lenta_nao_atrasa_os_outros_estados(fontes: Fontes, recolha: Recolha) -> None:
+    def lenta(pedido: httpx.Request) -> httpx.Response:
+        time.sleep(1.0)
+        return _normal(pedido)
+
+    fontes.comportamento["results.sos.ga.gov"] = lenta
+    recolha.orcamento = 0.2
+    inicio = time.monotonic()
+    alterados = {p.name for p in recolha.ciclo(CONECTORES)}
+    assert time.monotonic() - inicio < 0.9
+    assert {"fl.json", "ak.json", "parciais.json"} <= alterados
+    assert "ga.json" not in alterados
+    assert recolha.em_curso() == {ConectorGA().estado}
+    # Enquanto está em curso, a Geórgia não é lançada outra vez.
+    recolha.ciclo(CONECTORES)
+    assert fontes.pedidos.count("results.sos.ga.gov") == 1
+    # Acaba em fundo e entra no ciclo seguinte.
+    time.sleep(1.0)
+    assert "ga.json" in {p.name for p in recolha.ciclo(CONECTORES)}
+
+
+def test_retry_after_longo_poe_o_estado_em_pausa(
+    fontes: Fontes, recolha: Recolha, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(time, "sleep", lambda _s: None)
+    fontes.comportamento["www.elections.alaska.gov"] = lambda _p: httpx.Response(
+        429, headers={"Retry-After": "120"}
+    )
+    recolha.ciclo(CONECTORES)
+    pedidos = fontes.pedidos.count("www.elections.alaska.gov")
+    estado = recolha.estados[ConectorAK().estado]
+    assert estado.nao_antes is not None
+    assert estado.nao_antes > datetime.now(UTC) + timedelta(seconds=100)
+    recolha.ciclo(CONECTORES)
+    assert fontes.pedidos.count("www.elections.alaska.gov") == pedidos
+    assert estado.falhas_seguidas == 1
+
+
+def test_leitura_falhada_volta_a_descarregar_sem_pedido_condicional(
+    fontes: Fontes, recolha: Recolha
+) -> None:
+    condicionais: list[str | None] = []
+
+    def truncado(pedido: httpx.Request) -> httpx.Response:
+        condicionais.append(pedido.headers.get("If-None-Match"))
+        if pedido.headers.get("If-None-Match") == '"v1"':
+            return httpx.Response(304)
+        return httpx.Response(200, content=b'{"ballotItems": [ {"trunc', headers={"ETag": '"v1"'})
+
+    fontes.comportamento["results.sos.ga.gov"] = truncado
+    recolha.ciclo(CONECTORES)
+    recolha.ciclo(CONECTORES)
+    # Sem o ETag guardado, o 304 não pode fazer passar por bom um ficheiro que não se leu.
+    assert condicionais == [None, None]
+    assert recolha.estados[ConectorGA().estado].falhas_seguidas == 2

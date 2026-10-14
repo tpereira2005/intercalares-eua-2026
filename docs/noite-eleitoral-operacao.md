@@ -19,7 +19,7 @@ A 3 de novembro, Lisboa está em UTC+0 (a hora de inverno começa a 25 de outubr
 ## Antes da noite (de 26 de outubro a 2 de novembro)
 
 1. O workflow **Resultados** (ensaio semanal) está verde em NC, FL, GA, AK, TX e VA (o Nebraska, a Califórnia e Maricopa não têm ensaio: as fontes só mostram a eleição em curso ou não ligam os ficheiros antigos). SC e IA falham com o desafio do AWS WAF; se passarem, o bloqueio acabou e podem entrar na lista de estados.
-2. O job **Fontes de 2026** desse workflow mostra os endereços de 2026: NCSBE (`er.ncsbe.gov/enr/20261103`), Florida, Geórgia (`2026NovGen`), Virgínia (`2026-November-General`), Nebraska (`resultsCSV.aspx?type=SW` e `type=CG`), Alasca (`enr26/results/GA_ENR_Precinct_State_of_Alaska.csv`) Harris (`Data/1126`), Califórnia (`media.sos.ca.gov/media/us-rep.json` e `governor.json`) e Maricopa (a ligação `2026 November General Election Results.txt` em `elections.maricopa.gov/results-and-data/election-results.html`; o ficheiro tem cerca de 30 MB). Um 404 antes da noite é normal; um desafio anti-robô não é (o `elections.maricopa.gov` já mostrou um na página inicial, mas não na de resultados nem no ficheiro) antes da noite é normal; um desafio anti-robô não é.
+2. O job **Fontes de 2026** desse workflow mostra os endereços de 2026: NCSBE (`er.ncsbe.gov/enr/20261103`), Florida, Geórgia (`2026NovGen`), Virgínia (`2026-November-General`), Nebraska (`resultsCSV.aspx?type=SW` e `type=CG`), Alasca (`enr26/results/GA_ENR_Precinct_State_of_Alaska.csv`) Harris (`Data/1126`), Califórnia (`media.sos.ca.gov/media/us-rep.json` e `governor.json`) e Maricopa (a ligação `2026 November General Election Results.txt` em `elections.maricopa.gov/results-and-data/election-results.html`; o ficheiro tem cerca de 30 MB). Um 404 antes da noite é normal; um desafio anti-robô não é (o `elections.maricopa.gov` já mostrou um na página inicial, mas não na de resultados nem no ficheiro).
 3. A previsão está **congelada** (1 de novembro) na Release `dados-previsao`: a projeção recusa uma previsão por congelar.
 4. A API ao vivo responde: `/api/resultados` e `/api/noite` no site (ver `docs/api-ao-vivo.md`). Antes da noite, um `404` é normal. É por aí que o site mostra resultados novos sem nova implantação.
 
@@ -50,19 +50,44 @@ Medida no ensaio de 13 de outubro com os ficheiros reais de 2024 de NC, FL, GA, 
 
 Da fonte à Release: cerca de 20 a 40 segundos para os resultados e de 40 a 80 segundos para a projeção.
 
+## Ensaio com falhas
+
+`pipeline.jobs.ensaio_noite` corre o ciclo real da recolha contra um espelho local com os ficheiros finais de 2022 ou 2024 e um calendário de falhas. São sete: fonte em baixo (404), erro do servidor (5xx), 429 com `Retry-After`, ficheiro truncado, resposta vazia, fonte lenta (22 s, acima do tempo limite) e desafio anti-robô. No fim de cada ciclo verifica onze invariantes. O código de saída é 1 se algum falhar.
+
+```sh
+uv run python -m pipeline.jobs.ensaio_noite --data 2024-11-05 --relatorio ensaio-2024.md
+uv run python -m pipeline.jobs.ensaio_noite --data 2022-11-08 --estados NC,GA,TX --duracao 180
+```
+
+A 14 de outubro de 2026, a primeira volta encontrou quatro defeitos, todos corrigidos:
+
+- **Fonte lenta prendia todos os estados.** Os estados eram recolhidos em série, e uma fonte lenta atrasava os outros até 22 s. Agora correm em paralelo, e o ciclo espera no máximo 10 s (`ORCAMENTO_CICLO`). Um estado mais lento continua em fundo e entra no ciclo em que acabar.
+- **429 com `Retry-After` bloqueava o ciclo.** Agora a recolha repete uma vez, com uma espera de 5 s no máximo. Um `Retry-After` maior põe só esse estado em pausa, durante 5 minutos no máximo.
+- **Ficheiro mal lido passava por bom no ciclo seguinte.** Quando um ficheiro se descarregava mas não se conseguia ler, o 304 seguinte contava como sucesso. Agora a recolha esquece o ETag e volta a descarregar e a ler o ficheiro.
+- **Duas cópias da fonte no mesmo segundo colidiam.** As pastas em `brutos/` passaram a ter microssegundos no nome.
+
+Na segunda volta passaram todos os invariantes, nos dois anos:
+
+| Ensaio                           | Ciclos | Ciclo mais longo | Alteração na fonte → `parciais.json` |
+| -------------------------------- | -----: | ---------------: | ------------------------------------ |
+| 2024: NC, FL, GA, AK e TX, 300 s |     60 |            1,7 s | mediana 0,7 s, máximo 4,3 s          |
+| 2022: NC, GA e TX, 180 s         |     36 |            1,7 s | mediana 2,0 s, máximo 4,1 s          |
+
+Antes das correções, o ciclo mais longo era de 22 s e a pior latência de 17 s (2024) e de 23 s (2022).
+
 ## O que fazer se algo falhar
 
 O vigia abre (ou comenta) um issue **"Vigia da noite eleitoral"** com a tabela de cada estado. Uma falha de um estado nunca para os outros, e o último ficheiro válido desse estado continua publicado; nada inválido chega à Release.
 
-| Sinal                                                         | Causa provável                                                               | O que fazer                                                                                                                                     |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `XX: N falhas seguidas: ErroBloqueio ...`                     | A fonte passou a pedir um desafio anti-robô                                  | Não contornar. Relançar a recolha sem esse estado (`-f estados=...`); o site mostra a previsão para essas corridas                              |
-| `XX: N falhas seguidas: HTTPStatusError 404`                  | Endereço de 2026 diferente do previsto                                       | Abrir a página oficial do estado, encontrar o ficheiro novo, corrigir o conector num PR pequeno e relançar                                      |
-| `XX: N falhas seguidas: ErroFormatoFonte ...`                 | A fonte mudou de formato ou publicou um ficheiro partido                     | Ver as cópias da fonte no artefacto `noite-<id>` do job. Se for passageiro, resolve-se sozinho; se for formato novo, corrigir o conector num PR |
-| `XX: N falhas seguidas` com 429 ou 5xx                        | Fonte sobrecarregada                                                         | Nada: a recolha repete com recuo e respeita o `Retry-After`. Se durar mais de 15 minutos, comparar com o site oficial do estado                 |
-| `XX: sem dados novos há N minutos, com a contagem por acabar` | Fonte presa, ou pausa normal (madrugada, correspondência só no dia seguinte) | Comparar com o site oficial do estado. Se o site oficial avançou e o nosso não, ver os registos do job                                          |
-| `A recolha parou: saude.json com N minutos`                   | Job cancelado, limite do Actions, cadeia de relançamentos partida            | Ver _Actions → Resultados_. Relançar com o comando acima (o `ate` mantém-se)                                                                    |
-| Projeção sem novidades em `dados-noite`                       | Job da projeção parado                                                       | Ver _Actions → Projeção da noite_ e relançar `noite.yml` com o mesmo `ate`                                                                      |
+| Sinal                                                         | Causa provável                                                               | O que fazer                                                                                                                                                                                                       |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `XX: N falhas seguidas: ErroBloqueio ...`                     | A fonte passou a pedir um desafio anti-robô                                  | Não contornar. Relançar a recolha sem esse estado (`-f estados=...`); o site mostra a previsão para essas corridas                                                                                                |
+| `XX: N falhas seguidas: HTTPStatusError 404`                  | Endereço de 2026 diferente do previsto                                       | Abrir a página oficial do estado, encontrar o ficheiro novo, corrigir o conector num PR pequeno e relançar                                                                                                        |
+| `XX: N falhas seguidas: ErroFormatoFonte ...`                 | A fonte mudou de formato ou publicou um ficheiro partido                     | Ver as cópias da fonte no artefacto `noite-<id>` do job. Se for passageiro, resolve-se sozinho; se for formato novo, corrigir o conector num PR                                                                   |
+| `XX: N falhas seguidas` com 429 ou 5xx                        | Fonte sobrecarregada                                                         | Nada: a recolha repete uma vez e, com um `Retry-After` longo, deixa esse estado em pausa o tempo pedido (até 5 minutos) sem atrasar os outros. Se durar mais de 15 minutos, comparar com o site oficial do estado |
+| `XX: sem dados novos há N minutos, com a contagem por acabar` | Fonte presa, ou pausa normal (madrugada, correspondência só no dia seguinte) | Comparar com o site oficial do estado. Se o site oficial avançou e o nosso não, ver os registos do job                                                                                                            |
+| `A recolha parou: saude.json com N minutos`                   | Job cancelado, limite do Actions, cadeia de relançamentos partida            | Ver _Actions → Resultados_. Relançar com o comando acima (o `ate` mantém-se)                                                                                                                                      |
+| Projeção sem novidades em `dados-noite`                       | Job da projeção parado                                                       | Ver _Actions → Projeção da noite_ e relançar `noite.yml` com o mesmo `ate`                                                                                                                                        |
 
 Depois da noite, quando tudo estiver apurado, o vigia deixa de avisar sozinho; para o desligar antes de 5 de novembro, `gh workflow disable vigia-noite.yml`.
 

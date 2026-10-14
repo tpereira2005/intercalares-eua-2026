@@ -63,6 +63,7 @@ from pipeline.jobs import vigia
 from pipeline.jobs.resultados import (
     FALHAS_ALERTA,
     NACIONAL,
+    ORCAMENTO_CICLO,
     PARCIAIS,
     SAUDE,
     EstadoRecolha,
@@ -689,9 +690,12 @@ class Observador:
         for uf, estado in recolha.estados.items():
             reg = ciclo.estados.get(uf.value)
             if reg is None:
-                self.violacoes["ciclo_nao_falha"].append(
-                    f"ciclo {n}: {uf.value} não foi processado"
-                )
+                # Um estado ainda em curso (fonte lenta) ou em pausa por um Retry-After não
+                # entra neste ciclo; os outros seguem sem ele.
+                if uf not in recolha.em_curso() and estado.nao_antes is None:
+                    self.violacoes["ciclo_nao_falha"].append(
+                        f"ciclo {n}: {uf.value} não foi processado"
+                    )
                 continue
             reg.falhou = estado.falhas_seguidas > 0
             reg.erro = estado.ultimo_erro
@@ -1160,7 +1164,13 @@ def executar(
     )
     observador = Observador(espelho, saida, data, anfitrioes, intervalo)
     recolha = RecolhaObservada(
-        data, saida, brutos, espelho.url, cliente=http, observador=observador
+        data,
+        saida,
+        brutos,
+        espelho.url,
+        cliente=http,
+        orcamento=min(ORCAMENTO_CICLO, intervalo / 3),
+        observador=observador,
     )
     vigilante = Vigilante(saida / PARCIAIS)
     vigilante.start()

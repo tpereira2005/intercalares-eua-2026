@@ -17,7 +17,9 @@ pedidos condicionais (ETag, Last-Modified). Quando algum mudou:
 
 Um estado que falha (fonte em baixo, resposta vazia, ficheiro corrompido, 403/429,
 formato novo, ou qualquer erro inesperado na leitura) não para os outros: o seu último
-ficheiro válido continua publicado e nada inválido é escrito. A cada ciclo, ``saude.json``
+ficheiro válido continua publicado e nada inválido é escrito. Os estados são recolhidos em
+paralelo e o ciclo só espera ``ORCAMENTO_CICLO`` segundos: uma fonte lenta continua em
+fundo e entra no ciclo em que acabar, sem atrasar as outras. A cada ciclo, ``saude.json``
 diz, por estado, o último sucesso, a última alteração da fonte, as falhas seguidas e se
 há alerta (ver ``pipeline.jobs.vigia``). ``--espelho`` troca o servidor de cada fonte por
 um servidor local, para o ensaio geral.
@@ -30,9 +32,9 @@ import shutil
 import subprocess
 import time
 from collections.abc import Sequence
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -74,6 +76,17 @@ ou logo que um alerta muda."""
 PEDIDOS_PARALELOS = 8
 """Pedidos simultâneos à mesma fonte, para os ficheiros de detalhe por condado."""
 
+ORCAMENTO_CICLO = 10.0
+"""Segundos que um ciclo espera pelos estados. Um estado que demore mais (fonte lenta,
+novas tentativas) continua em fundo e é recolhido no ciclo em que terminar."""
+
+ESPERA_MAXIMA = 5.0
+"""Espera máxima entre tentativas dentro de um ciclo. Um ``Retry-After`` maior não é
+esperado dentro do ciclo: o estado fica em pausa (``nao_antes``) e os outros seguem."""
+
+PAUSA_MAXIMA = 300.0
+"""Teto para a pausa pedida por um ``Retry-After``."""
+
 
 @dataclass
 class EstadoRecolha:
@@ -90,6 +103,8 @@ class EstadoRecolha:
     """Último ciclo em que a fonte trouxe dados novos."""
 
     ultimo_erro: str | None = None
+    nao_antes: datetime | None = None
+    """Hora antes da qual não se volta a pedir (``Retry-After`` de um 429 ou 503)."""
 
     def apurado(self) -> bool:
         """Todas as corridas com todas as unidades apuradas (a fonte pode parar)."""
@@ -119,13 +134,19 @@ class Recolha:
     publicar: str | None = None
     cliente: httpx.Client = field(
         default_factory=lambda: httpx.Client(
-            timeout=httpx.Timeout(20.0),
+            timeout=httpx.Timeout(15.0, connect=5.0),
             follow_redirects=True,
             headers={"User-Agent": USER_AGENT},
             verify=contexto_tls(),
         )
     )
     estados: dict[CodigoEstado, EstadoRecolha] = field(default_factory=dict)
+    orcamento: float = ORCAMENTO_CICLO
+    _executor: ThreadPoolExecutor = field(
+        default_factory=lambda: ThreadPoolExecutor(max_workers=16, thread_name_prefix="estado"),
+        repr=False,
+    )
+    _em_curso: dict[CodigoEstado, Future[Path | None]] = field(default_factory=dict, repr=False)
 
     def url(self, url: str) -> str:
         if self.espelho is None:
@@ -137,26 +158,30 @@ class Recolha:
         return obter_texto(self.cliente, self.url(url))
 
     def ciclo(self, conectores: Sequence[ConectorResultados]) -> list[Path]:
-        """Um ciclo de recolha; devolve os ficheiros publicados que mudaram."""
-        alterados: list[Path] = []
+        """Um ciclo de recolha; devolve os ficheiros publicados que mudaram.
+
+        Cada estado corre na sua linha de execução. O ciclo espera no máximo
+        ``orcamento`` segundos; um estado ainda em curso não é lançado de novo e o seu
+        resultado entra no ciclo em que terminar."""
+        # Primeiro, o que acabou em fundo desde o ciclo anterior (fica livre para relançar).
+        alterados = self._recolher_terminados()
+        agora = datetime.now(UTC)
+        lancados: list[Future[Path | None]] = []
         for conector in conectores:
             estado = self.estados.setdefault(conector.estado, EstadoRecolha())
-            try:
-                caminho = self._estado(conector, estado)
-            except Exception as erro:
-                estado.falhas_seguidas += 1
-                estado.ultimo_erro = f"{type(erro).__name__}: {erro}"[:300]
-                esperado = isinstance(erro, ErroPipeline | httpx.HTTPError | ValueError)
-                nivel = logging.WARNING if estado.falhas_seguidas < 3 else logging.ERROR
-                registo.log(nivel, "%s: %s", conector.estado, erro, exc_info=not esperado)
+            if conector.estado in self._em_curso:
                 continue
-            agora = datetime.now(UTC)
-            estado.falhas_seguidas = 0
-            estado.ultimo_erro = None
-            estado.ultimo_sucesso = agora
-            if caminho is not None:
-                estado.ultima_alteracao = agora
-                alterados.append(caminho)
+            if estado.nao_antes is not None and agora < estado.nao_antes:
+                continue
+            futuro = self._executor.submit(self._processar, conector, estado)
+            self._em_curso[conector.estado] = futuro
+            lancados.append(futuro)
+        # Só se espera pelos lançados agora: um estado que já vinha atrasado não volta a
+        # prender o ciclo.
+        wait(lancados, timeout=self.orcamento)
+        alterados += self._recolher_terminados()
+        for uf in self.em_curso():
+            registo.warning("%s: a recolha ainda não acabou; segue em fundo", uf)
         if alterados:
             try:
                 alterados += [self._nacional(), self._parciais()]
@@ -165,6 +190,40 @@ class Recolha:
                 # validados, seguem. No ciclo seguinte volta a tentar-se.
                 registo.exception("Falhou o resumo nacional ou os parciais")
         return alterados
+
+    def _recolher_terminados(self) -> list[Path]:
+        alterados: list[Path] = []
+        for uf, futuro in list(self._em_curso.items()):
+            if futuro.done():
+                del self._em_curso[uf]
+                if (caminho := futuro.result()) is not None:
+                    alterados.append(caminho)
+        return alterados
+
+    def em_curso(self) -> set[CodigoEstado]:
+        """Estados cuja recolha ainda não terminou (continuam em fundo)."""
+        return {uf for uf, futuro in self._em_curso.items() if not futuro.done()}
+
+    def _processar(self, conector: ConectorResultados, estado: EstadoRecolha) -> Path | None:
+        """Recolhe um estado e atualiza o seu registo; nunca falha."""
+        try:
+            caminho = self._estado(conector, estado)
+        except Exception as erro:
+            estado.falhas_seguidas += 1
+            estado.ultimo_erro = f"{type(erro).__name__}: {erro}"[:300]
+            estado.nao_antes = _nao_antes(erro)
+            esperado = isinstance(erro, ErroPipeline | httpx.HTTPError | ValueError)
+            nivel = logging.WARNING if estado.falhas_seguidas < 3 else logging.ERROR
+            registo.log(nivel, "%s: %s", conector.estado, erro, exc_info=not esperado)
+            return None
+        agora = datetime.now(UTC)
+        estado.falhas_seguidas = 0
+        estado.ultimo_erro = None
+        estado.nao_antes = None
+        estado.ultimo_sucesso = agora
+        if caminho is not None:
+            estado.ultima_alteracao = agora
+        return caminho
 
     def saude(self, agora: datetime | None = None) -> dict[str, object]:
         """Estado da recolha para o vigia (não é um contrato do site)."""
@@ -208,28 +267,35 @@ class Recolha:
                 lambda p: self._descarregar(p.url, pasta / p.ficheiro), detalhe
             )
         agora = datetime.now(UTC)
-        leitura = conector.ler(pasta, self.data)
-        resultado = montar(
-            estado=conector.estado,
-            data_eleicao=self.data,
-            leitura=leitura,
-            fontes=[
-                Fonte(
-                    nome=conector.nome_fonte,
-                    url=pedidos[0].url,
-                    licenca=conector.licenca,
-                    obtida_em=max(d.obtido_em for d in descargas),
-                )
-            ],
-            nomes_geo=nomes_geo(conector.estado),
-            gerado_em=agora,
-        )
+        try:
+            leitura = conector.ler(pasta, self.data)
+            resultado = montar(
+                estado=conector.estado,
+                data_eleicao=self.data,
+                leitura=leitura,
+                fontes=[
+                    Fonte(
+                        nome=conector.nome_fonte,
+                        url=pedidos[0].url,
+                        licenca=conector.licenca,
+                        obtida_em=max(d.obtido_em for d in descargas),
+                    )
+                ],
+                nomes_geo=nomes_geo(conector.estado),
+                gerado_em=agora,
+            )
+        except Exception:
+            # Sem os ETag guardados, o ciclo seguinte volta a descarregar e a ler tudo; um
+            # 304 sobre um ficheiro que não se leu não pode passar por sucesso.
+            for meta in pasta.rglob("*.meta.json"):
+                meta.unlink(missing_ok=True)
+            raise
         if estado.ultimo is not None:
             for p in ensaio.verificar_sequencia([estado.ultimo, resultado]):
                 texto = f"{agora:%H:%M:%S} {p.corrida}: {p.descricao}"
                 estado.problemas.append(texto)
                 registo.warning("%s %s", conector.estado, texto)
-        copia = self.brutos / uf / f"{agora:%Y%m%dT%H%M%S}"
+        copia = self.brutos / uf / f"{agora:%Y%m%dT%H%M%S.%f}"
         shutil.copytree(pasta, copia, ignore=shutil.ignore_patterns("*.parcial"))
         estado.ultimo = resultado
         estado.leitura = leitura
@@ -244,7 +310,9 @@ class Recolha:
         return saida
 
     def _descarregar(self, url: str, destino: Path) -> Descarga:
-        return descarregar(self.url(url), destino, cliente=self.cliente, tentativas=2)
+        return descarregar(
+            self.url(url), destino, cliente=self.cliente, tentativas=2, espera_maxima=ESPERA_MAXIMA
+        )
 
     def _nacional(self) -> Path:
         estados = [
@@ -268,7 +336,7 @@ class Recolha:
             gerado_em=agora,
         )
         texto = parciais.model_dump_json()
-        _escrever(self.brutos / "parciais" / f"{agora:%Y%m%dT%H%M%S}.json", texto)
+        _escrever(self.brutos / "parciais" / f"{agora:%Y%m%dT%H%M%S.%f}.json", texto)
         saida = self.saida / PARCIAIS
         _escrever(saida, texto)
         return saida
@@ -280,6 +348,19 @@ class Recolha:
         resultado = subprocess.run(comando, check=False, capture_output=True, text=True)  # noqa: S603
         if resultado.returncode != 0:
             registo.error("Falhou a publicação: %s", resultado.stderr.strip())
+
+
+def _nao_antes(erro: BaseException) -> datetime | None:
+    """Hora pedida pela fonte num 429 ou 503 com ``Retry-After`` (em segundos)."""
+    causa: BaseException | None = erro
+    while causa is not None and not isinstance(causa, httpx.HTTPStatusError):
+        causa = causa.__cause__
+    if causa is None or causa.response.status_code not in {429, 503}:
+        return None
+    pedido = causa.response.headers.get("retry-after", "").strip()
+    if not pedido.isdigit():
+        return None
+    return datetime.now(UTC) + timedelta(seconds=min(float(pedido), PAUSA_MAXIMA))
 
 
 def _escrever(caminho: Path, texto: str) -> None:
