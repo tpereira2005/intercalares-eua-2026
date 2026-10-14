@@ -76,6 +76,92 @@ export interface AgregadorVotoGenerico {
   nome: string;
 }
 /**
+ * Uma alteração do modelo ou dos dados de entrada que pode mudar os números publicados.
+ *
+ * ``antes`` e ``depois`` vêm da mesma data de corte e dos mesmos dados, para que a
+ * diferença seja só a da alteração.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "AlteracaoMetodo".
+ */
+export interface AlteracaoMetodo {
+  camara: ControloAntesDepois;
+  data: string;
+  descricao: string;
+  pr_url: string;
+  senado: ControloAntesDepois;
+}
+/**
+ * Probabilidade de controlo democrata de uma câmara antes e depois de uma alteração.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ControloAntesDepois".
+ */
+export interface ControloAntesDepois {
+  /**
+   * ``None`` na primeira publicação.
+   */
+  antes: number | null;
+  depois: number;
+}
+/**
+ * Registo público das alterações do método, por ordem cronológica.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "AlteracoesPrevisao".
+ */
+export interface AlteracoesPrevisao {
+  alteracoes: AlteracaoMetodo[];
+  ano: number;
+  metadados: Metadados;
+}
+/**
+ * Cabeçalho comum a todos os ficheiros de dados publicados.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Metadados".
+ */
+export interface Metadados {
+  /**
+   * Todas as fontes usadas para produzir o ficheiro.
+   *
+   * @minItems 1
+   */
+  fontes: [Fonte, ...Fonte[]];
+  /**
+   * Momento em que o pipeline gerou o ficheiro.
+   */
+  gerado_em: string;
+  /**
+   * Versão dos contratos com que o ficheiro foi produzido.
+   */
+  versao_esquema: string;
+}
+/**
+ * Origem de um conjunto de dados, citada em cada número publicado.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Fonte".
+ */
+export interface Fonte {
+  /**
+   * Licença ou termos de utilização, quando conhecidos.
+   */
+  licenca: string | null;
+  /**
+   * Nome legível da fonte, por exemplo "North Carolina State Board of Elections".
+   */
+  nome: string;
+  /**
+   * Momento da recolha, sempre com fuso horário.
+   */
+  obtida_em: string;
+  /**
+   * Endereço exato de onde os dados foram obtidos.
+   */
+  url: string;
+}
+/**
  * Margem nacional no voto para a Câmara (D-R) que serve de centro às simulações.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -168,52 +254,6 @@ export interface AvaliacaoPrevisao {
   metadados: Metadados;
 }
 /**
- * Cabeçalho comum a todos os ficheiros de dados publicados.
- *
- * This interface was referenced by `Contratos`'s JSON-Schema
- * via the `definition` "Metadados".
- */
-export interface Metadados {
-  /**
-   * Todas as fontes usadas para produzir o ficheiro.
-   *
-   * @minItems 1
-   */
-  fontes: [Fonte, ...Fonte[]];
-  /**
-   * Momento em que o pipeline gerou o ficheiro.
-   */
-  gerado_em: string;
-  /**
-   * Versão dos contratos com que o ficheiro foi produzido.
-   */
-  versao_esquema: string;
-}
-/**
- * Origem de um conjunto de dados, citada em cada número publicado.
- *
- * This interface was referenced by `Contratos`'s JSON-Schema
- * via the `definition` "Fonte".
- */
-export interface Fonte {
-  /**
-   * Licença ou termos de utilização, quando conhecidos.
-   */
-  licenca: string | null;
-  /**
-   * Nome legível da fonte, por exemplo "North Carolina State Board of Elections".
-   */
-  nome: string;
-  /**
-   * Momento da recolha, sempre com fuso horário.
-   */
-  obtida_em: string;
-  /**
-   * Endereço exato de onde os dados foram obtidos.
-   */
-  url: string;
-}
-/**
  * O mesmo modelo aplicado a uma eleição passada, só com dados anteriores ao corte.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -274,6 +314,73 @@ export interface Candidatura {
 export interface VotosModalidade {
   modalidade: "dia_eleicao" | "antecipado_presencial" | "correio" | "provisorio" | "outro";
   votos: number;
+}
+/**
+ * A previsão publicada com o centro do ambiente nacional deslocado e, opcionalmente,
+ * o erro das sondagens multiplicado. A incerteza do ambiente mantém-se.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Cenario".
+ */
+export interface Cenario {
+  /**
+   * Centro do ambiente nacional neste cenário (D-R).
+   */
+  ambiente: number;
+  camara: ResumoCenarioCamara;
+  corridas_senado: ProbCorridaCenario[];
+  /**
+   * Pontos somados ao ambiente nacional estimado (D-R).
+   */
+  desvio_ambiente: number;
+  /**
+   * Multiplica o erro das médias de sondagens do Senado; 1 é o modelo publicado.
+   */
+  fator_erro_sondagens: number;
+  senado: ResumoCenarioCamara;
+}
+/**
+ * Controlo e lugares do lado democrata de uma câmara num cenário.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ResumoCenarioCamara".
+ */
+export interface ResumoCenarioCamara {
+  lugares_d_mediana: number;
+  lugares_d_p10: number;
+  lugares_d_p90: number;
+  prob_controlo_d: number;
+  prob_controlo_r: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ProbCorridaCenario".
+ */
+export interface ProbCorridaCenario {
+  id: string;
+  prob_d: number;
+}
+/**
+ * Grelha de cenários calculada pelo mesmo simulador e com os mesmos dados da
+ * ``PrevisaoCongresso`` do mesmo corte. O cenário com desvio 0 e fator 1 é a previsão
+ * publicada.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "CenariosPrevisao".
+ */
+export interface CenariosPrevisao {
+  ambiente_base: number;
+  ano: number;
+  cenarios: Cenario[];
+  codigo_commit: string | null;
+  congelada: boolean;
+  corte: string;
+  desvio_padrao_ambiente: number;
+  desvios_ambiente: number[];
+  fatores_erro_sondagens: number[];
+  metadados: Metadados;
+  semente: number;
+  simulacoes: number;
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -1018,6 +1125,10 @@ export interface PrevisaoCongresso {
   ano: number;
   backtests: Backtest[];
   camara: ResumoCamara;
+  /**
+   * Commit do repositório que gerou o ficheiro (``None`` fora do GitHub Actions).
+   */
+  codigo_commit?: string | null;
   /**
    * Verdadeiro quando ``corte`` é a data final (dois dias antes da eleição).
    */

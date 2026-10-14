@@ -182,6 +182,10 @@ Leitura:
 - **As caudas e a recência pesam pouco.** A t de Student com 3 ou 30 graus de liberdade e a meia-vida de 7 ou 28 dias mudam as probabilidades no máximo 1 ponto.
 - **Os parâmetros publicados não se afinam com estes números.** Nenhuma variante melhora o Brier dos backtests de forma consistente nas duas câmaras. As diferenças (0,036 a 0,042 no Senado) cabem no ruído de três eleições. Escolher a variante com o melhor Brier seria ajustar o modelo a 2018, 2022 e 2024. A cobertura de 88% a 90% confirma que os intervalos já são, se algo, um pouco largos.
 
+## 9. Histórico diário e ficheiros para o site
+
+Cada execução do workflow acrescenta a previsão do dia a `historico-previsao-2026.json` (contrato `HistoricoPrevisao`), publicado na mesma Release: resumo das duas câmaras, ambiente nacional e probabilidade e margem prevista de cada uma das 470 corridas (435 distritos e 35 corridas ao Senado, incluindo as especiais da Florida e do Ohio). Uma data de corte repetida substitui a anterior. O histórico só cresce até ao congelamento.
+
 ### Sondagens para o site
 
 A mesma execução publica `sondagens-2026.json` (contrato `SondagensCongresso`), para a página de sondagens.
@@ -211,6 +215,23 @@ O voto genérico é diferente: a Wikipédia de 2026 só publica os valores atuai
 
 As sondagens continuam a atualizar-se depois do congelamento da previsão, até ao dia da eleição. De 2 a 3 de novembro, a execução diária corre `pipeline.jobs.previsao --apenas-sondagens`, com o corte do próprio dia, e publica só `sondagens-2026.json`. A previsão congelada e o histórico nunca são reenviados.
 
+### Cenários, alterações do método e commit
+
+A mesma execução publica mais dois ficheiros na Release `dados-previsao`, para o site os mostrar sem simular nada no browser:
+
+- **`cenarios-2026.json`** (contrato `CenariosPrevisao`): uma grelha calculada pelo simulador publicado, com os mesmos dados, o mesmo corte e a mesma semente da previsão do dia.
+  - Desloca-se o centro do ambiente nacional de −8 a +8 pontos, em passos de 1 (`Ajustes.desvio_ambiente`, o mesmo da secção 8).
+  - Cada deslocação corre com três níveis do erro das sondagens do Senado: × 0,75, × 1 (o publicado) e × 1,5.
+  - Em cada cenário: probabilidade de controlo, mediana e intervalo p10–p90 de lugares de cada câmara, e a probabilidade de cada corrida ao Senado.
+  - A incerteza do ambiente mantém-se: +3 pontos quer dizer "o ambiente estimado está 3 pontos mais para o lado democrata", não "o voto nacional é exatamente esse".
+  - O cenário com deslocação 0 e fator 1 é a previsão publicada. O job confirma-o antes de gravar e falha se não for.
+  - O erro das sondagens só mexe no Senado: a Câmara não usa sondagens de distrito.
+- **`alteracoes-2026.json`** (contrato `AlteracoesPrevisao`): o registo público das alterações do método e das correções de dados que podem mudar os números. Cada entrada tem a data, a descrição, o PR e a probabilidade de controlo de cada câmara antes e depois, calculadas com o mesmo corte e os mesmos dados. O registo vive em `data/reference/modelo/alteracoes_metodo_2026.json`. **Cada PR que muda o modelo ou a leitura das fontes acrescenta lá uma entrada.**
+
+A previsão e os cenários levam em `codigo_commit` o commit que os gerou (`GITHUB_SHA` no GitHub Actions), para o site poder mostrar, por exemplo, "congelada a 1 de novembro, commit abc1234". Fora do Actions o campo fica vazio.
+
+No congelamento, os cenários também ficam congelados: a 1 de novembro o workflow exige que `cenarios-2026.json` tenha `congelada` com corte de 1 de novembro, e depois disso nunca o reenvia.
+
 ## 10. Congelamento
 
 A previsão congela com os dados até 31 de outubro: o corte é 1 de novembro de 2026, exclusive para as sondagens. Nesse dia:
@@ -228,10 +249,6 @@ O ciclo completo foi testado localmente a 13 de outubro:
 1. A previsão com `--corte 2026-11-01` sai `congelada`, com corte de 1 de novembro, e acrescenta um dia congelado ao histórico. Um corte posterior fica limitado a 1 de novembro.
 2. O job da noite aceita esse ficheiro sem `--aceitar-provisoria` e recusa a previsão diária.
 3. A lógica de janela e de validação do workflow foi verificada com um `gh` simulado, para os dias 31 de outubro, 1 e 2 de novembro, com e sem versão congelada publicada.
-
-## 9. Histórico diário
-
-Cada execução do workflow acrescenta a previsão do dia a `historico-previsao-2026.json` (contrato `HistoricoPrevisao`), publicado na mesma Release: resumo das duas câmaras, ambiente nacional e probabilidade e margem prevista de cada uma das 470 corridas (435 distritos e 35 corridas ao Senado, incluindo as especiais da Florida e do Ohio). Uma data de corte repetida substitui a anterior. O histórico só cresce até ao congelamento.
 
 ## 11. Avaliação da previsão congelada
 

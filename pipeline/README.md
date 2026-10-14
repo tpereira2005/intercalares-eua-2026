@@ -98,6 +98,8 @@ src/pipeline/
 │   ├── verificacoes.py  # verificações de coerência antes de publicar
 │   ├── historico.py     # histórico diário para os gráficos de evolução
 │   ├── publicar_sondagens.py # sondagens e médias para a página de sondagens
+│   ├── cenarios.py      # grelha de cenários do ambiente nacional (mesmo simulador)
+│   ├── alteracoes.py    # registo público das alterações do método
 │   ├── avaliacao.py     # scorecard da previsão congelada (Brier, log-loss, calibração)
 │   └── noite/           # Modelo C: corrida a corrida, câmaras, histórico da noite e repetições
 └── jobs/
@@ -112,7 +114,9 @@ src/pipeline/
 
 ```sh
 uv run python -m pipeline.jobs.referencia_modelo
-uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
+uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json \
+    --cenarios data/publicado/previsao/cenarios-2026.json \
+    --alteracoes data/publicado/previsao/alteracoes-2026.json
 uv run python -m pipeline.jobs.ensaio_resultados --estado NC --data 2022-11-08 --parciais data/brutos/repeticao/NC-2022
 uv run python -m pipeline.jobs.repeticao_noite --ano 2022 --ordem modos --parciais data/brutos/repeticao/NC-2022
 uv run python -m pipeline.jobs.projecao_noite --ensaio data/brutos/repeticao/NC-2022 --saida data/publicado/noite

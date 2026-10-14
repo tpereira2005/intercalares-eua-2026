@@ -21,6 +21,71 @@
       "title": "AgregadorVotoGenerico",
       "type": "object"
     },
+    "AlteracaoMetodo": {
+      "additionalProperties": false,
+      "description": "Uma alteração do modelo ou dos dados de entrada que pode mudar os números publicados.\n\n``antes`` e ``depois`` vêm da mesma data de corte e dos mesmos dados, para que a\ndiferença seja só a da alteração.",
+      "properties": {
+        "camara": {
+          "$ref": "#/$defs/ControloAntesDepois"
+        },
+        "data": {
+          "format": "date",
+          "title": "Data",
+          "type": "string"
+        },
+        "descricao": {
+          "minLength": 1,
+          "title": "Descricao",
+          "type": "string"
+        },
+        "pr_url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Pr Url",
+          "type": "string"
+        },
+        "senado": {
+          "$ref": "#/$defs/ControloAntesDepois"
+        }
+      },
+      "required": [
+        "data",
+        "descricao",
+        "pr_url",
+        "camara",
+        "senado"
+      ],
+      "title": "AlteracaoMetodo",
+      "type": "object"
+    },
+    "AlteracoesPrevisao": {
+      "additionalProperties": false,
+      "description": "Registo público das alterações do método, por ordem cronológica.",
+      "properties": {
+        "alteracoes": {
+          "items": {
+            "$ref": "#/$defs/AlteracaoMetodo"
+          },
+          "title": "Alteracoes",
+          "type": "array"
+        },
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "alteracoes"
+      ],
+      "title": "AlteracoesPrevisao",
+      "type": "object"
+    },
     "AmbienteNacional": {
       "additionalProperties": false,
       "description": "Margem nacional no voto para a Câmara (D-R) que serve de centro às simulações.",
@@ -453,6 +518,141 @@
       "title": "Candidatura",
       "type": "object"
     },
+    "Cenario": {
+      "additionalProperties": false,
+      "description": "A previsão publicada com o centro do ambiente nacional deslocado e, opcionalmente,\no erro das sondagens multiplicado. A incerteza do ambiente mantém-se.",
+      "properties": {
+        "ambiente": {
+          "description": "Centro do ambiente nacional neste cenário (D-R).",
+          "title": "Ambiente",
+          "type": "number"
+        },
+        "camara": {
+          "$ref": "#/$defs/ResumoCenarioCamara"
+        },
+        "corridas_senado": {
+          "items": {
+            "$ref": "#/$defs/ProbCorridaCenario"
+          },
+          "title": "Corridas Senado",
+          "type": "array"
+        },
+        "desvio_ambiente": {
+          "description": "Pontos somados ao ambiente nacional estimado (D-R).",
+          "title": "Desvio Ambiente",
+          "type": "number"
+        },
+        "fator_erro_sondagens": {
+          "description": "Multiplica o erro das médias de sondagens do Senado; 1 é o modelo publicado.",
+          "exclusiveMinimum": 0,
+          "title": "Fator Erro Sondagens",
+          "type": "number"
+        },
+        "senado": {
+          "$ref": "#/$defs/ResumoCenarioCamara"
+        }
+      },
+      "required": [
+        "desvio_ambiente",
+        "ambiente",
+        "fator_erro_sondagens",
+        "camara",
+        "senado",
+        "corridas_senado"
+      ],
+      "title": "Cenario",
+      "type": "object"
+    },
+    "CenariosPrevisao": {
+      "additionalProperties": false,
+      "description": "Grelha de cenários calculada pelo mesmo simulador e com os mesmos dados da\n``PrevisaoCongresso`` do mesmo corte. O cenário com desvio 0 e fator 1 é a previsão\npublicada.",
+      "properties": {
+        "ambiente_base": {
+          "title": "Ambiente Base",
+          "type": "number"
+        },
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "cenarios": {
+          "items": {
+            "$ref": "#/$defs/Cenario"
+          },
+          "title": "Cenarios",
+          "type": "array"
+        },
+        "codigo_commit": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{7,40}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codigo Commit"
+        },
+        "congelada": {
+          "title": "Congelada",
+          "type": "boolean"
+        },
+        "corte": {
+          "format": "date",
+          "title": "Corte",
+          "type": "string"
+        },
+        "desvio_padrao_ambiente": {
+          "exclusiveMinimum": 0,
+          "title": "Desvio Padrao Ambiente",
+          "type": "number"
+        },
+        "desvios_ambiente": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Desvios Ambiente",
+          "type": "array"
+        },
+        "fatores_erro_sondagens": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Fatores Erro Sondagens",
+          "type": "array"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "semente": {
+          "title": "Semente",
+          "type": "integer"
+        },
+        "simulacoes": {
+          "exclusiveMinimum": 0,
+          "title": "Simulacoes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "corte",
+        "congelada",
+        "simulacoes",
+        "semente",
+        "ambiente_base",
+        "desvio_padrao_ambiente",
+        "desvios_ambiente",
+        "fatores_erro_sondagens",
+        "cenarios",
+        "codigo_commit"
+      ],
+      "title": "CenariosPrevisao",
+      "type": "object"
+    },
     "CicloAgregado": {
       "additionalProperties": false,
       "properties": {
@@ -741,6 +941,38 @@
         "votos_outros"
       ],
       "title": "ContagemModo",
+      "type": "object"
+    },
+    "ControloAntesDepois": {
+      "additionalProperties": false,
+      "description": "Probabilidade de controlo democrata de uma câmara antes e depois de uma alteração.",
+      "properties": {
+        "antes": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "``None`` na primeira publicação.",
+          "title": "Antes"
+        },
+        "depois": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Depois",
+          "type": "number"
+        }
+      },
+      "required": [
+        "antes",
+        "depois"
+      ],
+      "title": "ControloAntesDepois",
       "type": "object"
     },
     "Corrida": {
@@ -2795,6 +3027,20 @@
         "camara": {
           "$ref": "#/$defs/ResumoCamara"
         },
+        "codigo_commit": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{7,40}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Commit do repositório que gerou o ficheiro (``None`` fora do GitHub Actions).",
+          "title": "Codigo Commit"
+        },
         "congelada": {
           "description": "Verdadeiro quando ``corte`` é a data final (dois dias antes da eleição).",
           "title": "Congelada",
@@ -3038,6 +3284,28 @@
         "prob_d"
       ],
       "title": "PrevisaoCorrida",
+      "type": "object"
+    },
+    "ProbCorridaCenario": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Z]{2}-(\\d{2}|S|S-especial)$",
+          "title": "Id",
+          "type": "string"
+        },
+        "prob_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob D",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "prob_d"
+      ],
+      "title": "ProbCorridaCenario",
       "type": "object"
     },
     "ProjecaoCorridaNoite": {
@@ -3676,6 +3944,45 @@
         "distribuicao"
       ],
       "title": "ResumoCamaraNoite",
+      "type": "object"
+    },
+    "ResumoCenarioCamara": {
+      "additionalProperties": false,
+      "description": "Controlo e lugares do lado democrata de uma câmara num cenário.",
+      "properties": {
+        "lugares_d_mediana": {
+          "title": "Lugares D Mediana",
+          "type": "integer"
+        },
+        "lugares_d_p10": {
+          "title": "Lugares D P10",
+          "type": "integer"
+        },
+        "lugares_d_p90": {
+          "title": "Lugares D P90",
+          "type": "integer"
+        },
+        "prob_controlo_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo D",
+          "type": "number"
+        },
+        "prob_controlo_r": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo R",
+          "type": "number"
+        }
+      },
+      "required": [
+        "prob_controlo_d",
+        "prob_controlo_r",
+        "lugares_d_mediana",
+        "lugares_d_p10",
+        "lugares_d_p90"
+      ],
+      "title": "ResumoCenarioCamara",
       "type": "object"
     },
     "SinalCondados": {

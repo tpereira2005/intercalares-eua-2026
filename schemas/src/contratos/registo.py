@@ -7,7 +7,13 @@ from pydantic import BaseModel
 
 from contratos.base import Fonte, Metadados
 from contratos.noite import HistoricoNoite, ProjecaoNoite
-from contratos.previsao import AvaliacaoPrevisao, HistoricoPrevisao, PrevisaoCongresso
+from contratos.previsao import (
+    AlteracoesPrevisao,
+    AvaliacaoPrevisao,
+    CenariosPrevisao,
+    HistoricoPrevisao,
+    PrevisaoCongresso,
+)
 from contratos.resultados import ResultadosEstado, ResultadosNacional, ResultadosParciais
 from contratos.sondagens import SondagensCongresso
 from contratos.voto_antecipado import VotoAntecipadoEstado
@@ -22,6 +28,8 @@ MODELOS: tuple[type[BaseModel], ...] = (
     PrevisaoCongresso,
     HistoricoPrevisao,
     AvaliacaoPrevisao,
+    AlteracoesPrevisao,
+    CenariosPrevisao,
     ResultadosEstado,
     ResultadosNacional,
     ResultadosParciais,

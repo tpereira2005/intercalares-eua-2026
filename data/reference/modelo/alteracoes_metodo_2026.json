@@ -1,0 +1,30 @@
+[
+ {
+  "data": "2026-10-13",
+  "descricao": "Primeira publicação do modelo da Câmara e do Senado: fundamentos, sondagens do Senado, ambiente nacional pelos agregadores do voto genérico e simulação com erros nacionais, regionais e por corrida.",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/11",
+  "camara": {"antes": null, "depois": 0.968},
+  "senado": {"antes": null, "depois": 0.789}
+ },
+ {
+  "data": "2026-10-13",
+  "descricao": "Correção do candidato escolhido quando a lista tem vários do mesmo partido. No Senado do Alasca, o lado republicano passa a ser Dan Sullivan e não um candidato menor; as sondagens passam de D+44,7 para D+3,7. Passa a haver verificações de coerência antes de publicar.",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/16",
+  "camara": {"antes": 0.968, "depois": 0.968},
+  "senado": {"antes": 0.789, "depois": 0.7254}
+ },
+ {
+  "data": "2026-10-13",
+  "descricao": "Decisão sobre a fonte do ambiente nacional: mantém-se a média dos agregadores do voto genérico, a medida direta. A alternativa, ler o ambiente nas sondagens do Senado, daria D+6,6 em vez de D+8,4 (Câmara 87%, Senado 67%). Os números publicados não mudam.",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/32",
+  "camara": {"antes": 0.96755, "depois": 0.96755},
+  "senado": {"antes": 0.7254, "depois": 0.7254}
+ },
+ {
+  "data": "2026-10-14",
+  "descricao": "No distrito único do Alasca, o lado democrata passa a ser o independente Bill Hill (segundo nas primárias, com o apoio do Partido Democrata do Alasca) e não Eric Hafner (3,8% nas primárias). O modelo da Câmara não usa sondagens de distrito, por isso a probabilidade de controlo não muda.",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/43",
+  "camara": {"antes": 0.96445, "depois": 0.96445},
+  "senado": {"antes": 0.72105, "depois": 0.72105}
+ }
+]
