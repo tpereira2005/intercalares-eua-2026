@@ -182,6 +182,10 @@ Leitura:
 - **As caudas e a recência pesam pouco.** A t de Student com 3 ou 30 graus de liberdade e a meia-vida de 7 ou 28 dias mudam as probabilidades no máximo 1 ponto.
 - **Os parâmetros publicados não se afinam com estes números.** Nenhuma variante melhora o Brier dos backtests de forma consistente nas duas câmaras. As diferenças (0,036 a 0,042 no Senado) cabem no ruído de três eleições. Escolher a variante com o melhor Brier seria ajustar o modelo a 2018, 2022 e 2024. A cobertura de 88% a 90% confirma que os intervalos já são, se algo, um pouco largos.
 
+## 9. Histórico diário e ficheiros para o site
+
+Cada execução do workflow acrescenta a previsão do dia a `historico-previsao-2026.json` (contrato `HistoricoPrevisao`), publicado na mesma Release: resumo das duas câmaras, ambiente nacional e probabilidade e margem prevista de cada uma das 470 corridas (435 distritos e 35 corridas ao Senado, incluindo as especiais da Florida e do Ohio). Uma data de corte repetida substitui a anterior. O histórico só cresce até ao congelamento.
+
 ### Sondagens para o site
 
 A mesma execução publica `sondagens-2026.json` (contrato `SondagensCongresso`), para a página de sondagens.
@@ -245,10 +249,6 @@ O ciclo completo foi testado localmente a 13 de outubro:
 1. A previsão com `--corte 2026-11-01` sai `congelada`, com corte de 1 de novembro, e acrescenta um dia congelado ao histórico. Um corte posterior fica limitado a 1 de novembro.
 2. O job da noite aceita esse ficheiro sem `--aceitar-provisoria` e recusa a previsão diária.
 3. A lógica de janela e de validação do workflow foi verificada com um `gh` simulado, para os dias 31 de outubro, 1 e 2 de novembro, com e sem versão congelada publicada.
-
-## 9. Histórico diário
-
-Cada execução do workflow acrescenta a previsão do dia a `historico-previsao-2026.json` (contrato `HistoricoPrevisao`), publicado na mesma Release: resumo das duas câmaras, ambiente nacional e probabilidade e margem prevista de cada uma das 470 corridas (435 distritos e 35 corridas ao Senado, incluindo as especiais da Florida e do Ohio). Uma data de corte repetida substitui a anterior. O histórico só cresce até ao congelamento.
 
 ## 11. Avaliação da previsão congelada
 
