@@ -30,7 +30,7 @@
  {
   "data": "2026-10-14",
   "descricao": "Projeção da noite eleitoral: nos estados que publicam primeiro o voto antecipado de cada condado inteiro (Carolina do Norte, Geórgia, Florida, Texas e Ohio), as corridas estaduais com votos por modo passam a separar o voto antecipado do resto, com uma diferença entre modos de média zero. A previsão antes dos votos não muda.",
-  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/PR",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/66",
   "camara": {"antes": 0.96445, "depois": 0.96445},
   "senado": {"antes": 0.7204, "depois": 0.7204}
  }
