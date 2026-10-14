@@ -197,7 +197,7 @@ def test_maricopa_colunas_inesperadas(tmp_path: Path) -> None:
 
 def test_maricopa_tipos_de_voto_acima_do_total(pasta: Path) -> None:
     ficheiro = pasta / "04013" / "resultados.txt"
-    linhas_ = ficheiro.read_bytes().decode("utf-8").split("\r\n")
+    linhas_ = ficheiro.read_bytes().decode("utf-8").splitlines()
     cabecalho = linhas_[0].split("\t")
     i = cabecalho.index("Votes")
     # Primeira linha de total do condado do governador: sobe o tipo "dia da eleição".
