@@ -694,6 +694,10 @@ export interface LinhaCruzamento {
  */
 export interface LinhaEstadoNacional {
   ano_base: number | null;
+  /**
+   * 2026 e o ano de referência, nos estados com votos por condado.
+   */
+  condados_presidenciais?: SinalCondados[];
   dados_ate: string;
   dias_antes: number;
   estado: CodigoEstado;
@@ -721,6 +725,31 @@ export interface LinhaEstadoNacional {
    * Votos do ano de referência até ao mesmo dia do ciclo.
    */
   votos_base: number | null;
+}
+/**
+ * De que condados vêm os votos antecipados, pela margem presidencial de 2024.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "SinalCondados".
+ */
+export interface SinalCondados {
+  /**
+   * 2026 ou o ano de referência, sempre até ao mesmo dia do ciclo.
+   */
+  ano: number;
+  /**
+   * Margem presidencial de 2024 (D-R, em pontos) dos condados, ponderada pelos votos
+   * antecipados de cada um. Descreve a geografia de onde vêm os votos, não o voto.
+   */
+  margem_ponderada: number | null;
+  /**
+   * Votos antecipados nos condados que Harris venceu em 2024.
+   */
+  votos_harris: number;
+  /**
+   * Votos antecipados nos condados que Trump venceu em 2024.
+   */
+  votos_trump: number;
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema

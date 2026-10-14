@@ -5,7 +5,7 @@ cada linha cita números que já estão no ficheiro do estado. A comparação us
 de referência de cada estado (a intercalar de 2022, quando existe).
 """
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 
 from contratos.base import Fonte, Metadados
@@ -14,6 +14,7 @@ from contratos.voto_antecipado import VotoAntecipadoEstado
 from contratos.voto_antecipado_agregado import (
     EstadoSemDados,
     LinhaEstadoNacional,
+    SinalCondados,
     VotoAntecipadoAgregado,
     VotoAntecipadoNacional,
 )
@@ -48,7 +49,41 @@ def _ritmo(votos: int, base: int | None) -> float | None:
     return round(votos / base - 1, CASAS) if base else None
 
 
-def linha_completo(estado: VotoAntecipadoEstado, ficheiro: str) -> LinhaEstadoNacional:
+def sinal_condados(
+    votos: Mapping[str, int], margens: Mapping[str, float], ano: int
+) -> SinalCondados | None:
+    """Votos por condado (FIPS) contra a margem presidencial de 2024 (D-R) de cada um.
+
+    Os condados sem margem conhecida ficam de fora. Nenhuma regra distingue os partidos:
+    trocar o sinal das margens troca ``votos_trump`` com ``votos_harris`` e o sinal da
+    margem ponderada.
+    """
+    conhecidos = {c: v for c, v in votos.items() if c in margens}
+    total = sum(conhecidos.values())
+    if not total:
+        return None
+    return SinalCondados(
+        ano=ano,
+        votos_trump=sum(v for c, v in conhecidos.items() if margens[c] < 0),
+        votos_harris=sum(v for c, v in conhecidos.items() if margens[c] > 0),
+        margem_ponderada=round(sum(v * margens[c] for c, v in conhecidos.items()) / total, 4),
+    )
+
+
+def _sinais(
+    por_ano: Mapping[int, Mapping[str, int]], margens: Mapping[str, float] | None
+) -> tuple[SinalCondados, ...]:
+    if not margens:
+        return ()
+    sinais = (sinal_condados(v, margens, ano) for ano, v in sorted(por_ano.items()))
+    return tuple(s for s in sinais if s is not None)
+
+
+def linha_completo(
+    estado: VotoAntecipadoEstado,
+    ficheiro: str,
+    margens: Mapping[str, float] | None = None,
+) -> LinhaEstadoNacional:
     """Estado com ficheiro de eleitores (Carolina do Norte)."""
     d = estado.dias_antes
     base = next((c.ano for c in estado.ciclos[1:] if c.tipo == "intercalar"), None)
@@ -73,6 +108,10 @@ def linha_completo(estado: VotoAntecipadoEstado, ficheiro: str) -> LinhaEstadoNa
 
     total = estado.ciclos[0].votos_antecipados
     total_base = votos(base) if base else None
+    condados: dict[int, dict[str, int]] = {}
+    for g in estado.geografia:
+        if g.nivel == "condado" and g.faixa == TOTAL and g.ano in (estado.ano, base):
+            condados.setdefault(g.ano, {})[g.codigo] = g.votos
     return LinhaEstadoNacional(
         estado=estado.estado,
         ficheiro=ficheiro,
@@ -90,10 +129,15 @@ def linha_completo(estado: VotoAntecipadoEstado, ficheiro: str) -> LinhaEstadoNa
         quota_rep_base=_q(votos(base, partido="rep"), total_base) if base else None,
         quota_65_mais=_q(mais_velhos(estado.ano), total),
         quota_65_mais_base=_q(mais_velhos(base), total_base) if base else None,
+        condados_presidenciais=_sinais(condados, margens),
     )
 
 
-def linha_agregado(estado: VotoAntecipadoAgregado, ficheiro: str) -> LinhaEstadoNacional:
+def linha_agregado(
+    estado: VotoAntecipadoAgregado,
+    ficheiro: str,
+    margens: Mapping[str, float] | None = None,
+) -> LinhaEstadoNacional:
     """Estado só com boletins ou com totais por condado."""
     base_ciclo = next((c for c in estado.ciclos[1:] if c.votos_mesmo_dia is not None), None)
     base = base_ciclo.ano if base_ciclo else None
@@ -121,6 +165,15 @@ def linha_agregado(estado: VotoAntecipadoAgregado, ficheiro: str) -> LinhaEstado
             quota("partido", ["rep"], "quota"),
         )
     votos_base = base_ciclo.votos_mesmo_dia if base_ciclo else None
+    condados: dict[int, dict[str, int]] = {}
+    for g in estado.geografia:
+        if (
+            g.nivel == "condado"
+            and g.partido == TOTAL
+            and g.faixa == TOTAL
+            and g.ano in (estado.ano, base)
+        ):
+            condados.setdefault(g.ano, {})[g.codigo] = g.votos
     return LinhaEstadoNacional(
         estado=estado.estado,
         ficheiro=ficheiro,
@@ -138,6 +191,7 @@ def linha_agregado(estado: VotoAntecipadoAgregado, ficheiro: str) -> LinhaEstado
         quota_rep_base=quota("partido", ["rep"], "quota_base"),
         quota_65_mais=quota("faixa", FAIXAS_65_MAIS, "quota"),
         quota_65_mais_base=quota("faixa", FAIXAS_65_MAIS, "quota_base"),
+        condados_presidenciais=_sinais(condados, margens),
     )
 
 
