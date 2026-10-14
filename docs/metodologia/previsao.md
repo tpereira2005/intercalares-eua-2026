@@ -84,7 +84,7 @@ O centro das simulações é a margem nacional no voto genérico:
 - **Precisão.** A leitura pelo Senado é menos precisa: soma ao erro do voto genérico o erro comum das sondagens do Senado, ficando com 4,5 pontos contra 3,2. No backtest de 2024, o único em que foi usada, errou 4,6 pontos.
 - **Testes.** Não há histórico gratuito dos agregadores para os testar nos backtests. Por isso a escolha não pode ser decidida pelos resultados de 2018, 2022 e 2024, e fica a medida direta do voto genérico.
 
-Para ficar transparente, a secção 8 mostra o efeito da alternativa: D+6,6 em vez de D+8,4, com 87% em vez de 97% para o controlo democrata da Câmara e 67% em vez de 73% no Senado.
+Para ficar transparente, a secção 8 mostra o efeito da alternativa: no corte de 14 de outubro, D+7,0 em vez de D+8,3, com 89% em vez de 96% para o controlo democrata da Câmara e 68% em vez de 72% no Senado.
 
 O erro do ambiente é a **raiz do erro quadrático médio** das médias do voto genérico face ao resultado, de 1998 até ao ciclo anterior (3,2 pontos para 2026). **Não se corrige o sinal** do erro histórico: o desvio médio dos últimos ciclos não é estável de ciclo para ciclo, e corrigi-lo seria escolher um lado. O erro entra só como dimensão da incerteza, igual nos dois sentidos.
 
@@ -149,37 +149,45 @@ Notas de leitura:
 - **Backtests.** As variantes do ambiente não se avaliam nos backtests: deslocar o ambiente num ano passado só mediria o erro real desse ano.
 - **Colunas dos backtests.** O Brier e a cobertura são médias de 2018, 2022 e 2024.
 
-Corte de 13 de outubro de 2026:
+Corte de 14 de outubro de 2026:
 
 | Variante                                   | Câmara P(D) | Lugares D (p10–p90) | Senado P(D) | Lugares D (p10–p90) | Brier Câmara | Brier Senado | Cobertura 80% Câmara | Cobertura 80% Senado |
 | ------------------------------------------ | ----------: | ------------------: | ----------: | ------------------: | -----------: | -----------: | -------------------: | -------------------: |
-| Modelo publicado                           |         97% |       242 (225–263) |         73% |          52 (48–56) |        0,030 |        0,038 |                  90% |                  88% |
-| Ambiente −3 pontos                         |         87% |       231 (216–249) |         65% |          52 (48–55) |            — |            — |                    — |                    — |
-| Ambiente −2 pontos                         |         92% |       234 (219–253) |         68% |          52 (48–55) |            — |            — |                    — |                    — |
-| Ambiente −1 ponto                          |         95% |       238 (222–258) |         70% |          52 (48–56) |            — |            — |                    — |                    — |
-| Ambiente +1 ponto                          |         98% |       246 (228–268) |         75% |          52 (49–56) |            — |            — |                    — |                    — |
-| Ambiente +2 pontos                         |         99% |       251 (232–274) |         77% |          53 (49–56) |            — |            — |                    — |                    — |
-| Ambiente +3 pontos                         |         99% |       255 (235–279) |         79% |          53 (49–56) |            — |            — |                    — |                    — |
-| Ambiente sem os agregadores                |         87% |       235 (215–260) |         67% |          52 (48–56) |            — |            — |                    — |                    — |
-| Erro do ambiente × 0,75                    |         98% |       242 (227–260) |         73% |          52 (49–56) |        0,030 |        0,038 |                  90% |                  87% |
-| Erro do ambiente × 1,25                    |         95% |       242 (222–267) |         72% |          52 (48–56) |        0,031 |        0,038 |                  91% |                  89% |
-| Erro do ambiente × 1,5                     |         92% |       242 (220–271) |         71% |          52 (48–56) |        0,031 |        0,038 |                  92% |                  90% |
-| t com 3 graus de liberdade                 |         97% |       242 (226–261) |         73% |          52 (48–56) |        0,030 |        0,038 |                  90% |                  88% |
-| t com 30 graus de liberdade (quase normal) |         97% |       242 (224–265) |         72% |          52 (48–56) |        0,030 |        0,038 |                  90% |                  88% |
-| Erro de cada corrida × 0,75                |         96% |       239 (223–260) |         70% |          52 (49–55) |        0,031 |        0,039 |                  83% |                  87% |
-| Erro de cada corrida × 1,25                |         97% |       245 (227–266) |         74% |          53 (48–56) |        0,031 |        0,038 |                  95% |                  87% |
-| Erro das sondagens × 0,75                  |         97% |       242 (225–263) |         78% |          53 (49–56) |        0,030 |        0,036 |                  90% |                  78% |
-| Erro das sondagens × 1,5                   |         97% |       242 (225–263) |         67% |          52 (48–55) |        0,031 |        0,042 |                  91% |                  95% |
-| Meia-vida das sondagens de 7 dias          |         97% |       242 (226–262) |         73% |          52 (48–56) |        0,030 |        0,039 |                  90% |                  88% |
-| Meia-vida das sondagens de 28 dias         |         97% |       242 (225–264) |         72% |          52 (48–56) |        0,031 |        0,037 |                  90% |                  88% |
-| Sem sondagens do Senado (só fundamentos)   |         97% |       242 (225–263) |         62% |          51 (48–54) |        0,030 |        0,057 |                  90% |                  86% |
+| Modelo publicado                           |         96% |       241 (224–262) |         72% |          52 (48–56) |        0,030 |        0,038 |                  90% |                  88% |
+| Ambiente −3 pontos                         |         85% |       230 (215–248) |         65% |          52 (48–55) |            — |            — |                    — |                    — |
+| Ambiente −2 pontos                         |         91% |       234 (218–252) |         67% |          52 (48–55) |            — |            — |                    — |                    — |
+| Ambiente −1 ponto                          |         94% |       237 (221–257) |         70% |          52 (48–55) |            — |            — |                    — |                    — |
+| Ambiente +1 ponto                          |         98% |       246 (228–267) |         74% |          52 (49–56) |            — |            — |                    — |                    — |
+| Ambiente +2 pontos                         |         99% |       250 (231–273) |         77% |          53 (49–56) |            — |            — |                    — |                    — |
+| Ambiente +3 pontos                         |         99% |       254 (235–278) |         78% |          53 (49–56) |            — |            — |                    — |                    — |
+| Ambiente sem os agregadores                |         89% |       236 (216–262) |         68% |          52 (48–56) |            — |            — |                    — |                    — |
+| Erro do ambiente × 0,75                    |         98% |       241 (227–259) |         73% |          52 (48–56) |        0,030 |        0,038 |                  90% |                  87% |
+| Erro do ambiente × 1,25                    |         94% |       241 (222–266) |         71% |          52 (48–56) |        0,031 |        0,038 |                  91% |                  89% |
+| Erro do ambiente × 1,5                     |         92% |       241 (219–270) |         71% |          52 (48–56) |        0,031 |        0,038 |                  92% |                  90% |
+| t com 3 graus de liberdade                 |         97% |       241 (226–260) |         73% |          52 (48–56) |        0,030 |        0,038 |                  90% |                  88% |
+| t com 30 graus de liberdade (quase normal) |         96% |       241 (223–264) |         72% |          52 (48–56) |        0,030 |        0,038 |                  90% |                  88% |
+| Erro de cada corrida × 0,75                |         96% |       238 (223–259) |         69% |          52 (48–55) |        0,031 |        0,039 |                  83% |                  87% |
+| Erro de cada corrida × 1,25                |         97% |       244 (226–265) |         73% |          53 (48–56) |        0,031 |        0,038 |                  95% |                  87% |
+| Erro das sondagens × 0,75                  |         96% |       241 (224–262) |         78% |          53 (49–56) |        0,030 |        0,036 |                  90% |                  78% |
+| Erro das sondagens × 1,5                   |         96% |       241 (224–262) |         66% |          52 (48–55) |        0,031 |        0,042 |                  91% |                  95% |
+| Meia-vida das sondagens de 7 dias          |         97% |       241 (225–261) |         72% |          52 (48–56) |        0,030 |        0,039 |                  90% |                  88% |
+| Meia-vida das sondagens de 28 dias         |         96% |       241 (224–263) |         72% |          52 (48–56) |        0,031 |        0,037 |                  90% |                  88% |
+| Sem sondagens do Senado (só fundamentos)   |         96% |       241 (224–262) |         60% |          51 (48–54) |        0,030 |        0,057 |                  90% |                  86% |
+| Incumbentes corrigidos face às sondagens   |         96% |       241 (224–262) |         64% |          51 (48–55) |        0,030 |        0,042 |                  90% |                  86% |
 
 Leitura:
 
-- **A Câmara depende quase só do ambiente nacional.** Cada ponto no voto genérico vale cerca de 4 lugares na mediana. Os Democratas deixam de ser favoritos abaixo de D+1,0 (o limiar nacional publicado), e o ambiente atual é D+8,4. Mesmo com um ambiente 3 pontos pior ou um erro nacional 50% maior, a probabilidade fica entre 87% e 92%.
-- **O Senado depende sobretudo das sondagens de cada corrida.** Sem elas, só com fundamentos, a probabilidade cai de 73% para 62%. Dar-lhes mais confiança (erro × 0,75) sobe-a para 78%; dar-lhes menos (× 1,5) desce-a para 67%.
-- **A fonte do ambiente é a escolha que mais pesa na Câmara.** Os agregadores dão D+8,4. A Wikipédia de 2026 não lista sondagens individuais do voto genérico, por isso, sem os agregadores, o ambiente ler-se-ia nas sondagens do Senado (D+6,6, como no backtest de 2024): 87% na Câmara e 67% no Senado. Os agregadores ficam, por serem a medida direta do voto genérico. A leitura pelo Senado erra mais (secção 3) e, em 2024, errou para o lado democrata.
+- **A Câmara depende quase só do ambiente nacional.** Cada ponto no voto genérico vale cerca de 4 lugares na mediana. Os Democratas deixam de ser favoritos abaixo de D+1,0 (o limiar nacional publicado), e o ambiente atual é D+8,3. Mesmo com um ambiente 3 pontos pior ou um erro nacional 50% maior, a probabilidade fica entre 85% e 92%.
+- **O Senado depende sobretudo das sondagens de cada corrida.** Sem elas, só com fundamentos, a probabilidade cai de 72% para 60%. Dar-lhes mais confiança (erro × 0,75) sobe-a para 78%; dar-lhes menos (× 1,5) desce-a para 66%.
+- **A fonte do ambiente é a escolha que mais pesa na Câmara.** Os agregadores dão D+8,3. A Wikipédia de 2026 não lista sondagens individuais do voto genérico, por isso, sem os agregadores, o ambiente ler-se-ia nas sondagens do Senado (D+7,0, como no backtest de 2024): 89% na Câmara e 68% no Senado. Os agregadores ficam, por serem a medida direta do voto genérico. A leitura pelo Senado erra mais (secção 3) e, em 2024, errou para o lado democrata.
 - **As caudas e a recência pesam pouco.** A t de Student com 3 ou 30 graus de liberdade e a meia-vida de 7 ou 28 dias mudam as probabilidades no máximo 1 ponto.
+- **Incumbentes face às sondagens (testado e não adotado).** De 2012 a 2024, as médias de sondagens do Senado subestimaram o incumbente recandidato em 2,1 pontos, em média (erro padrão 0,4), já descontado o erro comum de cada ano. A regra simétrica corrige a média de cada incumbente, democrata ou republicano, pelo desvio estimado só com os anos anteriores (`Ajustes.incumbentes_sondagens`, função `desvio_incumbentes`). Não entra no modelo por três motivos:
+  - quase todo o efeito vem das corridas desequilibradas: as sondagens comprimem as margens largas (cerca de 9% da margem) e os incumbentes ganham muitas vezes por muito. Com a compressão na mesma regressão, o efeito do incumbente desce para 0,8 pontos (erro padrão 0,5); nas corridas com a média abaixo de 10 pontos é de 0,9 pontos (erro padrão 0,6) e muda de sinal entre ciclos (−5,7 em 2022, +2,1 em 2018);
+  - nos backtests publicados piora o Brier do Senado (0,042 contra 0,038). Num teste mais longo (2016 a 2024, 147 corridas) o Brier melhora pouco (0,048 contra 0,049), mas piora em 2018 e 2024 e piora o erro das corridas competitivas (4,4 contra 4,3 pontos);
+  - um efeito pessoal (o desvio de cada incumbente na eleição anterior) também não se aguenta: a correlação com o desvio seguinte é 0,12 e não melhora os backtests. É o caso de Susan Collins no Maine: em 2020 superou as sondagens em 8 pontos, mas o padrão não se repete de forma fiável.
+
+  Se fosse adotada, o Senado desceria de 72% para 64%, porque a maioria das corridas renhidas de 2026 tem um incumbente republicano (Maine, Alasca, Kansas, Ohio). A variante fica na tabela para mostrar esse efeito.
+
 - **Os parâmetros publicados não se afinam com estes números.** Nenhuma variante melhora o Brier dos backtests de forma consistente nas duas câmaras. As diferenças (0,036 a 0,042 no Senado) cabem no ruído de três eleições. Escolher a variante com o melhor Brier seria ajustar o modelo a 2018, 2022 e 2024. A cobertura de 88% a 90% confirma que os intervalos já são, se algo, um pouco largos.
 
 ## 9. Histórico diário e ficheiros para o site

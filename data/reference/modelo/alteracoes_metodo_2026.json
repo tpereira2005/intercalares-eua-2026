@@ -33,5 +33,12 @@
   "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/66",
   "camara": {"antes": 0.96445, "depois": 0.96445},
   "senado": {"antes": 0.7204, "depois": 0.7204}
+ },
+ {
+  "data": "2026-10-14",
+  "descricao": "Testada e não adotada uma regra simétrica que corrige as sondagens do Senado pelo desvio médio dos incumbentes (democratas e republicanos). O efeito vem sobretudo da compressão das margens largas e a regra piora os backtests publicados; fica só como variante de sensibilidade (o Senado desceria para 64%). A previsão não muda.",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/76",
+  "camara": {"antes": 0.96445, "depois": 0.96445},
+  "senado": {"antes": 0.72045, "depois": 0.72045}
  }
 ]

@@ -106,6 +106,11 @@ class Ajustes:
     sem_sondagens_senado: bool = False
     """Ignora as sondagens de cada corrida ao Senado (fica só com os fundamentos)."""
 
+    incumbentes_sondagens: bool = False
+    """Corrige a média de sondagens de cada incumbente do Senado pelo desvio médio dos
+    incumbentes face às sondagens nos anos anteriores, igual para os dois partidos
+    (``desvio_incumbentes``). Testado e não adotado: ver a secção 8 da metodologia."""
+
 
 AJUSTES_PUBLICADOS = Ajustes()
 
@@ -272,6 +277,38 @@ def ambiente_senado(
     return soma / pesos if pesos else None
 
 
+def desvio_incumbentes(dados: Dados, ano: int, meia_vida: float = MEIA_VIDA_DIAS) -> float:
+    """Quanto as médias de sondagens do Senado sobrestimaram o incumbente recandidato.
+
+    Média, nos anos anteriores a ``ano``, de ``s x (média - resultado - erro médio do
+    ano)``, em que ``s`` é +1 para um incumbente do lado democrata e -1 do lado
+    republicano. Negativo quando as sondagens subestimaram os incumbentes. O sinal do
+    incumbente torna a regra simétrica: não há constante por partido.
+    """
+    valores: list[float] = []
+    for a in sorted(dados.corridas):
+        if a >= ano:
+            continue
+        linhas = _linhas(dados, a, "senado")
+        medias = _medias(dados, a, corte_final(a), linhas, meia_vida)
+        erros: list[tuple[int, float]] = []
+        for ln in linhas:
+            m = medias.get(ln.id)
+            real = dados.resultados_senado.get((a, ln.id))
+            if m is None or real is None or ln.certo is not None:
+                continue
+            if ln.lado_d_independente or ln.lado_r_independente:
+                continue
+            erros.append((ln.incumbente, m.margem - real))
+        if not erros:
+            continue
+        centro = sum(e for _, e in erros) / len(erros)
+        valores.extend(s * (e - centro) for s, e in erros if s != 0)
+    if not valores:
+        raise ValueError("Sem incumbentes com sondagens nos anos anteriores")
+    return sum(valores) / len(valores)
+
+
 def composicao_senado(dados: Dados, ano: int) -> ComposicaoSenado:
     bancada_d, bancada_r, desempate = dados.composicao[ano]
     em_jogo_d = em_jogo_r = 0
@@ -339,6 +376,12 @@ def prever(
     choques = sortear_choques(rng, SIMULACOES, ambiente, fund_c.sd_regiao, aj.graus_liberdade)
     camara = simular_camara(linhas_c[ano], fund_c, ambiente, choques, rng)
     composicao = composicao_senado(dados, ano)
+    if aj.incumbentes_sondagens:
+        vies = desvio_incumbentes(dados, ano, aj.meia_vida_dias)
+        for linha in linhas_s[ano]:
+            m = medias.get(linha.id)
+            if m is not None and linha.incumbente != 0:
+                medias[linha.id] = replace(m, margem=m.margem - vies * linha.incumbente)
     if aj.sem_sondagens_senado:
         # O ambiente já foi estimado; só a simulação de cada corrida fica sem sondagens.
         medias = {k: v for k, v in medias.items() if k == "US"}
