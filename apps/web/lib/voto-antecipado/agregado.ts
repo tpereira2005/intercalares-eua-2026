@@ -7,6 +7,7 @@
  * pipeline; esta camada só seleciona, agrupa e ordena.
  */
 
+import { agruparGeografia, linhasPorFaixa, type UnidadeGeografica } from "./geografia.ts";
 import type { VotoAntecipadoAgregado } from "@intercalares/contratos";
 import { FAIXAS, PARTIDOS, type FaixaEtaria, type PartidoRegisto } from "./vista.ts";
 
@@ -62,6 +63,8 @@ export interface VistaAgregada {
   /** Votos acumulados por dia do ciclo, um traço por ano (o campo chama-se taxa nos gráficos). */
   curvas: { ano: number; pontos: { dias: number; taxa: number }[] }[];
   pedidos: { anoBase: number | null; partidos: PedidosPartido[] };
+  /** Votos por faixa larga em cada condado e distrito, no mesmo dia do ciclo (só com idade). */
+  geografia: UnidadeGeografica[];
 }
 
 /** Janela das curvas, igual à da Carolina do Norte. */
@@ -182,5 +185,6 @@ export function construirVistaAgregada(dados: VotoAntecipadoAgregado): VistaAgre
     comparacoes: lista,
     curvas: curvas(dados),
     pedidos: pedidos(dados, lista[0]?.anoBase ?? null),
+    geografia: agruparGeografia(linhasPorFaixa(dados.geografia)),
   };
 }

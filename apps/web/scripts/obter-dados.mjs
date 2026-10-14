@@ -16,6 +16,7 @@
  * Uso: pnpm --filter @intercalares/web dados:obter
  *   URL_DADOS_VOTO_ANTECIPADO=https://.../nc.json,caminho/local/ga.json
  *   URL_DADOS_PREVISAO=caminho/2026.json  URL_HISTORICO_PREVISAO=caminho/historico.json
+ *   URL_DADOS_NACIONAL=caminho/nacional.json
  *   URL_DADOS_SONDAGENS=caminho/sondagens.json  URL_DADOS_RESULTADOS=caminho/parciais.json
  *   URL_PROJECAO_NOITE=caminho/projecao.json  URL_HISTORICO_NOITE=caminho/historico.json
  *   GITHUB_TOKEN (opcional) evita o limite de pedidos anónimos à API.
@@ -194,6 +195,16 @@ async function obter() {
     }
   }
   if (origens.length === 0) console.warn("A Release não tem ficheiros de estado.");
+  // Resumo nacional (estados sem dados e porquê); o nome não é de estado, por isso vai à parte.
+  const nacional =
+    process.env.URL_DADOS_NACIONAL ??
+    `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA}/nacional.json`;
+  try {
+    await gravar(nacional, path.join(PASTA, "nacional.json"));
+    console.log("Resumo nacional do voto antecipado em dados/voto-antecipado/nacional.json");
+  } catch (erro) {
+    console.warn(`Sem nacional.json (${String(erro)}).`);
+  }
 }
 
 try {

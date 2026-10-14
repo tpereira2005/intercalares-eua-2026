@@ -1,6 +1,16 @@
-import type { LinhaGeografia } from "@intercalares/contratos";
+import type {
+  LinhaGeografia,
+  LinhaGeografiaAgregada,
+  LinhaHistoricoGeografia,
+} from "@intercalares/contratos";
 import { describe, expect, it } from "vitest";
-import { agruparGeografia, linhasUnidades, MINIMO_VOTOS_UNIDADE } from "./geografia.ts";
+import {
+  agruparGeografia,
+  juntarHistorico,
+  linhasPorFaixa,
+  linhasUnidades,
+  MINIMO_VOTOS_UNIDADE,
+} from "./geografia.ts";
 
 function linha(
   ano: number,
@@ -78,5 +88,83 @@ describe("linhasUnidades", () => {
     expect(linhas.map((l) => l.codigo)).toEqual(["2", "10", "1"]);
     expect(linhas[2]?.quota).toBeNull();
     expect(linhas[2]?.poucosVotos).toBe(true);
+  });
+});
+
+describe("juntarHistorico", () => {
+  function historico(
+    ano: number,
+    grupo: LinhaHistoricoGeografia["grupo"],
+    votos: number,
+  ): LinhaHistoricoGeografia {
+    return {
+      ano,
+      ano_referencia: ano - 4,
+      nivel: "condado",
+      codigo: "37001",
+      nome: "Unidade 37001",
+      faixa: "65+",
+      grupo,
+      votos,
+      registados: 1000,
+      contributo: votos / 1000,
+    };
+  }
+
+  it("calcula a quota de voto novo como no momento do voto, sem quem não tem histórico", () => {
+    const unidades = juntarHistorico(agruparGeografia(LINHAS), [
+      historico(2026, "antecipado_na_referencia", 120),
+      historico(2026, "dia_eleicao_na_referencia", 40),
+      historico(2026, "absteve_se_na_referencia", 30),
+      historico(2026, "recenseado_apos_referencia", 10),
+      historico(2026, "sem_historico", 500),
+      historico(2022, "antecipado_na_referencia", 180),
+      historico(2022, "absteve_se_na_referencia", 20),
+    ]);
+    const [a] = linhasUnidades(unidades, "condado", "65+", 2026, 2022);
+    expect(a?.novos).toBeCloseTo(40 / 200);
+    expect(a?.novosBase).toBeCloseTo(20 / 200);
+  });
+
+  it("sem histórico, a quota de voto novo fica por calcular", () => {
+    const [a] = linhasUnidades(
+      juntarHistorico(agruparGeografia(LINHAS), []),
+      "condado",
+      "65+",
+      2026,
+      2022,
+    );
+    expect(a?.novos).toBeNull();
+  });
+});
+
+describe("linhasPorFaixa", () => {
+  it("usa só as linhas por faixa (partido total) dos estados agregados", () => {
+    const linha = (
+      partido: LinhaGeografiaAgregada["partido"],
+      faixa: NonNullable<LinhaGeografiaAgregada["faixa"]>,
+      votos: number,
+    ): LinhaGeografiaAgregada => ({
+      ano: 2026,
+      nivel: "condado",
+      codigo: "42101",
+      nome: "Philadelphia",
+      partido,
+      faixa,
+      votos,
+    });
+    const linhas = linhasPorFaixa([
+      linha("total", "total", 1000),
+      linha("total", "65+", 600),
+      linha("dem", "total", 700),
+      linha("rep", "total", 200),
+    ]);
+    expect(linhas.map((l) => [l.faixa, l.votos])).toEqual([
+      ["total", 1000],
+      ["65+", 600],
+    ]);
+    const [u] = linhasUnidades(agruparGeografia(linhas), "condado", "65+", 2026, 2022);
+    expect(u?.quota).toBeCloseTo(0.6);
+    expect(u?.taxa).toBeNull();
   });
 });

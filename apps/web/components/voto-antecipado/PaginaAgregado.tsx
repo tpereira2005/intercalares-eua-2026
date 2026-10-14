@@ -16,6 +16,7 @@ import { resumirAgregado } from "@/lib/voto-antecipado/resumo.ts";
 import { Avisos, EscolhaEstado } from "./PaginaEstado.tsx";
 import { BarrasIdade, BarrasReserva, CurvaCoorte } from "./graficos.tsx";
 import { AmostraAno, ItemLegenda, Legenda } from "./legendas.tsx";
+import { PainelGeografia } from "./PainelGeografia.tsx";
 
 const METODOLOGIA =
   "https://github.com/tpereira2005/intercalares-eua-2026/blob/main/docs/metodologia/voto-antecipado-estados.md";
@@ -304,6 +305,15 @@ export function PaginaAgregado({
               </tbody>
             </table>
           </Painel>
+        ) : null}
+
+        {principal && vista.geografia.length > 0 ? (
+          <PainelGeografia
+            unidades={vista.geografia}
+            ano={ano}
+            anoBase={principal.anoBase}
+            fontes={fontes}
+          />
         ) : null}
 
         <section className="self-start rounded-md border border-rule bg-sheet px-[18px] py-3.5 text-sm">

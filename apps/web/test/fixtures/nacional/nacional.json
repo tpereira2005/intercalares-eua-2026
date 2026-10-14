@@ -1,0 +1,163 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-10-13T21:28:18.918854Z",
+    "fontes": [
+      {
+        "nome": "Florida Division of Elections, Vote-by-Mail and Early Voting Statistics",
+        "url": "https://electionfiles.floridados.gov/countyballotreportfiles/Stats_49894_VbmProvided.txt",
+        "licenca": "Registo público (Fla. Stat. 101.62, 101.657)",
+        "obtida_em": "2026-10-13T21:25:53.237442Z"
+      },
+      {
+        "nome": "Florida Division of Elections, Vote-by-Mail and Early Voting Statistics",
+        "url": "https://electionfiles.floridados.gov/countyballotreportfiles/Stats_49894_VbmVoted.txt",
+        "licenca": "Registo público (Fla. Stat. 101.62, 101.657)",
+        "obtida_em": "2026-10-13T21:25:53.519924Z"
+      },
+      {
+        "nome": "Maine Secretary of State, Absentee Voter File",
+        "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/11-3-26%20AB%20Voter%20File%20as%20of%2010-13-26.txt",
+        "licenca": "Registo público (21-A M.R.S. § 753-B)",
+        "obtida_em": "2026-10-13T21:25:56.093412Z"
+      },
+      {
+        "nome": "North Carolina State Board of Elections",
+        "url": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2026_11_03/absentee_20261103.zip",
+        "licenca": "Registo público (N.C. G.S. 132-1, 163-82.10)",
+        "obtida_em": "2026-10-13T21:25:56.213057Z"
+      },
+      {
+        "nome": "North Carolina State Board of Elections",
+        "url": "https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvoter_Statewide.zip",
+        "licenca": "Registo público (N.C. G.S. 132-1, 163-82.10)",
+        "obtida_em": "2026-10-13T21:25:56.375801Z"
+      },
+      {
+        "nome": "North Carolina State Board of Elections",
+        "url": "https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvhis_Statewide.zip",
+        "licenca": "Registo público (N.C. G.S. 132-1, 163-82.10)",
+        "obtida_em": "2026-10-13T21:25:56.544014Z"
+      },
+      {
+        "nome": "Pennsylvania Department of State (data.pa.gov)",
+        "url": "https://data.pa.gov/resource/nbwd-pfn4.csv?%24select=countyname%2Cparty%2Cdateofbirth%2Cappissuedate%2Cballotreturneddate%2Ccongressional%2Cballot_status&%24limit=20000000&%24order=%3Aid",
+        "licenca": "Public Domain U.S. Government",
+        "obtida_em": "2026-10-13T21:25:52.082703Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "estados": [
+    {
+      "estado": "FL",
+      "ficheiro": "fl.json",
+      "granularidade": "condado",
+      "dados_ate": "2026-10-11",
+      "dias_antes": 23,
+      "modalidades": ["correio", "presencial"],
+      "votos": 501290,
+      "ano_base": null,
+      "votos_base": null,
+      "ritmo": null,
+      "quota_dem": 0.429799,
+      "quota_rep": 0.359493,
+      "quota_dem_base": null,
+      "quota_rep_base": null,
+      "quota_65_mais": null,
+      "quota_65_mais_base": null
+    },
+    {
+      "estado": "ME",
+      "ficheiro": "me.json",
+      "granularidade": "boletim",
+      "dados_ate": "2026-10-12",
+      "dias_antes": 22,
+      "modalidades": ["correio", "presencial"],
+      "votos": 47548,
+      "ano_base": 2022,
+      "votos_base": 42241,
+      "ritmo": 0.125636,
+      "quota_dem": 0.554366,
+      "quota_rep": 0.182763,
+      "quota_dem_base": 0.563126,
+      "quota_rep_base": 0.207168,
+      "quota_65_mais": null,
+      "quota_65_mais_base": null
+    },
+    {
+      "estado": "NC",
+      "ficheiro": "nc.json",
+      "granularidade": "boletim",
+      "dados_ate": "2026-10-12",
+      "dias_antes": 22,
+      "modalidades": ["correio", "presencial"],
+      "votos": 29743,
+      "ano_base": 2022,
+      "votos_base": 42202,
+      "ritmo": -0.295223,
+      "quota_dem": 0.446424,
+      "quota_rep": 0.167367,
+      "quota_dem_base": 0.499289,
+      "quota_rep_base": 0.165395,
+      "quota_65_mais": 0.5953,
+      "quota_65_mais_base": 0.579333
+    },
+    {
+      "estado": "PA",
+      "ficheiro": "pa.json",
+      "granularidade": "boletim",
+      "dados_ate": "2026-10-12",
+      "dias_antes": 22,
+      "modalidades": ["correio"],
+      "votos": 276597,
+      "ano_base": 2022,
+      "votos_base": 316930,
+      "ritmo": -0.127262,
+      "quota_dem": 0.718113,
+      "quota_rep": 0.201676,
+      "quota_dem_base": 0.73567,
+      "quota_rep_base": 0.191377,
+      "quota_65_mais": 0.678106,
+      "quota_65_mais_base": 0.625378
+    }
+  ],
+  "votos": 855178,
+  "avisos": [
+    "Soma só dos estados acompanhados; não é um total nacional.",
+    "O partido é o de registo do eleitor, não o voto.",
+    "Os estados publicam a ritmos diferentes: cada linha tem a sua data e as comparações são sempre com o mesmo dia do ciclo do próprio estado."
+  ],
+  "estados_sem_dados": [
+    {
+      "estado": "GA",
+      "motivo": "bloqueado",
+      "nota": "A fonte oficial publica os dados, mas recusa pedidos automáticos. Não contornamos bloqueios, por isso este estado fica de fora até haver uma via oficial aberta."
+    },
+    {
+      "estado": "TX",
+      "motivo": "bloqueado",
+      "nota": "A fonte oficial publica os dados, mas recusa pedidos automáticos. Não contornamos bloqueios, por isso este estado fica de fora até haver uma via oficial aberta."
+    },
+    {
+      "estado": "MI",
+      "motivo": "bloqueado",
+      "nota": "A fonte oficial publica os dados, mas recusa pedidos automáticos. Não contornamos bloqueios, por isso este estado fica de fora até haver uma via oficial aberta."
+    },
+    {
+      "estado": "OH",
+      "motivo": "bloqueado",
+      "nota": "A fonte oficial publica os dados, mas recusa pedidos automáticos. Não contornamos bloqueios, por isso este estado fica de fora até haver uma via oficial aberta."
+    },
+    {
+      "estado": "NV",
+      "motivo": "bloqueado",
+      "nota": "A fonte oficial publica os dados, mas recusa pedidos automáticos. Não contornamos bloqueios, por isso este estado fica de fora até haver uma via oficial aberta."
+    },
+    {
+      "estado": "AZ",
+      "motivo": "bloqueado",
+      "nota": "A fonte oficial publica os dados, mas recusa pedidos automáticos. Não contornamos bloqueios, por isso este estado fica de fora até haver uma via oficial aberta."
+    }
+  ]
+}

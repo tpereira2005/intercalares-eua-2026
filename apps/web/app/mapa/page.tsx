@@ -4,6 +4,7 @@ import { caminhoEstado } from "@/components/voto-antecipado/PaginaEstado.tsx";
 import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
+import { carregarSemDados } from "@/lib/voto-antecipado/nacional.ts";
 import { resumirTodos } from "@/lib/voto-antecipado/resumo.ts";
 
 export const metadata: Metadata = metadadosPagina({
@@ -29,7 +30,7 @@ export default function Pagina() {
           {t("mapa.lede", { ano: anoBase })}
         </p>
       </header>
-      <MapaEstados resumos={resumos} caminhos={caminhos} />
+      <MapaEstados resumos={resumos} caminhos={caminhos} semDados={carregarSemDados()} />
     </div>
   );
 }

@@ -59,12 +59,19 @@ export function PainelGeografia({
   const niveis = (["distrito", "condado"] as const).filter((n) =>
     unidades.some((u) => u.nivel === n),
   );
-  const [nivel, setNivel] = useState<NivelGeografico>(niveis[0] ?? "condado");
+  // Por omissão, o primeiro nível que tem o ano de comparação (na Pensilvânia, 2022 só tem condados).
+  const comBase = niveis.find((n) =>
+    unidades.some((u) => u.nivel === n && u.anos.some((a) => a.ano === anoBase)),
+  );
+  const [nivel, setNivel] = useState<NivelGeografico>(comBase ?? niveis[0] ?? "condado");
   const [faixa, setFaixa] = useState<FaixaLarga>("18-29");
   const [aberta, setAberta] = useState(false);
   const id = useId();
   if (niveis.length === 0) return null;
   const linhas = linhasUnidades(unidades, nivel, faixa, ano, anoBase);
+  // Sem recenseados (estados sem ficheiro de eleitores), não há participação a mostrar.
+  const comTaxa = linhas.some((l) => l.taxa !== null);
+  const comNovos = linhas.some((l) => l.novos !== null);
   const mostradas = aberta ? linhas : linhas.slice(0, VISIVEIS);
   const escondidas = linhas.length - mostradas.length;
   const nomeUnidade = (codigo: string, nome: string) =>
@@ -72,7 +79,7 @@ export function PainelGeografia({
 
   return (
     <Painel
-      className="lg:col-span-2"
+      className="col-span-full"
       sobrelinha={t("votoAntecipado.geografia.sobrelinha", { ano: anoBase })}
       titulo={t("votoAntecipado.geografia.titulo", { faixa: rotulo(faixa) })}
       acessorio={
@@ -92,10 +99,17 @@ export function PainelGeografia({
         ) : null
       }
       fontes={fontes}
-      metodo={t("votoAntecipado.geografia.metodo", { minimo: MINIMO_VOTOS_UNIDADE })}
+      metodo={t(
+        comTaxa ? "votoAntecipado.geografia.metodo" : "votoAntecipado.geografia.metodoSemTaxa",
+        {
+          minimo: MINIMO_VOTOS_UNIDADE,
+        },
+      )}
     >
       <p className="max-w-[70ch] text-sm text-ink-2">
-        {t("votoAntecipado.geografia.texto", { ano: anoBase })}
+        {t(comTaxa ? "votoAntecipado.geografia.texto" : "votoAntecipado.geografia.textoSemTaxa", {
+          ano: anoBase,
+        })}
       </p>
       <ControloSegmentado<FaixaLarga>
         rotuloGrupo={t("votoAntecipado.geografia.faixaAria")}
@@ -122,9 +136,16 @@ export function PainelGeografia({
             <th scope="col" className="pr-3 pb-1.5 text-right font-medium">
               {t("votoAntecipado.geografia.diferenca", { ano: anoBase })}
             </th>
-            <th scope="col" className="pb-1.5 text-right font-medium">
-              {t("votoAntecipado.geografia.taxa")}
-            </th>
+            {comTaxa ? (
+              <th scope="col" className="hidden pb-1.5 pl-3 text-right font-medium sm:table-cell">
+                {t("votoAntecipado.geografia.taxa")}
+              </th>
+            ) : null}
+            {comNovos ? (
+              <th scope="col" className="pb-1.5 pl-3 text-right font-medium">
+                {t("votoAntecipado.geografia.novos")}
+              </th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
@@ -146,16 +167,34 @@ export function PainelGeografia({
                   {l.quota === null ? t("comum.semDados") : formatarPercentagem(l.quota)}
                 </span>
               </td>
-              <td className="py-1.5 pr-3 text-right font-mono text-[13px]">
+              <td className="py-1.5 pr-3 text-right font-mono text-[13px] whitespace-nowrap">
                 {l.diferenca === null ? t("comum.semDados") : formatarPontos(l.diferenca)}
               </td>
-              <td className="py-1.5 text-right font-mono text-[13px]">
-                {l.taxa === null ? t("comum.semDados") : formatarPercentagem(l.taxa)}
-              </td>
+              {comTaxa ? (
+                <td className="hidden py-1.5 pl-3 text-right font-mono text-[13px] sm:table-cell">
+                  {l.taxa === null ? t("comum.semDados") : formatarPercentagem(l.taxa)}
+                </td>
+              ) : null}
+              {comNovos ? (
+                <td className="py-1.5 pl-3 text-right font-mono text-[13px]">
+                  {l.novos === null ? t("comum.semDados") : formatarPercentagem(l.novos, 0)}
+                  {l.novosBase === null ? null : (
+                    <span className="block text-[11px] text-ink-3">
+                      {t("votoAntecipado.geografia.novosBase", {
+                        ano: anoBase,
+                        valor: formatarPercentagem(l.novosBase, 0),
+                      })}
+                    </span>
+                  )}
+                </td>
+              ) : null}
             </tr>
           ))}
         </tbody>
       </table>
+      {comNovos ? (
+        <p className="text-[12.5px] text-ink-3">{t("votoAntecipado.geografia.novosNota")}</p>
+      ) : null}
       {linhas.length > VISIVEIS ? (
         <button
           type="button"

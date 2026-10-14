@@ -18,7 +18,8 @@ export type NomeContrato =
   | "ResultadosParciais"
   | "ProjecaoNoite"
   | "HistoricoNoite"
-  | "SondagensCongresso";
+  | "SondagensCongresso"
+  | "VotoAntecipadoNacional";
 
 let ajv: Ajv2020 | undefined;
 let id = "";

@@ -93,7 +93,9 @@
       "titulo": "Estados acompanhados",
       "texto": "Votos antecipados face ao mesmo dia do ciclo de {ano}.",
       "ligacao": "Ver o mapa",
-      "metodo": "votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1, em cada estado com a sua própria data. A soma é só dos estados acompanhados, não é um total nacional."
+      "metodo": "votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1, em cada estado com a sua própria data. A soma é só dos estados acompanhados, não é um total nacional.",
+      "semDados": "Fonte bloqueada (não contornamos bloqueios): {estados}.",
+      "semFonte": "Sem fonte oficial gratuita: {estados}."
     }
   },
   "seccoes": {
@@ -310,7 +312,12 @@
       "votos": "{n} votos",
       "poucosVotos": "poucos votos",
       "mais": "Ver os outros {n}",
-      "menos": "Mostrar só os primeiros"
+      "menos": "Mostrar só os primeiros",
+      "textoSemTaxa": "Quota da faixa nos votos antecipados de cada distrito ou condado, comparada com o mesmo dia do ciclo de {ano}. Ordenado da maior subida para a maior descida. Sem ficheiro de eleitores, não há participação por faixa.",
+      "metodoSemTaxa": "votos da faixa / votos da unidade até ao mesmo dia do ciclo. Unidades com menos de {minimo} votos num dos anos aparecem no fim, a cinzento: com tão poucos votos, a quota varia muito ao acaso. Distritos no mapa de 2026 em todos os anos.",
+      "novos": "Voto novo",
+      "novosBase": "{ano}: {valor}",
+      "novosNota": "Voto novo: quem se absteve ou se recenseou depois da eleição de referência, entre os votos com histórico da faixa (a mesma regra do momento do voto)."
     },
     "leitura": {
       "titulo": "Como ler estes números",
@@ -354,7 +361,15 @@
     "semValor": "sem comparação",
     "metodoRitmo": "Método: votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1. Mede o ritmo, não a participação: as regras e os hábitos de voto mudam entre ciclos.",
     "soIndividuais": "A participação face ao esperado só existe nos estados com ficheiro de eleitores; os outros ficam sem cor.",
-    "pendentes": "Boletins pedidos por devolver"
+    "pendentes": "Boletins pedidos por devolver",
+    "quadradoMotivo": {
+      "bloqueado": "{estado}, {codigo}: fonte bloqueada",
+      "sem_fonte_gratuita": "{estado}, {codigo}: sem fonte oficial gratuita"
+    },
+    "motivos": {
+      "bloqueado": "Fonte bloqueada",
+      "sem_fonte_gratuita": "Sem fonte gratuita"
+    }
   },
   "previsao": {
     "sobrelinha": "Modelo Escrutínio · {ano}",

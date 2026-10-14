@@ -8,7 +8,7 @@
  * só seleciona, agrupa e ordena.
  */
 
-import { agruparGeografia, type UnidadeGeografica } from "./geografia.ts";
+import { agruparGeografia, juntarHistorico, type UnidadeGeografica } from "./geografia.ts";
 import type {
   LinhaComparacao,
   LinhaCruzamento,
@@ -376,6 +376,6 @@ export function construirVista(dados: VotoAntecipadoEstado): VistaVotoAntecipado
       dados.ano,
       principal !== null && anosReserva.has(principal) ? principal : null,
     ),
-    geografia: agruparGeografia(dados.geografia),
+    geografia: juntarHistorico(agruparGeografia(dados.geografia), dados.historico_geografia ?? []),
   };
 }

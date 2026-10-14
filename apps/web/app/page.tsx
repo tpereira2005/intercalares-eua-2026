@@ -1,3 +1,4 @@
+import type { EstadoSemDados } from "@intercalares/contratos";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DestaqueNoite } from "@/components/inicio/DestaqueNoite.tsx";
@@ -26,6 +27,7 @@ import { faseEm } from "@/lib/fases.ts";
 import { carregarNoite } from "@/lib/noite/carregar.ts";
 import { carregarPrevisao } from "@/lib/previsao/carregar.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
+import { carregarSemDados } from "@/lib/voto-antecipado/nacional.ts";
 import { resumirEstado, resumirTodos, type ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 import type { VistaVotoAntecipado } from "@/lib/voto-antecipado/vista.ts";
 
@@ -135,11 +137,19 @@ function Indicadores({
 function EstadosAcompanhados({
   resumos,
   comPagina,
+  semDados,
 }: {
   resumos: readonly ResumoEstado[];
   /** Estados com página própria. */
   comPagina: ReadonlySet<string>;
+  /** Estados prioritários sem dados e porquê. */
+  semDados: readonly EstadoSemDados[];
 }) {
+  const nomes = (motivo: EstadoSemDados["motivo"]) =>
+    semDados
+      .filter((e) => e.motivo === motivo)
+      .map((e) => nomeEstado(e.estado))
+      .join(", ");
   const anoBase = resumos[0]?.anoBase ?? 2022;
   return (
     <Painel
@@ -168,6 +178,16 @@ function EstadosAcompanhados({
           </li>
         ))}
       </ol>
+      {nomes("bloqueado") ? (
+        <p className="text-[12.5px] text-ink-2">
+          {t("inicio.estados.semDados", { estados: nomes("bloqueado") })}
+        </p>
+      ) : null}
+      {nomes("sem_fonte_gratuita") ? (
+        <p className="text-[12.5px] text-ink-2">
+          {t("inicio.estados.semFonte", { estados: nomes("sem_fonte_gratuita") })}
+        </p>
+      ) : null}
       <p className="text-sm">
         <Link href="/mapa/" className={LIGACAO}>
           {t("inicio.estados.ligacao")}
@@ -290,6 +310,7 @@ export default function Inicio() {
             <EstadosAcompanhados
               resumos={resumos}
               comPagina={new Set(resumos.map((r) => r.estado))}
+              semDados={carregarSemDados()}
             />
           ) : (
             <OQueVemAi />

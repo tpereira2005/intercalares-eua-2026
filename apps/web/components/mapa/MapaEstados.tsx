@@ -13,6 +13,7 @@ import {
   formatarVariacao,
 } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
+import type { EstadoSemDados } from "@intercalares/contratos";
 import type { ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 
 type Indicador = "ritmo" | "todos" | "mais65" | "jovens";
@@ -36,11 +37,15 @@ function preenchimento(valor: number, extremo: number): { fill: string; forte: b
 export function MapaEstados({
   resumos,
   caminhos,
+  semDados = [],
 }: {
   resumos: readonly ResumoEstado[];
   /** Endereço da análise de cada estado com dados. */
   caminhos: Readonly<Record<string, string>>;
+  /** Estados prioritários sem dados e porquê (fonte bloqueada ou sem fonte gratuita). */
+  semDados?: readonly EstadoSemDados[];
 }) {
+  const motivos = new Map(semDados.map((e) => [e.estado as string, e]));
   const [indicador, setIndicador] = useState<Indicador>("ritmo");
   const [escolhido, setEscolhido] = useState<string>(resumos[0]?.estado ?? "NC");
   const porEstado = new Map(resumos.map((r) => [r.estado, r]));
@@ -88,6 +93,23 @@ export function MapaEstados({
             />
             {t("mapa.semDados")}
           </span>
+          {semDados.length > 0 ? (
+            <span className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-2">
+              <svg width={12} height={12} aria-hidden="true">
+                <rect
+                  x={0.5}
+                  y={0.5}
+                  width={11}
+                  height={11}
+                  rx={2}
+                  strokeDasharray="3 2"
+                  className="fill-none stroke-ink-3"
+                />
+                <line x1={2} y1={10} x2={10} y2={2} strokeWidth={1.25} className="stroke-ink-3" />
+              </svg>
+              {t("mapa.motivos.bloqueado")}
+            </span>
+          ) : null}
           <span className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-2">
             <span
               aria-hidden="true"
@@ -124,7 +146,12 @@ export function MapaEstados({
                     key={e.codigo}
                     {...linhaEscolhivel(
                       !r
-                        ? t("mapa.quadradoSemDados", { estado: e.nome, codigo: e.codigo })
+                        ? t(
+                            motivos.has(e.codigo)
+                              ? `mapa.quadradoMotivo.${motivos.get(e.codigo)?.motivo ?? "bloqueado"}`
+                              : "mapa.quadradoSemDados",
+                            { estado: e.nome, codigo: e.codigo },
+                          )
                         : valor === null
                           ? t("mapa.quadradoSemValor", { estado: e.nome, codigo: e.codigo })
                           : t("mapa.quadrado", {
@@ -156,6 +183,17 @@ export function MapaEstados({
                             : "stroke-ink-3"
                       }`}
                     />
+                    {!r && motivos.has(e.codigo) ? (
+                      <line
+                        x1={x + 3}
+                        y1={y + lado - 3}
+                        x2={x + lado - 3}
+                        y2={y + 3}
+                        strokeWidth={1.25}
+                        className="stroke-ink-3"
+                        aria-hidden="true"
+                      />
+                    ) : null}
                     <text
                       x={x + 6}
                       y={y + (lado < 34 ? 13 : 16)}
@@ -256,6 +294,13 @@ export function MapaEstados({
                 </Link>
               ) : null}
             </>
+          ) : motivos.has(escolhido) ? (
+            <div className="flex flex-col gap-1.5 text-sm">
+              <p className="rotulo">
+                {t(`mapa.motivos.${motivos.get(escolhido)?.motivo ?? "bloqueado"}`)}
+              </p>
+              <p className="text-ink-2">{motivos.get(escolhido)?.nota}</p>
+            </div>
           ) : (
             <p className="text-sm text-ink-2">{t("mapa.estadoSemDados")}</p>
           )}
