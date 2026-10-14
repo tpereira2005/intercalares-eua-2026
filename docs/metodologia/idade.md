@@ -66,4 +66,8 @@ O modelo trata os partidos da mesma forma: as penalizações são simétricas em
 
 ## 7. Publicação
 
-`pipeline.jobs.idade_nc` corre a seguir ao job do voto antecipado da Carolina do Norte, com o cubo demográfico de 2026 que esse job grava. Escreve `idade-nc.json`. O dia dos dados é o último com voto antecipado no cubo. Com menos de 10 000 votos antecipados não escreve nada.
+`pipeline.jobs.idade_nc` corre a seguir ao job do voto antecipado da Carolina do Norte, com o cubo demográfico de 2026 que esse job grava. Escreve `idade-nc.json`.
+
+O dia dos dados é o `dados_ate` do `nc.json` do rastreador (`--nc`), ou a véspera de hoje se o ficheiro não for indicado, nunca depois da eleição. Os boletins com datas posteriores a esse dia ficam de fora: o dia corrente está incompleto e o ficheiro da NCSBE traz por vezes boletins com datas futuras.
+
+O job não escreve nada antes de 14 dias da eleição nem com menos de 200 000 votos antecipados. Antes disso só há voto por correio e o sinal é ruído: com os cubos de 2018 e 2022 no lugar de 2026, a 21 dias dava de −6 a +18 pontos, com intervalos de 70 pontos.
