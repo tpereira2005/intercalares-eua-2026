@@ -12,16 +12,26 @@ import {
 } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
 import type { VistaAgregada } from "@/lib/voto-antecipado/agregado.ts";
+import { PARTIDOS } from "@/lib/voto-antecipado/vista.ts";
 import { resumirAgregado } from "@/lib/voto-antecipado/resumo.ts";
+import { rotuloFaixa } from "./anos.ts";
 import { Avisos, EscolhaEstado } from "./PaginaEstado.tsx";
-import { BarrasIdade, BarrasReserva, CurvaCoorte } from "./graficos.tsx";
-import { AmostraAno, ItemLegenda, Legenda } from "./legendas.tsx";
+import { BarrasIdade, BarrasReserva, Cruzamento, CurvaCoorte } from "./graficos.tsx";
+import { Amostra, AmostraAno, ItemLegenda, Legenda } from "./legendas.tsx";
 import { PainelGeografia } from "./PainelGeografia.tsx";
 
 const METODOLOGIA =
   "https://github.com/tpereira2005/intercalares-eua-2026/blob/main/docs/metodologia/voto-antecipado-estados.md";
 
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
+
+/** Amostras da legenda de partido, com os mesmos padrões das barras. */
+const AMOSTRA_PARTIDO = {
+  dem: { className: "fill-dem" },
+  rep: { fill: "url(#padrao-rep)" },
+  nao_afiliado: { fill: "url(#padrao-una)" },
+  outro: { className: "fill-rule" },
+} as const;
 
 function Indicadores({ vista }: { vista: VistaAgregada }) {
   const resumo = resumirAgregado(vista);
@@ -239,6 +249,57 @@ export function PaginaAgregado({
               comparacoes={vista.comparacoes}
               anoBase={principal.anoBase}
             />
+          </Painel>
+        ) : null}
+
+        {vista.cruzamentos.length > 0 ? (
+          <Painel
+            sobrelinha={t("votoAntecipado.cruzamento.sobrelinha", { ano })}
+            titulo={t("votoAntecipado.cruzamento.tituloPartido")}
+            descricao={t("agregado.cruzamento.texto")}
+            fontes={fontes}
+            metodo={
+              vista.anoCruzamentos === null
+                ? t("votoAntecipado.metodo.cruzamento", { ano })
+                : t("agregado.cruzamento.metodo", { ano, base: vista.anoCruzamentos })
+            }
+          >
+            <Legenda>
+              {PARTIDOS.filter((p) => vista.cruzamentos.some((l) => l.partidos[p] > 0)).map((p) => (
+                <ItemLegenda key={p} amostra={<Amostra {...AMOSTRA_PARTIDO[p]} />}>
+                  {t(`votoAntecipado.partidos.${p}`)}
+                </ItemLegenda>
+              ))}
+              {vista.anoCruzamentos === null ? null : (
+                <span className="text-ink-3">
+                  {t("votoAntecipado.legenda.variacaoDemRep", { ano: vista.anoCruzamentos })}
+                </span>
+              )}
+            </Legenda>
+            <Cruzamento
+              titulo={t("agregado.cruzamento.aria", {
+                lista: vista.cruzamentos
+                  .map(
+                    (l) =>
+                      `${rotuloFaixa(l.faixa)}: ${PARTIDOS.filter((p) => l.partidos[p] > 0)
+                        .map(
+                          (p) =>
+                            `${t(`votoAntecipado.partidos.${p}`)} ${formatarPercentagem(l.partidos[p], 0)}`,
+                        )
+                        .join(", ")}${
+                        l.variacaoDemRep === null
+                          ? ""
+                          : ` (${t("votoAntecipado.graficos.demRep", {
+                              valor: formatarPontos(l.variacaoDemRep, 0).replace(" pp", ""),
+                            })})`
+                      }`,
+                  )
+                  .join("; "),
+              })}
+              linhas={vista.cruzamentos}
+              modo="partido"
+            />
+            <p className="text-[12.5px] text-ink-3">{t("votoAntecipado.cruzamento.nota")}</p>
           </Painel>
         ) : null}
 

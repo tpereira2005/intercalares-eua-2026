@@ -711,7 +711,7 @@ export function CurvaCoorte({
 
 /* ---------- Idade × partido ou modalidade ---------- */
 
-export function Cruzamento({
+export function Cruzamento<F extends FaixaAgregada = FaixaEtaria>({
   titulo,
   linhas,
   modo,
@@ -719,16 +719,17 @@ export function Cruzamento({
   aoEscolher,
 }: {
   titulo: string;
-  linhas: readonly CruzamentoFaixa[];
+  linhas: readonly CruzamentoFaixa<F>[];
   modo: "partido" | "modalidade";
-  faixaAtiva: FaixaEtaria;
-  aoEscolher: (faixa: FaixaEtaria) => void;
+  /** Faixa em foco; sem ela (e sem `aoEscolher`) o gráfico é só de leitura. */
+  faixaAtiva?: F;
+  aoEscolher?: (faixa: F) => void;
 }) {
   const alturaLinha = 30;
   const topo = 6;
   const altura = topo + linhas.length * alturaLinha + 4;
   return (
-    <Grafico titulo={titulo} altura={altura} interativo>
+    <Grafico titulo={titulo} altura={altura} interativo={aoEscolher !== undefined}>
       {(largura) => {
         const x1 = largura - (largura < 480 ? 84 : 104);
         const util = x1 - ROTULO;
@@ -762,9 +763,11 @@ export function Cruzamento({
                       faixa: rotuloFaixa(linha.faixa),
                       valor: resumo,
                     }),
-                () => {
-                  aoEscolher(linha.faixa);
-                },
+                aoEscolher
+                  ? () => {
+                      aoEscolher(linha.faixa);
+                    }
+                  : undefined,
               )}
             >
               <FundoLinha y={y} largura={largura} altura={alturaLinha} ativa={ativa} />

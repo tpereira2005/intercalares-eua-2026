@@ -641,7 +641,12 @@
       "metodo": "quota nos votos antecipados até ao dia e ritmo face ao mesmo dia de {ano}."
     },
     "semComparacao": "Ainda não há ano de referência para este estado: a série começa com as nossas próprias recolhas.",
-    "documentacao": "Metodologia dos estados sem ficheiro de eleitores"
+    "documentacao": "Metodologia dos estados sem ficheiro de eleitores",
+    "cruzamento": {
+      "texto": "Partido de registo de quem já votou, por faixa etária. À direita, quanto mudou a diferença entre democratas e republicanos na faixa face ao mesmo dia do ano de referência.",
+      "metodo": "Quotas de cada partido nos votos antecipados da faixa em {ano}, no dia do ficheiro. A variação D − R é a diferença entre as quotas democrata e republicana da faixa em {ano} menos a mesma diferença no mesmo dia do ciclo de {base}, em pontos.",
+      "aria": "Partido de registo por faixa etária: {lista}."
+    }
   },
   "resultados": {
     "sobrelinha": "3 de novembro de 2026",

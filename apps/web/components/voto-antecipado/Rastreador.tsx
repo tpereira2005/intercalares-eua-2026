@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { ControloSegmentado } from "@/components/ui/ControloSegmentado.tsx";
 import { Painel, type ReferenciaFonte } from "@/components/ui/Painel.tsx";
+import { Selo } from "@/components/ui/Selo.tsx";
 import { formatarData, formatarDiaCiclo, formatarPontos } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
 import {
@@ -233,6 +234,7 @@ export function Rastreador({
         <Painel
           sobrelinha={t("votoAntecipado.desvio.sobrelinha", { ano: anoComparar })}
           titulo={t("votoAntecipado.desvio.titulo")}
+          acessorio={<Selo variante="tracejado">{t("comum.selos.estimativa")}</Selo>}
           fontes={fontes}
           metodo={t("votoAntecipado.metodo.desvio", { ano: anoComparar })}
         >
@@ -261,6 +263,7 @@ export function Rastreador({
             dia,
           })}
           titulo={t("votoAntecipado.decomposicao.titulo")}
+          acessorio={<Selo variante="tracejado">{t("comum.selos.estimativa")}</Selo>}
           fontes={fontes}
           metodo={t("votoAntecipado.metodo.decomposicao")}
         >
