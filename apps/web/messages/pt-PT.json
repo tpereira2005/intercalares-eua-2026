@@ -1163,7 +1163,8 @@
     "seccoes": "{n} secções",
     "indice": "Neste documento",
     "indiceAria": "Secções do documento",
-    "tabela": "Tabela (desliza na horizontal)",
+    "tabela": "Tabela {n} (desliza na horizontal)",
+    "blocoCodigo": "Bloco de código {n} (desliza na horizontal)",
     "fonte": "Texto do repositório:",
     "codigo": {
       "titulo": "Código aberto",

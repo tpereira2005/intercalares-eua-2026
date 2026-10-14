@@ -235,7 +235,11 @@ function CartaoCaminho({
               key={c.corrida.id}
               className={`border-t border-rule-2 ${c.decisiva ? "bg-signal-wash" : ""}`}
             >
-              <td className="py-1.5 pr-2 font-mono text-[12.5px] text-ink-3">{c.posicao}.</td>
+              <td
+                className={`py-1.5 pr-2 font-mono text-[12.5px] ${c.decisiva ? "text-ink-2" : "text-ink-3"}`}
+              >
+                {c.posicao}.
+              </td>
               <th scope="row" className="py-1.5 pr-3 text-left font-normal">
                 <Link href={caminhoPaginaCorrida(c.corrida.id)} className={LIGACAO}>
                   {nomeCurto(c.corrida)}

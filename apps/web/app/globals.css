@@ -154,7 +154,8 @@
 /* Texto corrido dos documentos de metodologia (HTML gerado a partir do Markdown). */
 @layer components {
   .prosa {
-    max-width: 72ch;
+    /* Em rem e não em ch, para a largura não mudar quando a letra definitiva substitui a de reserva. */
+    max-width: 42.5rem;
     color: var(--ink);
     font-size: 15.5px;
     line-height: 1.6;
@@ -243,7 +244,7 @@
     padding: 6px 10px;
     text-align: left;
     vertical-align: top;
-    min-width: 9ch;
+    min-width: 4.75rem;
   }
   .prosa th {
     color: var(--ink);
