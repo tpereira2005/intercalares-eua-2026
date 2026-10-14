@@ -28,7 +28,7 @@ on:
         default: ""
       estados:
         description: Estados a recolher na noite (os bloqueados no Actions ficam de fora)
-        default: "NC,FL,GA,AK,TX"
+        default: "NC,FL,GA,AK,TX,VA,NE"
 
 permissions:
   contents: read
@@ -59,6 +59,7 @@ jobs:
           - { estado: FL, data: "2024-11-05" }
           - { estado: GA, data: "2022-11-08" }
           - { estado: GA, data: "2024-11-05" }
+          - { estado: VA, data: "2024-11-05" }
           - { estado: SC, data: "2022-11-08", clarity: true }
           - { estado: SC, data: "2024-11-05", clarity: true }
           - { estado: IA, data: "2024-11-05", clarity: true }

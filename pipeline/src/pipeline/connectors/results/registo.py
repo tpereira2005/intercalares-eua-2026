@@ -16,6 +16,8 @@ from pipeline.connectors.results.condados.harris import FonteHarris
 from pipeline.connectors.results.fl.conector import ConectorFL
 from pipeline.connectors.results.ga.conector import ConectorGA
 from pipeline.connectors.results.nc.conector import ConectorNC
+from pipeline.connectors.results.ne.conector import ConectorNE
+from pipeline.connectors.results.va.conector import ConectorVA
 
 CONECTORES: dict[CodigoEstado, ConectorResultados] = {
     CodigoEstado.NC: ConectorNC(),
@@ -25,6 +27,8 @@ CONECTORES: dict[CodigoEstado, ConectorResultados] = {
     CodigoEstado.IA: IOWA,
     CodigoEstado.AK: ConectorAK(),
     CodigoEstado.TX: ConectorCondados(CodigoEstado.TX, (FonteHarris(),)),
+    CodigoEstado.VA: ConectorVA(),
+    CodigoEstado.NE: ConectorNE(),
 }
 
 DISTRITOS: dict[CodigoEstado, int] = {
@@ -35,6 +39,8 @@ DISTRITOS: dict[CodigoEstado, int] = {
     CodigoEstado.IA: 4,
     CodigoEstado.AK: 1,
     CodigoEstado.TX: 38,
+    CodigoEstado.VA: 11,
+    CodigoEstado.NE: 3,
 }
 """Distritos da Câmara em 2026. Uma corrida sem oposição pode não aparecer no feed (na
 Florida, os candidatos sem adversário não vão a votos)."""
