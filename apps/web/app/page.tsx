@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DestaqueNoite } from "@/components/inicio/DestaqueNoite.tsx";
+import { FaseInicio } from "@/components/inicio/FaseInicio.tsx";
+import { InicioAoVivo } from "@/components/inicio/InicioAoVivo.tsx";
+import { ResumoPrevisao } from "@/components/inicio/ResumoPrevisao.tsx";
 import { HorariosFecho } from "@/components/noite/HorariosFecho.tsx";
 import { QuemVotou } from "@/components/inicio/QuemVotou.tsx";
 import { CodigoDia } from "@/components/ui/CodigoDia.tsx";
@@ -15,6 +17,7 @@ import {
   diasAteEleicao,
   formatarCompacto,
   formatarData,
+  formatarHora,
   formatarNumero,
   formatarPercentagem,
   formatarPontos,
@@ -22,9 +25,10 @@ import {
 } from "@/lib/formatacao.ts";
 import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
-import { faseEm } from "@/lib/fases.ts";
-import { carregarNoite } from "@/lib/noite/carregar.ts";
+import { faseEm, INICIO_NOITE } from "@/lib/fases.ts";
 import { carregarPrevisao } from "@/lib/previsao/carregar.ts";
+import { carregarResultados } from "@/lib/resultados/carregar.ts";
+import { previsaoParaResultados } from "@/lib/resultados/vista.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
 import { resumirEstado, resumirTodos, type ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 import type { VistaVotoAntecipado } from "@/lib/voto-antecipado/vista.ts";
@@ -197,74 +201,129 @@ function OQueVemAi() {
   );
 }
 
+/** Topo da noite antes de haver contagem ou projeção publicadas. */
+function AguardaNoite() {
+  return (
+    <Painel
+      sobrelinha={t("noite.inicio.sobrelinha")}
+      titulo={t("inicio.aoVivo.aguardaTitulo")}
+      acessorio={<Selo variante="sinal">{t("comum.selos.aoVivo")}</Selo>}
+    >
+      <p className="max-w-[62ch] text-ink-2">
+        {t("inicio.aoVivo.aguardaTexto", {
+          lisboa: formatarHora(INICIO_NOITE, "Europe/Lisbon"),
+          washington: formatarHora(INICIO_NOITE),
+        })}
+      </p>
+      <p className="text-sm">
+        <Link href="/resultados/" className={LIGACAO}>
+          {t("noite.inicio.ligacao")}
+        </Link>
+      </p>
+    </Painel>
+  );
+}
+
 export default function Inicio() {
   // Calculado no momento do build; o site é reconstruído a cada atualização de dados.
-  const dias = diasAteEleicao(new Date());
+  // A fase volta a ser calculada no browser (FaseInicio), para mudar sem novo build.
+  const agora = new Date();
+  const dias = diasAteEleicao(agora);
   const todas = carregarTodas();
   const resumos = resumirTodos(todas);
   // A narrativa e "Quem já votou" usam o estado com ficheiro de eleitores e mais votos.
   const principal = todas.individuais[0];
   const resumoPrincipal = principal ? resumirEstado(principal) : undefined;
   const frase = resumoPrincipal ? narrativa(resumoPrincipal) : null;
-  const noite = carregarNoite();
-  // Nos últimos três dias e durante a noite, o início mostra os horários de fecho.
-  const modoNoite = dias <= 3 && faseEm(new Date()) !== "depois";
+  const previsao = carregarPrevisao()?.previsao ?? null;
+  const noite = carregarResultados();
+  const previsaoNoite = previsao ? previsaoParaResultados(previsao) : null;
+  const probD = Object.fromEntries(
+    (previsao ? [...previsao.corridasSenado, ...previsao.corridasCamara] : []).map((c) => [
+      c.id,
+      c.probD,
+    ]),
+  );
+
+  const contagem = (
+    <Painel
+      sobrelinha={t("inicio.sobrelinha")}
+      titulo={formatarData(DIA_DA_ELEICAO)}
+      acessorio={<CodigoDia dias={dias} />}
+      metodo={t("inicio.metodo")}
+    >
+      {/* Sem quebra de linha entre o número e a etiqueta: com a letra de reserva, mais larga,
+          a etiqueta quebra dentro da sua coluna e a altura não muda quando a letra chega (CLS). */}
+      <div className="flex items-end gap-4">
+        <span className="font-display text-[clamp(76px,11vw,128px)] leading-[0.82] font-black tracking-[-0.01em]">
+          {dias}
+        </span>
+        <span className="min-w-0 pb-1.5 font-display text-[22px] leading-[1.05] font-bold tracking-[0.03em] uppercase">
+          {dias > 0 ? t("inicio.diasParaEleicao") : t("inicio.diaDaEleicao")}
+        </span>
+      </div>
+      <p className="max-w-[62ch] text-[16.5px] leading-relaxed">{t("inicio.emJogo")}</p>
+      {frase && resumoPrincipal ? (
+        <>
+          <p className="max-w-[62ch] border-t border-rule-2 pt-3 text-[16.5px] leading-relaxed">
+            {frase}
+          </p>
+          <p className="flex flex-wrap justify-between gap-2 font-mono text-[11px] text-ink-3">
+            <span>
+              {t("inicio.geradoDados", {
+                data: formatarData(new Date(`${resumoPrincipal.dadosAte}T12:00:00Z`)),
+              })}
+            </span>
+            <Link href={caminhoEstado(resumoPrincipal.estado)} className={LIGACAO}>
+              {t("inicio.verRastreador")}
+            </Link>
+          </p>
+        </>
+      ) : null}
+    </Painel>
+  );
 
   return (
     <>
       <h1 className="sr-only">{t("inicio.titulo")}</h1>
       <div className="flex flex-col gap-4">
-        {noite ? <DestaqueNoite noite={noite} /> : null}
-        {modoNoite ? <HorariosFecho previsao={carregarPrevisao()?.previsao ?? null} /> : null}
-        <div className="grid gap-4 min-[860px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-          <Painel
-            sobrelinha={t("inicio.sobrelinha")}
-            titulo={formatarData(DIA_DA_ELEICAO)}
-            acessorio={<CodigoDia dias={dias} />}
-            metodo={t("inicio.metodo")}
-          >
-            {/* Sem quebra de linha entre o número e a etiqueta: com a letra de reserva, mais larga,
-                a etiqueta quebra dentro da sua coluna e a altura não muda quando a letra chega (CLS). */}
-            <div className="flex items-end gap-4">
-              <span className="font-display text-[clamp(76px,11vw,128px)] leading-[0.82] font-black tracking-[-0.01em]">
-                {dias}
-              </span>
-              <span className="min-w-0 pb-1.5 font-display text-[22px] leading-[1.05] font-bold tracking-[0.03em] uppercase">
-                {dias > 0 ? t("inicio.diasParaEleicao") : t("inicio.diaDaEleicao")}
-              </span>
-            </div>
-            <p className="max-w-[62ch] text-[16.5px] leading-relaxed">{t("inicio.emJogo")}</p>
-            {frase && resumoPrincipal ? (
-              <>
-                <p className="max-w-[62ch] border-t border-rule-2 pt-3 text-[16.5px] leading-relaxed">
-                  {frase}
-                </p>
-                <p className="flex flex-wrap justify-between gap-2 font-mono text-[11px] text-ink-3">
-                  <span>
-                    {t("inicio.geradoDados", {
-                      data: formatarData(new Date(`${resumoPrincipal.dadosAte}T12:00:00Z`)),
-                    })}
-                  </span>
-                  <Link href={caminhoEstado(resumoPrincipal.estado)} className={LIGACAO}>
-                    {t("inicio.verRastreador")}
-                  </Link>
-                </p>
-              </>
-            ) : null}
-          </Painel>
-          <Painel
-            sobrelinha={t("inicio.previsao.sobrelinha")}
-            titulo={t("inicio.previsao.titulo")}
-            acessorio={<Selo variante="tracejado">{t("comum.emPreparacao")}</Selo>}
-          >
-            <p className="max-w-[62ch] text-ink-2">{t("inicio.previsao.texto")}</p>
-            <p className="text-sm">
-              <Link href="/previsao/" className={LIGACAO}>
-                {t("inicio.previsao.ligacao")}
-              </Link>
-            </p>
-          </Painel>
-        </div>
+        <FaseInicio
+          faseBuild={faseEm(agora)}
+          antes={
+            <>
+              {/* Nos últimos três dias, o início mostra os horários de fecho. */}
+              {dias <= 3 ? <HorariosFecho previsao={previsao} /> : null}
+              <div className="grid gap-4 min-[860px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+                {contagem}
+                <ResumoPrevisao vista={previsao} />
+              </div>
+            </>
+          }
+          noite={
+            <>
+              <InicioAoVivo
+                inicial={noite}
+                previsao={previsaoNoite}
+                probD={probD}
+                depois={false}
+                emPreparacao={<AguardaNoite />}
+              />
+              <HorariosFecho previsao={previsao} />
+            </>
+          }
+          depois={
+            <>
+              <InicioAoVivo
+                inicial={noite}
+                previsao={previsaoNoite}
+                probD={probD}
+                depois
+                emPreparacao={null}
+              />
+              <ResumoPrevisao vista={previsao} depois />
+            </>
+          }
+        />
 
         <Indicadores vista={principal} principal={resumoPrincipal} resumos={resumos} />
 

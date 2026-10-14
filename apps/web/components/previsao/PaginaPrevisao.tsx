@@ -73,7 +73,7 @@ function Indicadores({ vista }: { vista: VistaPrevisao }) {
 }
 
 /** Barra da probabilidade de controlo: azul para o lado democrata, tracejado para o republicano. */
-function BarraControlo({ resumo }: { resumo: ResumoVista }) {
+export function BarraControlo({ resumo }: { resumo: ResumoVista }) {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex justify-between gap-3 text-[13px]">
