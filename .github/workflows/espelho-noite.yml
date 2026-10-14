@@ -43,8 +43,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p entrada
-          gh release download resultados-2026 -p parciais.json -D entrada --clobber \
-            || echo "::notice::Sem parciais.json"
+          gh release download resultados-2026 -p parciais.json -p chamadas-2026.json \
+            -D entrada --clobber || echo "::notice::Sem parciais.json"
           gh release download dados-noite -p projecao-noite-2026.json \
             -p historico-noite-2026.json -D entrada --clobber \
             || echo "::notice::Sem ficheiros da projeção de 2026"

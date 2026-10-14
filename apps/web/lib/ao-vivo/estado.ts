@@ -8,7 +8,12 @@
  * GitHub Pages (espelho.ts); se também falhar, fica o que já está no ecrã.
  */
 
-import type { HistoricoNoite, ProjecaoNoite, ResultadosParciais } from "@intercalares/contratos";
+import type {
+  ChamadasRedacoes,
+  HistoricoNoite,
+  ProjecaoNoite,
+  ResultadosParciais,
+} from "@intercalares/contratos";
 import { construirVistaNoite } from "../noite/vista.ts";
 import type { DadosNoiteEleitoral } from "../resultados/carregar.ts";
 import { construirVistaResultados, type PrevisaoResultados } from "../resultados/vista.ts";
@@ -37,6 +42,8 @@ export interface RespostaResultados {
   origem: OrigemApi;
   confirmadoEm: string;
   parciais: ResultadosParciais;
+  /** Ausente nas respostas anteriores às chamadas; `null` sem chamadas registadas. */
+  chamadas?: ChamadasRedacoes | null;
 }
 
 export interface RespostaNoite {
@@ -65,6 +72,8 @@ export interface EstadoAoVivo {
   dados: DadosNoiteEleitoral | null;
   /** Última contagem recebida da API, para recalcular a vista quando só a projeção muda. */
   parciais: ResultadosParciais | null;
+  /** Últimas chamadas das redações recebidas, para as manter quando só a projeção muda. */
+  chamadas: ChamadasRedacoes | null;
   ligacao: Ligacao;
 }
 
@@ -152,8 +161,10 @@ export function atualizarEstado(
       ? construirVistaNoite(noite.dados.projecao, noite.dados.historico)
       : (atual.dados?.noite ?? null);
   const parciais = resultados.tipo === "dados" ? resultados.dados.parciais : atual.parciais;
+  const chamadas =
+    resultados.tipo === "dados" ? (resultados.dados.chamadas ?? null) : atual.chamadas;
   const vistaResultados = parciais
-    ? construirVistaResultados(parciais, previsao, vistaNoite)
+    ? construirVistaResultados(parciais, previsao, vistaNoite, chamadas)
     : (atual.dados?.resultados ?? null);
   const confirmadoEm = respostas
     .map((r) => r.confirmadoEm)
@@ -161,6 +172,7 @@ export function atualizarEstado(
   return {
     dados: { resultados: vistaResultados, noite: vistaNoite },
     parciais,
+    chamadas,
     ligacao: {
       tipo: "aoVivo",
       confirmadoEm,

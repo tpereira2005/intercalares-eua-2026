@@ -2,7 +2,12 @@ import { Hono } from "hono";
 import { secureHeaders } from "hono/secure-headers";
 import { LeitorAoVivo, type Leitura, type Origem } from "./ao-vivo.ts";
 import type { Env } from "./env.ts";
-import { HistoricoNoite, ProjecaoNoite, ResultadosParciais } from "./gerado/validadores.js";
+import {
+  ChamadasRedacoes,
+  HistoricoNoite,
+  ProjecaoNoite,
+  ResultadosParciais,
+} from "./gerado/validadores.js";
 
 export const app = new Hono<{ Bindings: Env }>().basePath("/api");
 
@@ -69,11 +74,17 @@ app.use("*", async (c, next) => {
 /** Verificação de estado usada pela monitorização e pelos testes de fumo. */
 app.get("/saude", (c) => c.json({ estado: "ok", ambiente: c.env.AMBIENTE }));
 
-/** Contagem oficial (contrato ResultadosParciais), da Release `resultados-2026`. */
+/**
+ * Contagem oficial (contrato ResultadosParciais) e chamadas das redações
+ * (ChamadasRedacoes, `null` sem nenhuma), da Release `resultados-2026`.
+ */
 app.get("/resultados", async (c) => {
-  const parciais = await leitor.ler({ url: c.env.URL_PARCIAIS, validar: ResultadosParciais });
+  const [parciais, chamadas] = await Promise.all([
+    leitor.ler({ url: c.env.URL_PARCIAIS, validar: ResultadosParciais }),
+    leitor.ler({ url: c.env.URL_CHAMADAS, validar: ChamadasRedacoes }),
+  ]);
   if (parciais.tipo !== "dados") return semDados(parciais);
-  return respostaAoVivo(parciais, { parciais });
+  return respostaAoVivo(parciais, { parciais, chamadas });
 });
 
 /** Projeção do modelo e a sua evolução (ProjecaoNoite e HistoricoNoite), de `dados-noite`. */

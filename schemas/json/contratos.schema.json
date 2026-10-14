@@ -653,6 +653,102 @@
       "title": "CenariosPrevisao",
       "type": "object"
     },
+    "ChamadaRedacao": {
+      "additionalProperties": false,
+      "properties": {
+        "candidato": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Candidato"
+        },
+        "corrida": {
+          "description": "Identificador da corrida na previsão.",
+          "pattern": "^[A-Z]{2}-(\\d{2}|S|S-especial)$",
+          "title": "Corrida",
+          "type": "string"
+        },
+        "hora": {
+          "description": "Hora da chamada, tal como a redação a publicou (ou a do registo, sem ela).",
+          "format": "date-time",
+          "title": "Hora",
+          "type": "string"
+        },
+        "redacao": {
+          "description": "Quem fez a chamada, por exemplo \"Associated Press\".",
+          "minLength": 1,
+          "title": "Redacao",
+          "type": "string"
+        },
+        "registada_em": {
+          "format": "date-time",
+          "title": "Registada Em",
+          "type": "string"
+        },
+        "url": {
+          "description": "Página da redação com a chamada.",
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "vencedor": {
+          "enum": [
+            "D",
+            "R",
+            "outro"
+          ],
+          "title": "Vencedor",
+          "type": "string"
+        }
+      },
+      "required": [
+        "corrida",
+        "vencedor",
+        "candidato",
+        "redacao",
+        "url",
+        "hora",
+        "registada_em"
+      ],
+      "title": "ChamadaRedacao",
+      "type": "object"
+    },
+    "ChamadasRedacoes": {
+      "additionalProperties": false,
+      "description": "Chamadas em vigor, uma por corrida, pela ordem em que foram registadas.",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "chamadas": {
+          "items": {
+            "$ref": "#/$defs/ChamadaRedacao"
+          },
+          "title": "Chamadas",
+          "type": "array"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "chamadas"
+      ],
+      "title": "ChamadasRedacoes",
+      "type": "object"
+    },
     "CicloAgregado": {
       "additionalProperties": false,
       "properties": {

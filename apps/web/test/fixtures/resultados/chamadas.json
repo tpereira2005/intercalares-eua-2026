@@ -1,0 +1,26 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-11-04T02:30:00Z",
+    "fontes": [
+      {
+        "nome": "Associated Press",
+        "url": "https://apnews.com/projects/election-results-2026/",
+        "licenca": null,
+        "obtida_em": "2026-11-04T02:30:00Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "chamadas": [
+    {
+      "corrida": "NC-01",
+      "vencedor": "D",
+      "candidato": null,
+      "redacao": "Associated Press",
+      "url": "https://apnews.com/projects/election-results-2026/",
+      "hora": "2026-11-04T02:20:00Z",
+      "registada_em": "2026-11-04T02:30:00Z"
+    }
+  ]
+}

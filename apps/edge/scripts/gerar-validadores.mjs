@@ -19,7 +19,12 @@ import adicionarFormatos from "ajv-formats";
 const RAIZ_EDGE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ESQUEMA = path.resolve(RAIZ_EDGE, "../../schemas/json/contratos.schema.json");
 export const DESTINO = path.join(RAIZ_EDGE, "src/gerado/validadores.js");
-export const CONTRATOS = ["ResultadosParciais", "ProjecaoNoite", "HistoricoNoite"];
+export const CONTRATOS = [
+  "ResultadosParciais",
+  "ProjecaoNoite",
+  "HistoricoNoite",
+  "ChamadasRedacoes",
+];
 
 /** Cópia de ajv/dist/runtime/ucs2length.js (comprimento em pontos de código). */
 const UCS2LENGTH = `function ucs2length(str) {

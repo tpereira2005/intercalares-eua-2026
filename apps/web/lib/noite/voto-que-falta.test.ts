@@ -39,7 +39,15 @@ function projecao(esperados: number | null, decidida = false): CorridaNoite {
 }
 
 function linha(c: ContagemCorrida | null, p: CorridaNoite | null): LinhaResultados {
-  return { id: "NC-01", estado: "NC", senado: false, contagem: c, previsao: null, projecao: p };
+  return {
+    id: "NC-01",
+    estado: "NC",
+    senado: false,
+    contagem: c,
+    previsao: null,
+    projecao: p,
+    chamada: null,
+  };
 }
 
 describe("votoQueFalta", () => {
