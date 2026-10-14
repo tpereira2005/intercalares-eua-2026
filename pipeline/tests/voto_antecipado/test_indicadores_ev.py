@@ -68,6 +68,17 @@ def test_esperado_e_desvio(base: pl.DataFrame, atual: pl.DataFrame) -> None:
         assert linha["desvio"] == pytest.approx(linha["votos"] / esperado - 1)
 
 
+def test_intervalo_do_desvio_contem_o_desvio_do_mesmo_dia(
+    base: pl.DataFrame, atual: pl.DataFrame
+) -> None:
+    tabela = ind.comparacao(atual, base, 15).drop_nulls("desvio")
+    assert tabela.height > 0
+    assert (tabela["desvio_min"] <= tabela["desvio"] + 1e-12).all()
+    assert (tabela["desvio"] <= tabela["desvio_max"] + 1e-12).all()
+    # Mais votos de referência até mais tarde: o desvio desce quando a taxa se lê depois.
+    assert (tabela["desvio_max"] > tabela["desvio_min"]).any()
+
+
 def test_comparacao_consigo_propria_e_neutra(base: pl.DataFrame) -> None:
     tabela = ind.comparacao(base, base, 12)
     assert tabela["desvio"].abs().max() == pytest.approx(0.0)

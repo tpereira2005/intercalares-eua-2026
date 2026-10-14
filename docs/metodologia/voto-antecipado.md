@@ -48,7 +48,7 @@ Taxa = votos da faixa até `d` / recenseados da faixa. Comparada com o mesmo dia
 
 A variação da quota entre dois anos divide-se exatamente em dois efeitos. Com `r` a quota da faixa no recenseamento e `t` a taxa de participação, a quota no voto é `s = r t / Σ r t`. O **efeito do recenseamento** é quanto a quota mudaria só por mudar `r`; o **efeito da participação**, só por mudar `t`. Usamos a média das duas ordens possíveis (valor de Shapley), o que torna a soma exata e independente da ordem.
 
-**Esperado e desvio**: votos esperados = recenseados de hoje × taxa do ano de referência no mesmo dia; desvio = observados / esperados − 1. Mostramos o desvio face a cada ano de referência. A distância entre as referências intercalares (2018 e 2022) é a medida honesta da incerteza: não há um "normal" único.
+**Esperado e desvio**: votos esperados = recenseados de hoje × taxa do ano de referência no mesmo dia; desvio = observados / esperados − 1. Mostramos o desvio face a cada ano de referência. A distância entre as referências intercalares (2018 e 2022) é a medida honesta da incerteza: não há um "normal" único. Cada linha traz também `desvio_min` e `desvio_max`: o menor e o maior desvio quando a taxa de referência se lê até 3 dias antes ou depois do mesmo dia do ciclo, o que mede a sensibilidade ao alinhamento do calendário (feriados, abertura dos locais de voto, atrasos no registo dos boletins). O erro de amostragem é desprezável com estas contagens. O intervalo das barras "acima / abaixo do esperado" é o envelope destes valores nas referências intercalares.
 
 ### 3.3 Momento do voto
 

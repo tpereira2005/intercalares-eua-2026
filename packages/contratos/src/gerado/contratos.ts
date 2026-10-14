@@ -580,6 +580,14 @@ export interface LinhaComparacao {
    */
   desvio: number | null;
   /**
+   * Menor e maior desvio com a taxa de referência lida até 3 dias antes ou depois do
+   * mesmo dia do ciclo: a sensibilidade ao alinhamento do calendário. O intervalo das
+   * barras é o envelope destes valores nas referências intercalares (2018 e 2022), que é
+   * a medida honesta da incerteza (ver a metodologia).
+   */
+  desvio_max?: number | null;
+  desvio_min?: number | null;
+  /**
    * Parte da variação da quota explicada por a faixa votar mais ou menos até este dia.
    */
   efeito_participacao: number;

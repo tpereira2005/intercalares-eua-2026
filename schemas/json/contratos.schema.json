@@ -1180,6 +1180,31 @@
           "description": "Votos observados / esperados - 1. Positivo: acima do ritmo do ano de referência.",
           "title": "Desvio"
         },
+        "desvio_max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Menor e maior desvio com a taxa de referência lida até 3 dias antes ou depois do\nmesmo dia do ciclo: a sensibilidade ao alinhamento do calendário. O intervalo das\nbarras é o envelope destes valores nas referências intercalares (2018 e 2022), que é\na medida honesta da incerteza (ver a metodologia).",
+          "title": "Desvio Max"
+        },
+        "desvio_min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Desvio Min"
+        },
         "efeito_participacao": {
           "description": "Parte da variação da quota explicada por a faixa votar mais ou menos até este dia.",
           "title": "Efeito Participacao",
