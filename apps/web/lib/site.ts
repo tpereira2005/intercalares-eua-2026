@@ -10,6 +10,7 @@ export const URL_SITE = new URL(
 export const PAGINAS_FIXAS = [
   "/",
   "/voto-antecipado/",
+  "/demografia/",
   "/mapa/",
   "/previsao/",
   "/sondagens/",
