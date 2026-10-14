@@ -696,6 +696,11 @@ export interface PontoNoiteCamara {
 export interface PontoNoiteCorrida {
   fracao_contada: number | null;
   id: string;
+  margem_p10: number;
+  /**
+   * Intervalo de 80% da margem final (o mesmo de ``ProjecaoCorridaNoite``).
+   */
+  margem_p90: number;
   margem_projetada: number;
   prob_d: number;
 }

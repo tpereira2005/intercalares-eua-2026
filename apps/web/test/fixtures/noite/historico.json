@@ -55,36 +55,48 @@
           "id": "FL-27",
           "prob_d": 0.19275,
           "margem_projetada": -6.902565773263628,
+          "margem_p10": -11.902565773263628,
+          "margem_p90": -1.9025657732636283,
           "fracao_contada": 0.2948207171314741
         },
         {
           "id": "NC-01",
           "prob_d": 0.61575,
           "margem_projetada": 2.267858538124273,
+          "margem_p10": -2.732141461875727,
+          "margem_p90": 7.267858538124273,
           "fracao_contada": 0.2975206611570248
         },
         {
           "id": "NC-13",
           "prob_d": 0.35675,
           "margem_projetada": -2.8765008257614455,
+          "margem_p10": -7.876500825761445,
+          "margem_p90": 2.1234991742385545,
           "fracao_contada": 0.2918454935622318
         },
         {
           "id": "GA-S",
           "prob_d": 0.98975,
           "margem_projetada": 8.966915179691874,
+          "margem_p10": 3.966915179691874,
+          "margem_p90": 13.966915179691874,
           "fracao_contada": 0.00981869516808347
         },
         {
           "id": "IA-S",
           "prob_d": 0.497,
           "margem_projetada": -0.045770343323335835,
+          "margem_p10": -5.045770343323336,
+          "margem_p90": 4.954229656676664,
           "fracao_contada": 0.037002969693275205
         },
         {
           "id": "NC-S",
           "prob_d": 0.99675,
           "margem_projetada": 9.698433077291279,
+          "margem_p10": 4.698433077291279,
+          "margem_p90": 14.698433077291279,
           "fracao_contada": 0.006940963447591412
         }
       ]
@@ -115,36 +127,48 @@
           "id": "FL-27",
           "prob_d": 0.23875,
           "margem_projetada": -5.013701667226169,
+          "margem_p10": -10.013701667226169,
+          "margem_p90": -0.013701667226168723,
           "fracao_contada": 0.5936254980079682
         },
         {
           "id": "NC-01",
           "prob_d": 0.3115,
           "margem_projetada": -3.320808978455435,
+          "margem_p10": -8.320808978455435,
+          "margem_p90": 1.6791910215445651,
           "fracao_contada": 0.5950413223140496
         },
         {
           "id": "NC-13",
           "prob_d": 0.8975,
           "margem_projetada": 10.008097577823024,
+          "margem_p10": 5.008097577823024,
+          "margem_p90": 15.008097577823024,
           "fracao_contada": 0.592274678111588
         },
         {
           "id": "GA-S",
           "prob_d": 0.99175,
           "margem_projetada": 8.811685632967777,
+          "margem_p10": 3.8116856329677766,
+          "margem_p90": 13.811685632967777,
           "fracao_contada": 0.019637654884063153
         },
         {
           "id": "IA-S",
           "prob_d": 0.518,
           "margem_projetada": 0.17757652061252652,
+          "margem_p10": -4.822423479387473,
+          "margem_p90": 5.177576520612527,
           "fracao_contada": 0.07400929247156635
         },
         {
           "id": "NC-S",
           "prob_d": 0.9995,
           "margem_projetada": 9.575629840191711,
+          "margem_p10": 4.575629840191711,
+          "margem_p90": 14.575629840191711,
           "fracao_contada": 0.013883394122518138
         }
       ]
@@ -175,36 +199,48 @@
           "id": "FL-27",
           "prob_d": 1.0,
           "margem_projetada": 2.6833004943762897,
+          "margem_p10": 1.922577648705294,
+          "margem_p90": 3.444023340047285,
           "fracao_contada": 0.98
         },
         {
           "id": "NC-01",
           "prob_d": 0.0,
           "margem_projetada": -24.628918986407378,
+          "margem_p10": -25.37521813732238,
+          "margem_p90": -23.88261983549238,
           "fracao_contada": 0.98
         },
         {
           "id": "NC-13",
           "prob_d": 1.0,
           "margem_projetada": 59.873801278710616,
+          "margem_p10": 59.12615949938667,
+          "margem_p90": 60.62144305803455,
           "fracao_contada": 0.98
         },
         {
           "id": "GA-S",
           "prob_d": 0.0,
           "margem_projetada": -38.35608502932856,
+          "margem_p10": -39.128839409381925,
+          "margem_p90": -37.58333064927521,
           "fracao_contada": 0.98
         },
         {
           "id": "IA-S",
           "prob_d": 0.0,
           "margem_projetada": -17.454752015675403,
+          "margem_p10": -18.192821903945518,
+          "margem_p90": -16.716682127405292,
           "fracao_contada": 0.9799999999999999
         },
         {
           "id": "NC-S",
           "prob_d": 1.0,
           "margem_projetada": 45.87965013487165,
+          "margem_p10": 45.132688394640994,
+          "margem_p90": 46.62661187510231,
           "fracao_contada": 0.98
         }
       ]

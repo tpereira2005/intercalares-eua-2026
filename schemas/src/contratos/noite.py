@@ -118,6 +118,10 @@ class PontoNoiteCorrida(ModeloContrato):
     id: str = Field(pattern=r"^[A-Z]{2}-(\d{2}|S|S-especial)$")
     prob_d: float = Probabilidade
     margem_projetada: float
+    margem_p10: float
+    margem_p90: float
+    """Intervalo de 80% da margem final (o mesmo de ``ProjecaoCorridaNoite``)."""
+
     fracao_contada: float | None = Field(ge=0.0, le=1.0)
 
 

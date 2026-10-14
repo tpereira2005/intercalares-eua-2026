@@ -52,6 +52,22 @@ Um condado cujo desvio está a mais de 3 desvios-padrão da mediana pesa menos (
 
 **Volume do que falta.** Soma-se ainda a incerteza no volume do que falta (15%). Só pesa quando o que falta vota de forma diferente do que já foi contado, e desaparece no início e no fim da contagem.
 
+**Ordem de contagem por estado** (`noite/modos.py`). Alguns estados publicam o voto antecipado de cada condado inteiro logo a seguir ao fecho das urnas, antes do voto do dia da eleição: Carolina do Norte, Geórgia, Florida, Texas e Ohio. Ficam de fora os que contam o correio depois (Pensilvânia, Arizona, Michigan, Wisconsin, Nevada, entre outros) e aqueles em que a ordem não é clara (Carolina do Sul, Iowa). Nesses estados, quando a fonte separa os votos por modo, sabe-se que parte de cada condado já chegou e que parte falta, e o modelo usa isso em vez da inclinação genérica `D_u`:
+
+```
+antecipado:        F_u + (1 − π_u) · G_u
+resto contado:     F_u − π_u · G_u + (1 − x_u) · λ_u
+resto por contar:  F_u − π_u · G_u − x_u · λ_u
+```
+
+- `π_u` é a parte antecipada do voto esperado e `x_u` a parte do resto (dia da eleição, provisórios) já contada. As três partes somam `E_u · F_u`.
+- `G_u = Δ + Δ_u` é a diferença entre o voto antecipado e o resto: uma parte comum à corrida (desvio-padrão de 25 pontos) e uma parte própria do condado (10 pontos). As duas têm **média zero**: o modelo não sabe à partida que partido ganha o voto antecipado; aprende-o com os condados que já têm os dois modos. Nas repetições de 2022 e 2024, a diferença foi de 0 a 25 pontos na Carolina do Norte, na Geórgia e na Carolina do Sul, para os dois lados, e variou 5 a 10 pontos entre condados da mesma corrida.
+- `λ_u` é a inclinação das secções do dia da eleição que chegam primeiro (8 pontos por unidade de fração por contar).
+- `π_u` depende do voto esperado, e este da participação estimada. Um erro na participação desloca todos os condados no mesmo sentido, por isso entra como mais um fator comum (desvio de 15%), com efeito `π_u · Ĝ`, em que `Ĝ` é a diferença média já observada entre os dois modos.
+- Quando todas as secções de um condado reportaram, o pouco que falta (correio tardio, provisórios) conta como a margem final do condado, sem a diferença entre modos.
+
+O condicionamento é gaussiano e exato, com as mesmas saídas do caso geral (média `alfa + beta · s`, desvio `gama` e a estimativa de `s` só com as contagens) e a mesma ponderação robusta, aplicada dentro de cada modo. Só se usa quando **todas** as unidades com votos são condados com referência própria, com voto antecipado e com os modos a somar o total. Um distrito feito de partes de condados, ou o total de uma corrida, junta condados que já reportaram com outros que não, e a parte antecipada do que falta deixa de se conhecer; nesses casos, e em qualquer estado fora da lista, fica o modelo geral. Na noite de 2026 isto aplica-se às corridas estaduais da Carolina do Norte e, na parte acompanhada, do Texas (Harris): a Geórgia e o Alasca só dão os modos no total, a Florida não os dá, e a Carolina do Sul e o Iowa bloqueiam o GitHub Actions.
+
 **Estados com cobertura parcial.** Em alguns estados só há fonte oficial aberta para alguns condados (por exemplo, a Harris no Texas). Os `ResultadosParciais` dizem-no em `cobertura_parcial`: os outros condados não estão por apurar, estão fora da recolha. O modelo trata estes estados assim:
 
 - **Corrida estadual.** Os condados acompanhados entram como os outros. Os restantes ficam no voto esperado do estado, previstos pelo desvio da corrida, por isso a fração contada é só a parte acompanhada e a corrida nunca se dá por completa. No ensaio de 2024, com a Harris inteira contada (D+11), o TX-S ficou com 14% contado e uma projeção de R+5,9 (resultado: R+8,5), porque a Harris é mais democrata do que o estado.
@@ -109,6 +125,8 @@ Os sorteios antitéticos tornam a simulação exatamente simétrica: trocar os p
 - o Brier desce à medida que se conta;
 - uma corrida sem feed mantém pelo menos 60% da largura do intervalo prior.
 
+`pipeline/tests/modelo/test_ordem_contagem_noite.py` faz o mesmo para a ordem de contagem, com corridas de 40 condados em que o voto antecipado chega inteiro e primeiro, com uma diferença de sinal aleatório. Verifica que o caminho por modos só se usa nas condições acima, que trocar os partidos troca a análise, que com tudo contado a margem é a contada, que os intervalos de 80% contêm o resultado entre 72% e 95% das vezes (79% a 81% em 900 corridas) e que, com metade dos condados só com o voto antecipado, o erro da margem projetada fica abaixo de 70% do erro sem os modos.
+
 ## 5. Repetição com 2022 e 2024
 
 `pipeline.jobs.repeticao_noite` repete as noites com os resultados oficiais que o ensaio da recolha de resultados descarrega: Carolina do Norte, Geórgia e Carolina do Sul em 2022 e em 2024, Florida e Iowa em 2024.
@@ -118,30 +136,24 @@ As fontes só guardam o resultado final, por isso a ordem da noite é reconstru�
 - **ensaio**: a do ensaio da recolha, em que os condados chegam inteiros por ordem aleatória;
 - **modos**: em cada condado chega primeiro o voto antecipado e por correspondência, depois o dia da eleição aos poucos e no fim os provisórios. É a mais exigente, porque cada condado passa por estados parciais com a inclinação real do voto antecipado.
 
-Nenhuma é a sequência real da noite, por isso estes números medem a coerência do modelo e não a sua calibração temporal exata. O ponto de partida é a previsão do backtest de cada ano. As reconstruções foram refeitas a 13 de outubro, com a estrutura de erros da previsão:
+Nenhuma é a sequência real da noite, por isso estes números medem a coerência do modelo e não a sua calibração temporal exata. O ponto de partida é a previsão do backtest de cada ano. As reconstruções foram refeitas a 14 de outubro, depois da correção dos modos da Carolina do Norte (ver abaixo), já com a ordem de contagem:
 
 | Repetição    | Brier no 1.º passo | Brier a 50–60% contado | Cobertura 80% (mín.–máx.) | Maior probabilidade dada a quem perdeu | Chamadas erradas (≥ 99%) |
 | ------------ | -----------------: | ---------------------: | ------------------------: | -------------------------------------- | -----------------------: |
-| 2022, ensaio |         0,023 (7%) |                  0,009 |                 0,89–1,00 | NC-13 0,67; GA-S 0,50                  |                        0 |
-| 2022, modos  |         0,024 (3%) |                  0,010 |                 0,97–1,00 | NC-13 0,67; GA-S 0,53                  |                        0 |
+| 2022, ensaio |         0,023 (7%) |                  0,008 |                 0,89–0,97 | NC-13 0,67; GA-S 0,52                  |                        0 |
+| 2022, modos  |         0,021 (4%) |                  0,006 |                 0,94–1,00 | NC-13 0,65; GA-S 0,61                  |                        0 |
 | 2024, ensaio |        0,002 (10%) |                  0,002 |                 0,78–1,00 | IA-01 0,60; NC-01 0,44                 |                        0 |
-| 2024, modos  |        0,002 (23%) |                  0,002 |                 0,88–1,00 | IA-01 0,51; NC-01 0,33                 |                        0 |
-
-Com as mesmas reconstruções, a versão anterior do modelo, com um só desvio nacional normal, dava praticamente os mesmos números. O Brier diferia no máximo 0,001, não havia nenhuma chamada errada e as coberturas eram de 0,82 a 0,97 no mínimo. A mudança altera sobretudo o arranque da noite, que agora coincide com a previsão.
+| 2024, modos  |        0,002 (22%) |                  0,002 |                 0,88–1,00 | IA-01 0,51; NC-01 0,32                 |                        0 |
 
 Leitura:
 
 - **Nenhuma chamada errada.** Em nenhuma repetição o modelo chegou a dar 99% a quem acabou por perder.
-- **GA-S 2022.** O voto antecipado de Warnock (D+7) seguido do dia da eleição de Walker (R+15) fez a projeção oscilar, como seria de esperar. Nunca passou dos 53% para Walker. NC-13 já tinha o republicano como favorito na previsão.
-- **2024.** A projeção afasta-se cedo da previsão (desvio nacional de cerca de 2,5 pontos para o lado republicano no fim, além dos erros do ano e das regiões), o que bate certo com o erro real da previsão desse ano.
+- **NC-S 2022, a corrida onde a ordem de contagem pesa.** O voto antecipado de Beasley (D) chega primeiro e o dia da eleição, mais republicano, depois. Sem a ordem de contagem, o modelo geral começava em D+2,6 com 75% para Beasley e só passava para o lado de Budd (R) a meio da contagem. Com ela, começa em R+4,9 (intervalo de 80% de R+8 a R+1, 4% para Beasley); o resultado foi R+3,2. Até cerca de metade contada a projeção fica 1 a 2,5 pontos demasiado republicana, dentro do intervalo ou na sua borda. Na Carolina do Sul de 2022, tratada como se estivesse na lista só para este teste, o SC-S arranca em R+25,5 contra R+17,8 sem os modos, para um resultado de R+25,9, sempre dentro do intervalo.
+- **GA-S 2022.** O voto antecipado de Warnock (D+7) seguido do dia da eleição de Walker (R+15) fez a projeção oscilar, como seria de esperar. A Geórgia só dá os modos no total, por isso fica no modelo geral. O pico de 61% para Walker vem da NC-S, que agora puxa mais cedo o desvio nacional para o lado republicano.
+- **2024.** Nenhuma corrida reúne as condições (a Carolina do Norte não teve Senado), por isso os números são os do modelo geral. A projeção afasta-se cedo da previsão (desvio nacional de cerca de 2,5 pontos para o lado republicano no fim), o que bate certo com o erro real da previsão desse ano.
 - **Intervalos largos.** Estão um pouco largos (cobertura acima de 80%), o que é preferível numa noite em que as fontes falham. Os parâmetros não foram afinados com estas repetições.
 
-Durante a repetição apareceram dois problemas nos dados do ensaio da Carolina do Norte de 2022, comunicados à recolha de resultados:
-
-- os condados de Macon e Martin parecem ter os FIPS trocados;
-- os votos antecipado e do dia da eleição parecem ter os rótulos trocados.
-
-A ponderação robusta absorve o primeiro.
+Durante a repetição apareceram dois problemas nos dados do ensaio da Carolina do Norte de 2022, comunicados à recolha de resultados e já corrigidos: os FIPS de quatro condados (Macon, Madison, Martin e McDowell) e os rótulos do voto antecipado (`ovc`, one-stop) e do dia da eleição (`evc`), que estavam trocados (PR #64).
 
 ## 6. Publicação na noite eleitoral
 
@@ -156,7 +168,7 @@ O job `pipeline.jobs.projecao_noite` corre no workflow `noite.yml`, ao mesmo tem
    - os percentis estão por ordem.
 4. Escreve e envia para a Release `dados-noite` dois ficheiros:
    - `projecao-noite-2026.json` (contrato `ProjecaoNoite`): o retrato completo do instante;
-   - `historico-noite-2026.json` (contrato `HistoricoNoite`): a evolução ao longo da noite. Os pontos guardados distam pelo menos 5 minutos, e o último é sempre o mais recente.
+   - `historico-noite-2026.json` (contrato `HistoricoNoite`): a evolução ao longo da noite, com a probabilidade, a margem projetada e o intervalo de 80% de cada corrida com votos. Os pontos guardados distam pelo menos 5 minutos, e o último é sempre o mais recente.
 
 Um ciclo que falha (fonte em baixo, ficheiro inválido, verificação falhada) não apaga nada: o último ficheiro válido continua publicado. Cada job dura no máximo 6 horas. Com a hora `ate`, o workflow volta a lançar-se, e o job seguinte continua o histórico já publicado.
 
@@ -173,6 +185,6 @@ Os dois ficheiros dizem ainda se partiram da previsão congelada (`prior_congela
 
 ## 7. Limitações
 
-- A inclinação do voto contado primeiro é independente entre corridas. Na realidade, o correio inclina para o mesmo lado em todo o país, o que torna a incerteza das câmaras no início da noite um pouco estreita. O desvio nacional aprende com as corridas já avançadas, o que compensa em parte.
+- A inclinação do voto contado primeiro, e a diferença entre modos na ordem de contagem, são independentes entre corridas. Na realidade, o correio inclina para o mesmo lado em todo o país, o que torna a incerteza das câmaras no início da noite um pouco estreita. O desvio nacional aprende com as corridas já avançadas, o que compensa em parte.
 - Sem fração do voto esperado nas fontes (nenhuma das atuais a publica), o volume do que falta depende da participação estimada e das secções. Por isso o modelo nunca dá uma unidade por completa sem a fonte o dizer.
 - Os distritos da Câmara não têm referência própria por condado (os condados são partidos pelos distritos), por isso aprendem menos com os primeiros votos do que as corridas ao Senado.

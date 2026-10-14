@@ -54,6 +54,8 @@ def ponto(projecao: ProjecaoNoite) -> PontoNoite:
                 id=c.id,
                 prob_d=c.prob_d,
                 margem_projetada=c.margem_projetada,
+                margem_p10=c.margem_p10,
+                margem_p90=c.margem_p90,
                 fracao_contada=c.fracao_contada,
             )
             for c in com_votos
