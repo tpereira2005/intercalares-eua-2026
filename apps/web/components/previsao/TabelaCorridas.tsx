@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState } from "react";
+import { caminhoPaginaCorrida } from "@/lib/corridas.ts";
 import { nomeEstado } from "@/lib/estados.ts";
 import {
   formatarMargemPontos as margem,
@@ -86,7 +88,12 @@ function Linha({
   return (
     <tr className="border-t border-rule-2 align-top">
       <th scope="row" className="py-2 pr-3 text-left font-semibold">
-        {nomeCorrida(c)}
+        <Link
+          href={caminhoPaginaCorrida(c.id)}
+          className="underline decoration-rule underline-offset-[3px] hover:decoration-ink-3"
+        >
+          {nomeCorrida(c)}
+        </Link>
         {c.camara === "camara" ? (
           <span className="ml-1.5 text-[12px] font-normal text-ink-3">{nomeEstado(c.estado)}</span>
         ) : null}

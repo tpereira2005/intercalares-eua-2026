@@ -10,6 +10,7 @@ import {
   formatarNumero,
   formatarPercentagem,
 } from "@/lib/formatacao.ts";
+import { caminhoPaginaCorrida } from "@/lib/corridas.ts";
 import { t } from "@/lib/mensagens.ts";
 import { caminhoCorrida, nomeCorrida, type VistaSondagens } from "@/lib/sondagens/vista.ts";
 import { EvolucaoVotoGenerico, SerieSondagens } from "./graficos.tsx";
@@ -343,7 +344,7 @@ export function PaginaCorridaSondagens({
         <Link href="/sondagens/" className={LIGACAO}>
           {t("sondagens.corrida.voltar")}
         </Link>
-        <Link href="/previsao/" className={LIGACAO}>
+        <Link href={caminhoPaginaCorrida(c.id)} className={LIGACAO}>
           {t("sondagens.corrida.previsao")}
         </Link>
         <a href={METODOLOGIA} rel="noopener noreferrer" className={LIGACAO}>

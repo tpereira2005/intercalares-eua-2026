@@ -65,6 +65,10 @@ export interface CorridaVista {
   margemP90: number;
   probD: number;
   sondagens: { margem: number; institutos: number; peso: number } | null;
+  /** Cook PVI em pontos (D+ positivo), tal como publicado. */
+  pvi: number;
+  /** Margem dos fundamentos (PVI, incumbência, ambiente nacional), antes das sondagens. */
+  margemFundamentos: number;
 }
 
 export const CATEGORIAS = [
@@ -191,6 +195,8 @@ function corrida(c: PrevisaoCorrida): CorridaVista {
       c.margem_sondagens === null
         ? null
         : { margem: c.margem_sondagens, institutos: c.institutos, peso: c.peso_sondagens },
+    pvi: c.pvi,
+    margemFundamentos: c.margem_fundamentos,
   };
 }
 
@@ -262,6 +268,14 @@ export interface VistaEvolucao {
   senado: PontoEvolucao[];
   /** Probabilidade democrata de cada corrida na última entrada com pelo menos 7 dias. */
   semanaAnterior: { corte: string; probD: Map<string, number> } | null;
+  /** Evolução de cada corrida, por ordem cronológica (só no servidor: é um Map). */
+  corridas: Map<string, PontoCorrida[]>;
+}
+
+export interface PontoCorrida {
+  corte: string;
+  probD: number;
+  margem: number;
 }
 
 const UM_DIA = 24 * 60 * 60 * 1000;
@@ -299,5 +313,14 @@ export function construirEvolucao(historico: HistoricoPrevisao, corte: string): 
     semanaAnterior: anterior
       ? { corte: anterior.corte, probD: new Map(anterior.corridas.map((c) => [c.id, c.prob_d])) }
       : null,
+    corridas: dias.reduce((porCorrida, d) => {
+      for (const c of d.corridas) {
+        const ponto = { corte: d.corte, probD: c.prob_d, margem: c.margem_prevista };
+        const lista = porCorrida.get(c.id);
+        if (lista) lista.push(ponto);
+        else porCorrida.set(c.id, [ponto]);
+      }
+      return porCorrida;
+    }, new Map<string, PontoCorrida[]>()),
   };
 }
