@@ -2,6 +2,7 @@
 
 import logging
 import re
+from collections.abc import Iterable
 from pathlib import Path
 
 import httpx
@@ -9,6 +10,7 @@ import httpx
 from pipeline.modelo import referencia
 from pipeline.modelo.dados import (
     REDESENHOS,
+    LinhaModelo,
     linha_modelo,
     redesenhados_2026,
     voto_generico_agregadores,
@@ -21,6 +23,7 @@ from pipeline.modelo.fontes.sondagens import (
     ler_538,
     ler_pagina_corrida,
     resultados_538,
+    seccao_distrito,
 )
 from pipeline.modelo.previsao import Dados
 
@@ -104,6 +107,49 @@ def sondagens_wikipedia(
         )
         registo.info("%s %s: %d sondagens", corrida.ano, corrida.id, len(lidas))
         resultado.extend(lidas)
+    return resultado
+
+
+def titulo_camara_estado(ano: int, estado: str, *, distrito_unico: bool = False) -> str:
+    """Página com as secções de cada distrito de um estado (no singular, e sem secções, nos
+    estados com um só distrito)."""
+    inverso = {v: k for k, v in NOMES_ESTADOS.items()}
+    eleicoes = "election" if distrito_unico else "elections"
+    return f"{ano} United States House of Representatives {eleicoes} in {inverso[estado]}"
+
+
+def sondagens_camara_wikipedia(
+    linhas: Iterable[LinhaModelo], cliente: httpx.Client, atualizar: bool
+) -> dict[str, list[Sondagem]]:
+    """Sondagens D vs R dos distritos dados, lidas da página de cada estado (só para o site).
+
+    Cada página de estado é pedida uma vez por execução, com a pausa e a cache de
+    ``wikipedia.obter``. Estas sondagens não entram no modelo.
+    """
+    por_estado: dict[str, list[LinhaModelo]] = {}
+    for linha in linhas:
+        if linha.lado_d and linha.lado_r and linha.certo is None:
+            por_estado.setdefault(linha.estado, []).append(linha)
+    resultado: dict[str, list[Sondagem]] = {}
+    for estado, distritos in sorted(por_estado.items()):
+        unico = any(d.id.endswith("-00") for d in distritos)
+        titulo = titulo_camara_estado(distritos[0].ano, estado, distrito_unico=unico)
+        try:
+            texto = wikipedia.obter(titulo, CACHE / "camara", atualizar=atualizar, cliente=cliente)
+        except wikipedia.PaginaInexistente:
+            registo.warning("Sem página para %s", titulo)
+            continue
+        for linha in distritos:
+            numero = int(linha.id[3:])
+            seccao = texto if numero == 0 else seccao_distrito(texto, numero)
+            if seccao is None:
+                continue
+            lidas = ler_pagina_corrida(
+                seccao, linha.id, linha.ano, apelido(linha.lado_d), apelido(linha.lado_r)
+            )
+            if lidas:
+                registo.info("%s %s: %d sondagens", linha.ano, linha.id, len(lidas))
+                resultado[linha.id] = lidas
     return resultado
 
 

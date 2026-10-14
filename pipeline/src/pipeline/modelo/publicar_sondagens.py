@@ -7,7 +7,7 @@ só publica os valores atuais dos agregadores, não as sondagens individuais.
 """
 
 import csv
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -29,6 +29,10 @@ from pipeline.modelo.previsao import Dados, sondagens_por_corrida
 POPULACOES = frozenset({"lv", "rv", "a", "?"})
 DIAS_SERIE = 150
 """A série diária da média começa, no máximo, este número de dias antes do corte."""
+
+COMPETITIVA = (0.03, 0.97)
+"""Distritos da Câmara com sondagens publicadas: probabilidade prevista nesta faixa. As
+sondagens da Câmara só se mostram no site; não entram no modelo."""
 
 REFERENCIA_GENERICO = Path("data/reference/modelo/voto_generico_2026.csv")
 """Série reconstruída pelas revisões da Wikipédia (``jobs.referencia_voto_generico``)."""
@@ -130,12 +134,20 @@ def montar(
     fontes: Iterable[Fonte],
     gerado_em: datetime,
     referencia_generico: Iterable[PontoVotoGenerico] = (),
+    linhas_camara: Sequence[LinhaModelo] = (),
+    sondagens_camara: Mapping[str, list[Sondagem]] | None = None,
 ) -> SondagensCongresso:
-    """Ficheiro das sondagens; ``linhas`` são as corridas disputadas com o lado de cada um."""
+    """Ficheiro das sondagens; ``linhas`` são as corridas ao Senado disputadas.
+
+    ``linhas_camara`` e ``sondagens_camara`` acrescentam os distritos da Câmara com
+    sondagens (só para o site: o modelo não as usa).
+    """
     por_corrida = sondagens_por_corrida(dados, ano, list(linhas))
+    por_corrida.update({k: v for k, v in (sondagens_camara or {}).items() if v})
+    todas = [*linhas, *linhas_camara]
     corridas = tuple(
         corrida(ln, por_corrida[ln.id], corte)
-        for ln in sorted(linhas, key=lambda ln: ln.id)
+        for ln in sorted(todas, key=lambda ln: ln.id)
         if por_corrida.get(ln.id)
     )
     return SondagensCongresso(

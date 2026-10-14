@@ -252,5 +252,23 @@ def ler_pagina_corrida(texto: str, corrida: str, ano: int, dem: str, rep: str) -
     return []
 
 
+def seccao_distrito(texto: str, distrito: int) -> str | None:
+    """Secção ``==District N==`` da página de um estado, com os títulos subidos um nível.
+
+    Na página "<ano> United States House of Representatives elections in <estado>", cada
+    distrito é uma secção de topo e a eleição geral fica em ``===General election===``.
+    Subir os títulos um nível deixa a secção no formato das páginas de cada corrida, para
+    usar o mesmo leitor (``ler_pagina_corrida``), que ignora as primárias.
+    """
+    texto = sem_comentarios(texto)
+    inicio = re.search(rf"^==\s*District {distrito}\s*==\s*$", texto, flags=re.M)
+    if inicio is None:
+        return None
+    seguinte = re.search(r"^==[^=].*?==\s*$", texto[inicio.end() :], flags=re.M)
+    fim = inicio.end() + seguinte.start() if seguinte else len(texto)
+    seccao = texto[inicio.end() : fim]
+    return re.sub(r"^=(=+[^=].*?=+)=\s*$", r"\1", seccao, flags=re.M)
+
+
 def hoje() -> date:
     return datetime.now().astimezone().date()
