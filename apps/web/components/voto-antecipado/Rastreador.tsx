@@ -3,11 +3,13 @@
 import { useState, type ReactNode } from "react";
 import { ControloSegmentado } from "@/components/ui/ControloSegmentado.tsx";
 import { Painel, type ReferenciaFonte } from "@/components/ui/Painel.tsx";
+import { Selo } from "@/components/ui/Selo.tsx";
 import { formatarData, formatarDiaCiclo, formatarPontos } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
 import {
   DIAS_CURVA,
   FAIXAS,
+  intervalosDesvio,
   type FaixaEtaria,
   type VistaVotoAntecipado,
 } from "@/lib/voto-antecipado/vista.ts";
@@ -98,6 +100,15 @@ export function Rastreador({
   const momentoBase = vista.momento.find((m) => m.ano === anoComparar);
   const referencia = vista.anoReferenciaHistorico ?? anoComparar;
 
+  // As notas do ano escolhido (ex.: a pandemia em 2020) ficam junto da escolha.
+  const notasComparar = vista.ciclos.find((c) => c.ano === anoComparar)?.notas ?? [];
+  // O intervalo só acompanha as barras quando se compara com um ano intercalar.
+  const intervalos = intervalosDesvio(vista.comparacoes);
+  const temIntervalo = comparacao.tipo === "intercalar" && Object.keys(intervalos).length > 0;
+  const anosIntervalo = [...new Set(Object.values(intervalos).flatMap((i) => i.anos))]
+    .sort((a, b) => a - b)
+    .join(" e ");
+
   const linhasBarras = linhasPorIdade(
     vista,
     comparacao,
@@ -153,6 +164,17 @@ export function Rastreador({
           </span>
         </div>
       </div>
+      {notasComparar.length > 0 ? (
+        <p
+          role="note"
+          className="rounded-md border border-dashed border-rule px-[18px] py-2.5 text-sm text-ink-2"
+        >
+          <strong className="font-semibold text-ink">
+            {t("votoAntecipado.comparar.aviso", { ano: anoComparar })}
+          </strong>{" "}
+          {notasComparar.join(" ")}
+        </p>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Painel
@@ -233,6 +255,7 @@ export function Rastreador({
         <Painel
           sobrelinha={t("votoAntecipado.desvio.sobrelinha", { ano: anoComparar })}
           titulo={t("votoAntecipado.desvio.titulo")}
+          acessorio={<Selo variante="tracejado">{t("comum.selos.estimativa")}</Selo>}
           fontes={fontes}
           metodo={t("votoAntecipado.metodo.desvio", { ano: anoComparar })}
         >
@@ -244,13 +267,34 @@ export function Rastreador({
             <ItemLegenda amostra={<Amostra className="fill-down" />}>
               {t("votoAntecipado.legenda.abaixo")}
             </ItemLegenda>
+            {temIntervalo ? (
+              <ItemLegenda
+                amostra={
+                  <svg width={16} height={10} aria-hidden="true">
+                    <g className="stroke-ink" strokeWidth={1.5}>
+                      <line x1={1} x2={15} y1={5} y2={5} />
+                      <line x1={1} x2={1} y1={1} y2={9} />
+                      <line x1={15} x2={15} y1={1} y2={9} />
+                    </g>
+                  </svg>
+                }
+              >
+                {t("votoAntecipado.legenda.intervaloDesvio", { anos: anosIntervalo })}
+              </ItemLegenda>
+            ) : null}
           </Legenda>
           <BarrasDesvio
             titulo={t("votoAntecipado.graficos.desvioAria")}
             linhas={comparacao.faixas}
             faixaAtiva={faixa}
             aoEscolher={escolher}
+            intervalos={temIntervalo ? intervalos : {}}
           />
+          {temIntervalo ? (
+            <p className="text-[12.5px] text-ink-3">
+              {t("votoAntecipado.desvio.notaIntervalo", { anos: anosIntervalo })}
+            </p>
+          ) : null}
         </Painel>
 
         <Painel
@@ -261,6 +305,7 @@ export function Rastreador({
             dia,
           })}
           titulo={t("votoAntecipado.decomposicao.titulo")}
+          acessorio={<Selo variante="tracejado">{t("comum.selos.estimativa")}</Selo>}
           fontes={fontes}
           metodo={t("votoAntecipado.metodo.decomposicao")}
         >

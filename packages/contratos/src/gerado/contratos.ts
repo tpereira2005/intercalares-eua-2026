@@ -687,6 +687,14 @@ export interface LinhaComparacao {
    */
   desvio: number | null;
   /**
+   * Menor e maior desvio com a taxa de referência lida até 3 dias antes ou depois do
+   * mesmo dia do ciclo: a sensibilidade ao alinhamento do calendário. O intervalo das
+   * barras é o envelope destes valores nas referências intercalares (2018 e 2022), que é
+   * a medida honesta da incerteza (ver a metodologia).
+   */
+  desvio_max?: number | null;
+  desvio_min?: number | null;
+  /**
    * Parte da variação da quota explicada por a faixa votar mais ou menos até este dia.
    */
   efeito_participacao: number;
@@ -793,6 +801,10 @@ export interface LinhaCruzamento {
  */
 export interface LinhaEstadoNacional {
   ano_base: number | null;
+  /**
+   * 2026 e o ano de referência, nos estados com votos por condado.
+   */
+  condados_presidenciais?: SinalCondados[];
   dados_ate: string;
   dias_antes: number;
   estado: CodigoEstado;
@@ -820,6 +832,31 @@ export interface LinhaEstadoNacional {
    * Votos do ano de referência até ao mesmo dia do ciclo.
    */
   votos_base: number | null;
+}
+/**
+ * De que condados vêm os votos antecipados, pela margem presidencial de 2024.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "SinalCondados".
+ */
+export interface SinalCondados {
+  /**
+   * 2026 ou o ano de referência, sempre até ao mesmo dia do ciclo.
+   */
+  ano: number;
+  /**
+   * Margem presidencial de 2024 (D-R, em pontos) dos condados, ponderada pelos votos
+   * antecipados de cada um. Descreve a geografia de onde vêm os votos, não o voto.
+   */
+  margem_ponderada: number | null;
+  /**
+   * Votos antecipados nos condados que Harris venceu em 2024.
+   */
+  votos_harris: number;
+  /**
+   * Votos antecipados nos condados que Trump venceu em 2024.
+   */
+  votos_trump: number;
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema

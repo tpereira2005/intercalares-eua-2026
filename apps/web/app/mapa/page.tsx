@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { MapaEstados } from "@/components/mapa/MapaEstados.tsx";
+import { PainelCondados } from "@/components/mapa/PainelCondados.tsx";
 import { caminhoEstado } from "@/components/voto-antecipado/PaginaEstado.tsx";
 import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
-import { carregarTodas, lerEstadosSemDados } from "@/lib/voto-antecipado/carregar.ts";
+import { carregarTodas, lerEstadosSemDados, lerNacional } from "@/lib/voto-antecipado/carregar.ts";
+import { sinalCondados } from "@/lib/voto-antecipado/condados.ts";
 import { resumirTodos } from "@/lib/voto-antecipado/resumo.ts";
 
 export const metadata: Metadata = metadadosPagina({
@@ -17,6 +19,7 @@ export default function Pagina() {
   // Os estados sem ficheiro aparecem a tracejado; os que o pipeline deixa de fora, com
   // motivo (fonte bloqueada ou sem fonte gratuita), aparecem riscados.
   const resumos = resumirTodos(carregarTodas());
+  const nacional = lerNacional();
   const comDados = new Set(resumos.map((r) => r.estado));
   const fora = lerEstadosSemDados()
     .filter((e) => !comDados.has(e.estado))
@@ -35,6 +38,10 @@ export default function Pagina() {
         </p>
       </header>
       <MapaEstados resumos={resumos} caminhos={caminhos} fora={fora} />
+      <PainelCondados
+        sinais={sinalCondados(nacional)}
+        fontes={(nacional?.metadados.fontes ?? []).map((f) => ({ nome: f.nome, url: f.url }))}
+      />
     </div>
   );
 }

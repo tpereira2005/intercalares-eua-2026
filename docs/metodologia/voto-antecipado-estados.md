@@ -69,3 +69,7 @@ uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/v
 ```
 
 Os formatos são os contratos `VotoAntecipadoAgregado` e `VotoAntecipadoNacional` (`schemas/src/contratos/voto_antecipado_agregado.py`).
+
+## Condados de Trump e de Harris
+
+O resumo nacional (`nacional.json`) traz, para cada estado com votos por condado (Carolina do Norte, Pensilvânia, Florida, Iowa e Colorado), de que condados vêm os votos antecipados, em 2026 e no ano de referência ao mesmo dia do ciclo: os votos nos condados que Trump venceu em 2024, os votos nos que Harris venceu e a margem presidencial de 2024 (D−R) dos condados ponderada pelos votos antecipados. A margem de cada condado é a referência do Modelo C (`data/reference/modelo/presidencial_condados_2024.csv`). O sinal descreve a geografia de onde vêm os votos, não em quem votam: um eleitor de um condado de Trump pode votar democrata. Nenhuma regra distingue os partidos (trocar o sinal das margens troca os dois grupos).

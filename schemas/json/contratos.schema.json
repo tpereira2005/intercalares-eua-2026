@@ -1412,6 +1412,31 @@
           "description": "Votos observados / esperados - 1. Positivo: acima do ritmo do ano de referência.",
           "title": "Desvio"
         },
+        "desvio_max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Menor e maior desvio com a taxa de referência lida até 3 dias antes ou depois do\nmesmo dia do ciclo: a sensibilidade ao alinhamento do calendário. O intervalo das\nbarras é o envelope destes valores nas referências intercalares (2018 e 2022), que é\na medida honesta da incerteza (ver a metodologia).",
+          "title": "Desvio Max"
+        },
+        "desvio_min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Desvio Min"
+        },
         "efeito_participacao": {
           "description": "Parte da variação da quota explicada por a faixa votar mais ou menos até este dia.",
           "title": "Efeito Participacao",
@@ -1789,6 +1814,15 @@
             }
           ],
           "title": "Ano Base"
+        },
+        "condados_presidenciais": {
+          "default": [],
+          "description": "2026 e o ano de referência, nos estados com votos por condado.",
+          "items": {
+            "$ref": "#/$defs/SinalCondados"
+          },
+          "title": "Condados Presidenciais",
+          "type": "array"
         },
         "dados_ate": {
           "format": "date",
@@ -3949,6 +3983,49 @@
         "lugares_d_p90"
       ],
       "title": "ResumoCenarioCamara",
+      "type": "object"
+    },
+    "SinalCondados": {
+      "additionalProperties": false,
+      "description": "De que condados vêm os votos antecipados, pela margem presidencial de 2024.",
+      "properties": {
+        "ano": {
+          "description": "2026 ou o ano de referência, sempre até ao mesmo dia do ciclo.",
+          "title": "Ano",
+          "type": "integer"
+        },
+        "margem_ponderada": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Margem presidencial de 2024 (D-R, em pontos) dos condados, ponderada pelos votos\nantecipados de cada um. Descreve a geografia de onde vêm os votos, não o voto.",
+          "title": "Margem Ponderada"
+        },
+        "votos_harris": {
+          "description": "Votos antecipados nos condados que Harris venceu em 2024.",
+          "minimum": 0,
+          "title": "Votos Harris",
+          "type": "integer"
+        },
+        "votos_trump": {
+          "description": "Votos antecipados nos condados que Trump venceu em 2024.",
+          "minimum": 0,
+          "title": "Votos Trump",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ano",
+        "votos_trump",
+        "votos_harris",
+        "margem_ponderada"
+      ],
+      "title": "SinalCondados",
       "type": "object"
     },
     "SondagemPublicada": {
