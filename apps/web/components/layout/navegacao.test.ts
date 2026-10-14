@@ -6,6 +6,7 @@ describe("navegação", () => {
     expect(seccaoAtiva("/")).toBe("/");
     expect(seccaoAtiva("/voto-antecipado/")).toBe("/voto-antecipado/");
     expect(seccaoAtiva("/voto-antecipado/nc")).toBe("/voto-antecipado/");
+    expect(seccaoAtiva("/corridas/nc-s/")).toBe("/previsao/");
     expect(seccaoAtiva("/sistema/")).toBeNull();
   });
 });

@@ -28,6 +28,8 @@ export const SECCOES: readonly Seccao[] = [
 export function seccaoAtiva(caminho: string): string | null {
   const normalizado = caminho.endsWith("/") ? caminho : `${caminho}/`;
   if (normalizado === "/") return "/";
+  // As páginas de cada corrida pertencem à previsão.
+  if (normalizado.startsWith("/corridas/")) return "/previsao/";
   return (
     SECCOES.find((seccao) => seccao.href !== "/" && normalizado.startsWith(seccao.href))?.href ??
     null

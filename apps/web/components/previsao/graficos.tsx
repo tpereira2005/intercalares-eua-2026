@@ -544,3 +544,126 @@ export function EvolucaoControlo({
     </Grafico>
   );
 }
+
+/**
+ * De onde vem a margem de uma corrida: os fundamentos, a média das sondagens (quando as
+ * há) e a margem prevista com o intervalo de 80%, num eixo D − R com o empate marcado.
+ */
+export function OrigemMargem({
+  corrida: c,
+  limites,
+  titulo,
+}: {
+  corrida: CorridaVista;
+  /** Limites do eixo em pontos, que incluem o zero. */
+  limites: readonly [number, number];
+  titulo: string;
+}) {
+  const [de, ate] = limites;
+  const linhas = [
+    {
+      chave: "fundamentos",
+      rotulo: t("corrida.origem.eixo.fundamentos"),
+      valor: c.margemFundamentos,
+    },
+    ...(c.sondagens
+      ? [
+          {
+            chave: "sondagens",
+            rotulo: t("corrida.origem.eixo.sondagens"),
+            valor: c.sondagens.margem,
+          },
+        ]
+      : []),
+    { chave: "final", rotulo: t("corrida.origem.eixo.final"), valor: c.margem },
+  ];
+  const alturaLinha = 40;
+  const m = { esquerda: 92, direita: 16, topo: 8, fundo: 22 };
+  const altura = m.topo + linhas.length * alturaLinha + m.fundo;
+  const faixa =
+    c.margemP10 > 0
+      ? { className: "fill-dem", opacity: 0.3 }
+      : c.margemP90 < 0
+        ? { style: REP, opacity: 0.55 }
+        : { className: "fill-ink-3", opacity: 0.3 };
+  return (
+    <Grafico titulo={titulo} altura={altura}>
+      {(largura) => {
+        const x = (v: number) =>
+          m.esquerda +
+          ((largura - m.esquerda - m.direita) * (Math.max(de, Math.min(ate, v)) - de)) / (ate - de);
+        const marcas = marcasEntre(de, ate, largura < 480 ? 4 : 6);
+        return (
+          <g aria-hidden="true">
+            {marcas.map((v) => (
+              <g key={v}>
+                <line
+                  x1={x(v)}
+                  x2={x(v)}
+                  y1={m.topo}
+                  y2={altura - m.fundo}
+                  strokeDasharray={v === 0 ? "3 3" : undefined}
+                  className={v === 0 ? "stroke-ink-3" : "stroke-rule-2"}
+                />
+                <text x={x(v)} y={altura - 6} textAnchor="middle" className={TEXTO_EIXO}>
+                  {margem(v, 0)}
+                </text>
+              </g>
+            ))}
+            {linhas.map((l, i) => {
+              const y = m.topo + i * alturaLinha + alturaLinha / 2 + 6;
+              const final = l.chave === "final";
+              const cx = x(l.valor);
+              const ancora =
+                cx > largura - m.direita - 40 ? "end" : cx < m.esquerda + 40 ? "start" : "middle";
+              return (
+                <g key={l.chave}>
+                  <text x={0} y={y + 4} className="fill-ink-2 text-[12.5px]">
+                    {l.rotulo}
+                  </text>
+                  {final ? (
+                    <rect
+                      x={x(c.margemP10)}
+                      y={y - 6}
+                      width={Math.max(x(c.margemP90) - x(c.margemP10), 2)}
+                      height={12}
+                      rx={2}
+                      {...faixa}
+                    />
+                  ) : null}
+                  {l.chave === "sondagens" ? (
+                    <rect
+                      x={cx - 4.5}
+                      y={y - 4.5}
+                      width={9}
+                      height={9}
+                      strokeWidth={1.75}
+                      className="fill-sheet stroke-ink"
+                    />
+                  ) : (
+                    <circle
+                      cx={cx}
+                      cy={y}
+                      r={final ? 5 : 4.5}
+                      strokeWidth={final ? 1.5 : 1.75}
+                      className={final ? "fill-ink stroke-sheet" : "fill-sheet stroke-ink"}
+                    />
+                  )}
+                  <text
+                    x={cx}
+                    y={y - 10}
+                    textAnchor={ancora}
+                    style={HALO}
+                    className={`fill-ink font-mono text-[11px] ${final ? "font-semibold" : ""}`}
+                  >
+                    {margem(l.valor)}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        );
+      }}
+    </Grafico>
+  );
+}

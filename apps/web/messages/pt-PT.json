@@ -796,5 +796,62 @@
       "metodologia": "Como se calcula a média",
       "voltar": "Todas as sondagens"
     }
+  },
+  "corrida": {
+    "tituloCamara": "{id} · {estado}",
+    "tituloSenado": "{estado} · Senado",
+    "tituloSenadoEspecial": "{estado} · Senado (eleição especial)",
+    "sobrelinha": "Previsão · {camara} · {ano}",
+    "lede": "Quem é favorito nesta corrida, por quanto, e de onde vem o número. A previsão é uma estimativa com incerteza: um favorito a 70% perde três vezes em cada dez.",
+    "candidatos": "Candidatos",
+    "kpis": {
+      "prob": "Probabilidade de vitória",
+      "probDetalhe": "{categoria} · {outro} {prob}",
+      "margem": "Margem prevista",
+      "margemDetalhe": "Intervalo de 80%: {de} a {ate}",
+      "decidida": "Decidida",
+      "decididaDetalhe": "Só um dos lados tem candidato.",
+      "pvi": "Inclinação do eleitorado (Cook PVI)",
+      "pviDetalhe": "Face à média nacional, em pontos; na margem conta o dobro."
+    },
+    "origem": {
+      "sobrelinha": "De onde vem a previsão",
+      "titulo": "Fundamentos e sondagens",
+      "texto": "A margem prevista junta os fundamentos (inclinação do eleitorado, incumbência e ambiente nacional) com a média das sondagens, quando as há.",
+      "textoSemSondagens": "Não há sondagens desta corrida que entrem no modelo: a margem prevista vem só dos fundamentos (inclinação do eleitorado, incumbência e ambiente nacional).",
+      "fundamentos": "Fundamentos",
+      "sondagens": "Média das sondagens",
+      "sondagensDetalhe": "{n} institutos · peso de {peso} na previsão",
+      "sondagensDetalheUm": "1 instituto · peso de {peso} na previsão",
+      "semSondagens": "sem sondagens",
+      "final": "Margem prevista",
+      "intervalo": "Intervalo de 80%",
+      "aria": "Margem D − R: fundamentos {fundamentos}, sondagens {sondagens}, previsão {final}, com intervalo de 80% de {de} a {ate}.",
+      "metodo": "média ponderada entre fundamentos e sondagens, com o peso das sondagens a crescer com o número de institutos; o intervalo vem das simulações, com erros partilhados por ano, região e corrida.",
+      "metodoCamara": "fundamentos por distrito (inclinação do eleitorado, incumbência e ambiente nacional); não há sondagens por distrito no modelo. O intervalo vem das simulações, com erros partilhados por ano, região e corrida.",
+      "decidida": "Só um dos lados tem candidato: o resultado está decidido e a corrida não entra nas simulações como disputada.",
+      "eixo": {
+        "fundamentos": "Fundamentos",
+        "sondagens": "Sondagens",
+        "final": "Previsão"
+      }
+    },
+    "evolucao": {
+      "sobrelinha": "Evolução diária",
+      "titulo": "Como a previsão mudou",
+      "texto": "Probabilidade de vitória de cada lado em cada atualização, desde {de} ({n} atualizações).",
+      "aria": "Probabilidade de vitória democrata: de {de} na primeira atualização para {ate} na mais recente.",
+      "margem": "Margem prevista: {de} a {data}, {ate} agora."
+    },
+    "seguir": {
+      "titulo": "Para seguir esta corrida",
+      "fecho": "As urnas fecham a {quando}, hora de Lisboa.",
+      "fechoTodas": "As urnas fecham a {quando}, hora de Lisboa; as últimas às {todas}.",
+      "sondagens": "As sondagens desta corrida e o peso de cada uma na média",
+      "votoAntecipado": "O voto antecipado deste estado, por idade, partido e histórico",
+      "resultados": "A contagem na noite eleitoral",
+      "previsao": "A previsão completa da Câmara e do Senado"
+    },
+    "metadados": "Previsão para {corrida}: probabilidade de vitória, margem prevista e de onde vem."
   }
 }
