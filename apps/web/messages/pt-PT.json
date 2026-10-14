@@ -217,7 +217,8 @@
       "abaixo": "Abaixo",
       "correio": "Correio",
       "presencial": "Presencial antecipado",
-      "variacaoDemRep": "Variação de D−R face a {ano}"
+      "variacaoDemRep": "Variação de D−R face a {ano}",
+      "intervaloDesvio": "Intervalo ({anos}, ±3 dias)"
     },
     "graficos": {
       "composicaoAria": "Quota do voto antecipado por idade em {ano}",
@@ -237,12 +238,14 @@
       "novosValor": "novos {valor}",
       "novosBase": "{ano}: {valor}",
       "correioValor": "correio {valor}",
-      "demRep": "D−R {valor}"
+      "demRep": "D−R {valor}",
+      "comIntervalo": "{valor} (intervalo de {de} a {ate})"
     },
     "desvio": {
       "sobrelinha": "Participação face ao ritmo de {ano}",
       "titulo": "Acima ou abaixo do esperado",
-      "texto": "Votos observados contra os esperados para este dia: recenseados de hoje vezes a taxa de {ano} no mesmo dia do ciclo. A distância entre as referências intercalares é a medida honesta da incerteza."
+      "texto": "Votos observados contra os esperados para este dia: recenseados de hoje vezes a taxa de {ano} no mesmo dia do ciclo. A distância entre as referências intercalares é a medida honesta da incerteza.",
+      "notaIntervalo": "O traço com hastes junta os desvios face a {anos} com a referência lida até 3 dias antes ou depois do mesmo dia do ciclo. Mede a sensibilidade ao calendário, não o erro de amostragem: são votos reais, não uma sondagem."
     },
     "decomposicao": {
       "sobrelinha": "Quota dos {faixa} · {ano} contra {base}, {dia}",
@@ -943,7 +946,7 @@
       "todos": "Todos",
       "metodo": "observados / esperados − 1, com esperados = recenseados de hoje × taxa do ano de referência no mesmo dia.",
       "semDados": "Nenhum estado com ficheiro de eleitores e idade tem ainda dados deste ciclo.",
-      "intervalo": "O intervalo deste indicador ainda não é publicado: as diferenças entre os anos de referência, na página de cada estado, dão a ordem de grandeza da incerteza."
+      "intervalo": "Os grupos somados aqui não têm intervalo. Na página de cada estado, cada faixa tem o intervalo face às referências intercalares, que dá a ordem de grandeza da incerteza."
     },
     "momento": {
       "sobrelinha": "Pergunta 3 · Momento do voto",

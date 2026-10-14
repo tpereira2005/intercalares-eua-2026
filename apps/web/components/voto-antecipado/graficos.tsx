@@ -354,9 +354,12 @@ export function BarrasDesvio({
   linhas,
   faixaAtiva,
   aoEscolher,
+  intervalos = {},
 }: {
   titulo: string;
   linhas: readonly { faixa: FaixaEtaria; desvio: number | null }[];
+  /** Intervalo de cada faixa, desenhado como um traço com hastes por cima da barra. */
+  intervalos?: Partial<Record<FaixaEtaria, { min: number; max: number }>>;
   faixaAtiva: FaixaEtaria;
   aoEscolher: (faixa: FaixaEtaria) => void;
 }) {
@@ -364,7 +367,11 @@ export function BarrasDesvio({
   const topo = 22;
   const altura = topo + linhas.length * alturaLinha + 4;
   const { maximo: extremo, marcas } = escala(
-    Math.max(...linhas.map((l) => Math.abs(l.desvio ?? 0)), 0.05),
+    Math.max(
+      ...linhas.map((l) => Math.abs(l.desvio ?? 0)),
+      ...Object.values(intervalos).flatMap((i) => [Math.abs(i.min), Math.abs(i.max)]),
+      0.05,
+    ),
   );
   // Com muitas marcas, só uma em cada duas, para caberem no telemóvel.
   const positivas = marcas.filter((_, i) => i > 0 && (marcas.length <= 4 || i % 2 === 0));
@@ -389,13 +396,20 @@ export function BarrasDesvio({
               const ativa = linha.faixa === faixaAtiva;
               const desvio = linha.desvio;
               const valor = desvio === null ? t("comum.semDados") : formatarVariacao(desvio);
+              const intervalo = intervalos[linha.faixa];
               return (
                 <g
                   key={linha.faixa}
                   {...linhaEscolhivel(
                     t("votoAntecipado.graficos.linhaFaixa", {
                       faixa: rotuloFaixa(linha.faixa),
-                      valor,
+                      valor: intervalo
+                        ? t("votoAntecipado.graficos.comIntervalo", {
+                            valor,
+                            de: formatarVariacao(intervalo.min),
+                            ate: formatarVariacao(intervalo.max),
+                          })
+                        : valor,
                     }),
                     () => {
                       aoEscolher(linha.faixa);
@@ -420,6 +434,23 @@ export function BarrasDesvio({
                       className={desvio >= 0 ? "fill-up" : "fill-down"}
                     />
                   )}
+                  {intervalo ? (
+                    <g className="stroke-ink" strokeWidth={1.5}>
+                      <line x1={x(intervalo.min)} x2={x(intervalo.max)} y1={centro} y2={centro} />
+                      <line
+                        x1={x(intervalo.min)}
+                        x2={x(intervalo.min)}
+                        y1={centro - 5}
+                        y2={centro + 5}
+                      />
+                      <line
+                        x1={x(intervalo.max)}
+                        x2={x(intervalo.max)}
+                        y1={centro - 5}
+                        y2={centro + 5}
+                      />
+                    </g>
+                  ) : null}
                   <text
                     x={largura - 4}
                     y={centro + 4}
