@@ -2,6 +2,7 @@
 teste de troca de partidos com os cubos reais da Carolina do Norte."""
 
 import csv
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -99,4 +100,18 @@ def test_sem_voto_antecipado_nao_escreve(tmp_path: Path) -> None:
     _cubo([("18-24", "dem", "nao_votou", None, 10)]).write_parquet(cubo)
     assert idade_nc.dias_antes(pl.read_parquet(cubo)) is None
     assert not idade_nc.executar(cubo, tmp_path / "idade.json")
+    assert not (tmp_path / "idade.json").exists()
+
+
+def test_dia_dos_dados_ignora_datas_futuras_e_o_dia_corrente() -> None:
+    cubo = _cubo([("18-24", "dem", "correio", 21, 10), ("18-24", "dem", "correio", 19, 1)])
+    # Dados até 13/10/2026 (21 dias antes): o boletim a 19 dias é uma data futura.
+    assert idade_nc.dias_antes(cubo, date(2026, 10, 13)) == 21
+    assert idade_nc.dias_antes(cubo, date(2026, 10, 1)) is None
+
+
+def test_cedo_demais_nao_escreve(tmp_path: Path) -> None:
+    cubo = tmp_path / "cubo.parquet"
+    _cubo([("18-24", "dem", "correio", 21, 300_000)]).write_parquet(cubo)
+    assert not idade_nc.executar(cubo, tmp_path / "idade.json", dados_ate=date(2026, 10, 13))
     assert not (tmp_path / "idade.json").exists()
