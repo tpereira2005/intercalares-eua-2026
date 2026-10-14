@@ -1,0 +1,44 @@
+[
+    {
+        "raceTitle": "Governor - Statewide Results",
+        "Reporting": "28% (6,687 of 23,860) precincts reporting",
+        "ReportingTime": "October 14, 2026, 8:54 a.m.",
+        "candidates": [
+            {
+                "Name": "Xavier Becerra",
+                "Party": "Dem",
+                "Votes": "289,268",
+                "Percent": "31.7",
+                "incumbent": false
+            },
+            {
+                "Name": "Steve Hilton",
+                "Party": "Rep",
+                "Votes": "622,492",
+                "Percent": "68.3",
+                "incumbent": false
+            }
+        ]
+    },
+    {
+        "raceTitle": "Governor - Alameda County Results",
+        "Reporting": "24.9% (156 of 627) precincts reporting",
+        "ReportingTime": "October 14, 2026, 8:50 a.m.",
+        "candidates": [
+            {
+                "Name": "Xavier Becerra",
+                "Party": "Dem",
+                "Votes": "61,190",
+                "Percent": "33.3",
+                "incumbent": false
+            },
+            {
+                "Name": "Steve Hilton",
+                "Party": "Rep",
+                "Votes": "122,381",
+                "Percent": "66.7",
+                "incumbent": false
+            }
+        ]
+    }
+]

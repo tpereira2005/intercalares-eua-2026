@@ -9,7 +9,7 @@
 # Uso (na raiz do repositório):
 #
 #   pipeline/scripts/noite-reserva.sh --ate 2026-11-04T16:00
-#   pipeline/scripts/noite-reserva.sh --ate 2026-11-04T16:00 --estados NC,FL,GA,AK,TX,VA,NE
+#   pipeline/scripts/noite-reserva.sh --ate 2026-11-04T16:00 --estados NC,FL,GA,AK,TX,VA,NE,AZ,CA
 #   pipeline/scripts/noite-reserva.sh --verificar      # só confere os requisitos
 #
 # Requisitos: uv, gh com sessão iniciada e permissão de escrita no repositório.
@@ -20,7 +20,7 @@ set -euo pipefail
 REPO="${GH_REPO:-tpereira2005/intercalares-eua-2026}"
 DATA="2026-11-03"
 ATE=""
-ESTADOS="NC,FL,GA,AK,TX,VA,NE"
+ESTADOS="NC,FL,GA,AK,TX,VA,NE,AZ,CA"
 INTERVALO="30"
 FORCAR=0
 SO_VERIFICAR=0
