@@ -94,15 +94,19 @@ def cubos(boletins: pl.DataFrame, eleicao: EleicaoGeral) -> CubosAgregados:
 
 def cubos_de_retratos(retratos: pl.DataFrame, eleicao: EleicaoGeral) -> CubosAgregados:
     """Cubos a partir de totais acumulados publicados pela fonte (estados sem um registo
-    por boletim, como o Iowa).
+    por boletim, como o Iowa e o Colorado).
 
-    ``retratos`` tem ``dados_ate``, ``distrito`` (Int8), ``partido``, ``tipo`` e ``n``, com
-    ``tipo`` em ``correio``, ``presencial`` (votos recebidos) e ``pedidos``. Cada dia com
+    ``retratos`` tem ``dados_ate``, ``partido``, ``tipo`` e ``n``, com ``tipo`` em
+    ``correio``, ``presencial`` (votos recebidos) e ``pedidos``, e uma ou mais colunas de
+    unidade opcionais: ``faixa``, ``fips_condado`` e ``distrito`` (Int8). Cada dia com
     relatório recebe a diferença face ao relatório anterior, por isso a soma até um dia do
     ciclo reproduz o acumulado publicado nesse dia (ou no último dia com relatório). Uma
     diferença pode ser negativa quando a fonte corrige números: fica, para os acumulados
-    baterem certo com a fonte. Os relatórios posteriores à eleição não entram.
+    baterem certo com a fonte. Os relatórios posteriores à eleição não entram. Sem linhas
+    ``pedidos`` (o Colorado envia o boletim a todos os eleitores ativos), o cubo de
+    pedidos fica vazio.
     """
+    unidades = [c for c in ("faixa", "fips_condado", "distrito") if c in retratos.columns]
     base = retratos.filter(pl.col("dados_ate") <= eleicao.data).with_columns(
         _dias(eleicao, "dados_ate").alias("dias_antes")
     )
@@ -115,14 +119,18 @@ def cubos_de_retratos(retratos: pl.DataFrame, eleicao: EleicaoGeral) -> CubosAgr
     votos = (
         incrementos(
             base.filter(pl.col("tipo").is_in(["correio", "presencial"])),
-            ["distrito", "partido", "tipo"],
+            [*unidades, "partido", "tipo"],
         )
         .select(
-            pl.lit("desconhecida").alias("faixa"),
+            pl.col("faixa") if "faixa" in unidades else pl.lit("desconhecida").alias("faixa"),
             "partido",
             pl.col("tipo").alias("modalidade"),
-            pl.lit(None, pl.String).alias("fips_condado"),
-            pl.col("distrito").cast(pl.Int8),
+            pl.col("fips_condado")
+            if "fips_condado" in unidades
+            else pl.lit(None, pl.String).alias("fips_condado"),
+            pl.col("distrito").cast(pl.Int8)
+            if "distrito" in unidades
+            else pl.lit(None, pl.Int8).alias("distrito"),
             "dias_antes",
             pl.col("n").cast(pl.Int64),
         )
@@ -130,6 +138,12 @@ def cubos_de_retratos(retratos: pl.DataFrame, eleicao: EleicaoGeral) -> CubosAgr
         .agg(pl.col("n").sum())
         .sort(list(DIMENSOES_VOTOS), nulls_last=True)
     )
+    if base.filter(pl.col("tipo") == "pedidos").is_empty():
+        vazio = pl.DataFrame(
+            schema={"faixa": pl.String, "partido": pl.String, "dias_pedido": pl.Int16,
+                    "dias_antes": pl.Int16, "n": pl.Int64}
+        )  # fmt: skip
+        return CubosAgregados(eleicao, votos, vazio)
     # Pedidos: cada dia, os recebidos novos (devolvidos nesse dia) e o resto dos pedidos
     # novos (por devolver). Assim, até cada dia, pedidos e devolvidos batem com a fonte.
     por_dia = base.group_by("dados_ate", "dias_antes", "partido").agg(
@@ -313,9 +327,15 @@ def montar(
     avisos: Sequence[str] = (),
     gerado_em: datetime | None = None,
     granularidade: Granularidade = "boletim",
+    geografia_de: Sequence[CubosAgregados] | None = None,
 ) -> VotoAntecipadoAgregado:
     """Monta o ficheiro publicado de um estado (``granularidade`` diz de onde vêm os cubos:
-    um registo por boletim ou totais publicados pela fonte)."""
+    um registo por boletim ou totais publicados pela fonte).
+
+    ``geografia_de`` dá outros cubos para a geografia, pela ordem ``[atual, *bases]``,
+    quando a fonte publica a idade e os condados em tabelas separadas (Colorado): os
+    cubos principais não têm condado, e estes não têm idade, por isso não há mapa por
+    faixa."""
     d = atual.eleicao.dias_antes(dados_ate)
     if d < 0:
         msg = f"Os dados ({dados_ate}) são posteriores à eleição ({atual.eleicao.data})"
@@ -347,10 +367,11 @@ def montar(
         if nivel in dimensoes
     ]
     # Todos os anos ao mesmo dia do ciclo, como a comparação (não o total final).
-    for c in [atual, *bases]:
+    cubos_geo = list(geografia_de) if geografia_de is not None else [atual, *bases]
+    for c in cubos_geo:
         for coluna, nivel in unidades:
             tabelas = [geografia(c.votos, d, coluna).with_columns(pl.lit(TOTAL).alias("faixa"))]
-            if "faixa" in dimensoes:
+            if "faixa" in dimensoes and geografia_de is None:
                 # Sem a linha total, que já vem na tabela por partido.
                 tabelas.append(
                     geografia_por_faixa(c.votos, d, coluna)

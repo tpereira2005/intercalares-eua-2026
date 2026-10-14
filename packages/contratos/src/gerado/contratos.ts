@@ -930,7 +930,20 @@ export interface PontoSerie {
 export interface PontoSerieAgregado {
   ano: number;
   dias_antes: number;
-  faixa: "18-24" | "25-29" | "30-39" | "40-49" | "50-64" | "65-74" | "75+" | "desconhecida" | "total";
+  faixa:
+    | "18-24"
+    | "25-29"
+    | "30-39"
+    | "40-49"
+    | "50-64"
+    | "65-74"
+    | "75+"
+    | "25-34"
+    | "35-44"
+    | "45-54"
+    | "55-64"
+    | "desconhecida"
+    | "total";
   modalidade: "correio" | "presencial" | "total";
   partido: "dem" | "rep" | "nao_afiliado" | "outro" | "total";
   votos: number;
