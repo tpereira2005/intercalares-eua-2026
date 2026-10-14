@@ -13,12 +13,17 @@ eleições anteriores: os ficheiros mostram sempre a eleição em curso, por iss
 geral. Não há corrida ao Senado dos EUA na Califórnia em 2026; o ``us-senate.json`` mantém os
 resultados de 2024 e não se lê. Como os ficheiros não indicam a eleição, a leitura recusa um
 ficheiro cuja hora seja de outro ano.
+
+Antes da eleição, o Secretary of State publica nestes endereços dados de ensaio, com votos
+fictícios. A lei da Califórnia não deixa divulgar resultados antes do fecho das urnas (20:00,
+hora do Pacífico), por isso uma corrida com hora anterior conta como ensaio e é lida com zero
+votos e zero secções apuradas.
 """
 
 import json
 import re
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -42,6 +47,8 @@ _CAMARA = re.compile(r"^United States Representative District (\d{1,2}) - Distri
 _GOVERNADOR = re.compile(r"^Governor - Statewide Results$")
 _APURADAS = re.compile(r"\((\d[\d,]*) of (\d[\d,]*)\) precincts reporting")
 _FUSO = ZoneInfo("America/Los_Angeles")
+FECHO_URNAS = time(20)
+"""Hora local do fecho das urnas; os dados com hora anterior são de ensaio."""
 
 
 def _corrida(titulo: str) -> DescricaoCorrida | None:
@@ -89,6 +96,7 @@ class ConectorCA:
         votos: list[tuple[object, ...]] = []
         unidades: dict[str, tuple[int, int]] = {}
         atualizado: datetime | None = None
+        fecho = datetime.combine(data, FECHO_URNAS, tzinfo=_FUSO)
         for ficheiro in FICHEIROS.values():
             caminho = pasta / ficheiro
             try:
@@ -104,13 +112,14 @@ class ConectorCA:
                             f"não de {data.year}"
                         )
                         raise ErroFormatoFonte(msg)
+                    ensaio = instante is not None and instante < fecho
                     apuradas = _APURADAS.search(str(r["Reporting"]))
                     if apuradas is None:
                         msg = f"Califórnia, {desc.id}: apuramento ilegível {r['Reporting']!r}"
                         raise ErroFormatoFonte(msg)
                     corridas[desc.id] = desc
                     unidades[desc.id] = (
-                        _inteiro(apuradas.group(1), "secções apuradas"),
+                        0 if ensaio else _inteiro(apuradas.group(1), "secções apuradas"),
                         _inteiro(apuradas.group(2), "secções"),
                     )
                     for c in r["candidates"]:
@@ -118,7 +127,7 @@ class ConectorCA:
                         rotulo = str(c.get("Party") or "").strip()
                         votos.append(
                             (desc.id, nome, nome, partido(rotulo), rotulo or None, "estado", None,
-                             _inteiro(c["Votes"], f"{desc.id} {nome}"))
+                             0 if ensaio else _inteiro(c["Votes"], f"{desc.id} {nome}"))
                         )  # fmt: skip
                     if instante is not None and (atualizado is None or instante > atualizado):
                         atualizado = instante

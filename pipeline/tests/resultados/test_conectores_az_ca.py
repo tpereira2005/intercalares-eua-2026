@@ -246,7 +246,7 @@ def test_california_votos_partidos_e_apuramento() -> None:
     assert unidades["CA-G"] == (6_687, 23_860)
     assert unidades["CA-01"] == (275, 788)
     assert leitura.atualizado_fonte is not None
-    assert leitura.atualizado_fonte.isoformat() == "2026-10-14T08:54:00-07:00"
+    assert leitura.atualizado_fonte.isoformat() == "2026-11-03T21:54:00-08:00"
 
 
 def test_california_resultado_montado() -> None:
@@ -275,3 +275,15 @@ def test_california_sem_corridas(tmp_path: Path) -> None:
     (tmp_path / "governor.json").write_text("[]", "utf-8")
     with pytest.raises(ErroFormatoFonte, match="nenhuma corrida"):
         ConectorCA().ler(tmp_path, DATA)
+
+
+def test_california_dados_antes_do_fecho_contam_como_ensaio(tmp_path: Path) -> None:
+    for f in (DADOS / "ca").iterdir():
+        texto = f.read_text(encoding="utf-8").replace(
+            "November 3, 2026, 9:", "November 3, 2026, 7:"
+        )
+        (tmp_path / f.name).write_text(texto, encoding="utf-8")
+    leitura = ConectorCA().ler(tmp_path, DATA)
+    assert len(leitura.corridas) == 4
+    assert leitura.votos["votos"].sum() == 0
+    assert leitura.unidades["reportadas"].sum() == 0
