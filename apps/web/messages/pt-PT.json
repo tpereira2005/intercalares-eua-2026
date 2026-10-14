@@ -504,7 +504,10 @@
       "competitivos": "{n} distritos competitivos",
       "mais": "Ver os outros {n} distritos competitivos",
       "metodo": "Fundamentos por distrito (PVI, incumbência e ambiente nacional), com erros partilhados por ano, região e corrida. Não há sondagens por distrito.",
-      "categoriasNota": "Categorias só de leitura: sólida a partir de 95%, provável de 80% a 95%, inclinada de 60% a 80% e renhida entre 40% e 60%."
+      "categoriasNota": "Categorias só de leitura: sólida a partir de 95%, provável de 80% a 95%, inclinada de 60% a 80% e renhida entre 40% e 60%.",
+      "textoTodos": "Distritos agrupados pela probabilidade de vitória. A tabela tem os 435, do mais renhido para o menos renhido.",
+      "todos": "Todos os {n} distritos",
+      "verTodos": "Ver os 435 distritos e o caminho de cada partido para a maioria"
     },
     "categorias": {
       "solidaD": "Sólida D",
@@ -540,7 +543,51 @@
       "lugaresValor": "{mediana} [{de}, {ate}] · {reais}"
     },
     "notas": "Notas do modelo",
-    "documentacao": "Ler a metodologia completa da previsão"
+    "documentacao": "Ler a metodologia completa da previsão",
+    "paginas": {
+      "camara": {
+        "titulo": "Câmara dos Representantes",
+        "descricao": "Probabilidade de maioria na Câmara, distribuição de lugares, caminho de cada partido e os 435 distritos.",
+        "lede": "Os 435 lugares vão a votos e a maioria são {maioria}. Probabilidade de cada partido ficar com ela, a incerteza nos lugares e o caminho de cada lado, distrito a distrito.",
+        "ligacao": "Ver a página da Câmara"
+      },
+      "senado": {
+        "titulo": "Senado",
+        "descricao": "Probabilidade de maioria no Senado, distribuição de lugares, caminho de cada partido e as corridas de 2026.",
+        "lede": "Vão a votos {n} lugares e {fora} não. A maioria são {maioria}; num Senado dividido 50-50 desempata o vice-presidente, que é republicano.",
+        "ligacao": "Ver a página do Senado"
+      },
+      "kpis": {
+        "controlo": "Probabilidade de maioria",
+        "lugares": "Lugares democratas (mediana)",
+        "lugaresDetalhe": "Intervalo de 80%: {de} a {ate} · maioria {maioria}",
+        "limiar": "Limiar no voto genérico",
+        "limiarDetalhe": "Ambiente previsto: {ambiente}"
+      },
+      "evolucao": "Probabilidade de controlo {camara} em cada atualização, desde {de} ({n} atualizações).",
+      "voltar": "Voltar à previsão das duas câmaras"
+    },
+    "caminho": {
+      "sobrelinha": "Cenários",
+      "titulo": "Como cada partido chega à maioria",
+      "texto": "As corridas de cada lado, da que o partido tem mais probabilidade de ganhar para a que tem menos. A corrida decisiva é a que lhe dá o lugar da maioria: ganhando-a e todas as que estão acima, chega lá.",
+      "metodo": "Leitura direta da previsão publicada, com a mesma regra para os dois lados: as corridas ordenam-se pela probabilidade de vitória de cada partido e contam-se as vitórias necessárias além dos lugares que não vão a votos. O limiar é a margem nacional no voto para a Câmara a partir da qual o lado democrata passa a favorito, calculado nas {simulacoes} simulações. As corridas movem-se juntas, por isso a probabilidade de maioria não é o produto das probabilidades da tabela.",
+      "precisa": "Precisam de {precisa} lugares, ou seja, de ganhar {n} das {total} corridas.",
+      "precisaFora": "Precisam de {precisa} lugares: têm {fora} que não vão a votos e têm de ganhar {n} das {total} corridas.",
+      "decisiva": "A decisiva é {corrida}, onde têm {prob}.",
+      "especial": "{estado} (especial)",
+      "legendaTabela": "Corridas à volta da decisiva para os {partido}",
+      "posicao": "N.º",
+      "prob": "P(vitória)",
+      "marcaDecisiva": "decisiva",
+      "direcao": {
+        "D": "acima",
+        "R": "abaixo"
+      },
+      "favorito": "São favoritos enquanto o voto genérico ficar {direcao} de {limiar}. O ambiente previsto ({ambiente}) dá-lhes uma folga de {pontos} pontos.",
+      "precisaDeslocacao": "Passam a favoritos se o voto genérico ficar {direcao} de {limiar}: uma deslocação de {pontos} pontos a seu favor face ao ambiente previsto ({ambiente}).",
+      "semLimiar": "O modelo não publicou um limiar nacional para esta câmara."
+    }
   },
   "agregado": {
     "titulo": "{estado}, voto antecipado",

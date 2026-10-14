@@ -30,11 +30,11 @@ const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
 /** Distritos da Câmara mostrados antes de "ver os outros". */
 const DISTRITOS_VISIVEIS = 25;
 
-function data(dia: string): Date {
+export function data(dia: string): Date {
   return new Date(`${dia}T12:00:00Z`);
 }
 
-function Estimativa() {
+export function Estimativa() {
   return <Selo variante="tracejado">{t("comum.selos.estimativa")}</Selo>;
 }
 
@@ -95,7 +95,16 @@ function BarraControlo({ resumo }: { resumo: ResumoVista }) {
   );
 }
 
-function PainelLugares({ vista, camara }: { vista: VistaPrevisao; camara: Camara }) {
+export function PainelLugares({
+  vista,
+  camara,
+  comLigacao = false,
+}: {
+  vista: VistaPrevisao;
+  camara: Camara;
+  /** Ligação para a página só desta câmara (na página das duas). */
+  comLigacao?: boolean;
+}) {
   const r = vista[camara];
   return (
     <Painel
@@ -142,6 +151,13 @@ function PainelLugares({ vista, camara }: { vista: VistaPrevisao; camara: Camara
             })}`
           : null}
       </p>
+      {comLigacao ? (
+        <p className="text-sm">
+          <Link href={`/previsao/${camara}/`} className={LIGACAO}>
+            {t(`previsao.paginas.${camara}.ligacao`)}
+          </Link>
+        </p>
+      ) : null}
     </Painel>
   );
 }
@@ -280,7 +296,7 @@ function PainelEvolucao({
 }
 
 /** Variação da probabilidade democrata de cada corrida face à semana anterior. */
-function variacoes(
+export function variacoes(
   corridas: readonly CorridaVista[],
   evolucao: VistaEvolucao | null,
 ): Record<string, number> {
@@ -294,7 +310,7 @@ function variacoes(
   );
 }
 
-function NotaSemana({ evolucao }: { evolucao: VistaEvolucao | null }) {
+export function NotaSemana({ evolucao }: { evolucao: VistaEvolucao | null }) {
   const semana = evolucao?.semanaAnterior;
   if (!semana) return null;
   return (
@@ -304,7 +320,7 @@ function NotaSemana({ evolucao }: { evolucao: VistaEvolucao | null }) {
   );
 }
 
-function PainelSenado({
+export function PainelSenado({
   vista,
   evolucao,
 }: {
@@ -426,39 +442,52 @@ function BarraCategorias({
   );
 }
 
-function PainelCamara({
+export function PainelCamara({
   vista,
   evolucao,
+  todos = false,
 }: {
   vista: VistaPrevisao;
   evolucao: VistaEvolucao | null;
+  /** Mostra os 435 distritos na tabela, e não só os competitivos. */
+  todos?: boolean;
 }) {
-  const competitivos = vista.corridasCamara.filter((c) => {
-    const cat = categoria(c.probD);
-    return cat !== "solidaD" && cat !== "solidaR";
-  });
+  const competitivos = todos
+    ? vista.corridasCamara
+    : vista.corridasCamara.filter((c) => {
+        const cat = categoria(c.probD);
+        return cat !== "solidaD" && cat !== "solidaR";
+      });
+  const legenda = todos
+    ? t("previsao.camara.todos", { n: competitivos.length })
+    : t("previsao.camara.competitivos", { n: competitivos.length });
   return (
     <Painel
       sobrelinha={t("previsao.camara.sobrelinha")}
       titulo={t("previsao.camara.titulo", { n: vista.corridasCamara.length })}
-      descricao={t("previsao.camara.texto")}
+      descricao={t(todos ? "previsao.camara.textoTodos" : "previsao.camara.texto")}
       acessorio={<Estimativa />}
       fontes={vista.fontes}
       metodo={t("previsao.camara.metodo")}
     >
       <BarraCategorias contagem={vista.categorias.camara} total={vista.corridasCamara.length} />
       <p className="font-mono text-[11px] text-ink-3">{t("previsao.camara.categoriasNota")}</p>
-      <h3 className="rotulo mt-1">
-        {t("previsao.camara.competitivos", { n: competitivos.length })}
-      </h3>
+      <h3 className="rotulo mt-1">{legenda}</h3>
       <TabelaCorridas
         corridas={competitivos}
-        legenda={t("previsao.camara.competitivos", { n: competitivos.length })}
+        legenda={legenda}
         comSondagens={false}
         variacoes={variacoes(competitivos, evolucao)}
         visiveis={DISTRITOS_VISIVEIS}
       />
       <NotaSemana evolucao={evolucao} />
+      {todos ? null : (
+        <p className="text-sm">
+          <Link href="/previsao/camara/" className={LIGACAO}>
+            {t("previsao.camara.verTodos")}
+          </Link>
+        </p>
+      )}
     </Painel>
   );
 }
@@ -545,6 +574,25 @@ function PainelBacktests({ vista }: { vista: VistaPrevisao }) {
   );
 }
 
+/** Versão da previsão: diária ou congelada, com a data dos dados. */
+export function VersaoPrevisao({ vista }: { vista: VistaPrevisao }) {
+  return (
+    <div className="flex flex-col items-start gap-1.5 sm:items-end">
+      {vista.congelada ? (
+        <Selo variante="solido">{t("previsao.selos.congelada")}</Selo>
+      ) : (
+        <Selo variante="sinal">{t("previsao.selos.diaria")}</Selo>
+      )}
+      <span className="font-mono text-[11px] text-ink-3">
+        {t("previsao.corte", { data: formatarData(data(vista.corte)) })}
+      </span>
+      {vista.congelada ? null : (
+        <span className="font-mono text-[11px] text-ink-3">{t("previsao.congela")}</span>
+      )}
+    </div>
+  );
+}
+
 /** Página da previsão da Câmara e do Senado. */
 export function PaginaPrevisao({ dados }: { dados: DadosPrevisao }) {
   const { previsao: vista, evolucao } = dados;
@@ -560,26 +608,14 @@ export function PaginaPrevisao({ dados }: { dados: DadosPrevisao }) {
             {t("previsao.lede", { simulacoes: formatarNumero(vista.simulacoes) })}
           </p>
         </div>
-        <div className="flex flex-col items-start gap-1.5 sm:items-end">
-          {vista.congelada ? (
-            <Selo variante="solido">{t("previsao.selos.congelada")}</Selo>
-          ) : (
-            <Selo variante="sinal">{t("previsao.selos.diaria")}</Selo>
-          )}
-          <span className="font-mono text-[11px] text-ink-3">
-            {t("previsao.corte", { data: formatarData(data(vista.corte)) })}
-          </span>
-          {vista.congelada ? null : (
-            <span className="font-mono text-[11px] text-ink-3">{t("previsao.congela")}</span>
-          )}
-        </div>
+        <VersaoPrevisao vista={vista} />
       </header>
 
       <Indicadores vista={vista} />
 
       <div className="grid gap-4 min-[860px]:grid-cols-2">
-        <PainelLugares vista={vista} camara="camara" />
-        <PainelLugares vista={vista} camara="senado" />
+        <PainelLugares vista={vista} camara="camara" comLigacao />
+        <PainelLugares vista={vista} camara="senado" comLigacao />
         <PainelLimiares vista={vista} />
         <PainelEvolucao vista={vista} evolucao={evolucao} />
       </div>
