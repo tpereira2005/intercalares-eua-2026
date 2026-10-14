@@ -49,7 +49,15 @@ bancada republicana e partido do vice-presidente em funções no novo Congresso.
 desempate dependia da eleição presidencial do mesmo dia, por isso fica indeterminado."""
 
 INDEPENDENTES_D = frozenset(
-    {"Bernie Sanders", "Angus King", "Dan Osborn", "Evan McMullin", "Greg Orman", "Todd Achilles"}
+    {
+        "Bernie Sanders",
+        "Angus King",
+        "Dan Osborn",
+        "Evan McMullin",
+        "Greg Orman",
+        "Todd Achilles",
+        "Bill Hill",
+    }
 )
 """Independentes que ocuparam o lado democrata (sem candidato democrata relevante)."""
 
