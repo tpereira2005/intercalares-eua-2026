@@ -4,13 +4,13 @@ import { FaseInicio } from "@/components/inicio/FaseInicio.tsx";
 import { InicioAoVivo } from "@/components/inicio/InicioAoVivo.tsx";
 import { ResumoPrevisao } from "@/components/inicio/ResumoPrevisao.tsx";
 import { HorariosFecho } from "@/components/noite/HorariosFecho.tsx";
-import { QuemVotou } from "@/components/inicio/QuemVotou.tsx";
 import { CodigoDia } from "@/components/ui/CodigoDia.tsx";
 import { FaixaKpis, Kpi } from "@/components/ui/Kpi.tsx";
 import { Painel } from "@/components/ui/Painel.tsx";
 import { QualidadeDados } from "@/components/ui/QualidadeDados.tsx";
 import { Selo } from "@/components/ui/Selo.tsx";
 import { caminhoEstado } from "@/components/voto-antecipado/PaginaEstado.tsx";
+import { QuemVotouCriterios } from "@/components/voto-antecipado/QuemVotouCriterios.tsx";
 import { nomeEstado } from "@/lib/estados.ts";
 import {
   DIA_DA_ELEICAO,
@@ -18,6 +18,7 @@ import {
   formatarCompacto,
   formatarData,
   formatarHora,
+  formatarMargem,
   formatarNumero,
   formatarPercentagem,
   formatarPontos,
@@ -31,7 +32,7 @@ import { carregarResultados } from "@/lib/resultados/carregar.ts";
 import { previsaoParaResultados } from "@/lib/resultados/vista.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
 import { resumirEstado, resumirTodos, type ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
-import type { VistaVotoAntecipado } from "@/lib/voto-antecipado/vista.ts";
+import { criteriosQuemVotou } from "@/lib/voto-antecipado/criterios.ts";
 
 export const metadata: Metadata = metadadosPagina({
   titulo: null,
@@ -42,32 +43,59 @@ export const metadata: Metadata = metadadosPagina({
 
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px] hover:decoration-ink-3";
 
-/** Frase gerada a partir dos dados do estado principal; só com números que existem. */
+/**
+ * Frase gerada a partir dos dados do estado principal; só com números que existem.
+ * Ritmo, partido, modo, voto novo e idade, cada um com uma oração e o mesmo peso.
+ */
 function narrativa(resumo: ResumoEstado): string | null {
-  const { anoBase, variacaoVotos, quota65, quota65Base } = resumo;
-  const jovens = resumo.desvio.jovens;
-  if (anoBase === null || variacaoVotos === null || quota65 === null || quota65Base === null) {
-    return null;
+  const { anoBase, variacaoVotos } = resumo;
+  if (anoBase === null || variacaoVotos === null) return null;
+  const partes = [
+    t("inicio.narrativa", {
+      estado: nomeEstado(resumo.estado),
+      votos: formatarNumero(resumo.votos),
+      variacao: formatarVariacao(variacaoVotos),
+      ano: anoBase,
+    }),
+  ];
+  if (resumo.vantagemDemRep !== null && resumo.vantagemDemRepBase !== null) {
+    partes.push(
+      t("inicio.narrativaPartido", {
+        vantagem: formatarMargem(resumo.vantagemDemRep),
+        base: formatarMargem(resumo.vantagemDemRepBase),
+        ano: anoBase,
+      }),
+    );
   }
-  if (jovens === null) return null;
-  return t("inicio.narrativa", {
-    estado: nomeEstado(resumo.estado),
-    votos: formatarNumero(resumo.votos),
-    variacao: formatarVariacao(variacaoVotos),
-    ano: anoBase,
-    quota65: formatarPercentagem(quota65),
-    pontos: formatarPontos(quota65 - quota65Base),
-    jovens: formatarVariacao(jovens),
-  });
+  if (resumo.quotaCorreio !== null && resumo.quotaCorreioBase !== null) {
+    partes.push(
+      t("inicio.narrativaModo", {
+        correio: formatarPercentagem(resumo.quotaCorreio),
+        pontos: formatarPontos(resumo.quotaCorreio - resumo.quotaCorreioBase),
+        ano: anoBase,
+      }),
+    );
+  }
+  if (resumo.quotaNovos !== null) {
+    partes.push(t("inicio.narrativaNovos", { novos: formatarPercentagem(resumo.quotaNovos) }));
+  }
+  if (resumo.quota65 !== null && resumo.quota65Base !== null) {
+    partes.push(
+      t("inicio.narrativaIdade", {
+        quota65: formatarPercentagem(resumo.quota65),
+        pontos: formatarPontos(resumo.quota65 - resumo.quota65Base),
+        ano: anoBase,
+      }),
+    );
+  }
+  return partes.join(" ");
 }
 
 function Indicadores({
-  vista,
   principal,
   resumos,
 }: {
-  /** Estado com ficheiro de eleitores, de onde vêm os indicadores por idade. */
-  vista: VistaVotoAntecipado | undefined;
+  /** Estado com ficheiro de eleitores, de onde vêm os indicadores por grupo. */
   principal: ResumoEstado | undefined;
   resumos: readonly ResumoEstado[];
 }) {
@@ -80,6 +108,7 @@ function Indicadores({
   const votos = comBase.reduce((s, r) => s + r.votos, 0);
   const variacao = votosBase > 0 ? votos / votosBase - 1 : null;
   const total = resumos.reduce((s, r) => s + r.votos, 0);
+  const ano = anoBase ?? "";
   return (
     <FaixaKpis>
       <Kpi
@@ -103,30 +132,46 @@ function Indicadores({
       />
       {principal ? (
         <>
+          {principal.vantagemDemRep === null || principal.vantagemDemRepBase === null ? null : (
+            <Kpi
+              rotulo={`${t("votoAntecipado.kpis.vantagem")} · ${principal.estado}`}
+              valor={formatarMargem(principal.vantagemDemRep)}
+              detalhe={t("votoAntecipado.kpis.vantagemDetalhe", {
+                base: formatarMargem(principal.vantagemDemRepBase),
+                ano,
+              })}
+            />
+          )}
+          {principal.quotaCorreio === null || principal.quotaCorreioBase === null ? null : (
+            <Kpi
+              rotulo={`${t("votoAntecipado.kpis.correio")} · ${principal.estado}`}
+              valor={formatarPercentagem(principal.quotaCorreio)}
+              detalhe={t("votoAntecipado.kpis.correioDetalhe", {
+                pontos: formatarPontos(principal.quotaCorreio - principal.quotaCorreioBase),
+                ano,
+              })}
+            />
+          )}
+          {principal.quotaNovos === null ? null : (
+            <Kpi
+              rotulo={`${t("votoAntecipado.kpis.novos")} · ${principal.estado}`}
+              valor={formatarPercentagem(principal.quotaNovos)}
+              detalhe={t("votoAntecipado.kpis.novosDetalhe", {
+                ano,
+                base:
+                  principal.quotaNovosBase === null
+                    ? t("comum.semDados")
+                    : formatarPercentagem(principal.quotaNovosBase),
+              })}
+            />
+          )}
           {principal.quota65 === null || principal.quota65Base === null ? null : (
             <Kpi
               rotulo={`${t("votoAntecipado.kpis.quota65")} · ${principal.estado}`}
               valor={formatarPercentagem(principal.quota65)}
               detalhe={t("votoAntecipado.kpis.quota65Detalhe", {
                 pontos: formatarPontos(principal.quota65 - principal.quota65Base),
-                ano: anoBase ?? "",
-              })}
-            />
-          )}
-          {principal.desvio.jovens === null ? null : (
-            <Kpi
-              rotulo={`${t("votoAntecipado.kpis.desvioJovens")} · ${principal.estado}`}
-              valor={formatarVariacao(principal.desvio.jovens)}
-              detalhe={t("votoAntecipado.kpis.desvioJovensDetalhe", { ano: anoBase ?? "" })}
-            />
-          )}
-          {principal.restantes === null ? null : (
-            <Kpi
-              rotulo={`${t("votoAntecipado.kpis.reserva")} · ${principal.estado}`}
-              valor={formatarCompacto(principal.restantes)}
-              detalhe={t("votoAntecipado.kpis.reservaDetalhe", {
-                ano: vista?.anoReferenciaHistorico ?? anoBase ?? "",
-                atual: vista?.ano ?? "",
+                ano,
               })}
             />
           )}
@@ -152,11 +197,20 @@ function EstadosAcompanhados({
       descricao={t("inicio.estados.texto", { ano: anoBase })}
       metodo={t("inicio.estados.metodo", { ano: anoBase })}
     >
-      <ol className="flex flex-col">
+      <div
+        aria-hidden="true"
+        className="rotulo grid grid-cols-[minmax(0,1fr)_auto_4.5rem_4.5rem] gap-3 text-right"
+      >
+        <span />
+        <span />
+        <span>{t("inicio.estados.colunaRitmo")}</span>
+        <span>{t("inicio.estados.colunaVantagem")}</span>
+      </div>
+      <ol className="-mt-2 flex flex-col">
         {resumos.map((r) => (
           <li
             key={r.estado}
-            className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-t border-rule-2 py-2.5 text-sm first:border-t-0"
+            className="grid grid-cols-[minmax(0,1fr)_auto_4.5rem_4.5rem] items-center gap-3 border-t border-rule-2 py-2.5 text-sm first:border-t-0"
           >
             {comPagina.has(r.estado) ? (
               <Link href={caminhoEstado(r.estado)} className={LIGACAO}>
@@ -166,8 +220,13 @@ function EstadosAcompanhados({
               <span>{nomeEstado(r.estado)}</span>
             )}
             <QualidadeDados nivel={r.qualidade} />
-            <span className="font-mono text-[13px] font-medium">
+            <span className="text-right font-mono text-[13px] font-medium">
+              <span className="sr-only">{t("inicio.estados.colunaRitmo")}: </span>
               {r.variacaoVotos === null ? t("comum.semDados") : formatarVariacao(r.variacaoVotos)}
+            </span>
+            <span className="text-right font-mono text-[13px] text-ink-2">
+              <span className="sr-only">{t("inicio.estados.colunaVantagem")}: </span>
+              {r.vantagemDemRep === null ? t("comum.semDados") : formatarMargem(r.vantagemDemRep)}
             </span>
           </li>
         ))}
@@ -325,9 +384,9 @@ export default function Inicio() {
           }
         />
 
-        <Indicadores vista={principal} principal={resumoPrincipal} resumos={resumos} />
+        <Indicadores principal={resumoPrincipal} resumos={resumos} />
 
-        <div className="grid gap-4 min-[860px]:grid-cols-2">
+        <div className="flex flex-col gap-4">
           {principal ? (
             <Painel
               sobrelinha={t("inicio.quemVotou.sobrelinha", {
@@ -335,9 +394,9 @@ export default function Inicio() {
               })}
               titulo={t("inicio.quemVotou.titulo")}
               fontes={principal.fontes.slice(0, 1)}
-              metodo={t("votoAntecipado.metodo.composicao")}
+              metodo={t("votoAntecipado.criterios.metodo")}
             >
-              <QuemVotou vista={principal} />
+              <QuemVotouCriterios blocos={criteriosQuemVotou(principal)} ano={principal.ano} />
               <p className="text-sm">
                 <Link href={caminhoEstado(principal.estado)} className={LIGACAO}>
                   {t("inicio.quemVotou.ligacao")}

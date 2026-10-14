@@ -3,10 +3,14 @@ import type { VistaIdade } from "@/lib/voto-antecipado/idade.ts";
 import Link from "next/link";
 import { FaixaKpis, Kpi } from "@/components/ui/Kpi.tsx";
 import { QualidadeDados } from "@/components/ui/QualidadeDados.tsx";
+import { Painel } from "@/components/ui/Painel.tsx";
+import { QuemVotouCriterios } from "@/components/voto-antecipado/QuemVotouCriterios.tsx";
 import { Rastreador } from "@/components/voto-antecipado/Rastreador.tsx";
+import { criteriosQuemVotou } from "@/lib/voto-antecipado/criterios.ts";
 import {
   formatarCompacto,
   formatarData,
+  formatarMargem,
   formatarPercentagem,
   formatarPontos,
   formatarVariacao,
@@ -28,7 +32,7 @@ function Indicadores({ vista }: { vista: VistaVotoAntecipado }) {
   if (!principal) return null;
   const resumo = resumirEstado(vista);
   const { quota65, quota65Base, restantes } = resumo;
-  const desvioJovens = resumo.desvio.jovens;
+  const { vantagemDemRep, vantagemDemRepBase, quotaCorreio, quotaCorreioBase } = resumo;
   return (
     <FaixaKpis>
       <Kpi
@@ -43,6 +47,26 @@ function Indicadores({ vista }: { vista: VistaVotoAntecipado }) {
               }),
             })}
       />
+      {vantagemDemRep === null || vantagemDemRepBase === null ? null : (
+        <Kpi
+          rotulo={t("votoAntecipado.kpis.vantagem")}
+          valor={formatarMargem(vantagemDemRep)}
+          detalhe={t("votoAntecipado.kpis.vantagemDetalhe", {
+            base: formatarMargem(vantagemDemRepBase),
+            ano: principal.anoBase,
+          })}
+        />
+      )}
+      {quotaCorreio === null || quotaCorreioBase === null ? null : (
+        <Kpi
+          rotulo={t("votoAntecipado.kpis.correio")}
+          valor={formatarPercentagem(quotaCorreio)}
+          detalhe={t("votoAntecipado.kpis.correioDetalhe", {
+            pontos: formatarPontos(quotaCorreio - quotaCorreioBase),
+            ano: principal.anoBase,
+          })}
+        />
+      )}
       {quota65 === null || quota65Base === null ? null : (
         <Kpi
           rotulo={t("votoAntecipado.kpis.quota65")}
@@ -51,13 +75,6 @@ function Indicadores({ vista }: { vista: VistaVotoAntecipado }) {
             pontos: formatarPontos(quota65 - quota65Base),
             ano: principal.anoBase,
           })}
-        />
-      )}
-      {desvioJovens === null ? null : (
-        <Kpi
-          rotulo={t("votoAntecipado.kpis.desvioJovens")}
-          valor={formatarVariacao(desvioJovens)}
-          detalhe={t("votoAntecipado.kpis.desvioJovensDetalhe", { ano: principal.anoBase })}
         />
       )}
       {restantes !== null && vista.anoReferenciaHistorico !== null ? (
@@ -186,7 +203,24 @@ export function PaginaEstado({
 
       <Avisos avisos={vista.avisos} />
 
+      <Painel
+        sobrelinha={t("votoAntecipado.criterios.sobrelinha", { estado })}
+        titulo={t("votoAntecipado.criterios.titulo")}
+        descricao={t("votoAntecipado.criterios.texto")}
+        fontes={fontes.slice(0, 1)}
+        metodo={t("votoAntecipado.criterios.metodo")}
+      >
+        <QuemVotouCriterios blocos={criteriosQuemVotou(vista)} ano={vista.ano} />
+      </Painel>
+
       <ComoLer />
+
+      <header className="mt-2 flex min-w-0 flex-col gap-1 border-t border-rule pt-4">
+        <h2 className="font-display text-[clamp(22px,3.5vw,28px)] leading-[1.05] font-bold">
+          {t("votoAntecipado.detalhe.titulo")}
+        </h2>
+        <p className="max-w-[68ch] text-[15px] text-ink-2">{t("votoAntecipado.detalhe.texto")}</p>
+      </header>
 
       {idade === undefined ? null : <PainelSinalEtario vista={idade} />}
 

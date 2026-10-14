@@ -9,10 +9,12 @@ import { nomeEstado } from "@/lib/estados.ts";
 import {
   formatarCompacto,
   formatarData,
+  formatarMargem,
   formatarPercentagem,
   formatarVariacao,
 } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
+import type { ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 import { DesvioEstados, Halteres, MomentoEstados, type LinhaMomento } from "./graficos.tsx";
 
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
@@ -252,6 +254,88 @@ function PainelMomento({
   );
 }
 
+const CELULA =
+  "py-1.5 pr-2 text-right font-mono text-[12.5px] whitespace-nowrap sm:pr-3 sm:text-[13px]";
+const CABECALHO = "pr-2 pb-1.5 text-right font-medium sm:pr-3";
+
+/** Ritmo, vantagem por partido de registo e peso do correio, estado a estado. */
+function PainelPartidoModo({
+  resumos,
+  fontes,
+}: {
+  resumos: readonly ResumoEstado[];
+  fontes: readonly ReferenciaFonte[];
+}) {
+  const semDados = t("comum.semDados");
+  return (
+    <Painel
+      sobrelinha={t("demografia.partidoModo.sobrelinha")}
+      titulo={t("demografia.partidoModo.titulo")}
+      descricao={t("demografia.partidoModo.texto")}
+      fontes={fontes}
+      metodo={t("demografia.partidoModo.metodo")}
+    >
+      {resumos.some((r) => r.vantagemDemRep !== null) ? null : (
+        <p className="text-sm text-ink-2">{t("demografia.partidoModo.semPartido")}</p>
+      )}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <caption className="sr-only">{t("demografia.partidoModo.legenda")}</caption>
+          <thead>
+            <tr className="rotulo">
+              <th scope="col" className="pr-3 pb-1.5 text-left font-medium">
+                {t("demografia.partidoModo.colunas.estado")}
+              </th>
+              <th scope="col" className={CABECALHO}>
+                {t("demografia.partidoModo.colunas.ritmo")}
+              </th>
+              <th scope="col" className={CABECALHO}>
+                {t("demografia.partidoModo.colunas.vantagem")}
+              </th>
+              <th scope="col" className={CABECALHO}>
+                {t("demografia.partidoModo.colunas.vantagemBase")}
+              </th>
+              <th scope="col" className="pb-1.5 text-right font-medium">
+                {t("demografia.partidoModo.colunas.correio")}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {resumos.map((r) => (
+              <tr key={r.estado} className="border-t border-rule-2">
+                <th scope="row" className="py-1.5 pr-3 text-left font-semibold">
+                  <Link href={caminhoEstado(r.estado)} className={LIGACAO}>
+                    {nomeEstado(r.estado)}
+                  </Link>
+                </th>
+                <td className={CELULA}>
+                  {r.variacaoVotos === null ? semDados : formatarVariacao(r.variacaoVotos)}
+                </td>
+                <td className={CELULA}>
+                  {r.vantagemDemRep === null ? semDados : formatarMargem(r.vantagemDemRep)}
+                </td>
+                <td className={`${CELULA} text-ink-2`}>
+                  {r.vantagemDemRepBase === null || r.anoBase === null ? (
+                    semDados
+                  ) : (
+                    <>
+                      {formatarMargem(r.vantagemDemRepBase)}
+                      <span className="block text-[11px] text-ink-3">{r.anoBase}</span>
+                    </>
+                  )}
+                </td>
+                <td className="py-1.5 text-right font-mono text-[12.5px] sm:text-[13px]">
+                  {r.quotaCorreio === null ? semDados : formatarPercentagem(r.quotaCorreio)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Painel>
+  );
+}
+
 function PainelEstados({ estados }: { estados: readonly EstadoDemografia[] }) {
   return (
     <Painel titulo={t("demografia.estados.titulo")} descricao={t("demografia.estados.texto")}>
@@ -280,11 +364,16 @@ function PainelEstados({ estados }: { estados: readonly EstadoDemografia[] }) {
 
 export function PaginaDemografia({
   estados,
+  resumos,
   fontes,
+  fontesResumos,
   dadosAte,
 }: {
   estados: readonly EstadoDemografia[];
+  /** Todos os estados acompanhados, com ou sem idade. */
+  resumos: readonly ResumoEstado[];
   fontes: readonly ReferenciaFonte[];
+  fontesResumos: readonly ReferenciaFonte[];
   dadosAte: { data: string; dias: number } | null;
 }) {
   return (
@@ -304,6 +393,7 @@ export function PaginaDemografia({
           </p>
         ) : null}
       </header>
+      {resumos.length > 0 ? <PainelPartidoModo resumos={resumos} fontes={fontesResumos} /> : null}
       <PainelComposicao estados={estados} fontes={fontes} />
       <div className="grid gap-4 lg:grid-cols-2">
         <PainelParticipacao estados={estados} fontes={fontes} />

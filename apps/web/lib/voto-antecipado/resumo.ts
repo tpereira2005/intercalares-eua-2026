@@ -22,6 +22,15 @@ export interface ResumoEstado {
   desvio: { todos: number | null; mais65: number | null; jovens: number | null };
   quota65: number | null;
   quota65Base: number | null;
+  /** Quota democrata menos quota republicana (partido de registo) entre quem já votou. */
+  vantagemDemRep: number | null;
+  vantagemDemRepBase: number | null;
+  /** Quota do voto por correspondência nos votos antecipados. */
+  quotaCorreio: number | null;
+  quotaCorreioBase: number | null;
+  /** Quota de quem não votou na eleição de referência ou se recenseou depois. */
+  quotaNovos: number | null;
+  quotaNovosBase: number | null;
   /** Habituais que ainda não votaram, somando os partidos. */
   restantes: number | null;
   /** Boletins por correspondência pedidos e ainda por devolver (estados agregados). */
@@ -46,8 +55,39 @@ function qualidadeDe(vista: VistaVotoAntecipado): NivelQualidade {
   return vista.momento.length > 0 ? "individual" : "parcial";
 }
 
+interface Quotas {
+  categoria: string;
+  quota: number | null;
+  quotaBase: number | null;
+}
+
+/** Diferença de quotas entre duas categorias, no ano e no de referência. */
+function vantagem(linhas: readonly Quotas[], a: string, b: string) {
+  const de = (c: string) => linhas.find((l) => l.categoria === c);
+  const la = de(a);
+  const lb = de(b);
+  const dif = (x: number | null | undefined, y: number | null | undefined) =>
+    x === null || x === undefined || y === null || y === undefined ? null : x - y;
+  return { atual: dif(la?.quota, lb?.quota), base: dif(la?.quotaBase, lb?.quotaBase) };
+}
+
+/** Quota do correio nos votos antecipados, no ano e no de referência. */
+function correio(linhas: readonly Quotas[]) {
+  const c = linhas.find((l) => l.categoria === "correio");
+  // Antes de abrir o voto presencial, o correio é 100% por definição e não diz nada.
+  if (c?.quota === null || c?.quota === undefined || c.quota >= 1)
+    return { atual: null, base: null };
+  return { atual: c.quota, base: c.quotaBase };
+}
+
 export function resumirEstado(vista: VistaVotoAntecipado): ResumoEstado {
   const principal = vista.comparacoes[0];
+  const partidos = vantagem(vista.composicao.partidos, "dem", "rep");
+  const modo = correio(vista.composicao.modalidades);
+  const momentoTotal = (ano: number | null) =>
+    vista.momento.find((m) => m.ano === ano)?.faixas.find((f) => f.faixa === "total");
+  const novos = momentoTotal(vista.ano);
+  const novosBase = momentoTotal(vista.composicao.anoBase);
   const faixas = principal?.faixas ?? [];
   const de = (grupo: readonly FaixaEtaria[]) => faixas.filter((f) => grupo.includes(f.faixa));
   const idosos = de(MAIS_65);
@@ -66,6 +106,12 @@ export function resumirEstado(vista: VistaVotoAntecipado): ResumoEstado {
     },
     quota65: idosos.length > 0 ? idosos.reduce((s, f) => s + f.quota, 0) : null,
     quota65Base: idosos.length > 0 ? idosos.reduce((s, f) => s + f.quotaBase, 0) : null,
+    vantagemDemRep: partidos.atual,
+    vantagemDemRepBase: partidos.base,
+    quotaCorreio: modo.atual,
+    quotaCorreioBase: modo.base,
+    quotaNovos: novos?.novos ?? null,
+    quotaNovosBase: novosBase?.novos ?? null,
     restantes:
       vista.reserva.partidos.length > 0
         ? vista.reserva.partidos.reduce((s, p) => s + p.restantes, 0)
@@ -87,6 +133,11 @@ export function resumirAgregado(vista: VistaAgregada): ResumoEstado {
   const soma = (valores: (number | null)[]) =>
     valores.some((v) => v === null) ? null : valores.reduce<number>((s, v) => s + (v ?? 0), 0);
   const partidos = vista.pedidos.partidos;
+  const vantagemPartidos = vantagem(principal?.partidos ?? [], "dem", "rep");
+  // Fontes que só publicam uma modalidade dariam 100% de correio sem o ser.
+  const ambas =
+    vista.modalidadesFonte.includes("correio") && vista.modalidadesFonte.includes("presencial");
+  const modo = ambas ? correio(principal?.modalidades ?? []) : { atual: null, base: null };
   return {
     estado: vista.estado,
     votos: vista.votos,
@@ -98,6 +149,12 @@ export function resumirAgregado(vista: VistaAgregada): ResumoEstado {
     desvio: { todos: null, mais65: null, jovens: null },
     quota65: idosos.length > 0 ? soma(idosos.map((f) => f.quota)) : null,
     quota65Base: idosos.length > 0 ? soma(idosos.map((f) => f.quotaBase)) : null,
+    vantagemDemRep: vantagemPartidos.atual,
+    vantagemDemRepBase: vantagemPartidos.base,
+    quotaCorreio: modo.atual,
+    quotaCorreioBase: modo.base,
+    quotaNovos: null,
+    quotaNovosBase: null,
     restantes: null,
     pendentes: partidos.length > 0 ? partidos.reduce((s, p) => s + p.pendentes, 0) : null,
     qualidade: vista.dimensoes.includes("faixa") ? "parcial" : "agregado",
