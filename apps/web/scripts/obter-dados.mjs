@@ -42,6 +42,12 @@ const FICHEIROS_PREVISAO = [
     asset: "historico-previsao-2026.json",
     variavel: "URL_HISTORICO_PREVISAO",
   },
+  { destino: "cenarios-2026.json", asset: "cenarios-2026.json", variavel: "URL_CENARIOS_PREVISAO" },
+  {
+    destino: "alteracoes-2026.json",
+    asset: "alteracoes-2026.json",
+    variavel: "URL_ALTERACOES_PREVISAO",
+  },
 ];
 const PASTA_RESULTADOS = path.join(RAIZ_WEB, "dados", "resultados");
 const ETIQUETA_RESULTADOS = "resultados-2026";

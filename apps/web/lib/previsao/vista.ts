@@ -119,6 +119,8 @@ export interface VistaPrevisao {
   corridasCamara: CorridaVista[];
   categorias: Record<Camara, Record<Categoria, number>>;
   backtests: Backtest[];
+  /** Commit do repositório que gerou o ficheiro; `null` fora do GitHub Actions. */
+  commit: string | null;
 }
 
 /** Fração de cada cauda da distribuição de lugares que fica fora do gráfico. */
@@ -230,6 +232,7 @@ export function construirVistaPrevisao(dados: PrevisaoCongresso): VistaPrevisao 
     fontes: dados.metadados.fontes.map((f) => ({ nome: f.nome, url: f.url })),
     notas: [...dados.notas],
     pesoVotoAntecipado: dados.peso_voto_antecipado,
+    commit: dados.codigo_commit ?? null,
     ambiente: {
       margem,
       desvio,
