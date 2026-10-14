@@ -65,3 +65,14 @@ O vigia abre (ou comenta) um issue **"Vigia da noite eleitoral"** com a tabela d
 | Projeção sem novidades em `dados-noite`                       | Job da projeção parado                                                       | Ver _Actions → Projeção da noite_ e relançar `noite.yml` com o mesmo `ate`                                                                      |
 
 Depois da noite, quando tudo estiver apurado, o vigia deixa de avisar sozinho; para o desligar antes de 5 de novembro, `gh workflow disable vigia-noite.yml`.
+
+## Reserva local
+
+Se o GitHub Actions deixar de correr (falha do serviço, limite de minutos), a recolha e a projeção podem correr num computador com `uv` e o `gh` com sessão iniciada. O script publica nas mesmas Releases e relança cada processo se parar, até à hora indicada:
+
+```sh
+pipeline/scripts/noite-reserva.sh --verificar             # confere os requisitos
+pipeline/scripts/noite-reserva.sh --ate 2026-11-04T16:00  # hora UTC
+```
+
+Nunca correm dois publicadores ao mesmo tempo: o script recusa arrancar se houver execuções de `resultados.yml` ou `noite.yml` em curso (cancelar primeiro, ou `--forcar`). A reserva usa as mesmas fontes que o Actions; não serve para recolher estados que bloqueiam pedidos automáticos.
