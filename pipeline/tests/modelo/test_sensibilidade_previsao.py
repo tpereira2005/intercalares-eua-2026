@@ -3,7 +3,13 @@
 import pytest
 
 from pipeline.jobs.sensibilidade_previsao import TRACO, VARIANTES, markdown
-from pipeline.modelo.previsao import AJUSTES_PUBLICADOS, Ajustes, Dados, prever
+from pipeline.modelo.previsao import (
+    AJUSTES_PUBLICADOS,
+    Ajustes,
+    Dados,
+    desvio_incumbentes,
+    prever,
+)
 
 
 def test_ajustes_por_omissao_sao_o_modelo_publicado(dados_sinteticos: Dados) -> None:
@@ -42,6 +48,19 @@ def test_sem_sondagens_do_senado_so_mexe_no_senado(dados_sinteticos: Dados) -> N
     assert sem.ambiente == base.ambiente
     assert all(c.sondagens is None for c in sem.senado.corridas)
     assert any(c.sondagens is not None for c in base.senado.corridas)
+
+
+def test_correcao_dos_incumbentes_e_simetrica(
+    dados_sinteticos: Dados, dados_espelhados: Dados
+) -> None:
+    assert desvio_incumbentes(dados_espelhados, 2018) == pytest.approx(
+        desvio_incumbentes(dados_sinteticos, 2018), abs=1e-9
+    )
+    ajustes = Ajustes(incumbentes_sondagens=True)
+    normal = prever(dados_sinteticos, 2018, ajustes=ajustes)
+    espelho = prever(dados_espelhados, 2018, ajustes=ajustes)
+    assert espelho.camara.prob_controlo_d == pytest.approx(normal.camara.prob_controlo_r, abs=0.02)
+    assert espelho.senado.prob_controlo_d == pytest.approx(normal.senado.prob_controlo_r, abs=0.02)
 
 
 def test_variantes_do_ambiente_vem_aos_pares() -> None:
