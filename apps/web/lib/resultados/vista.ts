@@ -8,7 +8,7 @@
  * do modelo, quando o seu contrato existir.
  */
 
-import type { CodigoEstado, ResultadosParciais } from "@intercalares/contratos";
+import type { CodigoEstado, ContagemModo, ResultadosParciais } from "@intercalares/contratos";
 import type { CorridaNoite, VistaNoite } from "../noite/vista.ts";
 import { categoria, type CorridaVista, type VistaPrevisao } from "../previsao/vista.ts";
 
@@ -32,6 +32,26 @@ export const COBERTURA_AO_VIVO: readonly {
 /** Estados com contagem ao vivo possível: as suas corridas da Câmara podem aparecer. */
 const ESTADOS_AO_VIVO = new Set<CodigoEstado>(COBERTURA_AO_VIVO.map((c) => c.estado));
 
+export type ModalidadeResultado = ContagemModo["modo"];
+
+/** Votos contados de uma modalidade, somados nas unidades que separam por modalidade. */
+export interface ModoContado {
+  modo: ModalidadeResultado;
+  votosD: number;
+  votosR: number;
+  votosOutros: number;
+  total: number;
+}
+
+/** Ordem em que as modalidades costumam chegar na contagem. */
+export const ORDEM_MODOS: readonly ModalidadeResultado[] = [
+  "correio",
+  "antecipado_presencial",
+  "dia_eleicao",
+  "provisorio",
+  "outro",
+];
+
 export interface ContagemCorrida {
   id: string;
   estado: CodigoEstado;
@@ -47,6 +67,11 @@ export interface ContagemCorrida {
   soTotal: boolean;
   /** Hora mais recente declarada pela fonte numa das unidades. */
   atualizadoEm: string | null;
+  /**
+   * Votos por modalidade, pela ordem de ORDEM_MODOS; vazio quando a fonte não separa.
+   * Unidades sem separação ficam de fora, por isso a soma pode ser menor do que `total`.
+   */
+  porModo: ModoContado[];
 }
 
 export interface LinhaResultados {
@@ -101,7 +126,22 @@ export function contarCorridas(parciais: ResultadosParciais): ContagemCorrida[] 
     let totais = 0;
     let comSeccoes = true;
     let atualizadoEm: string | null = null;
+    const modos = new Map<ModalidadeResultado, ModoContado>();
     for (const u of unidades) {
+      for (const m of u.por_modo) {
+        const atual = modos.get(m.modo) ?? {
+          modo: m.modo,
+          votosD: 0,
+          votosR: 0,
+          votosOutros: 0,
+          total: 0,
+        };
+        atual.votosD += m.votos_d;
+        atual.votosR += m.votos_r;
+        atual.votosOutros += m.votos_outros;
+        atual.total += m.votos_d + m.votos_r + m.votos_outros;
+        modos.set(m.modo, atual);
+      }
       votosD += u.votos_d;
       votosR += u.votos_r;
       votosOutros += u.votos_outros;
@@ -129,6 +169,10 @@ export function contarCorridas(parciais: ResultadosParciais): ContagemCorrida[] 
       seccoes: comSeccoes && totais > 0 ? { reportadas, totais } : null,
       soTotal: unidades.every((u) => u.unidade === "total"),
       atualizadoEm,
+      porModo: ORDEM_MODOS.flatMap((m) => {
+        const contado = modos.get(m);
+        return contado && contado.total > 0 ? [contado] : [];
+      }),
     };
   });
 }
