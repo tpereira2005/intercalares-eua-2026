@@ -122,12 +122,17 @@ def _taxa(votos: pl.Expr, registados: pl.Expr) -> pl.Expr:
     return pl.when(registados > 0).then(votos / registados).otherwise(None)
 
 
+JANELA_CALENDARIO = 3
+"""Dias para cada lado do mesmo dia do ciclo no intervalo do desvio."""
+
+
 def comparacao(atual: pl.DataFrame, base: pl.DataFrame, d: int, por: str = "faixa") -> pl.DataFrame:
     """Compara 2026 com um ano de referência no mesmo dia ``d``, por categoria de ``por``.
 
     Colunas: votos, registados, quota (no voto), quota_recenseamento, taxa, as mesmas com
     o sufixo ``_base``, ``esperado`` (recenseados de hoje x taxa da base no mesmo dia),
-    ``desvio`` (votos / esperado - 1) e os dois efeitos da decomposição da quota.
+    ``desvio`` (votos / esperado - 1), ``desvio_min`` e ``desvio_max`` (ver
+    ``intervalo_desvio``) e os dois efeitos da decomposição da quota.
     """
     a = contagens(atual, d, [por])
     b = contagens(base, d, [por]).rename({"votos": "votos_base", "registados": "registados_base"})
@@ -166,6 +171,42 @@ def comparacao(atual: pl.DataFrame, base: pl.DataFrame, d: int, por: str = "faix
     return t.with_columns(
         pl.Series("efeito_recenseamento", efeito_r),
         pl.Series("efeito_participacao", efeito_t),
+    ).join(intervalo_desvio(atual, base, d, por), on=por, how="left")
+
+
+def intervalo_desvio(
+    atual: pl.DataFrame, base: pl.DataFrame, d: int, por: str = "faixa"
+) -> pl.DataFrame:
+    """Menor e maior desvio quando a taxa de referência se lê até ``JANELA_CALENDARIO``
+    dias antes ou depois do mesmo dia do ciclo.
+
+    Mede a sensibilidade ao alinhamento do calendário (feriados, dias de abertura dos
+    locais de voto, atrasos no registo dos boletins), não o erro de amostragem, que é
+    desprezável com estas contagens. O intervalo inclui sempre o desvio do mesmo dia.
+    """
+    a = contagens(atual, d, [por]).select(por, "votos", "registados")
+    desvios = []
+    for dia in range(max(0, d - JANELA_CALENDARIO), d + JANELA_CALENDARIO + 1):
+        b = contagens(base, dia, [por]).select(
+            por, _taxa(pl.col("votos"), pl.col("registados")).alias("taxa_base")
+        )
+        esperado = pl.col("registados") * pl.col("taxa_base")
+        desvios.append(
+            a.join(b, on=por, how="left").select(
+                por,
+                pl.when(esperado > 0)
+                .then(pl.col("votos") / esperado - 1)
+                .otherwise(None)
+                .alias("desvio_dia"),
+            )
+        )
+    return (
+        pl.concat(desvios)
+        .group_by(por)
+        .agg(
+            pl.col("desvio_dia").min().alias("desvio_min"),
+            pl.col("desvio_dia").max().alias("desvio_max"),
+        )
     )
 
 

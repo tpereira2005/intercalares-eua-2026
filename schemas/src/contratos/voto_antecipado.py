@@ -76,6 +76,10 @@ class PontoSerie(ModeloContrato):
 class LinhaComparacao(ModeloContrato):
     """2026 face a um ano de referência, no mesmo dia do ciclo, para uma faixa etária."""
 
+    # Campos acrescentados depois da primeira versão: opcionais no esquema JSON, para que os
+    # ficheiros já publicados continuem válidos (os modelos pydantic usam o valor por omissão).
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
+
     ano_base: int
     faixa: Faixa
     votos: int = Contagem
@@ -99,6 +103,13 @@ class LinhaComparacao(ModeloContrato):
 
     desvio: float | None
     """Votos observados / esperados - 1. Positivo: acima do ritmo do ano de referência."""
+
+    desvio_min: float | None = None
+    desvio_max: float | None = None
+    """Menor e maior desvio com a taxa de referência lida até 3 dias antes ou depois do
+    mesmo dia do ciclo: a sensibilidade ao alinhamento do calendário. O intervalo das
+    barras é o envelope destes valores nas referências intercalares (2018 e 2022), que é
+    a medida honesta da incerteza (ver a metodologia)."""
 
     efeito_recenseamento: float
     """Parte da variação da quota explicada por haver mais ou menos recenseados da faixa."""
