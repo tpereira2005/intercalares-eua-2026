@@ -122,9 +122,13 @@ describe("construirVistaResultados", () => {
       ["GA", 1],
       ["AK", 0],
       ["TX", 0],
+      ["VA", 0],
+      ["NE", 0],
       ["IA", 1],
     ]);
     expect(vista.cobertura.find((c) => c.estado === "GA")?.soTotal).toBe(true);
+    expect(vista.cobertura.find((c) => c.estado === "NE")?.soTotal).toBe(true);
+    expect(vista.cobertura.find((c) => c.estado === "VA")?.soTotal).toBe(false);
     expect(vista.cobertura.find((c) => c.estado === "TX")?.parcial).toBe(true);
   });
 

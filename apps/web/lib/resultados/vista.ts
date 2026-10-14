@@ -20,8 +20,8 @@ import { construirChamadas, type ChamadaVista } from "./chamadas.ts";
 
 /**
  * Estados recolhidos na noite (workflow Resultados; docs/metodologia/resultados.md). Na
- * Geórgia e no Alasca, a fonte só dá o total de cada corrida; no Texas, só se acompanha
- * o condado de Harris. A Carolina do Sul e o Iowa ficam de fora: bloqueiam o Actions.
+ * Geórgia, no Alasca e no Nebraska, a fonte só dá o total de cada corrida; no Texas, só
+ * se acompanha o condado de Harris. A Carolina do Sul e o Iowa ficam de fora: bloqueiam o Actions.
  */
 export const COBERTURA_AO_VIVO: readonly {
   estado: CodigoEstado;
@@ -33,6 +33,8 @@ export const COBERTURA_AO_VIVO: readonly {
   { estado: "GA", soTotal: true, parcial: false },
   { estado: "AK", soTotal: true, parcial: false },
   { estado: "TX", soTotal: false, parcial: true },
+  { estado: "VA", soTotal: false, parcial: false },
+  { estado: "NE", soTotal: true, parcial: false },
 ];
 
 /** Estados com contagem ao vivo possível: as suas corridas da Câmara podem aparecer. */

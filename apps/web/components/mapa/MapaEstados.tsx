@@ -9,7 +9,9 @@ import { COLUNAS_GRELHA, ESTADOS, LINHAS_GRELHA, nomeEstado } from "@/lib/estado
 import {
   formatarData,
   formatarDiaCiclo,
+  formatarMargem,
   formatarNumero,
+  formatarPercentagem,
   formatarVariacao,
 } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
@@ -22,21 +24,47 @@ export interface EstadoForaMapa {
   nota: string;
 }
 
-type Indicador = "ritmo" | "todos" | "mais65" | "jovens";
+type Indicador = "ritmo" | "partido" | "todos" | "mais65" | "jovens";
 
 function valorDe(r: ResumoEstado, indicador: Indicador): number | null {
-  return indicador === "ritmo" ? r.variacaoVotos : r.desvio[indicador];
+  if (indicador === "ritmo") return r.variacaoVotos;
+  if (indicador === "partido") {
+    // Deslocação da vantagem D−R entre quem já votou face ao mesmo dia de referência.
+    return r.vantagemDemRep === null || r.vantagemDemRepBase === null
+      ? null
+      : r.vantagemDemRep - r.vantagemDemRepBase;
+  }
+  return r.desvio[indicador];
+}
+
+function formatarValor(valor: number, indicador: Indicador): string {
+  return indicador === "partido" ? formatarMargem(valor) : formatarVariacao(valor);
 }
 
 const ESPACO = 4;
 
-/** Cor de um quadrado: verde-azulado acima do esperado, violeta abaixo, mais forte quanto maior. */
-function preenchimento(valor: number, extremo: number): { fill: string; forte: boolean } {
+/**
+ * Cor de um quadrado, mais forte quanto maior o valor: verde-azulado acima do esperado e
+ * violeta abaixo; no indicador partidário, azul para D e vermelho tracejado para R.
+ */
+function preenchimento(
+  valor: number,
+  extremo: number,
+  indicador: Indicador,
+): { fill: string; forte: boolean; padraoRep: number } {
   const intensidade = Math.min(1, Math.abs(valor) / extremo);
-  const cor = valor >= 0 ? "var(--up)" : "var(--down)";
+  const partido = indicador === "partido";
+  const cor = partido
+    ? valor >= 0
+      ? "var(--dem)"
+      : "var(--rep)"
+    : valor >= 0
+      ? "var(--up)"
+      : "var(--down)";
   return {
     fill: `color-mix(in oklab, ${cor} ${String(Math.round(intensidade * 85))}%, var(--rule-2))`,
     forte: intensidade > 0.55,
+    padraoRep: partido && valor < 0 ? intensidade : 0,
   };
 }
 
@@ -59,7 +87,7 @@ export function MapaEstados({
     const v = valorDe(r, indicador);
     return v === null ? [] : [Math.abs(v)];
   });
-  const extremo = escala(Math.max(0.1, ...valores)).maximo;
+  const extremo = escala(Math.max(indicador === "partido" ? 0.05 : 0.1, ...valores)).maximo;
   const resumo = porEstado.get(escolhido as ResumoEstado["estado"]);
   const foraEscolhido = foraPorEstado.get(escolhido as ResumoEstado["estado"]);
   const anoBase = resumos.find((r) => r.anoBase !== null)?.anoBase ?? 2022;
@@ -75,6 +103,7 @@ export function MapaEstados({
             aoMudar={setIndicador}
             opcoes={[
               { valor: "ritmo", rotulo: t("mapa.indicadores.ritmo") },
+              { valor: "partido", rotulo: t("mapa.indicadores.partido") },
               { valor: "todos", rotulo: t("mapa.indicadores.todos") },
               { valor: "mais65", rotulo: t("mapa.indicadores.mais65") },
               { valor: "jovens", rotulo: t("mapa.indicadores.jovens") },
@@ -82,12 +111,16 @@ export function MapaEstados({
           />
         </div>
         <div className="flex items-center gap-2 font-mono text-[11px] text-ink-3">
-          <span>{formatarVariacao(-extremo)}</span>
+          <span>{formatarValor(-extremo, indicador)}</span>
           <span
             aria-hidden="true"
-            className="inline-block h-2.5 w-28 rounded-[1px] bg-[linear-gradient(90deg,var(--down),var(--rule-2),var(--up))]"
+            className={`inline-block h-2.5 w-28 rounded-[1px] ${
+              indicador === "partido"
+                ? "bg-[linear-gradient(90deg,var(--rep),var(--rule-2),var(--dem))]"
+                : "bg-[linear-gradient(90deg,var(--down),var(--rule-2),var(--up))]"
+            }`}
           />
-          <span>{formatarVariacao(extremo)}</span>
+          <span>{formatarValor(extremo, indicador)}</span>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1">
           <QualidadeDados nivel="individual" comTexto />
@@ -145,7 +178,7 @@ export function MapaEstados({
                 const r = porEstado.get(e.codigo);
                 const semFonte = r ? undefined : foraPorEstado.get(e.codigo);
                 const valor = r ? valorDe(r, indicador) : null;
-                const cor = valor === null ? null : preenchimento(valor, extremo);
+                const cor = valor === null ? null : preenchimento(valor, extremo, indicador);
                 const ativo = e.codigo === escolhido;
                 const texto = cor?.forte ? "fill-sheet" : "fill-ink";
                 return (
@@ -165,7 +198,7 @@ export function MapaEstados({
                           : t("mapa.quadrado", {
                               estado: e.nome,
                               codigo: e.codigo,
-                              valor: formatarVariacao(valor),
+                              valor: formatarValor(valor, indicador),
                             }),
                       () => {
                         setEscolhido(e.codigo);
@@ -192,6 +225,19 @@ export function MapaEstados({
                             : "stroke-ink-3"
                       }`}
                     />
+                    {cor && cor.padraoRep > 0 ? (
+                      <rect
+                        x={x}
+                        y={y}
+                        width={lado}
+                        height={lado}
+                        rx={3}
+                        aria-hidden="true"
+                        fill="url(#padrao-rep)"
+                        opacity={Math.max(0.35, cor.padraoRep)}
+                        className="pointer-events-none"
+                      />
+                    ) : null}
                     {semFonte ? (
                       <line
                         x1={x + 3}
@@ -216,7 +262,7 @@ export function MapaEstados({
                         y={y + lado - 8}
                         className={`font-mono text-[10.5px] ${cor?.forte ? "fill-sheet" : "fill-ink-2"}`}
                       >
-                        {formatarVariacao(valor)}
+                        {formatarValor(valor, indicador)}
                       </text>
                     ) : null}
                     {lado >= 30 && r ? (
@@ -236,9 +282,13 @@ export function MapaEstados({
             <span>
               {indicador === "ritmo"
                 ? t("mapa.metodoRitmo", { ano: anoBase })
-                : t("mapa.metodo", { ano: anoBase })}
+                : indicador === "partido"
+                  ? t("mapa.metodoPartido", { ano: anoBase })
+                  : t("mapa.metodo", { ano: anoBase })}
             </span>
-            {indicador !== "ritmo" && resumos.some((r) => r.desvio.todos === null) ? (
+            {indicador !== "ritmo" &&
+            indicador !== "partido" &&
+            resumos.some((r) => r.desvio.todos === null) ? (
               <span>{t("mapa.soIndividuais")}</span>
             ) : null}
           </footer>
@@ -269,6 +319,30 @@ export function MapaEstados({
                     </dt>
                     <dd className="text-right font-semibold">
                       {formatarVariacao(resumo.variacaoVotos)}
+                    </dd>
+                  </>
+                )}
+                {resumo.vantagemDemRep === null ? null : (
+                  <>
+                    <dt className="text-ink-2">{t("mapa.vantagem")}</dt>
+                    <dd className="text-right font-semibold">
+                      {formatarMargem(resumo.vantagemDemRep)}
+                      {resumo.vantagemDemRepBase === null ? null : (
+                        <span className="block text-[11.5px] font-normal text-ink-3">
+                          {t("mapa.vantagemBase", {
+                            valor: formatarMargem(resumo.vantagemDemRepBase),
+                            ano: resumo.anoBase ?? anoBase,
+                          })}
+                        </span>
+                      )}
+                    </dd>
+                  </>
+                )}
+                {resumo.quotaCorreio === null ? null : (
+                  <>
+                    <dt className="text-ink-2">{t("mapa.correio")}</dt>
+                    <dd className="text-right font-semibold">
+                      {formatarPercentagem(resumo.quotaCorreio)}
                     </dd>
                   </>
                 )}

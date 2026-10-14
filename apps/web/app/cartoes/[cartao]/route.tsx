@@ -6,6 +6,7 @@ import {
   formatarData,
   formatarNumero,
   formatarPercentagem,
+  formatarVariacao,
 } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
 import { carregarPrevisao } from "@/lib/previsao/carregar.ts";
@@ -84,9 +85,13 @@ function conteudos(): Map<string, ConteudoCartao> {
       sobrelinha: t("cartoes.votoAntecipado.sobrelinha", { estado: nomeEstado(r.estado) }),
       titulo: t("cartoes.votoAntecipado.titulo"),
       destaque:
-        r.quota65 === null
-          ? t("cartoes.votoAntecipado.destaqueSemIdade", { votos })
-          : t("cartoes.votoAntecipado.destaque", { votos, quota: formatarPercentagem(r.quota65) }),
+        r.variacaoVotos === null || r.anoBase === null
+          ? t("cartoes.votoAntecipado.destaqueSoVotos", { votos })
+          : t("cartoes.votoAntecipado.destaque", {
+              votos,
+              variacao: formatarVariacao(r.variacaoVotos),
+              ano: r.anoBase,
+            }),
       texto: t("cartoes.votoAntecipado.dadosAte", { data: formatarData(data(r.dadosAte)) }),
     });
   }

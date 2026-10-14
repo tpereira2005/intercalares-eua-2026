@@ -8,6 +8,7 @@
  * só seleciona, agrupa e ordena.
  */
 
+import { composicaoEstado, type ComposicaoEstado } from "./composicao.ts";
 import { agruparGeografia, type UnidadeGeografica } from "./geografia.ts";
 import type {
   LinhaComparacao,
@@ -138,6 +139,8 @@ export interface VistaVotoAntecipado {
   reserva: { anoBase: number | null; partidos: ReservaPartido[] };
   /** Votos e recenseados por faixa larga em cada condado e distrito, no mesmo dia do ciclo. */
   geografia: UnidadeGeografica[];
+  /** Partido de registo e modalidade de quem já votou, face ao mesmo dia da comparação principal. */
+  composicao: ComposicaoEstado;
 }
 
 /** Janela das curvas: o voto antecipado relevante cabe nos últimos 45 dias. */
@@ -427,5 +430,6 @@ export function construirVista(dados: VotoAntecipadoEstado): VistaVotoAntecipado
       principal !== null && anosReserva.has(principal) ? principal : null,
     ),
     geografia: agruparGeografia(dados.geografia, dados.historico_geografia ?? []),
+    composicao: composicaoEstado(dados.serie, dados.ano, principal, dados.dias_antes),
   };
 }

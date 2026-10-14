@@ -25,13 +25,12 @@
     "aria": "Secções",
     "inicio": "Início",
     "votoAntecipado": "Voto antecipado",
-    "votoAntecipadoMarca": "Idade",
     "mapa": "Mapa",
     "previsao": "Previsão",
     "sondagens": "Sondagens",
     "resultados": "Noite eleitoral",
     "metodologia": "Metodologia",
-    "demografia": "Demografia"
+    "demografia": "Grupos"
   },
   "rodape": {
     "texto": "Escrutínio · Intercalares EUA 2026. Dados de fontes oficiais e gratuitas; cada número indica a fonte e o método.",
@@ -65,12 +64,12 @@
     "proximosTitulo": "O que vem aí",
     "proximosDescricao": "A plataforma abre por fases, sempre com dados reais e a fonte indicada.",
     "proximos": {
-      "votoAntecipado": "Rastreador do voto antecipado, com a análise por idade, partido, histórico de voto e modalidade, a começar pela Carolina do Norte.",
+      "votoAntecipado": "Rastreador do voto antecipado por partido, modo de voto, histórico e idade, a começar pela Carolina do Norte.",
       "previsao": "Previsão da Câmara e do Senado, com simulação, backtests simétricos e modelo congelado a 1 de novembro.",
       "noite": "Resultados em tempo real na noite eleitoral, com projeção do voto que falta contar."
     },
     "metodo": "Os dias contam até às 0h00 de 3 de novembro, hora de Washington.",
-    "narrativa": "{estado}: {votos} votos antecipados até agora, {variacao} face ao mesmo dia de {ano}. Os eleitores com 65 ou mais anos pesam {quota65} do voto antecipado ({pontos} face a {ano}). Entre os 18 e os 29 anos, a participação está {jovens} face ao esperado.",
+    "narrativa": "{estado}: {votos} votos antecipados até agora, {variacao} face ao mesmo dia de {ano}.",
     "verRastreador": "Ver o rastreador",
     "geradoDados": "Gerado automaticamente a partir dos dados de {data}",
     "previsao": {
@@ -95,16 +94,18 @@
       "votosDetalheUm": "{variacao} face ao mesmo dia de {ano}"
     },
     "quemVotou": {
-      "sobrelinha": "{estado} · voto antecipado por idade",
+      "sobrelinha": "{estado} · voto antecipado",
       "titulo": "Quem já votou",
-      "ligacao": "Analisar por idade"
+      "ligacao": "Ver o rastreador do estado"
     },
     "estados": {
       "sobrelinha": "Voto antecipado",
       "titulo": "Estados acompanhados",
-      "texto": "Votos antecipados face ao mesmo dia do ciclo de {ano}.",
+      "texto": "Ritmo dos votos antecipados face ao mesmo dia do ciclo de {ano} e vantagem por partido de registo entre quem já votou.",
       "ligacao": "Ver o mapa",
-      "metodo": "votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1, em cada estado com a sua própria data. A soma é só dos estados acompanhados, não é um total nacional."
+      "metodo": "ritmo = votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1, em cada estado com a sua própria data; D−R = quota democrata − quota republicana por partido de registo, que não é o voto. A soma é só dos estados acompanhados, não é um total nacional.",
+      "colunaRitmo": "Ritmo",
+      "colunaVantagem": "D−R"
     },
     "aoVivo": {
       "corridasSobrelinha": "Contagem oficial",
@@ -130,12 +131,16 @@
         "D": "{corrida}: ganhou o democrata, a quem a previsão dava {prob}.",
         "R": "{corrida}: ganhou o republicano, a quem a previsão dava {prob}."
       }
-    }
+    },
+    "narrativaPartido": "Por partido de registo, a vantagem entre quem já votou é {vantagem}, contra {base} no mesmo dia de {ano}.",
+    "narrativaModo": "O correio pesa {correio} dos votos ({pontos} face a {ano}).",
+    "narrativaNovos": "{novos} dos votantes não votaram na eleição de referência.",
+    "narrativaIdade": "Os eleitores com 65 ou mais anos pesam {quota65} ({pontos} face a {ano})."
   },
   "seccoes": {
     "votoAntecipado": {
       "titulo": "Voto antecipado",
-      "descricao": "Composição, participação e momento do voto por idade, partido, histórico e modalidade, comparados com 2018, 2020, 2022 e 2024."
+      "descricao": "Composição, participação e momento do voto por partido, modalidade, histórico e idade, comparados com 2018, 2020, 2022 e 2024."
     },
     "mapa": {
       "titulo": "Mapa",
@@ -159,8 +164,8 @@
     },
     "emPreparacaoTexto": "Esta secção está a ser construída. Abre com dados reais, nunca com valores fictícios.",
     "demografia": {
-      "titulo": "Demografia do voto antecipado",
-      "descricao": "Jovens e 65+ estado a estado: quanto pesam no voto antecipado, quantos já votaram face ao esperado e quantos são voto novo, no mesmo dia do ciclo de 2022."
+      "titulo": "Grupos de eleitores no voto antecipado",
+      "descricao": "Partido de registo, modo de voto, histórico e idade, estado a estado, no mesmo dia do ciclo de 2022."
     }
   },
   "sistema": {
@@ -207,7 +212,7 @@
   },
   "votoAntecipado": {
     "sobrelinha": "Rastreador do voto antecipado · {estado}",
-    "titulo": "{estado}, por idade",
+    "titulo": "{estado}: quem já votou",
     "lede": "Ficheiros individuais diários com idade, partido, modalidade e histórico de voto. Comparamos sempre com o mesmo dia do ciclo, nunca com o total final.",
     "dadosAte": "Dados até {data}",
     "geradoEm": "Atualizado a {data}",
@@ -224,7 +229,13 @@
       "desvioJovens": "Participação 18–29 face ao esperado",
       "desvioJovensDetalhe": "ritmo de {ano} no mesmo dia",
       "reserva": "Habituais que ainda não votaram",
-      "reservaDetalhe": "votaram em {ano} e ainda não em {atual}"
+      "reservaDetalhe": "votaram em {ano} e ainda não em {atual}",
+      "vantagem": "Vantagem D−R entre quem já votou",
+      "vantagemDetalhe": "por partido de registo · {base} no mesmo dia de {ano}",
+      "correio": "Peso do correio",
+      "correioDetalhe": "{pontos} face a {ano}",
+      "novos": "Voto novo",
+      "novosDetalhe": "não votaram na eleição de referência · {ano}: {base}"
     },
     "perguntas": {
       "rotulo": "Pergunta",
@@ -414,15 +425,45 @@
         "projetadaBacktest": "Projetada"
       },
       "metodo": "quotas projetadas do eleitorado final por faixa etária e partido de registo, a partir do voto antecipado chegado até ao dia dos dados; margem de cada grupo por regressão ecológica (o intervalo junta as versões com anos e penalizações diferentes). Inclinação: margem do eleitorado menos a dos registados. Efeito: inclinação projetada menos a da intercalar anterior, em pontos D − R; positivo puxa para os democratas."
+    },
+    "criterios": {
+      "sobrelinha": "{estado} · quem já votou",
+      "titulo": "Quem já votou",
+      "texto": "A composição dos votos antecipados por partido de registo, modo de voto, histórico de voto e idade, cada um face ao mesmo dia do ciclo do ano de referência.",
+      "metodo": "quota de cada categoria nos votos antecipados até ao mesmo dia do ciclo. O partido é o de registo, não o voto de cada eleitor. No histórico, habituais já votavam antecipadamente na eleição anterior do mesmo tipo, antecipação são os que votavam no dia e passaram a votar mais cedo, e voto novo são os que não votaram ou se recensearam depois. A idade usa faixas largas.",
+      "titulos": {
+        "partido": "Partido de registo",
+        "modalidade": "Modo de voto",
+        "historico": "Histórico de voto",
+        "idade": "Idade"
+      },
+      "modalidades": {
+        "correio": "Correio",
+        "presencial": "Presencial antecipado"
+      },
+      "historico": {
+        "habituais": "Habituais",
+        "antecipacao": "Antecipação",
+        "novos": "Voto novo"
+      },
+      "categoria": "Categoria",
+      "diferenca": "Dif.",
+      "legenda": "{criterio}: quota no voto antecipado em {ano} e no mesmo dia de {base}, com a diferença em pontos",
+      "legendaSemBase": "{criterio}: quota no voto antecipado em {ano}"
+    },
+    "detalhe": {
+      "titulo": "Em detalhe: idade, histórico e geografia",
+      "texto": "Os painéis seguintes separam o que a composição mistura: quem está recenseado, quem vota e quando vota, faixa a faixa, e onde estão os votos que faltam."
     }
   },
   "mapa": {
     "sobrelinha": "Voto antecipado · 50 estados e DC",
     "titulo": "Voto antecipado por estado",
-    "lede": "Cada quadrado é um estado. Por omissão, a cor compara os votos antecipados com os do mesmo dia do ciclo em {ano}. Onde há ficheiro de eleitores, também se vê a participação face ao esperado. Os estados a tracejado ainda não têm dados no site; os riscados ficam de fora, e escolhê-los mostra porquê.",
+    "lede": "Cada quadrado é um estado. Por omissão, a cor compara os votos antecipados com os do mesmo dia do ciclo em {ano}; o indicador partidário mostra se quem já votou está mais democrata ou mais republicano do que nesse dia. Onde há ficheiro de eleitores, também se vê a participação face ao esperado. Os estados a tracejado ainda não têm dados no site; os riscados ficam de fora, e escolhê-los mostra porquê.",
     "indicador": "Indicador",
     "indicadores": {
       "ritmo": "Ritmo",
+      "partido": "Partido",
       "todos": "Todos",
       "mais65": "65+",
       "jovens": "18–29"
@@ -465,7 +506,11 @@
       "margemBase": "({valor} em {ano})",
       "nota": "Sinal ecológico: mais votos em condados de Trump não dizem quem votou dentro deles. Descreve a geografia de onde vêm os votos, não o voto.",
       "faceA": "face a {ano}"
-    }
+    },
+    "metodoPartido": "Método: vantagem D−R por partido de registo entre quem já votou em 2026, menos a mesma vantagem no mesmo dia do ciclo de {ano}. Azul: mais democrata que em {ano}; vermelho tracejado: mais republicano. O partido de registo não é o voto.",
+    "vantagem": "Vantagem D−R entre quem já votou",
+    "vantagemBase": "{valor} no mesmo dia de {ano}",
+    "correio": "Peso do correio"
   },
   "previsao": {
     "sobrelinha": "Modelo Escrutínio · {ano}",
@@ -867,15 +912,15 @@
   "cartoes": {
     "inicio": {
       "titulo": "Intercalares dos EUA 2026",
-      "texto": "Voto antecipado por idade, previsão da Câmara e do Senado e resultados na noite eleitoral."
+      "texto": "Voto antecipado por partido, modo de voto, histórico e idade, previsão da Câmara e do Senado e resultados na noite eleitoral."
     },
     "votoAntecipado": {
       "sobrelinha": "Voto antecipado · {estado}",
-      "titulo": "Quem já votou, por idade",
-      "destaque": "{votos} votos · 65+ pesam {quota}",
+      "titulo": "Quem já votou",
+      "destaque": "{votos} votos · {variacao} face a {ano}",
       "dadosAte": "Dados até {data}",
-      "destaqueSemIdade": "{votos} votos antecipados",
-      "descricao": "Voto antecipado em {estado} nas intercalares de 2026: quem já votou por idade, partido de registo e modo de voto, comparado com as eleições anteriores no mesmo dia do ciclo."
+      "descricao": "Voto antecipado em {estado} nas intercalares de 2026: quem já votou por partido de registo, modo de voto, histórico e idade, comparado com as eleições anteriores no mesmo dia do ciclo.",
+      "destaqueSoVotos": "{votos} votos antecipados"
     },
     "previsao": {
       "sobrelinha": "Previsão · {data}",
@@ -1092,16 +1137,16 @@
       "fecho": "As urnas fecham a {quando}, hora de Lisboa.",
       "fechoTodas": "As urnas fecham a {quando}, hora de Lisboa; as últimas às {todas}.",
       "sondagens": "As sondagens desta corrida e o peso de cada uma na média",
-      "votoAntecipado": "O voto antecipado deste estado, por idade, partido e histórico",
+      "votoAntecipado": "O voto antecipado deste estado, por partido, modo, histórico e idade",
       "resultados": "A contagem na noite eleitoral",
       "previsao": "A previsão completa da Câmara e do Senado"
     },
     "metadados": "Previsão para {corrida}: probabilidade de vitória, margem prevista e de onde vem."
   },
   "demografia": {
-    "sobrelinha": "Voto antecipado · idade · {ano}",
-    "titulo": "Demografia do voto antecipado",
-    "lede": "Os estados com idade lado a lado, sempre no mesmo dia do ciclo do ano de referência. Um eleitorado antecipado mais velho não quer dizer, por si só, mais participação dos mais velhos nem mais votos para um partido: cada painel responde a uma pergunta diferente.",
+    "sobrelinha": "Voto antecipado · grupos · {ano}",
+    "titulo": "Grupos de eleitores no voto antecipado",
+    "lede": "Os estados lado a lado por partido de registo, modo de voto, histórico e idade, sempre no mesmo dia do ciclo do ano de referência. Cada painel responde a uma pergunta diferente: um eleitorado antecipado mais democrata ou mais velho não quer dizer, por si só, mais votos para um partido.",
     "dadosAte": "Dados até {data}, {dias} dias antes da eleição",
     "grupos": {
       "jovens": "18–29",
@@ -1113,7 +1158,7 @@
       "mais65": "65 ou mais anos"
     },
     "composicao": {
-      "sobrelinha": "Pergunta 1 · Composição",
+      "sobrelinha": "Idade · composição",
       "titulo": "Quanto pesa cada idade no voto antecipado",
       "texto": "Quota de cada grupo nos votos já depositados, em 2026 e no mesmo dia do ciclo do ano de referência. É o número que circula nas redes; sozinho, mistura quem está recenseado, quem vota e quando vota.",
       "aria": "{grupo}: quota no voto antecipado em cada estado, no ano de referência e em 2026. {lista}",
@@ -1122,7 +1167,7 @@
       "notaSo24": "Nos estados assinalados com * a fonte só separa os 18–24."
     },
     "participacao": {
-      "sobrelinha": "Pergunta 2 · Participação",
+      "sobrelinha": "Idade · participação",
       "titulo": "Acima ou abaixo do esperado",
       "texto": "Votos observados contra os esperados para este dia: recenseados de hoje vezes a taxa do ano de referência no mesmo dia. Só existe onde há ficheiro de eleitores com idade; sem ele não há denominador.",
       "aria": "Participação face ao esperado por estado e grupo: {lista}",
@@ -1133,7 +1178,7 @@
       "intervalo": "Os grupos somados aqui não têm intervalo. Na página de cada estado, cada faixa tem o intervalo face às referências intercalares, que dá a ordem de grandeza da incerteza."
     },
     "momento": {
-      "sobrelinha": "Pergunta 3 · Momento do voto",
+      "sobrelinha": "Histórico · momento do voto",
       "titulo": "Habituais, antecipação e voto novo",
       "texto": "Dos que já votaram, quantos votavam antecipadamente na eleição anterior do mesmo tipo (habituais), quantos votavam no dia e passaram a votar mais cedo (antecipação, não é voto novo) e quantos não votaram ou se recensearam depois (voto novo).",
       "aria": "Momento do voto por estado e grupo: {lista}",
@@ -1148,7 +1193,22 @@
       "linha": "{estado}: {votos} votos",
       "mapa": "Que estados ficam de fora, e porquê, está no mapa."
     },
-    "anoReferencia": "Ano de referência"
+    "anoReferencia": "Ano de referência",
+    "partidoModo": {
+      "sobrelinha": "Partido e modo de voto",
+      "titulo": "Ritmo, partido e correio em cada estado",
+      "texto": "Votos face ao mesmo dia do ciclo do ano de referência, a vantagem por partido de registo entre quem já votou e o peso do correio. O partido de registo não é o voto: os não filiados decidem muitas corridas.",
+      "metodo": "ritmo = votos de 2026 / votos no mesmo dia do ano de referência − 1; vantagem = quota democrata − quota republicana nos votos antecipados; correio = quota dos votos por correspondência. Sem ficheiro com as duas modalidades, o correio fica em branco.",
+      "legenda": "Ritmo, vantagem partidária e peso do correio por estado, face ao mesmo dia do ano de referência",
+      "colunas": {
+        "estado": "Estado",
+        "ritmo": "Ritmo",
+        "vantagem": "D−R 2026",
+        "vantagemBase": "D−R referência",
+        "correio": "Correio"
+      },
+      "semPartido": "Nenhum estado acompanhado publica ainda o partido de registo dos votos."
+    }
   },
   "metodologia": {
     "sobrelinha": "Como se faz o Escrutínio",

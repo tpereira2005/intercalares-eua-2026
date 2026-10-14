@@ -7,16 +7,11 @@ import { t, type ChaveMensagem } from "@/lib/mensagens.ts";
 interface Seccao {
   href: string;
   rotulo: ChaveMensagem;
-  marca?: ChaveMensagem;
 }
 
 export const SECCOES: readonly Seccao[] = [
   { href: "/", rotulo: "navegacao.inicio" },
-  {
-    href: "/voto-antecipado/",
-    rotulo: "navegacao.votoAntecipado",
-    marca: "navegacao.votoAntecipadoMarca",
-  },
+  { href: "/voto-antecipado/", rotulo: "navegacao.votoAntecipado" },
   { href: "/demografia/", rotulo: "navegacao.demografia" },
   { href: "/mapa/", rotulo: "navegacao.mapa" },
   { href: "/previsao/", rotulo: "navegacao.previsao" },
@@ -54,11 +49,6 @@ export function Navegacao() {
                 }`}
               >
                 {t(seccao.rotulo)}
-                {seccao.marca ? (
-                  <span className="ml-1.5 font-mono text-[10px] leading-none font-medium tracking-[0.04em] text-ink-3 uppercase">
-                    {t(seccao.marca)}
-                  </span>
-                ) : null}
               </Link>
             </li>
           );
