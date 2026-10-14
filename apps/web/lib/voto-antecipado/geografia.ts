@@ -141,3 +141,22 @@ export function linhasUnidades(
         a.nome.localeCompare(b.nome, "pt-PT", { numeric: true }),
     );
 }
+
+/** Níveis com unidades, distritos primeiro. */
+export const NIVEIS: readonly NivelGeografico[] = ["distrito", "condado"];
+
+/**
+ * Nível mostrado ao abrir o painel: o primeiro com dados do ano de comparação
+ * (na Pensilvânia de 2022, por exemplo, só há condados). Sem nenhum, o
+ * primeiro nível com unidades; `null` sem unidades.
+ */
+export function nivelPorOmissao(
+  unidades: readonly UnidadeGeografica[],
+  anoBase: number,
+): NivelGeografico | null {
+  const comUnidades = NIVEIS.filter((n) => unidades.some((u) => u.nivel === n));
+  const comBase = comUnidades.find((n) =>
+    unidades.some((u) => u.nivel === n && u.anos.some((a) => a.ano === anoBase)),
+  );
+  return comBase ?? comUnidades[0] ?? null;
+}
