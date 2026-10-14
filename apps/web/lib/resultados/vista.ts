@@ -13,16 +13,24 @@ import type { CorridaNoite, VistaNoite } from "../noite/vista.ts";
 import { categoria, type CorridaVista, type VistaPrevisao } from "../previsao/vista.ts";
 
 /**
- * Estados com recolha ao vivo prevista (docs/metodologia/resultados.md). Na Geórgia,
- * a fonte só dá o total de cada corrida, sem condados.
+ * Estados recolhidos na noite (workflow Resultados; docs/metodologia/resultados.md). Na
+ * Geórgia e no Alasca, a fonte só dá o total de cada corrida; no Texas, só se acompanha
+ * o condado de Harris. A Carolina do Sul e o Iowa ficam de fora: bloqueiam o Actions.
  */
-export const COBERTURA_AO_VIVO: readonly { estado: CodigoEstado; soTotal: boolean }[] = [
-  { estado: "NC", soTotal: false },
-  { estado: "FL", soTotal: false },
-  { estado: "GA", soTotal: true },
-  { estado: "SC", soTotal: false },
-  { estado: "IA", soTotal: false },
+export const COBERTURA_AO_VIVO: readonly {
+  estado: CodigoEstado;
+  soTotal: boolean;
+  parcial: boolean;
+}[] = [
+  { estado: "NC", soTotal: false, parcial: false },
+  { estado: "FL", soTotal: false, parcial: false },
+  { estado: "GA", soTotal: true, parcial: false },
+  { estado: "AK", soTotal: true, parcial: false },
+  { estado: "TX", soTotal: false, parcial: true },
 ];
+
+/** Estados com contagem ao vivo possível: as suas corridas da Câmara podem aparecer. */
+const ESTADOS_AO_VIVO = new Set<CodigoEstado>(COBERTURA_AO_VIVO.map((c) => c.estado));
 
 export interface ContagemCorrida {
   id: string;
@@ -54,6 +62,9 @@ export interface LinhaResultados {
 export interface EstadoCobertura {
   estado: CodigoEstado;
   soTotal: boolean;
+  /** Só alguns condados; `nota` explica quais, quando a fonte a dá. */
+  parcial: boolean;
+  nota: string | null;
   corridas: number;
   atualizadoEm: string | null;
 }
@@ -137,9 +148,32 @@ function naoSolida(c: CorridaVista): boolean {
   return c.decidida === null && cat !== "solidaD" && cat !== "solidaR";
 }
 
+/** O que a vista dos resultados usa da previsão. */
+export type PrevisaoResultados = Pick<
+  VistaPrevisao,
+  "ano" | "congelada" | "corte" | "corridasSenado" | "corridasCamara"
+>;
+
+/**
+ * A previsão reduzida ao que a noite pode mostrar: o Senado, os distritos não sólidos e
+ * os distritos dos estados com contagem ao vivo. É o que segue para o browser, que
+ * reconstrói a vista a cada consulta da API, e dá a mesma vista que a previsão completa.
+ */
+export function previsaoParaResultados(previsao: VistaPrevisao): PrevisaoResultados {
+  return {
+    ano: previsao.ano,
+    congelada: previsao.congelada,
+    corte: previsao.corte,
+    corridasSenado: previsao.corridasSenado,
+    corridasCamara: previsao.corridasCamara.filter(
+      (c) => naoSolida(c) || ESTADOS_AO_VIVO.has(c.estado),
+    ),
+  };
+}
+
 export function construirVistaResultados(
   parciais: ResultadosParciais,
-  previsao: VistaPrevisao | null,
+  previsao: PrevisaoResultados | null,
   noite: VistaNoite | null = null,
 ): VistaResultados {
   // A projeção só se junta à contagem do mesmo ano e da mesma natureza (real ou ensaio).
@@ -179,12 +213,18 @@ export function construirVistaResultados(
         }))
         .sort(ordenar)
     : [];
-  const cobertura = COBERTURA_AO_VIVO.map(({ estado, soTotal }) => {
+  // Um estado com contagem fora da lista (num ensaio, por exemplo) também aparece.
+  const extra = [...new Set(contagens.map((c) => c.estado))]
+    .filter((e) => !ESTADOS_AO_VIVO.has(e))
+    .map((estado) => ({ estado, soTotal: false, parcial: false }));
+  const cobertura = [...COBERTURA_AO_VIVO, ...extra].map(({ estado, soTotal, parcial }) => {
     const doEstado = contagens.filter((c) => c.estado === estado);
     const horas = doEstado.flatMap((c) => (c.atualizadoEm ? [c.atualizadoEm] : []));
     return {
       estado,
       soTotal,
+      parcial,
+      nota: (parciais.cobertura_parcial ?? []).find((p) => p.estado === estado)?.nota ?? null,
       corridas: doEstado.length,
       atualizadoEm: horas.reduce<string | null>(
         (max, h) => (max === null || Date.parse(h) > Date.parse(max) ? h : max),

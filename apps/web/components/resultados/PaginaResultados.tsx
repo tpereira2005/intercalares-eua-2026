@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { FaixaKpis, Kpi } from "@/components/ui/Kpi.tsx";
 import { Painel } from "@/components/ui/Painel.tsx";
 import { Selo } from "@/components/ui/Selo.tsx";
@@ -66,9 +67,11 @@ function Cobertura({ vista }: { vista: VistaResultados }) {
                       hora: hora(c.atualizadoEm),
                     })
                   : t("resultados.cobertura.comDadosSemHora", { n: c.corridas })}
-              {c.soTotal ? (
+              {c.soTotal || c.parcial ? (
                 <span className="block text-[12px] text-ink-3">
-                  {t("resultados.cobertura.soTotal")}
+                  {c.soTotal
+                    ? t("resultados.cobertura.soTotal")
+                    : (c.nota ?? t("resultados.cobertura.parcial"))}
                 </span>
               ) : null}
             </dd>
@@ -158,7 +161,11 @@ function Contagem({ vista }: { vista: VistaResultados }) {
 }
 
 /** Página da noite eleitoral: projeção do modelo, contagem oficial e previsão congelada. */
-export function PaginaResultados({ resultados, noite }: DadosNoiteEleitoral) {
+export function PaginaResultados({
+  resultados,
+  noite,
+  ligacao = null,
+}: DadosNoiteEleitoral & { ligacao?: ReactNode }) {
   const instante = resultados?.instante ?? noite?.instante;
   return (
     <div className="flex flex-col gap-4">
@@ -183,6 +190,7 @@ export function PaginaResultados({ resultados, noite }: DadosNoiteEleitoral) {
               {t("resultados.retrato", { hora: hora(instante) })}
             </span>
           ) : null}
+          {ligacao}
         </div>
       </header>
 

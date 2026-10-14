@@ -21,7 +21,7 @@ A 3 de novembro, Lisboa está em UTC+0 (a hora de inverno começa a 25 de outubr
 1. O workflow **Resultados** (ensaio semanal) está verde em NC, FL, GA, AK e TX. SC e IA falham com o desafio do AWS WAF; se passarem, o bloqueio acabou e podem entrar na lista de estados.
 2. O job **Fontes de 2026** desse workflow mostra os endereços de 2026: NCSBE (`er.ncsbe.gov/enr/20261103`), Florida, Geórgia (`2026NovGen`), Alasca (`enr26/results/GA_ENR_Precinct_State_of_Alaska.csv`) e Harris (`Data/1126`). Um 404 antes da noite é normal; um desafio anti-robô não é.
 3. A previsão está **congelada** (1 de novembro) na Release `dados-previsao`: a projeção recusa uma previsão por congelar.
-4. A implantação do site durante a noite está ligada (decisão do SITE: Worker a ler a Release, ou implantação periódica). Sem isso, o site não mostra resultados novos.
+4. A API ao vivo responde: `/api/resultados` e `/api/noite` no site (ver `docs/api-ao-vivo.md`). Antes da noite, um `404` é normal. É por aí que o site mostra resultados novos sem nova implantação.
 
 ## Lançar (22:30)
 
@@ -39,14 +39,14 @@ A recolha pede as fontes a cada 30 segundos e envia para a Release `resultados-2
 
 Medida no ensaio de 13 de outubro com os ficheiros reais de 2024 de NC, FL, GA, AK e TX (Harris) servidos por um espelho local:
 
-| Etapa                                              | Tempo                                                                                    |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Fonte muda → recolha dá por isso                   | até 30 s (15 s em média)                                                                 |
-| Ciclo da recolha (5 estados, NC com 101 ficheiros) | menos de 1 s no espelho; com a rede real, alguns segundos                                |
-| Envio para a Release                               | alguns segundos (um `gh release upload` por ciclo com alterações)                        |
-| Projeção dá pelo `parciais.json` novo              | até 30 s (15 s em média)                                                                 |
-| Um passo da projeção (NC, GA e FL)                 | cerca de 1 s                                                                             |
-| Release → site                                     | depende da decisão do SITE (segundos com o Worker; 5 a 10 min com implantação periódica) |
+| Etapa                                              | Tempo                                                              |
+| -------------------------------------------------- | ------------------------------------------------------------------ |
+| Fonte muda → recolha dá por isso                   | até 30 s (15 s em média)                                           |
+| Ciclo da recolha (5 estados, NC com 101 ficheiros) | menos de 1 s no espelho; com a rede real, alguns segundos          |
+| Envio para a Release                               | alguns segundos (um `gh release upload` por ciclo com alterações)  |
+| Projeção dá pelo `parciais.json` novo              | até 30 s (15 s em média)                                           |
+| Um passo da projeção (NC, GA e FL)                 | cerca de 1 s                                                       |
+| Release → site                                     | até 20 s no Worker, mais até 60 s até o browser voltar a consultar |
 
 Da fonte à Release: cerca de 20 a 40 segundos para os resultados e de 40 a 80 segundos para a projeção.
 
