@@ -28,7 +28,7 @@ on:
         default: ""
       estados:
         description: Estados a recolher na noite (os bloqueados no Actions ficam de fora)
-        default: "NC,FL,GA,AK,TX,VA,NE"
+        default: "NC,FL,GA,AK,TX,VA,NE,AZ,CA"
 
 permissions:
   contents: read

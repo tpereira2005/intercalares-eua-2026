@@ -1,0 +1,86 @@
+[
+  {
+    "raceTitle": "United States Representative District 1 - Districtwide Results",
+    "Reporting": "34.9% (275 of 788) precincts reporting",
+    "ReportingTime": "November 3, 2026, 9:50 p.m.",
+    "candidates": [
+      {
+        "Name": "Mike McGuire",
+        "Party": "Dem",
+        "Votes": "12,320",
+        "Percent": "69.7",
+        "incumbent": false
+      },
+      {
+        "Name": "James Gallagher",
+        "Party": "Rep",
+        "Votes": "5,347",
+        "Percent": "30.3",
+        "incumbent": false
+      }
+    ]
+  },
+  {
+    "raceTitle": "United States Representative District 1 - Butte County Results",
+    "Reporting": "5.8% (8 of 137) precincts reporting",
+    "ReportingTime": "November 3, 2026, 9:33 p.m.",
+    "candidates": [
+      {
+        "Name": "Mike McGuire",
+        "Party": "Dem",
+        "Votes": "4,289",
+        "Percent": "73.3",
+        "incumbent": false
+      },
+      {
+        "Name": "James Gallagher",
+        "Party": "Rep",
+        "Votes": "1,559",
+        "Percent": "26.7",
+        "incumbent": false
+      }
+    ]
+  },
+  {
+    "raceTitle": "United States Representative District 2 - Districtwide Results",
+    "Reporting": "42.7% (254 of 595) precincts reporting",
+    "ReportingTime": "November 3, 2026, 9:50 p.m.",
+    "candidates": [
+      {
+        "Name": "Jared Huffman",
+        "Party": "Dem",
+        "Votes": "41,514",
+        "Percent": "73.3",
+        "incumbent": false
+      },
+      {
+        "Name": "Robin Littau",
+        "Party": "Rep",
+        "Votes": "15,104",
+        "Percent": "26.7",
+        "incumbent": false
+      }
+    ]
+  },
+  {
+    "raceTitle": "United States Representative District 6 - Districtwide Results",
+    "Reporting": "71.5% (221 of 309) precincts reporting",
+    "ReportingTime": "November 3, 2026, 9:50 p.m.",
+    "candidates": [
+      {
+        "Name": "Richard Pan",
+        "Party": "Dem",
+        "Votes": "15,464",
+        "Percent": "65.7",
+        "incumbent": false
+      },
+      {
+        "Name": "Kevin Kiley",
+        "Party": "NPP",
+        "Votes": "8,069",
+        "Percent": "34.3",
+        "incumbent": false
+      }
+    ]
+  }
+]
