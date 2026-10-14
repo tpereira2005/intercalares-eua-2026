@@ -13,7 +13,7 @@ import type {
   VotoAntecipadoAgregado,
 } from "@intercalares/contratos";
 import { agruparGeografia, type UnidadeGeografica } from "./geografia.ts";
-import { PARTIDOS, type PartidoRegisto } from "./vista.ts";
+import { PARTIDOS, type CruzamentoFaixa, type PartidoRegisto } from "./vista.ts";
 
 export type Modalidade = "correio" | "presencial";
 
@@ -102,6 +102,13 @@ export interface VistaAgregada {
    * outros. Sem recenseados por faixa: só quotas nos votos, nunca participação.
    */
   geografia: UnidadeGeografica[];
+  /**
+   * Idade × partido nos votos de 2026 no dia do ficheiro, nos estados cuja série os
+   * cruza (Pensilvânia, Colorado); vazio nos outros. A variação D − R é face ao mesmo
+   * dia do ano de referência principal.
+   */
+  cruzamentos: CruzamentoFaixa<FaixaAgregada>[];
+  anoCruzamentos: number | null;
 }
 
 /** Janela das curvas, igual à da Carolina do Norte. */
@@ -223,8 +230,77 @@ function geografia(dados: VotoAntecipadoAgregado): UnidadeGeografica[] {
   );
 }
 
+type PontoDia = PontoSerieAgregado;
+
+function quotasPartido(
+  pontos: readonly PontoDia[],
+  ano: number,
+  faixa: FaixaAgregada,
+): Record<PartidoRegisto, number> | null {
+  const daFaixa = pontos.filter(
+    (p) => p.ano === ano && p.faixa === faixa && p.partido !== "total" && p.modalidade === "total",
+  );
+  const total = daFaixa.reduce((s, p) => s + p.votos, 0);
+  if (total <= 0) return null;
+  const quota = (partido: PartidoRegisto) =>
+    daFaixa.filter((p) => p.partido === partido).reduce((s, p) => s + p.votos, 0) / total;
+  return {
+    dem: quota("dem"),
+    rep: quota("rep"),
+    nao_afiliado: quota("nao_afiliado"),
+    outro: quota("outro"),
+  };
+}
+
+/** Linhas do cruzamento de idade com partido e com modalidade, no dia do ficheiro. */
+function cruzamentos(
+  dados: VotoAntecipadoAgregado,
+  anoBase: number | null,
+): CruzamentoFaixa<FaixaAgregada>[] {
+  const dia = dados.serie.filter((p) => p.dias_antes === dados.dias_antes);
+  return FAIXAS_AGREGADAS.flatMap((faixa) => {
+    const partidos = quotasPartido(dia, dados.ano, faixa);
+    if (partidos === null) return [];
+    const base = anoBase === null ? null : quotasPartido(dia, anoBase, faixa);
+    const modalidades = dia.filter(
+      (p) =>
+        p.ano === dados.ano &&
+        p.faixa === faixa &&
+        p.partido === "total" &&
+        p.modalidade !== "total",
+    );
+    const correio = modalidades
+      .filter((p) => p.modalidade === "correio")
+      .reduce((s, p) => s + p.votos, 0);
+    return [
+      {
+        faixa,
+        partidos,
+        variacaoDemRep: base === null ? null : partidos.dem - partidos.rep - (base.dem - base.rep),
+        correio: razao(
+          correio,
+          modalidades.reduce((s, p) => s + p.votos, 0),
+        ),
+      },
+    ];
+  });
+}
+
 export function construirVistaAgregada(dados: VotoAntecipadoAgregado): VistaAgregada {
   const lista = comparacoes(dados);
+  // A variação D − R compara com o ano de referência principal, se a série o cruzar.
+  const anoPrincipal = lista[0]?.anoBase ?? null;
+  const anoCruzamentos =
+    anoPrincipal !== null &&
+    dados.serie.some(
+      (p) =>
+        p.ano === anoPrincipal &&
+        p.dias_antes === dados.dias_antes &&
+        p.faixa !== "total" &&
+        p.partido !== "total",
+    )
+      ? anoPrincipal
+      : null;
   return {
     tipo: "agregado",
     estado: dados.estado,
@@ -246,5 +322,7 @@ export function construirVistaAgregada(dados: VotoAntecipadoAgregado): VistaAgre
     curvas: curvas(dados),
     pedidos: pedidos(dados, lista[0]?.anoBase ?? null),
     geografia: geografia(dados),
+    cruzamentos: cruzamentos(dados, anoCruzamentos),
+    anoCruzamentos,
   };
 }

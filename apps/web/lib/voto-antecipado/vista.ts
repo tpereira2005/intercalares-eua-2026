@@ -84,8 +84,8 @@ export interface CurvaAno {
   pontos: PontoCurva[];
 }
 
-export interface CruzamentoFaixa {
-  faixa: FaixaEtaria;
+export interface CruzamentoFaixa<F extends string = FaixaEtaria> {
+  faixa: F;
   /** Quota de cada partido nos votos da faixa em 2026. */
   partidos: Record<PartidoRegisto, number>;
   /** Diferença D − R (em quota) em 2026 menos a mesma diferença no ano de referência. */
