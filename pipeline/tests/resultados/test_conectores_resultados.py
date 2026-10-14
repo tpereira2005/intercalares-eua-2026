@@ -183,6 +183,9 @@ def test_parciais_seguem_a_interface_do_modelo() -> None:
     assert (alamance.votos_r, alamance.seccoes_totais) == (32_866, 38)
     assert sum(m.votos_r for m in alamance.por_modo) == alamance.votos_r
     assert {m.modo for m in alamance.por_modo} >= {"dia_eleicao", "correio"}
+    modos = {m.modo: m.votos_d + m.votos_r + m.votos_outros for m in alamance.por_modo}
+    # Na NCSBE, ovc é o one-stop e evc o dia da eleição; em 2022 o one-stop foi a maioria.
+    assert modos["antecipado_presencial"] > modos["dia_eleicao"]
     assert ("GA-02", "total") in por_chave
     assert not any(u.corrida.endswith("-G") for u in parciais.unidades)
 

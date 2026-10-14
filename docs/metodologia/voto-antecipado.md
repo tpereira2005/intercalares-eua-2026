@@ -23,6 +23,8 @@ Os ficheiros da NCSBE têm aspas por fechar e bytes fora de UTF-8. Os leitores C
 
 Cada ano de referência é conferido com uma fonte independente: o total de votos antecipados reconstruído a partir dos boletins tem de coincidir, a menos de 1%, com o histórico individual oficial. Em 2018: 2 074 734 votos nos boletins contra 2 069 792 no histórico (0,24%). Em 2022: 2 201 705 contra 2 199 518 (0,10%). Em 2024: 4 530 345 contra 4 521 970 (0,19%). Em 2020: 4 636 013 contra 4 631 054 (0,11%).
 
+**Eleitorado final** (`cubo_final_<ano>.parquet`, para o modelo etário): todos os que votaram em cada ano segundo o histórico individual, antecipadamente ou no dia, com a idade e o partido do retrato do recenseamento desse dia (as mesmas definições dos outros cubos). Quem votou mas não está no retrato fica de fora; o job falha se faltar mais de 1% dos votantes do histórico.
+
 ## 2. Definições
 
 - **Voto antecipado**: boletim por correspondência devolvido ou voto presencial antecipado ("one-stop"). Um eleitor conta uma vez, pelo primeiro boletim válido.
@@ -106,6 +108,7 @@ Eleitores que votaram na eleição de referência (por qualquer método) e ainda
 ```sh
 # cubos de referência (uma vez; descarrega cerca de 5 GB)
 uv run python -m pipeline.jobs.referencia_voto_antecipado_nc --anos 2016 2018 2020 2022 2024
+uv run python -m pipeline.jobs.eleitorado_final_nc --anos 2016 2018 2020 2022 2024
 
 # atualização de 2026 (a cada duas horas no GitHub Actions)
 uv run python -m pipeline.jobs.voto_antecipado_nc --saida data/publicado/voto-antecipado/nc.json

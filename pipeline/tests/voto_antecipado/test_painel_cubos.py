@@ -4,7 +4,7 @@ import polars as pl
 
 from pipeline.comum.calendario import EleicaoGeral
 from pipeline.connectors.early_vote.nc.processar import ultimo_dia_completo
-from pipeline.transform.early_vote.cubos import cubo_demografico, cubo_geografico
+from pipeline.transform.early_vote.cubos import cubo_demografico, cubo_final, cubo_geografico
 from pipeline.transform.early_vote.painel import construir_painel
 
 ATRIBUTOS = {
@@ -125,3 +125,18 @@ def test_ultimo_dia_completo_ignora_o_dia_da_geracao() -> None:
     assert ultimo_dia_completo(votos, eleicao, None) == date(2026, 10, 13)
     tardios = pl.DataFrame({"data_devolucao": [date(2022, 11, 7), date(2022, 11, 12)]})
     assert ultimo_dia_completo(tardios, date(2022, 11, 8), date(2022, 11, 19)) == date(2022, 11, 7)
+
+
+def test_cubo_final_conta_quem_votou_antecipado_e_no_dia() -> None:
+    cubo = cubo_final(
+        _registados(),
+        _historico(),
+        2022,
+        pl.DataFrame({"ncid": ["V1"], "distrito_atual": pl.Series([9], dtype=pl.Int8)}),
+    )
+    assert cubo.columns == ["fips_condado", "distrito_atual", "faixa", "partido", "metodo", "n"]
+    linhas = {
+        (r["faixa"], r["metodo"], r["distrito_atual"]): r["n"] for r in cubo.iter_rows(named=True)
+    }
+    assert linhas == {("30-39", "antecipado", 9): 1, ("65-74", "dia_eleicao", 2): 1}
+    assert cubo_final(_registados(), _historico(), 2018)["n"].sum() == 1
