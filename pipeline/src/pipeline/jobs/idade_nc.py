@@ -4,18 +4,20 @@ Uso, depois do job do voto antecipado da Carolina do Norte ter gravado os cubos 
 
     uv run python -m pipeline.jobs.idade_nc \\
         --cubo data/publicado/voto-antecipado/cubos/cubo_demografico_2026.parquet \\
+        --nc data/publicado/voto-antecipado/nc.json \\
         --saida data/publicado/voto-antecipado/idade-nc.json
 
 Lê os cubos de 2016 a 2024 (``data/reference/nc``) e as margens presidenciais por condado
-de 2020 e 2024 (``data/reference/modelo``). O dia dos dados é o último com voto antecipado
-no cubo. Sem voto antecipado suficiente não escreve nada (e diz porquê).
+de 2020 e 2024 (``data/reference/modelo``). O dia dos dados é o ``dados_ate`` do ``nc.json``
+(``--nc``) ou a véspera de hoje. Antes de 14 dias da eleição, ou com menos de 200 000 votos
+antecipados, não escreve nada (e diz porquê).
 """
 
 import argparse
 import csv
 import logging
 from collections.abc import Sequence
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import cast
 
@@ -24,7 +26,7 @@ import polars as pl
 from contratos.base import Fonte, Metadados
 from contratos.estados import CodigoEstado
 from contratos.idade import BacktestIdade, DiagnosticoIdade, GrupoIdade, PartidoIdade
-from contratos.voto_antecipado import Faixa
+from contratos.voto_antecipado import Faixa, VotoAntecipadoEstado
 from pipeline.comum.calendario import DATAS_ELEICOES_GERAIS
 from pipeline.connectors.early_vote.nc.fontes import URL_ELEITORES, URL_HISTORICO
 from pipeline.modelo import idade
@@ -37,7 +39,12 @@ PRESIDENCIAIS = (2020, 2024)
 PASTA_NC = Path("data/reference/nc")
 PASTA_MODELO = Path("data/reference/modelo")
 URL_PRESIDENCIAIS = "https://github.com/tonmcg/US_County_Level_Election_Results_08-24"
-VOTOS_MINIMOS = 10_000
+VOTOS_MINIMOS = 200_000
+DIAS_MAXIMOS = 14
+"""O sinal só se publica a partir de duas semanas antes da eleição e com o voto antecipado
+presencial já em curso. Antes disso só há correio, as curvas de chegada das referências
+assentam em poucos votos e o sinal é ruído: com os cubos de 2018 e 2022 no lugar de 2026,
+a 21 dias dava de -6 a +18 pontos com intervalos de 70 pontos."""
 
 NOTAS = (
     "Diagnóstico mostrado, com peso zero na previsão.",
@@ -48,12 +55,19 @@ NOTAS = (
 )
 
 
-def dias_antes(cubo: pl.DataFrame) -> int | None:
-    """Dias antes da eleição do voto antecipado mais recente (``None`` sem voto)."""
-    votos = cubo.filter(pl.col("modalidade") != "nao_votou", pl.col("dias_antes").is_not_null())
-    if votos.is_empty():
-        return None
-    return max(int(votos.select(pl.col("dias_antes").min()).item()), 0)
+def dias_antes(cubo: pl.DataFrame, dados_ate: date | None = None) -> int | None:
+    """Dias antes da eleição do último dia completo (``None`` sem voto até lá).
+
+    ``dados_ate`` é o último dia completo do rastreador (``dados_ate`` do ``nc.json``). Sem
+    ele, usa-se a véspera de hoje, como o job da Carolina do Norte: o dia corrente está
+    incompleto e o ficheiro da NCSBE traz por vezes boletins com datas futuras, que ficam
+    de fora. Nunca depois da eleição.
+    """
+    eleicao = DATAS_ELEICOES_GERAIS[ANO]
+    limite = dados_ate or datetime.now(UTC).date() - timedelta(days=1)
+    dias = max((eleicao - limite).days, 0)
+    votos = cubo.filter(pl.col("modalidade") != "nao_votou", pl.col("dias_antes") >= dias)
+    return None if votos.is_empty() else dias
 
 
 def montar(
@@ -122,11 +136,17 @@ def margens(anos: dict[int, idade.Referencia]) -> dict[tuple[int, float], idade.
     return idade.conjunto_margens({a: anos[a].final for a in PRESIDENCIAIS}, presidenciais)
 
 
-def executar(cubo: Path, saida: Path) -> bool:
+def executar(cubo: Path, saida: Path, *, dados_ate: date | None = None) -> bool:
     atual = pl.read_parquet(cubo)
-    dias = dias_antes(atual)
+    dias = dias_antes(atual, dados_ate)
     if dias is None:
         registo.warning("Ainda não há voto antecipado no cubo de %d", ANO)
+        return False
+    if dias > DIAS_MAXIMOS:
+        registo.warning(
+            "A %d dias da eleição o sinal etário ainda é ruído: só a partir de %d dias",
+            dias, DIAS_MAXIMOS,
+        )  # fmt: skip
         return False
     anos = referencias()
     diagnostico = idade.diagnosticar(atual, anos, margens(anos), ano=ANO, dias_antes=dias)
@@ -161,8 +181,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cubo", type=Path, required=True, help="cubo demográfico de 2026")
     parser.add_argument("--saida", type=Path, required=True)
+    parser.add_argument(
+        "--nc", type=Path, default=None, help="nc.json do rastreador (dá o último dia completo)"
+    )
     args = parser.parse_args()
-    executar(args.cubo, args.saida)
+    dados_ate = None
+    if args.nc is not None:
+        texto = args.nc.read_text(encoding="utf-8")
+        dados_ate = VotoAntecipadoEstado.model_validate_json(texto).dados_ate
+    executar(args.cubo, args.saida, dados_ate=dados_ate)
 
 
 if __name__ == "__main__":
