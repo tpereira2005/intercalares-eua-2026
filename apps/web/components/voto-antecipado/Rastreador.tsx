@@ -9,6 +9,7 @@ import { t } from "@/lib/mensagens.ts";
 import {
   DIAS_CURVA,
   FAIXAS,
+  intervalosDesvio,
   type FaixaEtaria,
   type VistaVotoAntecipado,
 } from "@/lib/voto-antecipado/vista.ts";
@@ -98,6 +99,13 @@ export function Rastreador({
   const momentoAtual = vista.momento.find((m) => m.ano === ano);
   const momentoBase = vista.momento.find((m) => m.ano === anoComparar);
   const referencia = vista.anoReferenciaHistorico ?? anoComparar;
+
+  // O intervalo só acompanha as barras quando se compara com um ano intercalar.
+  const intervalos = intervalosDesvio(vista.comparacoes);
+  const temIntervalo = comparacao.tipo === "intercalar" && Object.keys(intervalos).length > 0;
+  const anosIntervalo = [...new Set(Object.values(intervalos).flatMap((i) => i.anos))]
+    .sort((a, b) => a - b)
+    .join(" e ");
 
   const linhasBarras = linhasPorIdade(
     vista,
@@ -246,13 +254,34 @@ export function Rastreador({
             <ItemLegenda amostra={<Amostra className="fill-down" />}>
               {t("votoAntecipado.legenda.abaixo")}
             </ItemLegenda>
+            {temIntervalo ? (
+              <ItemLegenda
+                amostra={
+                  <svg width={16} height={10} aria-hidden="true">
+                    <g className="stroke-ink" strokeWidth={1.5}>
+                      <line x1={1} x2={15} y1={5} y2={5} />
+                      <line x1={1} x2={1} y1={1} y2={9} />
+                      <line x1={15} x2={15} y1={1} y2={9} />
+                    </g>
+                  </svg>
+                }
+              >
+                {t("votoAntecipado.legenda.intervaloDesvio", { anos: anosIntervalo })}
+              </ItemLegenda>
+            ) : null}
           </Legenda>
           <BarrasDesvio
             titulo={t("votoAntecipado.graficos.desvioAria")}
             linhas={comparacao.faixas}
             faixaAtiva={faixa}
             aoEscolher={escolher}
+            intervalos={temIntervalo ? intervalos : {}}
           />
+          {temIntervalo ? (
+            <p className="text-[12.5px] text-ink-3">
+              {t("votoAntecipado.desvio.notaIntervalo", { anos: anosIntervalo })}
+            </p>
+          ) : null}
         </Painel>
 
         <Painel

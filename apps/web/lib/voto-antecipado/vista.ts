@@ -42,6 +42,9 @@ export interface LinhaFaixa {
   taxa: number | null;
   taxaBase: number | null;
   desvio: number | null;
+  /** Desvio com a referência lida até 3 dias antes ou depois (sensibilidade ao calendário). */
+  desvioMin: number | null;
+  desvioMax: number | null;
   efeitoRecenseamento: number;
   efeitoParticipacao: number;
 }
@@ -183,6 +186,8 @@ function comparacoes(dados: VotoAntecipadoEstado): ComparacaoAno[] {
                 taxa: linha.taxa,
                 taxaBase: linha.taxa_base,
                 desvio: linha.desvio,
+                desvioMin: linha.desvio_min ?? null,
+                desvioMax: linha.desvio_max ?? null,
                 efeitoRecenseamento: linha.efeito_recenseamento,
                 efeitoParticipacao: linha.efeito_participacao,
               },
@@ -191,6 +196,51 @@ function comparacoes(dados: VotoAntecipadoEstado): ComparacaoAno[] {
       }),
     };
   });
+}
+
+export interface IntervaloDesvio {
+  min: number;
+  max: number;
+  /** Anos de referência intercalares que formam o envelope. */
+  anos: number[];
+}
+
+/**
+ * Intervalo do desvio de cada faixa: o envelope dos desvios com a referência deslocada
+ * até 3 dias, nas referências intercalares (2018 e 2022), como pede a metodologia.
+ * Vazio enquanto o ficheiro não trouxer `desvio_min` e `desvio_max`.
+ */
+export function intervalosDesvio(
+  comparacoes: readonly ComparacaoAno[],
+): Partial<Record<FaixaEtaria, IntervaloDesvio>> {
+  const intercalares = comparacoes.filter((c) => c.tipo === "intercalar");
+  return Object.fromEntries(
+    FAIXAS.flatMap((faixa) => {
+      const valores: number[] = [];
+      const anos: number[] = [];
+      for (const c of intercalares) {
+        const l = c.faixas.find((f) => f.faixa === faixa);
+        const min = l?.desvioMin ?? null;
+        const max = l?.desvioMax ?? null;
+        if (min === null || max === null) continue;
+        const desvio = l?.desvio ?? null;
+        valores.push(min, max, ...(desvio === null ? [] : [desvio]));
+        anos.push(c.anoBase);
+      }
+      return valores.length > 0
+        ? [
+            [
+              faixa,
+              {
+                min: Math.min(...valores),
+                max: Math.max(...valores),
+                anos: anos.sort((a, b) => a - b),
+              },
+            ],
+          ]
+        : [];
+    }),
+  );
 }
 
 function momentoAno(linhas: readonly LinhaHistorico[], ano: number): MomentoFaixa[] {
