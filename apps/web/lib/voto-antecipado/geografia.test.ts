@@ -1,7 +1,8 @@
-import type { LinhaGeografia } from "@intercalares/contratos";
+import type { LinhaGeografia, LinhaHistoricoGeografia } from "@intercalares/contratos";
 import { describe, expect, it } from "vitest";
 import {
   agruparGeografia,
+  linhasMomento,
   linhasUnidades,
   MINIMO_VOTOS_UNIDADE,
   nivelPorOmissao,
@@ -100,5 +101,62 @@ describe("nivelPorOmissao", () => {
 
   it("devolve null sem unidades", () => {
     expect(nivelPorOmissao([], 2022)).toBeNull();
+  });
+});
+
+describe("linhasMomento", () => {
+  function historico(
+    ano: number,
+    codigo: string,
+    faixa: LinhaHistoricoGeografia["faixa"],
+    grupo: LinhaHistoricoGeografia["grupo"],
+    votos: number,
+  ): LinhaHistoricoGeografia {
+    return {
+      ano,
+      ano_referencia: ano - 4,
+      nivel: "condado",
+      codigo,
+      nome: `Unidade ${codigo}`,
+      faixa,
+      grupo,
+      votos,
+      registados: 1000,
+      contributo: null,
+    };
+  }
+  const HISTORICO = [
+    // 2026: 100 habituais, 100 antecipação, 150 + 50 novos, e 999 sem histórico (fica fora).
+    historico(2026, "37001", "18-29", "antecipado_na_referencia", 100),
+    historico(2026, "37001", "18-29", "dia_eleicao_na_referencia", 100),
+    historico(2026, "37001", "18-29", "absteve_se_na_referencia", 150),
+    historico(2026, "37001", "18-29", "recenseado_apos_referencia", 50),
+    historico(2026, "37001", "18-29", "sem_historico", 999),
+    // 2022: 25% de voto novo.
+    historico(2022, "37001", "18-29", "antecipado_na_referencia", 200),
+    historico(2022, "37001", "18-29", "dia_eleicao_na_referencia", 100),
+    historico(2022, "37001", "18-29", "absteve_se_na_referencia", 100),
+    // Unidade sem linha de geografia: ignorada.
+    historico(2026, "99999", "18-29", "antecipado_na_referencia", 500),
+  ];
+  const unidades = agruparGeografia(LINHAS, HISTORICO);
+
+  it("junta o histórico às unidades e calcula as partes de cada grupo", () => {
+    const [a] = linhasMomento(unidades, "condado", "18-29", 2026, 2022);
+    expect(a?.codigo).toBe("37001");
+    expect(a?.votos).toBe(400);
+    expect(a?.habituais).toBeCloseTo(0.25);
+    expect(a?.antecipacao).toBeCloseTo(0.25);
+    expect(a?.novos).toBeCloseTo(0.5);
+    expect(a?.novosBase).toBeCloseTo(0.25);
+    expect(a?.diferenca).toBeCloseTo(0.25);
+    expect(unidades.some((u) => u.codigo === "99999")).toBe(false);
+  });
+
+  it("guarda o ano de referência e deixa sem momento os anos sem histórico", () => {
+    const a = unidades.find((u) => u.codigo === "37001");
+    expect(a?.anos.find((x) => x.ano === 2026)?.momento?.anoReferencia).toBe(2022);
+    expect(unidades.find((u) => u.codigo === "37003")?.anos[0]?.momento).toBeNull();
+    expect(linhasMomento(unidades, "condado", "65+", 2026, 2022)).toEqual([]);
   });
 });

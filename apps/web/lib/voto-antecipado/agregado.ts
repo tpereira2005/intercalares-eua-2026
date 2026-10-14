@@ -7,7 +7,8 @@
  * pipeline; esta camada só seleciona, agrupa e ordena.
  */
 
-import type { VotoAntecipadoAgregado } from "@intercalares/contratos";
+import type { LinhaGeografia, VotoAntecipadoAgregado } from "@intercalares/contratos";
+import { agruparGeografia, type UnidadeGeografica } from "./geografia.ts";
 import { FAIXAS, PARTIDOS, type FaixaEtaria, type PartidoRegisto } from "./vista.ts";
 
 export type Modalidade = "correio" | "presencial";
@@ -62,6 +63,11 @@ export interface VistaAgregada {
   /** Votos acumulados por dia do ciclo, um traço por ano (o campo chama-se taxa nos gráficos). */
   curvas: { ano: number; pontos: { dias: number; taxa: number }[] }[];
   pedidos: { anoBase: number | null; partidos: PedidosPartido[] };
+  /**
+   * Idade por condado e distrito, nos estados cuja fonte a dá (Pensilvânia); vazio nos
+   * outros. Sem recenseados por faixa: só quotas nos votos, nunca participação.
+   */
+  geografia: UnidadeGeografica[];
 }
 
 /** Janela das curvas, igual à da Carolina do Norte. */
@@ -163,6 +169,26 @@ function pedidos(dados: VotoAntecipadoAgregado, anoBase: number | null): VistaAg
   };
 }
 
+/**
+ * Linhas de idade por unidade (as que têm `partido = "total"`) no formato das do
+ * ficheiro de eleitores, com zero recenseados: a fonte não os dá por faixa.
+ */
+function geografia(dados: VotoAntecipadoAgregado): UnidadeGeografica[] {
+  const linhas = dados.geografia.filter((l) => l.partido === "total");
+  if (!linhas.some((l) => l.faixa !== undefined && l.faixa !== "total")) return [];
+  return agruparGeografia(
+    linhas.map((l): LinhaGeografia => ({
+      ano: l.ano,
+      nivel: l.nivel,
+      codigo: l.codigo,
+      nome: l.nome,
+      faixa: l.faixa ?? "total",
+      votos: l.votos,
+      registados: 0,
+    })),
+  );
+}
+
 export function construirVistaAgregada(dados: VotoAntecipadoAgregado): VistaAgregada {
   const lista = comparacoes(dados);
   return {
@@ -182,5 +208,6 @@ export function construirVistaAgregada(dados: VotoAntecipadoAgregado): VistaAgre
     comparacoes: lista,
     curvas: curvas(dados),
     pedidos: pedidos(dados, lista[0]?.anoBase ?? null),
+    geografia: geografia(dados),
   };
 }
