@@ -8,9 +8,15 @@
  * do modelo, quando o seu contrato existir.
  */
 
-import type { CodigoEstado, ContagemModo, ResultadosParciais } from "@intercalares/contratos";
+import type {
+  ChamadasRedacoes,
+  CodigoEstado,
+  ContagemModo,
+  ResultadosParciais,
+} from "@intercalares/contratos";
 import type { CorridaNoite, VistaNoite } from "../noite/vista.ts";
 import { categoria, type CorridaVista, type VistaPrevisao } from "../previsao/vista.ts";
+import { construirChamadas, type ChamadaVista } from "./chamadas.ts";
 
 /**
  * Estados recolhidos na noite (workflow Resultados; docs/metodologia/resultados.md). Na
@@ -82,6 +88,8 @@ export interface LinhaResultados {
   previsao: CorridaVista | null;
   /** Projeção ao vivo do modelo para a corrida, quando a projeção é do mesmo ano. */
   projecao: CorridaNoite | null;
+  /** Chamada de uma redação, quando registada. */
+  chamada: ChamadaVista | null;
 }
 
 export interface EstadoCobertura {
@@ -106,6 +114,8 @@ export interface VistaResultados {
   /** Senado e distritos não sólidos da previsão que não têm contagem ao vivo. */
   semDados: LinhaResultados[];
   cobertura: EstadoCobertura[];
+  /** Chamadas das redações do mesmo ano, da mais recente para a mais antiga. */
+  chamadas: ChamadaVista[];
   previsaoCongelada: boolean | null;
   cortePrevisao: string | null;
 }
@@ -219,7 +229,10 @@ export function construirVistaResultados(
   parciais: ResultadosParciais,
   previsao: PrevisaoResultados | null,
   noite: VistaNoite | null = null,
+  dadosChamadas: ChamadasRedacoes | null = null,
 ): VistaResultados {
+  const chamadas = construirChamadas(dadosChamadas, parciais.ano);
+  const chamadaDe = new Map(chamadas.map((c) => [c.corrida, c]));
   // A projeção só se junta à contagem do mesmo ano e da mesma natureza (real ou ensaio).
   const projecoes =
     noite?.ano === parciais.ano && noite.reconstruido === parciais.reconstruido
@@ -242,6 +255,7 @@ export function construirVistaResultados(
       contagem: c,
       previsao: previstas.get(c.id) ?? null,
       projecao: projecoes.get(c.id) ?? null,
+      chamada: chamadaDe.get(c.id) ?? null,
     }))
     .sort(ordenar);
   const semDados = previsao
@@ -254,6 +268,7 @@ export function construirVistaResultados(
           contagem: null,
           previsao: c,
           projecao: ensaio ? null : (projecoes.get(c.id) ?? null),
+          chamada: ensaio ? null : (chamadaDe.get(c.id) ?? null),
         }))
         .sort(ordenar)
     : [];
@@ -287,6 +302,7 @@ export function construirVistaResultados(
     aoVivo,
     semDados,
     cobertura,
+    chamadas,
     previsaoCongelada: previsao ? previsao.congelada : null,
     cortePrevisao: previsao ? previsao.corte : null,
   };

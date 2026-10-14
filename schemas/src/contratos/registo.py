@@ -6,6 +6,7 @@ Para publicar um contrato novo, acrescenta-o a ``MODELOS``.
 from pydantic import BaseModel
 
 from contratos.base import Fonte, Metadados
+from contratos.chamadas import ChamadasRedacoes
 from contratos.noite import HistoricoNoite, ProjecaoNoite
 from contratos.previsao import (
     AlteracoesPrevisao,
@@ -33,6 +34,7 @@ MODELOS: tuple[type[BaseModel], ...] = (
     ResultadosEstado,
     ResultadosNacional,
     ResultadosParciais,
+    ChamadasRedacoes,
     ProjecaoNoite,
     HistoricoNoite,
     SondagensCongresso,

@@ -4,7 +4,8 @@
  *   node --experimental-strip-types scripts/espelho-noite.ts <entrada> <saida>
  *
  * <entrada> tem os ficheiros descarregados das Releases (parciais.json,
- * projecao-noite-2026.json, historico-noite-2026.json; os que faltarem ficam de fora).
+ * projecao-noite-2026.json, historico-noite-2026.json, chamadas-2026.json; os que
+ * faltarem ficam de fora).
  * <saida> recebe resultados.json e noite.json, na forma das respostas da API.
  */
 
@@ -30,6 +31,7 @@ const espelho = montarEspelho(
     parciais: ler("parciais.json"),
     projecao: ler("projecao-noite-2026.json"),
     historico: ler("historico-noite-2026.json"),
+    chamadas: ler("chamadas-2026.json"),
   },
   new Date(),
 );

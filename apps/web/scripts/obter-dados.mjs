@@ -157,6 +157,15 @@ async function obterResultados() {
   } catch (erro) {
     console.warn(`Sem parciais.json (${String(erro)}).`);
   }
+  const chamadas =
+    process.env.URL_CHAMADAS ??
+    `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA_RESULTADOS}/chamadas-2026.json`;
+  try {
+    const gravado = await gravar(chamadas, path.join(PASTA_RESULTADOS, "chamadas.json"));
+    console.log(`Chamadas em ${path.relative(process.cwd(), gravado)}`);
+  } catch (erro) {
+    console.warn(`Sem chamadas-2026.json (${String(erro)}).`);
+  }
 }
 
 async function obterNoite() {

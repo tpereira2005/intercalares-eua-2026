@@ -58,6 +58,7 @@ export function ResultadosAoVivo({ inicial, previsao, emPreparacao }: Propriedad
   const [estado, setEstado] = useState<EstadoAoVivo>({
     dados: inicial,
     parciais: null,
+    chamadas: null,
     ligacao: { tipo: "build" },
   });
 

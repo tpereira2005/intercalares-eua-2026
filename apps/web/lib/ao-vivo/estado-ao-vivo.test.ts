@@ -24,7 +24,12 @@ const dadosPrevisao = lerPrevisao("test/fixtures/previsao/2026.json");
 if (!dadosPrevisao) throw new Error("Falta a previsão de teste");
 const previsao = previsaoParaResultados(construirVistaPrevisao(dadosPrevisao));
 
-const VAZIO: EstadoAoVivo = { dados: null, parciais: null, ligacao: { tipo: "build" } };
+const VAZIO: EstadoAoVivo = {
+  dados: null,
+  parciais: null,
+  chamadas: null,
+  ligacao: { tipo: "build" },
+};
 const AUSENTE = { tipo: "ausente" } as const;
 const ERRO = { tipo: "erro" } as const;
 

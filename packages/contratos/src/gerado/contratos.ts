@@ -384,6 +384,42 @@ export interface CenariosPrevisao {
 }
 /**
  * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ChamadaRedacao".
+ */
+export interface ChamadaRedacao {
+  candidato: string | null;
+  /**
+   * Identificador da corrida na previsão.
+   */
+  corrida: string;
+  /**
+   * Hora da chamada, tal como a redação a publicou (ou a do registo, sem ela).
+   */
+  hora: string;
+  /**
+   * Quem fez a chamada, por exemplo "Associated Press".
+   */
+  redacao: string;
+  registada_em: string;
+  /**
+   * Página da redação com a chamada.
+   */
+  url: string;
+  vencedor: "D" | "R" | "outro";
+}
+/**
+ * Chamadas em vigor, uma por corrida, pela ordem em que foram registadas.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ChamadasRedacoes".
+ */
+export interface ChamadasRedacoes {
+  ano: number;
+  chamadas: ChamadaRedacao[];
+  metadados: Metadados;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
  * via the `definition` "CicloAgregado".
  */
 export interface CicloAgregado {

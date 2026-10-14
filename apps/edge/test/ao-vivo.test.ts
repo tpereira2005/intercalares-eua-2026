@@ -13,12 +13,14 @@ const FIXTURES = path.resolve(
 const PARCIAIS = readFileSync(path.join(FIXTURES, "resultados/parciais.json"), "utf-8");
 const PROJECAO = readFileSync(path.join(FIXTURES, "noite/projecao.json"), "utf-8");
 const HISTORICO = readFileSync(path.join(FIXTURES, "noite/historico.json"), "utf-8");
+const CHAMADAS = readFileSync(path.join(FIXTURES, "resultados/chamadas.json"), "utf-8");
 
 const env = {
   AMBIENTE: "teste",
   URL_PARCIAIS: "https://fonte.test/parciais.json",
   URL_PROJECAO_NOITE: "https://fonte.test/projecao.json",
   URL_HISTORICO_NOITE: "https://fonte.test/historico.json",
+  URL_CHAMADAS: "https://fonte.test/chamadas.json",
 } as Env;
 
 type Resposta = () => Response;
@@ -27,6 +29,11 @@ type Resposta = () => Response;
 class FonteFalsa {
   respostas = new Map<string, Resposta>();
   pedidos: { url: string; cabecalhos: Headers }[] = [];
+
+  /** Pedidos a um só ficheiro. */
+  pedidosA(url: string) {
+    return this.pedidos.filter((p) => p.url === url);
+  }
 
   buscar: typeof fetch = (pedido, opcoes) => {
     const url = pedido instanceof Request ? pedido.url : String(pedido);
@@ -64,7 +71,18 @@ describe("/api/resultados", () => {
     expect(corpo.parciais).toEqual(JSON.parse(PARCIAIS));
     expect(corpo.origem).toBe("fonte");
     expect(corpo.confirmadoEm).toBe("2026-11-04T01:00:00.000Z");
-    expect(fonte.pedidos[0]?.cabecalhos.get("User-Agent")).toBe(USER_AGENT);
+    expect(fonte.pedidosA(env.URL_PARCIAIS)[0]?.cabecalhos.get("User-Agent")).toBe(USER_AGENT);
+  });
+
+  it("junta as chamadas das redações, ou null sem elas", async () => {
+    fonte.respostas.set(env.URL_PARCIAIS, ficheiro(PARCIAIS));
+    const sem = await app.request("/api/resultados", {}, env);
+    expect((await sem.json<{ chamadas: unknown }>()).chamadas).toBeNull();
+
+    agora += FRESCURA_MS;
+    fonte.respostas.set(env.URL_CHAMADAS, ficheiro(CHAMADAS));
+    const com = await app.request("/api/resultados", {}, env);
+    expect((await com.json<{ chamadas: unknown }>()).chamadas).toEqual(JSON.parse(CHAMADAS));
   });
 
   it("serve da memória dentro do prazo e depois pergunta com cabeçalhos condicionais", async () => {
@@ -73,15 +91,15 @@ describe("/api/resultados", () => {
     agora += FRESCURA_MS - 1;
     const memoria = await app.request("/api/resultados", {}, env);
     expect(memoria.headers.get("X-Origem")).toBe("memoria");
-    expect(fonte.pedidos).toHaveLength(1);
+    expect(fonte.pedidosA(env.URL_PARCIAIS)).toHaveLength(1);
 
     agora += 1;
     fonte.respostas.set(env.URL_PARCIAIS, () => new Response(null, { status: 304 }));
     const confirmada = await app.request("/api/resultados", {}, env);
     expect(confirmada.status).toBe(200);
     expect((await confirmada.json<{ parciais: unknown }>()).parciais).toEqual(JSON.parse(PARCIAIS));
-    expect(fonte.pedidos[1]?.cabecalhos.get("If-None-Match")).toBe('"v1"');
-    expect(fonte.pedidos[1]?.cabecalhos.get("If-Modified-Since")).toBe(
+    expect(fonte.pedidosA(env.URL_PARCIAIS)[1]?.cabecalhos.get("If-None-Match")).toBe('"v1"');
+    expect(fonte.pedidosA(env.URL_PARCIAIS)[1]?.cabecalhos.get("If-Modified-Since")).toBe(
       "Tue, 03 Nov 2026 23:00:00 GMT",
     );
   });
@@ -89,7 +107,7 @@ describe("/api/resultados", () => {
   it("partilha uma só ida à fonte entre pedidos simultâneos", async () => {
     fonte.respostas.set(env.URL_PARCIAIS, ficheiro(PARCIAIS));
     await Promise.all([1, 2, 3].map(async () => app.request("/api/resultados", {}, env)));
-    expect(fonte.pedidos).toHaveLength(1);
+    expect(fonte.pedidosA(env.URL_PARCIAIS)).toHaveLength(1);
   });
 
   it("nunca serve um ficheiro que não cumpre o contrato: fica a cópia anterior", async () => {
@@ -115,7 +133,7 @@ describe("/api/resultados", () => {
     expect(resposta.headers.get("X-Origem")).toBe("copia-antiga");
 
     await app.request("/api/resultados", {}, env);
-    expect(fonte.pedidos).toHaveLength(2);
+    expect(fonte.pedidosA(env.URL_PARCIAIS)).toHaveLength(2);
   });
 
   it("responde 503 sem cópia quando a fonte falha, e 404 antes de haver ficheiro", async () => {

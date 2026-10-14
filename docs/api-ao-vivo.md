@@ -4,12 +4,12 @@ Os workflows da noite (`resultados.yml` e `noite.yml`) publicam a contagem e a p
 
 ## Pontos de acesso
 
-| Caminho           | Ficheiros (variáveis em `apps/edge/wrangler.jsonc`)                                                                | Contrato                          |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
-| `/api/resultados` | `URL_PARCIAIS`: `resultados-2026/parciais.json`                                                                    | `ResultadosParciais`              |
-| `/api/noite`      | `URL_PROJECAO_NOITE` e `URL_HISTORICO_NOITE`: `dados-noite/projecao-noite-2026.json` e `historico-noite-2026.json` | `ProjecaoNoite`, `HistoricoNoite` |
+| Caminho           | Ficheiros (variáveis em `apps/edge/wrangler.jsonc`)                                                                | Contrato                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
+| `/api/resultados` | `URL_PARCIAIS` e `URL_CHAMADAS`: `resultados-2026/parciais.json` e `chamadas-2026.json`                            | `ResultadosParciais`, `ChamadasRedacoes` |
+| `/api/noite`      | `URL_PROJECAO_NOITE` e `URL_HISTORICO_NOITE`: `dados-noite/projecao-noite-2026.json` e `historico-noite-2026.json` | `ProjecaoNoite`, `HistoricoNoite`        |
 
-Resposta `200`: `{"origem", "confirmadoEm", "parciais"}` ou `{"origem", "confirmadoEm", "projecao", "historico"}`, com os ficheiros tal como a fonte os publicou. `historico` é `null` quando falta. `origem` (também no cabeçalho `X-Origem`) é `fonte` (acabado de confirmar), `memoria` (confirmado há menos de 20 s) ou `copia-antiga` (a fonte falhou; serve-se a última cópia válida). `confirmadoEm` é a última vez que a fonte confirmou o ficheiro.
+Resposta `200`: `{"origem", "confirmadoEm", "parciais", "chamadas"}` ou `{"origem", "confirmadoEm", "projecao", "historico"}`, com os ficheiros tal como a fonte os publicou. `historico` e `chamadas` são `null` quando faltam. `origem` (também no cabeçalho `X-Origem`) é `fonte` (acabado de confirmar), `memoria` (confirmado há menos de 20 s) ou `copia-antiga` (a fonte falhou; serve-se a última cópia válida). `confirmadoEm` é a última vez que a fonte confirmou o ficheiro.
 
 Sem ficheiro publicado: `404`. Fonte em baixo e nenhuma cópia: `503`.
 
@@ -23,6 +23,10 @@ Sem ficheiro publicado: `404`. Fonte em baixo e nenhuma cópia: `503`.
 ## Limites do plano gratuito
 
 O plano gratuito dos Workers dá 100 000 pedidos por dia ao código do Worker e 10 ms de CPU por pedido. Os ficheiros estáticos não contam. Cada visitante com a página da noite aberta faz 2 pedidos por minuto (120 por hora), o que chega para cerca de 800 horas de visita por dia. Se o limite for ultrapassado, a API deixa de responder até à meia-noite UTC e a página passa para o espelho de emergência, com um aviso discreto. A CPU só pesa quando um ficheiro muda: ler e validar a projeção (160 KB) leva cerca de 2 ms.
+
+## Chamadas das redações
+
+O Escrutínio não declara vencedores. Quando uma redação chama uma corrida, regista-se à mão em GitHub > Actions > "Chamadas das redações" > Run workflow (também funciona na aplicação do GitHub no telemóvel), com a corrida tal como aparece na previsão (`PA-07`, `OH-S-especial`), o lado, a redação, a ligação para a página da chamada e, se possível, a hora publicada. A mesma ação, com "retirar", apaga uma chamada. O workflow confirma que a corrida existe na previsão e que o ficheiro cumpre o contrato `ChamadasRedacoes` antes de o publicar em `resultados-2026/chamadas-2026.json`; a página mostra-o no minuto seguinte, ao lado da contagem, com a ligação para a fonte.
 
 ## Espelho de emergência
 
