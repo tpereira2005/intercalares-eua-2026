@@ -10,8 +10,7 @@ import type { VistaResultados } from "@/lib/resultados/vista.ts";
 import { PainelProjecao } from "./PainelProjecao.tsx";
 import { TabelaResultados } from "./TabelaResultados.tsx";
 
-const METODOLOGIA =
-  "https://github.com/tpereira2005/intercalares-eua-2026/blob/main/docs/metodologia/resultados.md";
+const METODOLOGIA = "/metodologia/resultados/";
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
 /** Linhas mostradas antes de "ver as outras". */
 const VISIVEIS = 20;

@@ -979,5 +979,26 @@
       "mapa": "Que estados ficam de fora, e porquê, está no mapa."
     },
     "anoReferencia": "Ano de referência"
+  },
+  "metodologia": {
+    "sobrelinha": "Como se faz o Escrutínio",
+    "lede": "Os documentos que explicam cada número do site: de onde vêm os dados, como se calculam os indicadores e as previsões, como foram testados e o que não conseguem dizer. São os mesmos que estão no repositório, ao lado do código.",
+    "grupos": {
+      "voto-antecipado": "Voto antecipado · Carolina do Norte",
+      "voto-antecipado-estados": "Voto antecipado · outros estados",
+      "previsao": "Previsão",
+      "noite-eleitoral": "Noite eleitoral · projeção",
+      "resultados": "Noite eleitoral · resultados"
+    },
+    "seccoes": "{n} secções",
+    "indice": "Neste documento",
+    "indiceAria": "Secções do documento",
+    "tabela": "Tabela (desliza na horizontal)",
+    "fonte": "Texto do repositório:",
+    "codigo": {
+      "titulo": "Código aberto",
+      "texto": "O código do pipeline, dos modelos e do site é público, tal como os ficheiros de dados publicados. Cada alteração passa por testes automáticos antes de entrar.",
+      "ligacao": "Ver o repositório no GitHub"
+    }
   }
 }

@@ -19,6 +19,7 @@
     "@intercalares/contratos": "workspace:*",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
+    "marked": "^16.4.2",
     "next": "16.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

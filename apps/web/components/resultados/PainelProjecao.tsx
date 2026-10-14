@@ -12,8 +12,7 @@ import {
 import { t } from "@/lib/mensagens.ts";
 import type { CamaraNoite, VistaNoite } from "@/lib/noite/vista.ts";
 
-const METODOLOGIA =
-  "https://github.com/tpereira2005/intercalares-eua-2026/blob/main/docs/metodologia/noite-eleitoral.md";
+const METODOLOGIA = "/metodologia/noite-eleitoral/";
 
 /** Probabilidade de um lado, com a cor do partido (republicano sempre tracejado). */
 export function Probabilidade({ lado, valor }: { lado: "D" | "R"; valor: number }) {

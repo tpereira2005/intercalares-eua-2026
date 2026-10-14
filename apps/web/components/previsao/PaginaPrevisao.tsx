@@ -24,8 +24,7 @@ import {
 import { DistribuicaoLugares, EvolucaoControlo, LinhaLimiares, MapaSenado } from "./graficos.tsx";
 import { TabelaCorridas } from "./TabelaCorridas.tsx";
 
-const METODOLOGIA =
-  "https://github.com/tpereira2005/intercalares-eua-2026/blob/main/docs/metodologia/previsao.md";
+const METODOLOGIA = "/metodologia/previsao/";
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
 /** Distritos da Câmara mostrados antes de "ver os outros". */
 const DISTRITOS_VISIVEIS = 25;

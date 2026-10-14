@@ -20,8 +20,7 @@ import { BarrasIdade, BarrasReserva, Cruzamento, CurvaCoorte } from "./graficos.
 import { Amostra, AmostraAno, ItemLegenda, Legenda } from "./legendas.tsx";
 import { PainelGeografia } from "./PainelGeografia.tsx";
 
-const METODOLOGIA =
-  "https://github.com/tpereira2005/intercalares-eua-2026/blob/main/docs/metodologia/voto-antecipado-estados.md";
+const METODOLOGIA = "/metodologia/voto-antecipado-estados/";
 
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
 
