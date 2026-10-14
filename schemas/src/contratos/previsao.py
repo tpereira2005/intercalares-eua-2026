@@ -9,9 +9,9 @@ metodologia está em ``docs/metodologia/previsao.md``.
 from datetime import date
 from typing import Literal
 
-from pydantic import Field
+from pydantic import ConfigDict, Field, HttpUrl
 
-from contratos.base import Metadados, ModeloContrato
+from contratos.base import Metadados, ModeloContrato, opcionais_no_esquema
 from contratos.estados import CodigoEstado
 
 Probabilidade = Field(ge=0.0, le=1.0)
@@ -24,6 +24,8 @@ sondagens do voto genérico ou, sem voto genérico, a leitura implícita nas son
 Senado (usada no backtest de 2024)."""
 
 Lado = Literal["D", "R", "I"]
+
+CodigoCommit = Field(default=None, pattern=r"^[0-9a-f]{7,40}$")
 
 
 class AgregadorVotoGenerico(ModeloContrato):
@@ -175,6 +177,8 @@ class Backtest(ModeloContrato):
 class PrevisaoCongresso(ModeloContrato):
     """Previsão completa: ambiente, câmaras, corridas, parâmetros e backtests."""
 
+    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("codigo_commit"))
+
     metadados: Metadados
     ano: int
     data_eleicao: date
@@ -197,6 +201,8 @@ class PrevisaoCongresso(ModeloContrato):
 
     backtests: tuple[Backtest, ...]
     notas: tuple[str, ...]
+    codigo_commit: str | None = CodigoCommit
+    """Commit do repositório que gerou o ficheiro (``None`` fora do GitHub Actions)."""
 
 
 # --- Histórico diário (gráficos de evolução) ------------------------------------------
@@ -300,3 +306,92 @@ class AvaliacaoPrevisao(ModeloContrato):
     ambiente_previsto: float
     ambiente_real: float | None
     camaras: tuple[AvaliacaoCamara, ...]
+
+
+# --- Registo de alterações do método ----------------------------------------------------
+
+
+class ControloAntesDepois(ModeloContrato):
+    """Probabilidade de controlo democrata de uma câmara antes e depois de uma alteração."""
+
+    antes: float | None = Field(ge=0.0, le=1.0)
+    """``None`` na primeira publicação."""
+
+    depois: float = Probabilidade
+
+
+class AlteracaoMetodo(ModeloContrato):
+    """Uma alteração do modelo ou dos dados de entrada que pode mudar os números publicados.
+
+    ``antes`` e ``depois`` vêm da mesma data de corte e dos mesmos dados, para que a
+    diferença seja só a da alteração.
+    """
+
+    data: date
+    descricao: str = Field(min_length=1)
+    pr_url: HttpUrl
+    camara: ControloAntesDepois
+    senado: ControloAntesDepois
+
+
+class AlteracoesPrevisao(ModeloContrato):
+    """Registo público das alterações do método, por ordem cronológica."""
+
+    metadados: Metadados
+    ano: int
+    alteracoes: tuple[AlteracaoMetodo, ...]
+
+
+# --- Cenários do ambiente nacional ----------------------------------------------------
+
+
+class ResumoCenarioCamara(ModeloContrato):
+    """Controlo e lugares do lado democrata de uma câmara num cenário."""
+
+    prob_controlo_d: float = Probabilidade
+    prob_controlo_r: float = Probabilidade
+    lugares_d_mediana: int
+    lugares_d_p10: int
+    lugares_d_p90: int
+
+
+class ProbCorridaCenario(ModeloContrato):
+    id: str = Field(pattern=r"^[A-Z]{2}-(\d{2}|S|S-especial)$")
+    prob_d: float = Probabilidade
+
+
+class Cenario(ModeloContrato):
+    """A previsão publicada com o centro do ambiente nacional deslocado e, opcionalmente,
+    o erro das sondagens multiplicado. A incerteza do ambiente mantém-se."""
+
+    desvio_ambiente: float
+    """Pontos somados ao ambiente nacional estimado (D-R)."""
+
+    ambiente: float
+    """Centro do ambiente nacional neste cenário (D-R)."""
+
+    fator_erro_sondagens: float = Field(gt=0)
+    """Multiplica o erro das médias de sondagens do Senado; 1 é o modelo publicado."""
+
+    camara: ResumoCenarioCamara
+    senado: ResumoCenarioCamara
+    corridas_senado: tuple[ProbCorridaCenario, ...]
+
+
+class CenariosPrevisao(ModeloContrato):
+    """Grelha de cenários calculada pelo mesmo simulador e com os mesmos dados da
+    ``PrevisaoCongresso`` do mesmo corte. O cenário com desvio 0 e fator 1 é a previsão
+    publicada."""
+
+    metadados: Metadados
+    ano: int
+    corte: date
+    congelada: bool
+    simulacoes: int = Field(gt=0)
+    semente: int
+    ambiente_base: float
+    desvio_padrao_ambiente: float = Field(gt=0)
+    desvios_ambiente: tuple[float, ...]
+    fatores_erro_sondagens: tuple[float, ...]
+    cenarios: tuple[Cenario, ...]
+    codigo_commit: str | None = CodigoCommit

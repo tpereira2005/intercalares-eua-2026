@@ -95,6 +95,8 @@ jobs:
           uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json
           --historico data/publicado/previsao/historico-previsao-2026.json
           --sondagens data/publicado/previsao/sondagens-2026.json
+          --cenarios data/publicado/previsao/cenarios-2026.json
+          --alteracoes data/publicado/previsao/alteracoes-2026.json
       - name: Atualizar só as sondagens
         if: steps.janela.outputs.modo == 'sondagens'
         run: >-
@@ -111,7 +113,7 @@ jobs:
   # Publica os JSON em assets de uma Release fixa, substituídos a cada execução, como no
   # voto antecipado. Job separado para que só ele tenha permissão de escrita.
   publicar:
-    name: Publicar a previsão, o histórico e as sondagens
+    name: Publicar a previsão, o histórico, as sondagens, os cenários e as alterações
     needs: calcular
     if: github.ref == 'refs/heads/main' && needs.calcular.outputs.modo != 'nada'
     runs-on: ubuntu-latest
@@ -137,8 +139,11 @@ jobs:
             jq -e '.ano == 2026 and (.corridas | length) > 400 and (.backtests | length) == 6' \
               resultado/2026.json
             jq -e '.ano == 2026 and (.dias | length) > 0' resultado/historico-previsao-2026.json
+            jq -e '.ano == 2026 and (.cenarios | length) > 0' resultado/cenarios-2026.json
+            jq -e '.ano == 2026 and (.alteracoes | length) > 0' resultado/alteracoes-2026.json
             if [[ ! "$(date -u +%F)" < "$ULTIMO_DIA" ]]; then
               jq -e --arg dia "$ULTIMO_DIA" '.congelada and .corte == $dia' resultado/2026.json
+              jq -e --arg dia "$ULTIMO_DIA" '.congelada and .corte == $dia' resultado/cenarios-2026.json
               jq -e '.dias[-1].congelada' resultado/historico-previsao-2026.json
             fi
           fi
@@ -151,7 +156,8 @@ jobs:
           if [[ "$MODO" == "previsao" ]]; then
             cp resultado/2026.json previsao-2026.json
             gh release upload "$ETIQUETA" previsao-2026.json \
-              resultado/historico-previsao-2026.json resultado/sondagens-2026.json --clobber
+              resultado/historico-previsao-2026.json resultado/sondagens-2026.json \
+              resultado/cenarios-2026.json resultado/alteracoes-2026.json --clobber
           else
             gh release upload "$ETIQUETA" resultado/sondagens-2026.json --clobber
           fi

@@ -215,6 +215,7 @@ def montar(
     gerado_em: datetime,
     agregadores: Sequence[tuple[str, float]] = (),
     backtests: Sequence[Backtest] = (),
+    codigo_commit: str | None = None,
 ) -> PrevisaoCongresso:
     """Monta o ficheiro publicado a partir de uma previsão já calculada."""
     composicao = previsao.composicao
@@ -254,4 +255,5 @@ def montar(
         peso_voto_antecipado=0.0,
         backtests=tuple(backtests),
         notas=NOTAS,
+        codigo_commit=codigo_commit,
     )

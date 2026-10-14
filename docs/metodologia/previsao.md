@@ -211,6 +211,23 @@ O voto genérico é diferente: a Wikipédia de 2026 só publica os valores atuai
 
 As sondagens continuam a atualizar-se depois do congelamento da previsão, até ao dia da eleição. De 2 a 3 de novembro, a execução diária corre `pipeline.jobs.previsao --apenas-sondagens`, com o corte do próprio dia, e publica só `sondagens-2026.json`. A previsão congelada e o histórico nunca são reenviados.
 
+### Cenários, alterações do método e commit
+
+A mesma execução publica mais dois ficheiros na Release `dados-previsao`, para o site os mostrar sem simular nada no browser:
+
+- **`cenarios-2026.json`** (contrato `CenariosPrevisao`): uma grelha calculada pelo simulador publicado, com os mesmos dados, o mesmo corte e a mesma semente da previsão do dia.
+  - Desloca-se o centro do ambiente nacional de −8 a +8 pontos, em passos de 1 (`Ajustes.desvio_ambiente`, o mesmo da secção 8).
+  - Cada deslocação corre com três níveis do erro das sondagens do Senado: × 0,75, × 1 (o publicado) e × 1,5.
+  - Em cada cenário: probabilidade de controlo, mediana e intervalo p10–p90 de lugares de cada câmara, e a probabilidade de cada corrida ao Senado.
+  - A incerteza do ambiente mantém-se: +3 pontos quer dizer "o ambiente estimado está 3 pontos mais para o lado democrata", não "o voto nacional é exatamente esse".
+  - O cenário com deslocação 0 e fator 1 é a previsão publicada. O job confirma-o antes de gravar e falha se não for.
+  - O erro das sondagens só mexe no Senado: a Câmara não usa sondagens de distrito.
+- **`alteracoes-2026.json`** (contrato `AlteracoesPrevisao`): o registo público das alterações do método e das correções de dados que podem mudar os números. Cada entrada tem a data, a descrição, o PR e a probabilidade de controlo de cada câmara antes e depois, calculadas com o mesmo corte e os mesmos dados. O registo vive em `data/reference/modelo/alteracoes_metodo_2026.json`. **Cada PR que muda o modelo ou a leitura das fontes acrescenta lá uma entrada.**
+
+A previsão e os cenários levam em `codigo_commit` o commit que os gerou (`GITHUB_SHA` no GitHub Actions), para o site poder mostrar, por exemplo, "congelada a 1 de novembro, commit abc1234". Fora do Actions o campo fica vazio.
+
+No congelamento, os cenários também ficam congelados: a 1 de novembro o workflow exige que `cenarios-2026.json` tenha `congelada` com corte de 1 de novembro, e depois disso nunca o reenvia.
+
 ## 10. Congelamento
 
 A previsão congela com os dados até 31 de outubro: o corte é 1 de novembro de 2026, exclusive para as sondagens. Nesse dia:

@@ -8,10 +8,16 @@ Lê a referência versionada em ``data/reference/modelo`` (eleições de 2012 a 
 descarrega da Wikipédia as listas de candidatos, os PVI e as sondagens de 2026 e corre os
 backtests de 2018, 2022 e 2024 com o mesmo código. Depois de 1 de novembro de 2026 o
 corte fica fixo: a previsão publicada é a congelada.
+
+Com ``--cenarios`` grava também a grelha de cenários do ambiente nacional, calculada pelo
+mesmo simulador (``modelo.cenarios``); com ``--alteracoes``, o registo de alterações do
+método (``modelo.alteracoes``). No GitHub Actions, os ficheiros levam o commit que os gerou.
 """
 
 import argparse
 import logging
+import os
+import re
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -20,14 +26,16 @@ import httpx
 from contratos.base import Fonte
 from contratos.previsao import HistoricoPrevisao
 from contratos.sondagens import SondagensCongresso
+from pipeline.modelo import alteracoes as registo_alteracoes
 from pipeline.modelo import carregar as carga
+from pipeline.modelo import cenarios as grelha_cenarios
 from pipeline.modelo import publicar_sondagens
 from pipeline.modelo.dados import LinhaModelo
 from pipeline.modelo.fontes import wikipedia
 from pipeline.modelo.historico import acrescentar
 from pipeline.modelo.previsao import DATAS_ELEICAO, Dados, corte_final, estimar, prever
 from pipeline.modelo.publicar import avaliar, montar
-from pipeline.modelo.verificacoes import exigir_coerencia
+from pipeline.modelo.verificacoes import PrevisaoIncoerente, exigir_coerencia
 
 registo = logging.getLogger(__name__)
 
@@ -36,6 +44,13 @@ DESEMPATE_REAL = {2018: "R", 2022: "D", 2024: "R"}
 """Partido do vice-presidente no Congresso eleito (decide um Senado 50-50)."""
 
 URL_WIKIPEDIA = "https://en.wikipedia.org/wiki/"
+URL_REPOSITORIO = "https://github.com/tpereira2005/intercalares-eua-2026"
+
+
+def codigo_commit() -> str | None:
+    """Commit que gerou os ficheiros (``GITHUB_SHA`` no GitHub Actions)."""
+    sha = os.environ.get("GITHUB_SHA", "").strip().lower()
+    return sha if re.fullmatch(r"[0-9a-f]{7,40}", sha) else None
 
 
 def fontes(agora: datetime) -> list[Fonte]:
@@ -67,6 +82,8 @@ def executar(
     atualizar: bool,
     historico: Path | None = None,
     ficheiro_sondagens: Path | None = None,
+    ficheiro_cenarios: Path | None = None,
+    ficheiro_alteracoes: Path | None = None,
 ) -> None:
     final = corte_final(carga.ANO_ATUAL)
     corte = min(corte or datetime.now(UTC).date(), final)
@@ -80,19 +97,17 @@ def executar(
     backtests = []
     for ano in ANOS_BACKTEST:
         backtests.extend(avaliar(prever(dados, ano), dados, DESEMPATE_REAL[ano]))
-    previsao = prever(
-        dados,
-        carga.ANO_ATUAL,
-        corte=corte,
-        ambiente_publicado=(generico, "agregadores") if agregadores else None,
-    )
+    ambiente_publicado = (generico, "agregadores") if agregadores else None
+    previsao = prever(dados, carga.ANO_ATUAL, corte=corte, ambiente_publicado=ambiente_publicado)
     agora = datetime.now(UTC)
+    commit = codigo_commit()
     ficheiro = montar(
         previsao,
         fontes=fontes(agora),
         gerado_em=agora,
         agregadores=agregadores,
         backtests=backtests,
+        codigo_commit=commit,
     )
     exigir_coerencia(ficheiro, corridas)
     saida.parent.mkdir(parents=True, exist_ok=True)
@@ -113,6 +128,46 @@ def executar(
         historico.parent.mkdir(parents=True, exist_ok=True)
         historico.write_text(novo.model_dump_json(), encoding="utf-8")
         registo.info("Histórico com %d dias gravado em %s", len(novo.dias), historico)
+    if ficheiro_cenarios is not None:
+        cenarios = grelha_cenarios.calcular(
+            dados,
+            carga.ANO_ATUAL,
+            corte,
+            ambiente_publicado,
+            fontes=fontes(agora),
+            gerado_em=agora,
+            codigo_commit=commit,
+        )
+        base = next(
+            c for c in cenarios.cenarios if c.desvio_ambiente == 0 and c.fator_erro_sondagens == 1
+        )
+        if (base.camara.prob_controlo_d, base.senado.prob_controlo_d) != (
+            ficheiro.camara.prob_controlo_d,
+            ficheiro.senado.prob_controlo_d,
+        ):
+            raise PrevisaoIncoerente("O cenário de base não reproduz a previsão publicada")
+        ficheiro_cenarios.parent.mkdir(parents=True, exist_ok=True)
+        ficheiro_cenarios.write_text(cenarios.model_dump_json(), encoding="utf-8")
+        registo.info("%d cenários gravados em %s", len(cenarios.cenarios), ficheiro_cenarios)
+    if ficheiro_alteracoes is not None:
+        alteracoes = registo_alteracoes.montar(
+            carga.ANO_ATUAL,
+            fontes=[
+                Fonte(
+                    nome="Escrutínio: registo de alterações do método",
+                    url=f"{URL_REPOSITORIO}/blob/main/{registo_alteracoes.REGISTO}",
+                    obtida_em=agora,
+                )
+            ],
+            gerado_em=agora,
+        )
+        ficheiro_alteracoes.parent.mkdir(parents=True, exist_ok=True)
+        ficheiro_alteracoes.write_text(alteracoes.model_dump_json(indent=1), encoding="utf-8")
+        registo.info(
+            "%d alterações do método gravadas em %s",
+            len(alteracoes.alteracoes),
+            ficheiro_alteracoes,
+        )
     if ficheiro_sondagens is not None:
         linhas = [c.linha for c in previsao.senado.corridas if c.linha.certo is None]
         minimo, maximo = publicar_sondagens.COMPETITIVA
@@ -240,6 +295,18 @@ def main() -> None:
         help="Ficheiro das sondagens para o site a atualizar (criado se não existir).",
     )
     parser.add_argument(
+        "--cenarios",
+        type=Path,
+        default=None,
+        help="Ficheiro da grelha de cenários do ambiente nacional (CenariosPrevisao).",
+    )
+    parser.add_argument(
+        "--alteracoes",
+        type=Path,
+        default=None,
+        help="Ficheiro do registo de alterações do método (AlteracoesPrevisao).",
+    )
+    parser.add_argument(
         "--apenas-sondagens",
         action="store_true",
         help="Depois do congelamento: atualiza só o ficheiro das sondagens (até à eleição).",
@@ -259,6 +326,8 @@ def main() -> None:
         atualizar=not args.sem_descarga,
         historico=args.historico,
         ficheiro_sondagens=args.sondagens,
+        ficheiro_cenarios=args.cenarios,
+        ficheiro_alteracoes=args.alteracoes,
     )
 
 
