@@ -382,6 +382,38 @@
         "regras": "Regras e calendários mudam entre eleições (início do voto presencial, prazos do correio). As notas de cada ciclo indicam as diferenças conhecidas.",
         "presidenciais": "A comparação principal é com a intercalar mais recente; as presidenciais têm um eleitorado diferente e servem só de referência."
       }
+    },
+    "sinalEtario": {
+      "sobrelinha": "Modelo Escrutínio · sinal etário",
+      "titulo": "O que a idade do voto antecipado diz sobre a margem",
+      "texto": "Quanto o eleitorado projetado, pela idade e pelo partido de registo de quem já votou, puxa a margem face à intercalar anterior.",
+      "textoDados": "Quanto o eleitorado projetado, pela idade e pelo partido de registo de quem já votou, puxa a margem face à intercalar anterior. Dados até {data}: {votos} votos antecipados, {dias} dias antes da eleição.",
+      "cedo": "Ainda é cedo. O sinal etário só é publicado a partir de 20 de outubro (14 dias antes da eleição) e com pelo menos 200 000 votos antecipados. Mais cedo, o voto por correspondência pesa demasiado e a leitura engana.",
+      "pesoZero": "Peso zero na previsão",
+      "efeito": "Efeito na margem face a {ano}",
+      "intervalo": "Intervalo de 80%: {de} a {ate}",
+      "leitura": "Com a composição projetada, o eleitorado final puxa a margem {projetada} face aos eleitores registados; em {ano}, puxava {referencia}. O efeito é a diferença entre as duas.",
+      "notaPeso": "É um diagnóstico mostrado ao lado da previsão: não entra no modelo nem muda as probabilidades.",
+      "legendaFaixas": "Quota de cada faixa etária no eleitorado projetado e no eleitorado final de {ano}",
+      "legendaPartidos": "Quota e margem estimada de cada faixa etária por partido de registo",
+      "porPartido": "Ver por partido de registo",
+      "entre": "{de} a {ate}",
+      "backtestsTitulo": "Backtests no mesmo dia do ciclo",
+      "backtestsLegenda": "Inclinação real e projetada em eleições passadas, {dias} dias antes",
+      "com": "com {anos}",
+      "erro": "Erro médio dos backtests (raiz do erro quadrático): {erro} pontos.",
+      "colunas": {
+        "faixa": "Faixa",
+        "grupo": "Grupo",
+        "projetada": "Projetada",
+        "referencia": "Final {ano}",
+        "diferenca": "Diferença",
+        "margem": "Margem D − R",
+        "eleicao": "Eleição",
+        "real": "Real",
+        "projetadaBacktest": "Projetada"
+      },
+      "metodo": "quotas projetadas do eleitorado final por faixa etária e partido de registo, a partir do voto antecipado chegado até ao dia dos dados; margem de cada grupo por regressão ecológica (o intervalo junta as versões com anos e penalizações diferentes). Inclinação: margem do eleitorado menos a dos registados. Efeito: inclinação projetada menos a da intercalar anterior, em pontos D − R; positivo puxa para os democratas."
     }
   },
   "mapa": {

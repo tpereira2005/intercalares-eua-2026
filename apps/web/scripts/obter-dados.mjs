@@ -9,6 +9,8 @@
  *   dados/sondagens/2026.json;
  * - resultados: `parciais.json` da Release `resultados-2026` (contrato ResultadosParciais),
  *   gravado como dados/resultados/parciais.json;
+ * - sinal etário: `idade-nc.json` da Release `dados-voto-antecipado` (contrato
+ *   DiagnosticoIdade), gravado como dados/idade/nc.json; só existe a partir de 20 de outubro;
  * - projeção da noite: `projecao-noite-2026.json` e `historico-noite-2026.json` da Release
  *   `dados-noite`, gravados como dados/noite/projecao.json e historico.json.
  * Variáveis de ambiente permitem indicar outras origens (endereços ou ficheiros locais).
@@ -18,6 +20,7 @@
  *   URL_DADOS_PREVISAO=caminho/2026.json  URL_HISTORICO_PREVISAO=caminho/historico.json
  *   URL_DADOS_SONDAGENS=caminho/sondagens.json  URL_DADOS_RESULTADOS=caminho/parciais.json
  *   URL_PROJECAO_NOITE=caminho/projecao.json  URL_HISTORICO_NOITE=caminho/historico.json
+ *   URL_IDADE_NC=caminho/idade-nc.json
  *   GITHUB_TOKEN (opcional) evita o limite de pedidos anónimos à API.
  *
  * Sem rede ou sem Release, o script avisa e termina sem erro: as páginas mostram
@@ -168,6 +171,22 @@ async function obterResultados() {
   }
 }
 
+async function obterIdade() {
+  // Pasta limpa: sem ficheiro publicado, a página diz que ainda é cedo.
+  const pasta = path.join(RAIZ_WEB, "dados", "idade");
+  await rm(pasta, { recursive: true, force: true });
+  await mkdir(pasta, { recursive: true });
+  const origem =
+    process.env.URL_IDADE_NC ??
+    `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA}/idade-nc.json`;
+  try {
+    const gravado = await gravar(origem, path.join(pasta, "nc.json"));
+    console.log(`Sinal etário em ${path.relative(process.cwd(), gravado)}`);
+  } catch (erro) {
+    console.warn(`Sem idade-nc.json (${String(erro)}).`);
+  }
+}
+
 async function obterNoite() {
   // Pasta limpa: sem projeção publicada, a página mostra só a contagem e a previsão.
   await rm(PASTA_NOITE, { recursive: true, force: true });
@@ -225,6 +244,12 @@ try {
   await obter();
 } catch (erro) {
   console.warn(`Sem dados do voto antecipado (${String(erro)}); as páginas ficam em preparação.`);
+}
+
+try {
+  await obterIdade();
+} catch (erro) {
+  console.warn(`Sem sinal etário (${String(erro)}).`);
 }
 
 try {
