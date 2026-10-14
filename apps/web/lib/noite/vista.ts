@@ -38,6 +38,8 @@ export interface CorridaNoite {
   margemContada: number | null;
   fracaoContada: number | null;
   votosContados: number;
+  /** Votos que o modelo espera no total da corrida (contados e por contar). */
+  votosEsperados: number | null;
   decidida: boolean;
 }
 
@@ -149,6 +151,7 @@ export function construirVistaNoite(
           margemContada: c.margem_contada,
           fracaoContada: c.fracao_contada,
           votosContados: c.votos_contados,
+          votosEsperados: c.votos_esperados,
           decidida: c.decidida,
         },
       ]),

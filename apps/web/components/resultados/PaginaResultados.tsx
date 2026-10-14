@@ -7,6 +7,7 @@ import { formatarData, formatarDataHora } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
 import type { DadosNoiteEleitoral } from "@/lib/resultados/carregar.ts";
 import type { VistaResultados } from "@/lib/resultados/vista.ts";
+import { PainelFalta } from "./PainelFalta.tsx";
 import { PainelProjecao } from "./PainelProjecao.tsx";
 import { TabelaResultados } from "./TabelaResultados.tsx";
 
@@ -128,6 +129,8 @@ function Contagem({ vista }: { vista: VistaResultados }) {
         </Painel>
         <Cobertura vista={vista} />
       </div>
+
+      <PainelFalta vista={vista} />
 
       {vista.semDados.length > 0 ? (
         <Painel

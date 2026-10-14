@@ -791,6 +791,43 @@
       "camara": "Câmara",
       "senado": "Senado",
       "ligacao": "Ver a noite eleitoral"
+    },
+    "falta": {
+      "sobrelinha": "Voto contado e voto que falta",
+      "titulo": "O que ainda falta contar",
+      "texto": "Em cada corrida em aberto, os votos já contados de cada modalidade e o voto que o modelo ainda espera. Em alguns estados o voto por correspondência e o antecipado chegam primeiro; noutros chegam no fim. Uma vantagem cedo pode não aguentar.",
+      "mais": "Mostram-se as {n} mais renhidas na projeção, de {total}.",
+      "metodo": "voto esperado do estimador da noite (Modelo C); votos por modalidade da contagem oficial de cada estado; a margem necessária é a vantagem contada a dividir pelo voto que falta, se o voto esperado estiver certo.",
+      "leituraGrafico": "Barra: contado por modalidade e, a tracejado, o que falta. Eixo: traço = margem projetada, faixa = intervalo de 80%, círculo = margem contada.",
+      "contado": "{pct} contado · faltam cerca de {falta} votos",
+      "legendaModos": "Votos contados por modalidade em {corrida}",
+      "colunas": {
+        "modo": "Modalidade",
+        "votos": "Votos",
+        "parte": "Parte do esperado",
+        "margem": "Margem"
+      },
+      "modos": {
+        "correio": "Correspondência",
+        "antecipado_presencial": "Antecipado presencial",
+        "dia_eleicao": "Dia da eleição",
+        "provisorio": "Provisórios",
+        "outro": "Outros",
+        "semModo": "Sem separação",
+        "falta": "Por contar (estimativa)"
+      },
+      "semModos": "A fonte não separa os votos por modalidade.",
+      "intervalo": "Margem projetada {margem}, de {de} a {ate} com 80% de probabilidade; margem contada {contada}.",
+      "semContada": "sem votos",
+      "empate": "Empate na contagem.",
+      "precisa": {
+        "D": "Os democratas teriam de ganhar o voto que falta por {pontos} pontos para empatar.",
+        "R": "Os republicanos teriam de ganhar o voto que falta por {pontos} pontos para empatar."
+      },
+      "inalcancavel": {
+        "D": "Mesmo com todo o voto que falta, os democratas não chegariam ao empate, se o voto esperado estiver certo.",
+        "R": "Mesmo com todo o voto que falta, os republicanos não chegariam ao empate, se o voto esperado estiver certo."
+      }
     }
   },
   "fecho": {

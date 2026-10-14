@@ -113,6 +113,15 @@
     background: var(--dem);
   }
 
+  /* Voto por contar: tracejado neutro, para não se confundir com um partido. */
+  .fundo-falta {
+    background: repeating-linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--ink-3) 45%, transparent) 0 2px,
+      transparent 2px 6px
+    );
+  }
+
   .fundo-una {
     background:
       radial-gradient(circle, var(--una) 1.4px, transparent 1.6px) 0 0 / 5px 5px,

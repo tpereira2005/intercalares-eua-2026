@@ -18,7 +18,7 @@ import type { ContagemCorrida, LinhaResultados } from "@/lib/resultados/vista.ts
  * dados das linhas; as linhas a mais só se desenham quando se pedem.
  */
 
-function nomeCorrida(l: LinhaResultados): string {
+export function nomeCorrida(l: LinhaResultados): string {
   if (!l.senado) return l.id;
   const estado = nomeEstado(l.estado);
   return l.id.endsWith("-especial") ? `${estado} (${t("previsao.senado.especial")})` : estado;
