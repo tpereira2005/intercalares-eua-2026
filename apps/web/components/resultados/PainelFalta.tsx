@@ -2,6 +2,8 @@ import { Painel } from "@/components/ui/Painel.tsx";
 import { Selo } from "@/components/ui/Selo.tsx";
 import {
   formatarCompacto,
+  formatarDecimal,
+  formatarHora,
   formatarMargemPontos,
   formatarNumero,
   formatarPercentagem,
@@ -86,6 +88,79 @@ function Intervalo({ v }: { v: VotoQueFalta }) {
       </div>
       <span aria-hidden="true">{formatarMargemPontos(extremo, 0)}</span>
     </div>
+  );
+}
+
+/** Pontos do desenho: x de 0 a 100 pelo tempo, y de 0 a 40 pela margem (D em cima). */
+function caminho(pontos: readonly { x: number; y: number }[]): string {
+  return pontos.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join("");
+}
+
+/**
+ * Margem projetada e intervalo de 80% em cada projeção guardada da noite: a faixa
+ * encolhe à medida que se contam votos. Só aparece com dois pontos ou mais.
+ */
+function EvolucaoIntervalo({ v }: { v: VotoQueFalta }) {
+  const pontos = v.evolucao;
+  const primeiro = pontos[0];
+  const ultimo = pontos.at(-1);
+  if (!primeiro || !ultimo || pontos.length < 2) return null;
+  const inicio = Date.parse(primeiro.instante);
+  const duracao = Math.max(1, Date.parse(ultimo.instante) - inicio);
+  const extremo = Math.max(
+    5,
+    Math.ceil(Math.max(...pontos.flatMap((p) => [Math.abs(p.p10), Math.abs(p.p90)])) / 5) * 5,
+  );
+  const x = (instante: string) => ((Date.parse(instante) - inicio) / duracao) * 100;
+  const y = (m: number) => 20 - (Math.max(-extremo, Math.min(extremo, m)) / extremo) * 20;
+  const cima = pontos.map((p) => ({ x: x(p.instante), y: y(p.p90) }));
+  const baixo = pontos.map((p) => ({ x: x(p.instante), y: y(p.p10) })).reverse();
+  const largura = (p: (typeof pontos)[number]) => formatarDecimal(p.p90 - p.p10, 1);
+  return (
+    <figure className="flex flex-col gap-1">
+      <div className="flex items-stretch gap-2 font-mono text-[10.5px] text-ink-3">
+        <span aria-hidden="true" className="flex flex-col justify-between py-px">
+          <span>{formatarMargemPontos(extremo, 0)}</span>
+          <span>{formatarMargemPontos(-extremo, 0)}</span>
+        </span>
+        <svg
+          role="img"
+          aria-label={t("noite.falta.evolucao", {
+            n: pontos.length,
+            de: largura(primeiro),
+            ate: largura(ultimo),
+            inicio: formatarHora(new Date(primeiro.instante)),
+            fim: formatarHora(new Date(ultimo.instante)),
+          })}
+          viewBox="0 0 100 40"
+          preserveAspectRatio="none"
+          className="h-16 min-w-0 flex-1 overflow-visible"
+        >
+          <path d={`${caminho([...cima, ...baixo])}Z`} className="fill-ink-3/35" />
+          <line
+            x1="0"
+            x2="100"
+            y1="20"
+            y2="20"
+            vectorEffect="non-scaling-stroke"
+            strokeDasharray="2 3"
+            className="stroke-ink-3"
+          />
+          <path
+            d={caminho(pontos.map((p) => ({ x: x(p.instante), y: y(p.margem) })))}
+            vectorEffect="non-scaling-stroke"
+            strokeWidth="2"
+            fill="none"
+            className="stroke-ink"
+          />
+        </svg>
+      </div>
+      <figcaption className="flex justify-between gap-2 font-mono text-[10.5px] text-ink-3">
+        <span>{formatarHora(new Date(primeiro.instante))}</span>
+        <span>{t("noite.falta.evolucaoLegenda")}</span>
+        <span>{formatarHora(new Date(ultimo.instante))}</span>
+      </figcaption>
+    </figure>
   );
 }
 
@@ -177,6 +252,7 @@ function Corrida({ v }: { v: VotoQueFalta }) {
         <p className="text-[12.5px] text-ink-3">{t("noite.falta.semModos")}</p>
       )}
       <Intervalo v={v} />
+      <EvolucaoIntervalo v={v} />
       <p className="text-[13px] text-ink-2">
         <Leitura v={v} />
       </p>

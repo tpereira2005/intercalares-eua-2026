@@ -9,6 +9,7 @@
 
 import type { LinhaResultados, ModalidadeResultado } from "../resultados/vista.ts";
 import type { Lado } from "../previsao/vista.ts";
+import type { PontoIntervalo } from "./vista.ts";
 
 export interface ModoFalta {
   modo: ModalidadeResultado;
@@ -41,6 +42,8 @@ export interface VotoQueFalta {
   margemP10: number;
   margemP90: number;
   margemContada: number | null;
+  /** Margem e intervalo de 80% ao longo da noite, do mais antigo ao mais recente. */
+  evolucao: PontoIntervalo[];
 }
 
 function margemPontos(d: number, r: number, total: number): number | null {
@@ -77,6 +80,7 @@ export function votoQueFalta(linha: LinhaResultados): VotoQueFalta | null {
     margemP10: projecao.margemP10,
     margemP90: projecao.margemP90,
     margemContada: contagem.margem === null ? null : contagem.margem * 100,
+    evolucao: projecao.evolucao,
   };
 }
 
