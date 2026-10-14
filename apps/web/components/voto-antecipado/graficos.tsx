@@ -17,6 +17,7 @@ import {
   formatarVariacao,
 } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
+import type { FaixaAgregada } from "@/lib/voto-antecipado/agregado.ts";
 import {
   PARTIDOS,
   type CruzamentoFaixa,
@@ -103,7 +104,7 @@ function Grelha({
 
 /* ---------- Composição e participação por idade ---------- */
 
-export function BarrasIdade({
+export function BarrasIdade<F extends FaixaAgregada = FaixaEtaria>({
   titulo,
   linhas,
   anoAtual,
@@ -114,13 +115,13 @@ export function BarrasIdade({
   compacto = false,
 }: {
   titulo: string;
-  linhas: readonly LinhaBarra[];
+  linhas: readonly LinhaBarra<F>[];
   anoAtual: number;
   anoComparar: number;
   comparacoes: readonly AnoComparado[];
   /** Sem faixa ativa nem escolha, o gráfico é só de leitura (painel inicial). */
-  faixaAtiva?: FaixaEtaria;
-  aoEscolher?: (faixa: FaixaEtaria) => void;
+  faixaAtiva?: F;
+  aoEscolher?: (faixa: F) => void;
   compacto?: boolean;
 }) {
   const alturaLinha = compacto ? 30 : 36;

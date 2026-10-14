@@ -7,11 +7,39 @@
  * pipeline; esta camada só seleciona, agrupa e ordena.
  */
 
-import type { LinhaGeografia, VotoAntecipadoAgregado } from "@intercalares/contratos";
+import type {
+  LinhaGeografia,
+  PontoSerieAgregado,
+  VotoAntecipadoAgregado,
+} from "@intercalares/contratos";
 import { agruparGeografia, type UnidadeGeografica } from "./geografia.ts";
-import { FAIXAS, PARTIDOS, type FaixaEtaria, type PartidoRegisto } from "./vista.ts";
+import { PARTIDOS, type PartidoRegisto } from "./vista.ts";
 
 export type Modalidade = "correio" | "presencial";
+
+/**
+ * Faixa etária de um estado agregado: a canónica, ou as faixas de dez anos que a fonte
+ * publica (Colorado). Nunca se misturam no mesmo estado.
+ */
+export type FaixaAgregada = Exclude<PontoSerieAgregado["faixa"], "total" | "desconhecida">;
+
+/** Todas as faixas possíveis, por idade; cada estado usa as que o seu ficheiro traz. */
+export const FAIXAS_AGREGADAS: readonly FaixaAgregada[] = [
+  "18-24",
+  "25-29",
+  "25-34",
+  "30-39",
+  "35-44",
+  "40-49",
+  "45-54",
+  "50-64",
+  "55-64",
+  "65-74",
+  "75+",
+];
+
+/** Faixas de dez anos da fonte, que só existem em estados como o Colorado. */
+const FAIXAS_DEZ_ANOS = new Set<FaixaAgregada>(["25-34", "35-44", "45-54", "55-64"]);
 
 export interface LinhaCategoria<C extends string> {
   categoria: C;
@@ -29,7 +57,8 @@ export interface ComparacaoAgregada {
   /** Votos do ano de referência até ao mesmo dia do ciclo. */
   votosBase: number;
   ritmo: number | null;
-  faixas: LinhaCategoria<FaixaEtaria>[];
+  /** As faixas do ficheiro, por idade (canónicas ou de dez anos). */
+  faixas: LinhaCategoria<FaixaAgregada>[];
   partidos: LinhaCategoria<PartidoRegisto>[];
   modalidades: LinhaCategoria<Modalidade>[];
 }
@@ -56,6 +85,11 @@ export interface VistaAgregada {
   modalidadesFonte: Modalidade[];
   fontes: { nome: string; url: string }[];
   avisos: string[];
+  /**
+   * A fonte usa faixas de dez anos: os jovens (18–29) não se isolam, só os 18–24, e só
+   * 18–24, 65–74 e 75+ se comparam com os outros estados.
+   */
+  faixasDezAnos: boolean;
   votos: number;
   ciclos: { ano: number; tipo: "intercalar" | "presidencial"; notas: string[] }[];
   /** Intercalares primeiro, da mais recente para a mais antiga; depois presidenciais. */
@@ -117,7 +151,7 @@ function comparacoes(dados: VotoAntecipadoAgregado): ComparacaoAgregada[] {
           votos: total.votos,
           votosBase: total.votos_base,
           ritmo: total.ritmo,
-          faixas: linhas(dados, anoBase, "faixa", FAIXAS),
+          faixas: linhas(dados, anoBase, "faixa", FAIXAS_AGREGADAS),
           partidos: linhas(dados, anoBase, "partido", PARTIDOS),
           modalidades: linhas(dados, anoBase, "modalidade", ["correio", "presencial"] as const),
         },
@@ -203,6 +237,9 @@ export function construirVistaAgregada(dados: VotoAntecipadoAgregado): VistaAgre
     modalidadesFonte: [...dados.modalidades],
     fontes: dados.metadados.fontes.map((f) => ({ nome: f.nome, url: f.url })),
     avisos: [...dados.avisos],
+    faixasDezAnos: dados.comparacao.some(
+      (l) => l.dimensao === "faixa" && FAIXAS_DEZ_ANOS.has(l.categoria as FaixaAgregada),
+    ),
     votos: dados.ciclos.find((c) => c.ano === dados.ano)?.votos ?? 0,
     ciclos: dados.ciclos.map((c) => ({ ano: c.ano, tipo: c.tipo, notas: [...c.notas] })),
     comparacoes: lista,

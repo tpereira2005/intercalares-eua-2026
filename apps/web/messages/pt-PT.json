@@ -562,7 +562,8 @@
       "sobrelinha": "Composição",
       "titulo": "Que parte do voto antecipado vem de cada idade",
       "texto": "Quota de cada faixa nos votos até hoje, com o traço da mesma quota no mesmo dia dos anos de referência.",
-      "metodo": "idade no fim do ano da eleição, a partir do ano de nascimento; quota nos votos antecipados até ao dia."
+      "metodo": "idade no fim do ano da eleição, a partir do ano de nascimento; quota nos votos antecipados até ao dia.",
+      "dezAnos": "A fonte publica faixas de dez anos: só 18–24, 65–74 e 75+ coincidem com as dos outros estados, e os jovens de 18 a 29 anos não se podem isolar, porque só há os 18–24."
     },
     "partido": {
       "sobrelinha": "Composição",
