@@ -5,7 +5,7 @@ name: Espelho da noite
 # https://tpereira2005.github.io/intercalares-eua-2026/espelho/{resultados,noite}.json.
 #
 # Corre a cada 10 minutos entre 3 e 10 de novembro (UTC) e à mão. Só publica ficheiros
-# que cumprem o contrato; se nenhum existir ainda, não publica nada.
+# que cumprem o contrato; antes da noite publica só estado.json, para confirmar o Pages.
 # Requer o GitHub Pages ativo com a origem "GitHub Actions" (Settings > Pages).
 on:
   schedule:

@@ -35,6 +35,8 @@ O workflow `espelho-noite.yml` corre a cada 10 minutos entre 3 e 10 de novembro 
 - `https://tpereira2005.github.io/intercalares-eua-2026/espelho/resultados.json`
 - `https://tpereira2005.github.io/intercalares-eua-2026/espelho/noite.json`
 
+Publica sempre também `espelho/estado.json`, com a hora da cópia e os ficheiros incluídos. Antes da noite é o único ficheiro, e serve para confirmar que o Pages está a funcionar.
+
 O browser só lá vai quando a API falha; um `404` da API (nada publicado) não conta como falha. O Pages serve os ficheiros com `Access-Control-Allow-Origin: *` e não tem limite de pedidos que se aplique aqui. A variável `NEXT_PUBLIC_URL_ESPELHO`, no build, troca o endereço.
 
 Requer o Pages ativo, com a origem "GitHub Actions" (Settings > Pages). Para montar a cópia localmente:
