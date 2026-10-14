@@ -93,12 +93,14 @@ export function Grafico({
 }
 
 /** Propriedades de uma linha de gráfico que se pode escolher com o rato ou o teclado. */
-export function linhaEscolhivel(rotulo: string, aoEscolher?: () => void) {
+export function linhaEscolhivel(rotulo: string, aoEscolher?: () => void, ativa?: boolean) {
   if (!aoEscolher) return {};
   return {
     role: "button",
     tabIndex: 0,
     "aria-label": rotulo,
+    // Estado escolhido também por palavras, não só pelo fundo ocre.
+    "aria-pressed": ativa ?? false,
     className: "cursor-pointer outline-none [&:focus-visible>rect:first-child]:stroke-signal",
     onClick: aoEscolher,
     onKeyDown: (evento: KeyboardEvent) => {

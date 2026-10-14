@@ -170,6 +170,7 @@ export function MapaEstados({
                       () => {
                         setEscolhido(e.codigo);
                       },
+                      ativo,
                     )}
                   >
                     <rect

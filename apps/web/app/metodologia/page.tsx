@@ -13,7 +13,7 @@ export const metadata: Metadata = metadadosPagina({
 
 export default function Pagina() {
   const documentos = DOCUMENTOS.flatMap((d) => {
-    const lido = lerDocumento(d, t("metodologia.tabela"));
+    const lido = lerDocumento(d, t("metodologia.tabela"), t("metodologia.blocoCodigo"));
     return lido ? [lido] : [];
   });
   return <IndiceMetodologia documentos={documentos} />;

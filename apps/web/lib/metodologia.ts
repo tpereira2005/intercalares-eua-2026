@@ -82,6 +82,7 @@ export function converter(
   documento: Documento,
   texto: string,
   rotuloTabela: string,
+  rotuloCodigo = rotuloTabela,
 ): DocumentoMetodologia {
   const primeiro = /^#\s+(.+)$/m.exec(texto);
   // "Metodologia: previsão..." repete a secção do site; fica só o assunto, com maiúscula.
@@ -108,14 +109,23 @@ export function converter(
       },
     },
   });
-  // As tabelas deslizam dentro de si no telemóvel, com foco de teclado para as percorrer.
+  // As tabelas e os blocos de código deslizam dentro de si, com foco de teclado para os
+  // percorrer. Cada região leva um nome único ("{n}" é substituído pela ordem no documento).
+  let tabelas = 0;
+  let blocos = 0;
   const html = marked
     .parse(corpo, { async: false })
-    .replaceAll(
-      "<table>",
-      `<div class="tabela-deslizante" tabindex="0" role="region" aria-label="${escapar(rotuloTabela)}"><table>`,
-    )
-    .replaceAll("</table>", "</table></div>");
+    .replaceAll("<table>", () => {
+      tabelas += 1;
+      const rotulo = rotuloTabela.replace("{n}", String(tabelas));
+      return `<div class="tabela-deslizante" tabindex="0" role="region" aria-label="${escapar(rotulo)}"><table>`;
+    })
+    .replaceAll("</table>", "</table></div>")
+    .replaceAll("<pre>", () => {
+      blocos += 1;
+      const rotulo = rotuloCodigo.replace("{n}", String(blocos));
+      return `<pre tabindex="0" role="region" aria-label="${escapar(rotulo)}">`;
+    });
   const resumo =
     corpo
       .split(/\n\s*\n/)
@@ -135,8 +145,9 @@ export function converter(
 export function lerDocumento(
   documento: Documento,
   rotuloTabela: string,
+  rotuloCodigo = rotuloTabela,
 ): DocumentoMetodologia | null {
   const ficheiro = path.resolve(process.cwd(), PASTA, `${documento}.md`);
   if (!existsSync(ficheiro)) return null;
-  return converter(documento, readFileSync(ficheiro, "utf-8"), rotuloTabela);
+  return converter(documento, readFileSync(ficheiro, "utf-8"), rotuloTabela, rotuloCodigo);
 }

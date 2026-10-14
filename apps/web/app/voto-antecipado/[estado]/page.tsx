@@ -6,6 +6,7 @@ import { nomeEstado } from "@/lib/estados.ts";
 import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
+import { carregarIdade } from "@/lib/voto-antecipado/idade.ts";
 import { resumirTodos } from "@/lib/voto-antecipado/resumo.ts";
 
 export const dynamicParams = false;
@@ -67,7 +68,11 @@ export default async function Pagina({ params }: { params: Promise<{ estado: str
   }
   const estados = estadosComDados();
   return encontrada.tipo === "individual" ? (
-    <PaginaEstado vista={encontrada.vista} estados={estados} />
+    <PaginaEstado
+      vista={encontrada.vista}
+      estados={estados}
+      idade={carregarIdade(encontrada.vista.estado)}
+    />
   ) : (
     <PaginaAgregado vista={encontrada.vista} estados={estados} />
   );

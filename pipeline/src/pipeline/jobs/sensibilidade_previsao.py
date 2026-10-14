@@ -78,6 +78,7 @@ VARIANTES: tuple[Variante, ...] = (
     Variante("Meia-vida das sondagens de 7 dias", Ajustes(meia_vida_dias=7.0)),
     Variante("Meia-vida das sondagens de 28 dias", Ajustes(meia_vida_dias=28.0)),
     Variante("Sem sondagens do Senado (só fundamentos)", Ajustes(sem_sondagens_senado=True)),
+    Variante("Incumbentes corrigidos face às sondagens", Ajustes(incumbentes_sondagens=True)),
 )
 
 

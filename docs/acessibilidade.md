@@ -16,6 +16,39 @@ O script `apps/web/scripts/auditar-acessibilidade.mjs` serve a pasta exportada e
 - confirma que há exatamente um `h1` e nenhum deslocamento horizontal (critério 1.4.10, refluxo a 320 px);
 - mede o deslocamento cumulativo do esquema (CLS) e falha acima de 0,1.
 
+## Fluxos com o teclado
+
+O script `apps/web/scripts/testar-fluxos.mjs` abre o site exportado num Chromium real (via `playwright-core`) e percorre, só com o teclado, os fluxos principais. Cada fluxo falha com uma mensagem em português que diz o que não funcionou.
+
+```sh
+pnpm build
+pnpm --filter @intercalares/web fluxos   # CAMINHO_CHROMIUM=... (por omissão /opt/pw-browsers/chromium)
+```
+
+| Fluxo                | O que verifica                                                                                                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Navegação            | Do início, `Tab` até cada ligação da navegação e `Enter`: abre a página, com um só `h1` e `aria-current="page"`; a primeira paragem é "Saltar para o conteúdo" |
+| Voto antecipado (NC) | Mudar o ano de comparação e a pergunta com `Espaço`/`Enter` atualiza os gráficos; escolher uma linha com `Enter` marca-a (`aria-pressed`)                      |
+| Cenários             | Setas, `Fim` e botões de opção mudam os cartões da Câmara e do Senado; "Repor a previsão publicada" volta à previsão                                           |
+| Resultados sem API   | `/api/*` responde 404 (servidor estático): a página renderiza sem erros de script nem janela de erro                                                           |
+| Tema                 | Claro e escuro pelo teclado, com o fundo a mudar e a escolha mantida ao recarregar                                                                             |
+| Foco visível         | Todas as paragens do teclado de cinco páginas têm contorno visível (ou traço na linha do gráfico)                                                              |
+
+Os dois scripts partilham o servidor de `scripts/servidor-estatico.mjs`.
+
+## Revisão de 14 de outubro de 2026
+
+A auditoria passou a incluir `/previsao/camara/`, `/previsao/senado/`, `/previsao/cenarios/`, `/demografia/` e todos os documentos de `/metodologia/<documento>/`.
+
+| Problema                                                                                                                    | Critério         | Correção                                                                                  |
+| --------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| Caminhos para a maioria: posição da corrida decisiva em `ink-3` sobre o fundo ocre claro, sem contraste suficiente          | 1.4.3            | A posição das linhas decisivas usa `ink-2` (`PaginaCamara.tsx`)                           |
+| Metodologia: várias tabelas na mesma página com a mesma região e o mesmo nome                                               | 1.3.1            | Cada região leva um nome único: "Tabela 2 (desliza na horizontal)" (`lib/metodologia.ts`) |
+| Metodologia: blocos de código com deslocamento próprio mas sem acesso por teclado                                           | 2.1.1            | Os `<pre>` ganham `tabindex="0"`, `role="region"` e nome único                            |
+| Voto antecipado: tabela da geografia 3 px mais larga do que o ecrã a 320 px                                                 | 1.4.10           | Menos espaço entre colunas no telemóvel (`PainelGeografia.tsx`)                           |
+| Linhas escolhíveis dos gráficos e quadrados do mapa sem estado para leitores de ecrã (a escolha só se via pelo fundo ocre)  | 1.4.1, 4.1.2     | `aria-pressed` em `linhaEscolhivel`                                                       |
+| Metodologia: CLS de 0,10 em computador, porque a largura do texto estava em `ch` e mudava quando a letra definitiva chegava | Desempenho (CLS) | `.prosa` com largura em `rem` (`app/globals.css`)                                         |
+
 ## Revisão de 13 de outubro de 2026
 
 Páginas: início, mapa, previsão, noite eleitoral, voto antecipado (NC, PA, ME, FL), metodologia, sistema visual e 404, com os dados publicados nesse dia.
