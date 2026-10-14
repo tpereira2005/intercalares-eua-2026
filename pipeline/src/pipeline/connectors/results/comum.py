@@ -77,6 +77,11 @@ _CAMARA = re.compile(
     r"UNITED STATES REPRESENTATIVE|US CONGRESS|CONGRESSIONAL DISTRICT)\b\D*?(\d{1,2})\b"
 )
 _CAMARA_DISTRITO_ANTES = re.compile(r"\b(\d{1,2})(ST|ND|RD|TH)? CONGRESSIONAL DISTRICT\b")
+_CAMARA_MEMBRO = re.compile(
+    r"^MEMBER,? HOUSE OF REPRESENTATIVES \((\d{1,2})(ST|ND|RD|TH) DISTRICT\)"
+)
+"""Virgínia: "Member, House of Representatives (1st District)". Ancorado em "Member" e no
+número do distrito; o legislativo da Virgínia chama-se "House of Delegates"."""
 _CAMARA_SEM_NUMERO = re.compile(
     r"^(US REPRESENTATIVE|US HOUSE(?: OF REPRESENTATIVES)?|REPRESENTATIVE IN CONGRESS|"
     r"UNITED STATES REPRESENTATIVE)$"
@@ -103,8 +108,12 @@ def identificar_corrida(estado: CodigoEstado, nome: str) -> DescricaoCorrida | N
     distrito: int | None = None
     if _SENADO.search(chave):
         cargo, codigo = "senado", "S"
-    elif m := (_CAMARA_DISTRITO_ANTES.search(chave) or _CAMARA.search(chave)):
-        numero = m.group(1) if m.re is _CAMARA_DISTRITO_ANTES else m.group(2)
+    elif m := (
+        _CAMARA_DISTRITO_ANTES.search(chave)
+        or _CAMARA_MEMBRO.search(chave)
+        or _CAMARA.search(chave)
+    ):
+        numero = m.group(2) if m.re is _CAMARA else m.group(1)
         distrito = int(numero)
         cargo, codigo = "camara", f"{distrito:02d}"
     elif estado in DISTRITO_UNICO and _CAMARA_SEM_NUMERO.match(chave):

@@ -1,0 +1,619 @@
+{
+  "election": {
+    "lastUpdated": "2025-03-05T14:57:04.382766Z"
+  },
+  "ballotItems": [
+    {
+      "id": "01000000-c7a0-1ae0-d0e3-08dcde4d9db3",
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Member, United States Senate"
+        }
+      ],
+      "reportingStatus": {
+        "reportingUnits": 133,
+        "totalUnits": 133,
+        "asOf": "2025-03-05T14:57:37.4930252Z"
+      },
+      "voteTotal": 4445535,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-c7a0-1ae0-d13c-08dcde4d9db3",
+            "nativeId": "cs534",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Timothy M. Kaine"
+              }
+            ],
+            "voteCount": 2417115,
+            "party": {
+              "abbreviation": "D"
+            },
+            "isWriteIn": false,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 989222
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 996668
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 329380
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 63582
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 38263
+              }
+            ]
+          },
+          {
+            "id": "01000000-c7a0-1ae0-d165-08dcde4d9db3",
+            "nativeId": "cs535",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Hung Cao"
+              }
+            ],
+            "voteCount": 2019911,
+            "party": {
+              "abbreviation": "R"
+            },
+            "isWriteIn": false,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 821656
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 1025937
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 114648
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 45035
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 12635
+              }
+            ]
+          },
+          {
+            "id": "01000000-c7a0-1ae0-d179-08dcde4d9db3",
+            "nativeId": "wi-cc200",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Write-In"
+              }
+            ],
+            "voteCount": 8509,
+            "party": null,
+            "isWriteIn": true,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 2029
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 5037
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 830
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 448
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 165
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "01000000-c7a0-1ae0-9c21-08dcde4d9dd4",
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Member, House of Representatives (1st District)"
+        }
+      ],
+      "reportingStatus": {
+        "reportingUnits": 18,
+        "totalUnits": 18,
+        "asOf": "2025-03-05T14:57:37.4930252Z"
+      },
+      "voteTotal": 478906,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-c7a0-1ae0-9c5f-08dcde4d9dd4",
+            "nativeId": "cs1144",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Leslie C. Mehta"
+              }
+            ],
+            "voteCount": 208445,
+            "party": {
+              "abbreviation": "D"
+            },
+            "isWriteIn": false,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 91855
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 81387
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 29316
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 3670
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 2217
+              }
+            ]
+          },
+          {
+            "id": "01000000-c7a0-1ae0-9c78-08dcde4d9dd4",
+            "nativeId": "cs1145",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Robert J. Wittman"
+              }
+            ],
+            "voteCount": 269657,
+            "party": {
+              "abbreviation": "R"
+            },
+            "isWriteIn": false,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 119383
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 127979
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 17049
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 3971
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 1275
+              }
+            ]
+          },
+          {
+            "id": "01000000-c7a0-1ae0-9c94-08dcde4d9dd4",
+            "nativeId": "wi-cc429",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Write-In"
+              }
+            ],
+            "voteCount": 804,
+            "party": null,
+            "isWriteIn": true,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 310
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 393
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 73
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 23
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 5
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "01000000-c7a0-1ae0-ed69-08dcde4d9dca",
+      "name": [
+        {
+          "languageId": "en",
+          "text": "Member, House of Representatives (7th District)"
+        }
+      ],
+      "reportingStatus": {
+        "reportingUnits": 11,
+        "totalUnits": 11,
+        "asOf": "2025-03-05T14:57:37.4930252Z"
+      },
+      "voteTotal": 397299,
+      "contestType": "Candidate",
+      "summaryResults": {
+        "ballotOptions": [
+          {
+            "id": "01000000-c7a0-1ae0-eda1-08dcde4d9dca",
+            "nativeId": "cs532",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Eugene S. Vindman"
+              }
+            ],
+            "voteCount": 203336,
+            "party": {
+              "abbreviation": "D"
+            },
+            "isWriteIn": false,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 81798
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 84355
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 29225
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 5214
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 2744
+              }
+            ]
+          },
+          {
+            "id": "01000000-c7a0-1ae0-edbe-08dcde4d9dca",
+            "nativeId": "cs533",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Derrick M. Anderson"
+              }
+            ],
+            "voteCount": 192847,
+            "party": {
+              "abbreviation": "R"
+            },
+            "isWriteIn": false,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 77081
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 98535
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 11481
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 4637
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 1113
+              }
+            ]
+          },
+          {
+            "id": "01000000-c7a0-1ae0-edd0-08dcde4d9dca",
+            "nativeId": "wi-cc199",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "Write-In"
+              }
+            ],
+            "voteCount": 1116,
+            "party": null,
+            "isWriteIn": true,
+            "groupResults": [
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Early Voting"
+                  }
+                ],
+                "voteCount": 229
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Election Day"
+                  }
+                ],
+                "voteCount": 678
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Mailed Absentee"
+                  }
+                ],
+                "voteCount": 136
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Provisional"
+                  }
+                ],
+                "voteCount": 41
+              },
+              {
+                "groupName": [
+                  {
+                    "languageId": "en",
+                    "text": "Post-Election"
+                  }
+                ],
+                "voteCount": 32
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
