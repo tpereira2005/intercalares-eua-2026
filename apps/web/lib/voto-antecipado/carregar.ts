@@ -10,7 +10,12 @@
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import type { VotoAntecipadoAgregado, VotoAntecipadoEstado } from "@intercalares/contratos";
+import type {
+  EstadoSemDados,
+  VotoAntecipadoAgregado,
+  VotoAntecipadoEstado,
+  VotoAntecipadoNacional,
+} from "@intercalares/contratos";
 import { DadosInvalidos, obterValidador, type NomeContrato } from "../validacao.ts";
 import { construirVistaAgregada, type VistaAgregada } from "./agregado.ts";
 import { construirVista, type VistaVotoAntecipado } from "./vista.ts";
@@ -21,8 +26,12 @@ export { DadosInvalidos } from "../validacao.ts";
 export const PASTA_POR_OMISSAO = "dados/voto-antecipado";
 export const VARIAVEL_PASTA = "DADOS_VOTO_ANTECIPADO";
 
-/** Resumo nacional publicado ao lado dos estados; o site calcula o seu a partir dos estados. */
-const IGNORADOS = new Set(["nacional.json"]);
+/**
+ * Resumo nacional publicado ao lado dos estados. O site calcula os números a partir dos
+ * estados; do resumo só usa a lista dos estados prioritários sem dados, e porquê.
+ */
+export const FICHEIRO_NACIONAL = "nacional.json";
+const IGNORADOS = new Set([FICHEIRO_NACIONAL]);
 
 type Contrato = Extract<NomeContrato, "VotoAntecipadoEstado" | "VotoAntecipadoAgregado">;
 
@@ -111,4 +120,22 @@ export function carregarTodas(pasta?: string): VistasEstados {
 /** Só os estados com ficheiro de eleitores. */
 export function carregarVistas(pasta?: string): VistaVotoAntecipado[] {
   return carregarTodas(pasta).individuais;
+}
+
+/**
+ * Estados prioritários que o site não acompanha, e porquê (`estados_sem_dados` do resumo
+ * nacional). Lista vazia sem resumo; um resumo inválido faz falhar o build.
+ */
+export function lerEstadosSemDados(
+  pasta: string = process.env[VARIAVEL_PASTA] ?? PASTA_POR_OMISSAO,
+): EstadoSemDados[] {
+  const caminho = path.join(pasta, FICHEIRO_NACIONAL);
+  const absoluto = path.resolve(process.cwd(), caminho);
+  if (!existsSync(absoluto)) return [];
+  const dados: unknown = JSON.parse(readFileSync(absoluto, "utf-8"));
+  const valido = obterValidador("VotoAntecipadoNacional");
+  if (!valido(dados)) {
+    throw new DadosInvalidos(caminho, "VotoAntecipadoNacional", valido.errors?.slice(0, 5));
+  }
+  return [...((dados as VotoAntecipadoNacional).estados_sem_dados ?? [])];
 }

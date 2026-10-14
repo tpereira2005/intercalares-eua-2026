@@ -15,6 +15,13 @@ import {
 import { t } from "@/lib/mensagens.ts";
 import type { ResumoEstado } from "@/lib/voto-antecipado/resumo.ts";
 
+/** Estado prioritário sem dados, e porquê (resumo nacional do pipeline). */
+export interface EstadoForaMapa {
+  estado: ResumoEstado["estado"];
+  motivo: "bloqueado" | "sem_fonte_gratuita";
+  nota: string;
+}
+
 type Indicador = "ritmo" | "todos" | "mais65" | "jovens";
 
 function valorDe(r: ResumoEstado, indicador: Indicador): number | null {
@@ -36,20 +43,25 @@ function preenchimento(valor: number, extremo: number): { fill: string; forte: b
 export function MapaEstados({
   resumos,
   caminhos,
+  fora = [],
 }: {
   resumos: readonly ResumoEstado[];
   /** Endereço da análise de cada estado com dados. */
   caminhos: Readonly<Record<string, string>>;
+  /** Estados prioritários que ficam de fora: riscados, com a explicação ao escolher. */
+  fora?: readonly EstadoForaMapa[];
 }) {
   const [indicador, setIndicador] = useState<Indicador>("ritmo");
   const [escolhido, setEscolhido] = useState<string>(resumos[0]?.estado ?? "NC");
   const porEstado = new Map(resumos.map((r) => [r.estado, r]));
+  const foraPorEstado = new Map(fora.map((f) => [f.estado, f]));
   const valores = resumos.flatMap((r) => {
     const v = valorDe(r, indicador);
     return v === null ? [] : [Math.abs(v)];
   });
   const extremo = escala(Math.max(0.1, ...valores)).maximo;
   const resumo = porEstado.get(escolhido as ResumoEstado["estado"]);
+  const foraEscolhido = foraPorEstado.get(escolhido as ResumoEstado["estado"]);
   const anoBase = resumos.find((r) => r.anoBase !== null)?.anoBase ?? 2022;
 
   return (
@@ -88,6 +100,22 @@ export function MapaEstados({
             />
             {t("mapa.semDados")}
           </span>
+          {fora.length > 0 ? (
+            <span className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-2">
+              <svg aria-hidden="true" width={12} height={12} className="shrink-0">
+                <rect
+                  x={0.5}
+                  y={0.5}
+                  width={11}
+                  height={11}
+                  rx={2}
+                  className="fill-sheet stroke-ink-3"
+                />
+                <line x1={2} y1={10} x2={10} y2={2} strokeWidth={1.3} className="stroke-ink-3" />
+              </svg>
+              {t("mapa.fora")}
+            </span>
+          ) : null}
           <span className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-2">
             <span
               aria-hidden="true"
@@ -115,6 +143,7 @@ export function MapaEstados({
                 const x = deslocamento + e.coluna * (lado + ESPACO);
                 const y = e.linha * (lado + ESPACO);
                 const r = porEstado.get(e.codigo);
+                const semFonte = r ? undefined : foraPorEstado.get(e.codigo);
                 const valor = r ? valorDe(r, indicador) : null;
                 const cor = valor === null ? null : preenchimento(valor, extremo);
                 const ativo = e.codigo === escolhido;
@@ -124,7 +153,13 @@ export function MapaEstados({
                     key={e.codigo}
                     {...linhaEscolhivel(
                       !r
-                        ? t("mapa.quadradoSemDados", { estado: e.nome, codigo: e.codigo })
+                        ? semFonte
+                          ? t("mapa.quadradoFora", {
+                              estado: e.nome,
+                              codigo: e.codigo,
+                              motivo: t(`mapa.motivos.${semFonte.motivo}`),
+                            })
+                          : t("mapa.quadradoSemDados", { estado: e.nome, codigo: e.codigo })
                         : valor === null
                           ? t("mapa.quadradoSemValor", { estado: e.nome, codigo: e.codigo })
                           : t("mapa.quadrado", {
@@ -144,7 +179,7 @@ export function MapaEstados({
                       height={lado}
                       rx={3}
                       strokeWidth={ativo ? 3 : 1}
-                      strokeDasharray={r ? undefined : "3 2"}
+                      strokeDasharray={r || semFonte ? undefined : "3 2"}
                       style={cor ? { fill: cor.fill } : undefined}
                       className={`${cor ? "" : "fill-sheet"} ${
                         ativo
@@ -156,6 +191,17 @@ export function MapaEstados({
                             : "stroke-ink-3"
                       }`}
                     />
+                    {semFonte ? (
+                      <line
+                        x1={x + 3}
+                        y1={y + lado - 3}
+                        x2={x + lado - 3}
+                        y2={y + 3}
+                        strokeWidth={1.3}
+                        aria-hidden="true"
+                        className="stroke-ink-3"
+                      />
+                    ) : null}
                     <text
                       x={x + 6}
                       y={y + (lado < 34 ? 13 : 16)}
@@ -255,6 +301,11 @@ export function MapaEstados({
                   {t("mapa.abrirAnalise")}
                 </Link>
               ) : null}
+            </>
+          ) : foraEscolhido ? (
+            <>
+              <p className="rotulo">{t(`mapa.motivos.${foraEscolhido.motivo}`)}</p>
+              <p className="text-sm text-ink-2">{foraEscolhido.nota}</p>
             </>
           ) : (
             <p className="text-sm text-ink-2">{t("mapa.estadoSemDados")}</p>
