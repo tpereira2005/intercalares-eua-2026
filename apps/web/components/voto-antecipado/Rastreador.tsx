@@ -100,6 +100,8 @@ export function Rastreador({
   const momentoBase = vista.momento.find((m) => m.ano === anoComparar);
   const referencia = vista.anoReferenciaHistorico ?? anoComparar;
 
+  // As notas do ano escolhido (ex.: a pandemia em 2020) ficam junto da escolha.
+  const notasComparar = vista.ciclos.find((c) => c.ano === anoComparar)?.notas ?? [];
   // O intervalo só acompanha as barras quando se compara com um ano intercalar.
   const intervalos = intervalosDesvio(vista.comparacoes);
   const temIntervalo = comparacao.tipo === "intercalar" && Object.keys(intervalos).length > 0;
@@ -162,6 +164,17 @@ export function Rastreador({
           </span>
         </div>
       </div>
+      {notasComparar.length > 0 ? (
+        <p
+          role="note"
+          className="rounded-md border border-dashed border-rule px-[18px] py-2.5 text-sm text-ink-2"
+        >
+          <strong className="font-semibold text-ink">
+            {t("votoAntecipado.comparar.aviso", { ano: anoComparar })}
+          </strong>{" "}
+          {notasComparar.join(" ")}
+        </p>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Painel
