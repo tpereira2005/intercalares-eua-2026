@@ -2818,6 +2818,15 @@
           "title": "Id",
           "type": "string"
         },
+        "margem_p10": {
+          "title": "Margem P10",
+          "type": "number"
+        },
+        "margem_p90": {
+          "description": "Intervalo de 80% da margem final (o mesmo de ``ProjecaoCorridaNoite``).",
+          "title": "Margem P90",
+          "type": "number"
+        },
         "margem_projetada": {
           "title": "Margem Projetada",
           "type": "number"
@@ -2833,6 +2842,8 @@
         "id",
         "prob_d",
         "margem_projetada",
+        "margem_p10",
+        "margem_p90",
         "fracao_contada"
       ],
       "title": "PontoNoiteCorrida",

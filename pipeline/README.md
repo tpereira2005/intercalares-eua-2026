@@ -101,7 +101,7 @@ src/pipeline/
 │   ├── cenarios.py      # grelha de cenários do ambiente nacional (mesmo simulador)
 │   ├── alteracoes.py    # registo público das alterações do método
 │   ├── avaliacao.py     # scorecard da previsão congelada (Brier, log-loss, calibração)
-│   └── noite/           # Modelo C: corrida a corrida, câmaras, histórico da noite e repetições
+│   └── noite/           # Modelo C: corrida a corrida, ordem de contagem por modo, câmaras, histórico da noite e repetições
 └── jobs/
     ├── previsao.py           # previsão de 2026 (diária até ao congelamento a 1 de novembro)
     ├── referencia_modelo.py  # tabelas de 2012 a 2024 em data/reference/modelo (uma vez)

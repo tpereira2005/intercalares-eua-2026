@@ -20,12 +20,13 @@ com média ``alfa + beta * s`` e desvio ``gama``, calculados aqui de forma exata
 
 import math
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 import numpy.typing as npt
 
-from pipeline.modelo.noite.entrada import TOTAL, Base, Contagem
+from pipeline.modelo.noite import modos
+from pipeline.modelo.noite.entrada import TOTAL, Base, Contagem, VotosModo
 
 Vetor = npt.NDArray[np.float64]
 
@@ -81,6 +82,9 @@ class Parametros:
     fracao_minima: float = 0.02
     sd_minimo_prior: float = 0.3
     """Fração mínima do desvio prior que se mantém no desvio da corrida."""
+
+    ordem: modos.ParametrosModos = field(default_factory=modos.ParametrosModos)
+    """Parâmetros do modelo com a ordem de contagem (``modos.py``)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,6 +142,31 @@ class _Unidades:
     propria: npt.NDArray[np.bool_]
     """A unidade tem referência própria (condado), logo desvio próprio ``e_u``."""
 
+    nc: Vetor
+    """Votos antecipados contados (NaN quando a fonte não separa os modos)."""
+
+    mc: Vetor
+    nr: Vetor
+    """Restantes votos contados (dia da eleição, provisórios e outros)."""
+
+    mr: Vetor
+    completa: npt.NDArray[np.bool_]
+    """Todas as secções reportaram e a fonte não diz que falta contar."""
+
+
+def _somar_modos(contagens: Sequence[Contagem]) -> tuple[VotosModo, ...]:
+    """Votos por modo de várias partes; vazio se alguma parte com votos não os separa."""
+    if any(c.votos > 0 and not c.modos for c in contagens):
+        return ()
+    somas: dict[str, list[int]] = {}
+    for c in contagens:
+        for m in c.modos:
+            v = somas.setdefault(m.modo, [0, 0, 0])
+            v[0] += m.votos_d
+            v[1] += m.votos_r
+            v[2] += m.votos_outros
+    return tuple(VotosModo(k, *v) for k, v in sorted(somas.items()))
+
 
 def _unidades(
     prior: PriorCorrida,
@@ -172,6 +201,7 @@ def _unidades(
                 sum(c.votos_outros for c in condados),
                 seccoes_reportadas=sum(r or 0 for r, _ in seccoes) if completas else None,
                 seccoes_totais=sum(t or 0 for _, t in seccoes) if completas else None,
+                modos=_somar_modos(condados),
             )
         else:
             contagem = None
@@ -189,12 +219,25 @@ def _unidades(
         b=np.array(vazia),
         f=np.array(vazia),
         propria=np.zeros(len(linhas), dtype=np.bool_),
+        nc=np.array(vazia),
+        mc=np.zeros(len(linhas)),
+        nr=np.array(vazia),
+        mr=np.zeros(len(linhas)),
+        completa=np.zeros(len(linhas), dtype=np.bool_),
     )
     for i, (c, b) in enumerate(linhas):
         if c is not None and c.votos > 0:
             u.n[i] = c.votos
             u.m[i] = c.margem or 0.0
             u.f[i] = _fracao(c, tem_referencia=b is not None, residuo=p.residuo_seccoes)
+            u.completa[i] = (c.fracao_seccoes or 0.0) >= 1.0 and (
+                c.fracao_contada is None or c.fracao_contada >= 1.0
+            )
+            if c.modos:
+                antecipados, margem_c = c.votos_modo(cedo=True)
+                resto, margem_r = c.votos_modo(cedo=False)
+                u.nc[i], u.mc[i] = antecipados, margem_c or 0.0
+                u.nr[i], u.mr[i] = resto, margem_r or 0.0
         if b is not None:
             u.t[i] = b.votos
             u.b[i] = b.margem
@@ -323,6 +366,16 @@ def analisar(
     var_s = max(var_prior - float(w**2 @ sd_e**2), (p.sd_minimo_prior * prior.sd) ** 2)
 
     k_contado = float(u.n @ u.m) / total
+    if modos.elegivel(prior.estado, u.n, u.nc, u.nr, u.propria):
+        contados_modo = modos.Contados(
+            n=u.n, nc=u.nc, mc=u.mc, nr=u.nr, mr=u.mr, e=e, b=b, sd_e=sd_e,
+            estimado=np.isnan(u.f) | (u.f < p.fracao_minima), completa=u.completa,
+        )  # fmt: skip
+        r = modos.condicionar(
+            contados_modo, k_contado, p.ordem, sd_lote=p.sd_lote, sd_volume=p.sd_participacao,
+            votos_minimos=p.votos_minimos, limite_robusto=p.limite_robusto,
+        )  # fmt: skip
+        return _com_volume(prior, u, r, k_contado=k_contado, e=e, s0=s0, var_s=var_s, p=p)
     g = float(rho @ c)
     sd_d2 = p.sd_inclinacao_unidade**2
     var_l = (
@@ -340,7 +393,28 @@ def analisar(
         alfa += correcao_alfa
         beta -= correcao_beta
         var_l = max(var_l - reducao, 0.0)
+    r = modos.Condicionado(alfa, beta, var_l, s_chapeu, var_chapeu)
+    return _com_volume(prior, u, r, k_contado=k_contado, e=e, s0=s0, var_s=var_s, p=p)
 
+
+def _com_volume(
+    prior: PriorCorrida,
+    u: _Unidades,
+    r: modos.Condicionado,
+    *,
+    k_contado: float,
+    e: Vetor,
+    s0: float,
+    var_s: float,
+    p: Parametros,
+) -> AnaliseCorrida:
+    """Junta à variância a incerteza no volume do que falta e monta a análise."""
+    alfa, beta, var_l = r.alfa, r.beta, r.var_l
+    s_chapeu, var_chapeu = r.s_chapeu, r.var_chapeu
+    total = float(e.sum())
+    rho = (e - u.n) / total
+    contados = int(u.n.sum())
+    margem_contada = float(u.n @ u.m / contados) if contados > 0 else None
     # Incerteza no volume do que falta: só pesa quando o que falta vota diferente do
     # que já foi contado, e desaparece no início e no fim da contagem.
     falta = float(rho.sum())
@@ -353,6 +427,6 @@ def analisar(
         var_l += (p.sd_participacao * falta * (1.0 - falta) * (restante - contado)) ** 2
 
     return AnaliseCorrida(
-        prior.id, contados, total, com_votos, margem_contada,
+        prior.id, contados, total, int((u.n > 0).sum()), margem_contada,
         s0, var_s, s_chapeu, var_chapeu, alfa, beta, math.sqrt(var_l),
     )  # fmt: skip

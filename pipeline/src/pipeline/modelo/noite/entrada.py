@@ -16,6 +16,22 @@ from pipeline.comum.erros import ErroFormatoFonte
 
 TOTAL = "total"
 
+CEDO = frozenset({"antecipado_presencial", "correio"})
+"""Modos de voto emitidos antes do dia da eleição (o voto antecipado presencial e o
+correio recebido até à véspera)."""
+
+
+@dataclass(frozen=True, slots=True)
+class VotosModo:
+    modo: str
+    votos_d: int
+    votos_r: int
+    votos_outros: int
+
+    @property
+    def votos(self) -> int:
+        return self.votos_d + self.votos_r + self.votos_outros
+
 
 @dataclass(frozen=True, slots=True)
 class Contagem:
@@ -33,6 +49,8 @@ class Contagem:
 
     seccoes_reportadas: int | None = None
     seccoes_totais: int | None = None
+    modos: tuple[VotosModo, ...] = ()
+    """Votos por modo, quando a fonte os separa (vazio quando não separa)."""
 
     @property
     def fracao_seccoes(self) -> float | None:
@@ -50,6 +68,14 @@ class Contagem:
     def margem(self) -> float | None:
         total = self.votos
         return 100.0 * (self.votos_d - self.votos_r) / total if total > 0 else None
+
+    def votos_modo(self, cedo: bool) -> tuple[int, float | None]:
+        """Votos e margem dos modos antecipados (``cedo``) ou dos restantes."""
+        escolhidos = [m for m in self.modos if (m.modo in CEDO) == cedo]
+        d = sum(m.votos_d for m in escolhidos)
+        r = sum(m.votos_r for m in escolhidos)
+        total = sum(m.votos for m in escolhidos)
+        return total, (100.0 * (d - r) / total if total > 0 else None)
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +114,9 @@ def de_parciais(parciais: ResultadosParciais) -> Instantaneo:
             fracao_contada=u.percentagem_contada,
             seccoes_reportadas=u.seccoes_reportadas,
             seccoes_totais=u.seccoes_totais,
+            modos=tuple(
+                VotosModo(m.modo, m.votos_d, m.votos_r, m.votos_outros) for m in u.por_modo
+            ),
         )
         for u in parciais.unidades
     )
