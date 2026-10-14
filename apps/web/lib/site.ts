@@ -12,6 +12,7 @@ export const PAGINAS_FIXAS = [
   "/voto-antecipado/",
   "/mapa/",
   "/previsao/",
+  "/sondagens/",
   "/resultados/",
   "/metodologia/",
 ] as const;

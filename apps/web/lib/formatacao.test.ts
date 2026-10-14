@@ -10,6 +10,7 @@ import {
   formatarDiaCiclo,
   formatarMargem,
   formatarMargemPontos,
+  formatarMesAno,
   formatarNumero,
   formatarPercentagem,
   formatarPontos,
@@ -91,5 +92,9 @@ describe("formatação pt-PT", () => {
     expect(formatarDuracao(134 * min)).toBe("2 h 14 min");
     expect(formatarDuracao(120 * min)).toBe("2 h");
     expect(formatarDuracao((3 * 1440 + 4 * 60 + 5) * min)).toBe("3 d 4 h");
+  });
+
+  it("escreve mês e ano para eixos longos", () => {
+    expect(formatarMesAno(new Date("2025-11-17T12:00:00Z"))).toBe("nov. 2025");
   });
 });

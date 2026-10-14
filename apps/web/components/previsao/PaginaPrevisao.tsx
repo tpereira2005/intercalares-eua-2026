@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaixaKpis, Kpi } from "@/components/ui/Kpi.tsx";
 import { Painel } from "@/components/ui/Painel.tsx";
 import { Selo } from "@/components/ui/Selo.tsx";
@@ -350,6 +351,11 @@ function PainelSenado({
         variacoes={variacoes(corridas, evolucao)}
       />
       <NotaSemana evolucao={evolucao} />
+      <p className="text-sm">
+        <Link href="/sondagens/" className={LIGACAO}>
+          {t("previsao.senado.sondagens")}
+        </Link>
+      </p>
     </Painel>
   );
 }

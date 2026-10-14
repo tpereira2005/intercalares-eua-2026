@@ -25,7 +25,7 @@ function data(dia: string): Date {
   return new Date(`${dia}T12:00:00Z`);
 }
 
-function seccao(chave: "mapa" | "metodologia" | "votoAntecipado"): ConteudoCartao {
+function seccao(chave: "mapa" | "metodologia" | "sondagens" | "votoAntecipado"): ConteudoCartao {
   return {
     sobrelinha: formatarData(DIA_DA_ELEICAO),
     titulo: t(`seccoes.${chave}.titulo`),
@@ -49,6 +49,7 @@ function conteudos(): Map<string, ConteudoCartao> {
   lista.set("mapa.png", seccao("mapa"));
   lista.set("metodologia.png", seccao("metodologia"));
   lista.set("voto-antecipado.png", seccao("votoAntecipado"));
+  lista.set("sondagens.png", seccao("sondagens"));
   lista.set("resultados.png", {
     sobrelinha: formatarData(DIA_DA_ELEICAO),
     titulo: t("cartoes.resultados.titulo"),

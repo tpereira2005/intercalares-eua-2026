@@ -134,3 +134,10 @@ export function formatarDuracao(milissegundos: number): string {
     return resto > 0 ? `${String(horas)} h ${String(resto)} min` : `${String(horas)} h`;
   return `${String(resto)} min`;
 }
+
+/** Mês e ano para eixos longos, por exemplo "nov. 2025", no fuso da costa leste. */
+export function formatarMesAno(data: Date, fuso: string = FUSO_ELEICAO): string {
+  const mes = new Intl.DateTimeFormat(LOCALE, { month: "short", timeZone: fuso }).format(data);
+  const ano = new Intl.DateTimeFormat(LOCALE, { year: "numeric", timeZone: fuso }).format(data);
+  return `${mes} ${ano}`;
+}

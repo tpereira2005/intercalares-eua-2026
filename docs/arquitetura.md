@@ -50,6 +50,10 @@ A página `/previsao/` lê dois ficheiros da Release `dados-previsao`, que o wor
 
 A implantação corre depois de cada execução bem-sucedida do workflow Previsão, para o site mostrar a atualização do dia. As tabelas de corridas são componentes de cliente para o HTML levar só os dados de cada linha; os distritos além dos 25 mais renhidos só se desenham quando se pedem.
 
+### Sondagens no site
+
+As páginas `/sondagens/` e `/sondagens/<corrida>/` leem `sondagens-2026.json` da Release `dados-previsao` (contrato `SondagensCongresso`), que o workflow Previsão atualiza todos os dias, também depois do congelamento. `dados:obter` grava-o em `apps/web/dados/sondagens/2026.json` (`URL_DADOS_SONDAGENS`; `DADOS_SONDAGENS` muda o ficheiro lido) e `lib/sondagens/carregar.ts` valida-o. O índice mostra o voto genérico (média dos agregadores e cada agregador) e a média de cada corrida ao Senado. Cada corrida tem uma página com a série da média, cada sondagem e o seu peso na média atual. As médias e os pesos vêm do modelo (`docs/metodologia/previsao.md`, secção 4); o site não os recalcula. Sem ficheiro, as páginas mostram "em preparação".
+
 ### Noite eleitoral no site
 
 A página `/resultados/` lê o retrato da contagem que a recolha da noite publica na Release `resultados-2026` (asset `parciais.json`, contrato `ResultadosParciais`; ver `docs/metodologia/resultados.md`):
