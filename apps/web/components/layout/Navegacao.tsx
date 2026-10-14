@@ -17,6 +17,7 @@ export const SECCOES: readonly Seccao[] = [
     rotulo: "navegacao.votoAntecipado",
     marca: "navegacao.votoAntecipadoMarca",
   },
+  { href: "/demografia/", rotulo: "navegacao.demografia" },
   { href: "/mapa/", rotulo: "navegacao.mapa" },
   { href: "/previsao/", rotulo: "navegacao.previsao" },
   { href: "/sondagens/", rotulo: "navegacao.sondagens" },
