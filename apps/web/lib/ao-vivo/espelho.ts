@@ -8,7 +8,12 @@
  * ficheiros que cumprem o contrato.
  */
 
-import type { HistoricoNoite, ProjecaoNoite, ResultadosParciais } from "@intercalares/contratos";
+import type {
+  ChamadasRedacoes,
+  HistoricoNoite,
+  ProjecaoNoite,
+  ResultadosParciais,
+} from "@intercalares/contratos";
 import { obterValidador } from "../validacao.ts";
 import type { RespostaNoite, RespostaResultados } from "./estado.ts";
 
@@ -19,6 +24,7 @@ export interface EntradaEspelho {
   parciais: unknown;
   projecao: unknown;
   historico: unknown;
+  chamadas: unknown;
 }
 
 export interface Espelho {
@@ -40,8 +46,9 @@ export function montarEspelho(entrada: EntradaEspelho, agora: Date): Espelho {
   const parciais = valido(entrada.parciais, "ResultadosParciais") as ResultadosParciais | null;
   const projecao = valido(entrada.projecao, "ProjecaoNoite") as ProjecaoNoite | null;
   const historico = valido(entrada.historico, "HistoricoNoite") as HistoricoNoite | null;
+  const chamadas = valido(entrada.chamadas, "ChamadasRedacoes") as ChamadasRedacoes | null;
   return {
-    resultados: parciais ? { origem: "espelho", confirmadoEm, parciais } : null,
+    resultados: parciais ? { origem: "espelho", confirmadoEm, parciais, chamadas } : null,
     noite: projecao ? { origem: "espelho", confirmadoEm, projecao, historico } : null,
     rejeitados,
   };

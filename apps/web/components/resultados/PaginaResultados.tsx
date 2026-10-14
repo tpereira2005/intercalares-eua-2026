@@ -9,12 +9,14 @@ import type { DadosNoiteEleitoral } from "@/lib/resultados/carregar.ts";
 import type { VistaResultados } from "@/lib/resultados/vista.ts";
 import { PainelFalta } from "./PainelFalta.tsx";
 import { PainelProjecao } from "./PainelProjecao.tsx";
-import { TabelaResultados } from "./TabelaResultados.tsx";
+import { Chamada, TabelaResultados } from "./TabelaResultados.tsx";
 
 const METODOLOGIA = "/metodologia/resultados/";
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
 /** Linhas mostradas antes de "ver as outras". */
 const VISIVEIS = 20;
+/** Chamadas listadas ao lado da cobertura. */
+const MAX_CHAMADAS = 12;
 
 function hora(instante: string): string {
   return formatarDataHora(new Date(instante));
@@ -49,6 +51,38 @@ function Indicadores({ vista }: { vista: VistaResultados }) {
   );
 }
 
+/** Chamadas das redações registadas, da mais recente para a mais antiga. */
+function Chamadas({ vista }: { vista: VistaResultados }) {
+  const lado = (l: "D" | "R" | "outro") => vista.chamadas.filter((c) => c.vencedor === l).length;
+  return (
+    <div className="mt-4 border-t border-rule-2 pt-3">
+      <h2 className="rotulo mb-1">{t("resultados.chamadas.titulo")}</h2>
+      {vista.chamadas.length === 0 ? (
+        <p className="text-ink-2">{t("resultados.chamadas.nenhuma")}</p>
+      ) : (
+        <>
+          <p className="mb-2 text-ink-2">
+            {t("resultados.chamadas.resumo", {
+              n: vista.chamadas.length,
+              d: lado("D"),
+              r: lado("R"),
+            })}
+          </p>
+          <ul className="flex flex-col gap-1.5">
+            {vista.chamadas.slice(0, MAX_CHAMADAS).map((c) => (
+              <li key={c.corrida}>
+                <span className="font-semibold">{c.corrida}</span>
+                <Chamada c={c} />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <p className="mt-2 text-[12px] text-ink-3">{t("resultados.chamadas.nota")}</p>
+    </div>
+  );
+}
+
 function Cobertura({ vista }: { vista: VistaResultados }) {
   return (
     <section className="self-start rounded-md border border-rule bg-sheet px-[18px] py-3.5 text-sm">
@@ -79,6 +113,7 @@ function Cobertura({ vista }: { vista: VistaResultados }) {
         ))}
       </dl>
       <p className="mt-3 text-ink-2">{t("resultados.cobertura.fora")}</p>
+      <Chamadas vista={vista} />
       <p className="mt-3">
         <a href={METODOLOGIA} rel="noopener noreferrer" className={LIGACAO}>
           {t("resultados.cobertura.documentacao")}

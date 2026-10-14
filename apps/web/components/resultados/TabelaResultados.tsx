@@ -1,8 +1,10 @@
 "use client";
 
 import { useId, useState } from "react";
+import type { ChamadaVista } from "@/lib/resultados/chamadas.ts";
 import { nomeEstado } from "@/lib/estados.ts";
 import {
+  formatarHora,
   formatarMargem,
   formatarMargemPontos,
   formatarNumero,
@@ -30,6 +32,26 @@ function Amostra({ lado }: { lado: "D" | "R" }) {
       aria-hidden="true"
       className={`mr-1.5 inline-block size-2 rounded-[1px] align-middle ${lado === "D" ? "fundo-dem" : "fundo-rep"}`}
     />
+  );
+}
+
+/** Chamada de uma redação, com ligação para a fonte. Não é uma chamada do Escrutínio. */
+export function Chamada({ c }: { c: ChamadaVista }) {
+  const lado = c.vencedor === "outro" ? null : c.vencedor;
+  return (
+    <span className="mt-0.5 block text-[11.5px] font-normal text-ink-2">
+      {lado ? <Amostra lado={lado} /> : null}
+      <a
+        href={c.url}
+        rel="noopener noreferrer"
+        className="underline decoration-rule underline-offset-[3px]"
+      >
+        {t(`resultados.chamadas.linha.${c.vencedor}`, {
+          redacao: c.redacao,
+          hora: formatarHora(new Date(c.hora)),
+        })}
+      </a>
+    </span>
   );
 }
 
@@ -188,6 +210,7 @@ export function TabelaResultados({
                     {t("resultados.semDados.nota")}
                   </span>
                 )}
+                {l.chamada ? <Chamada c={l.chamada} /> : null}
               </th>
               {comContagem ? (
                 <td className="py-2 pr-3 font-mono text-[13px]">

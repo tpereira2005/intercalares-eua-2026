@@ -784,6 +784,17 @@
       "falha": "Sem ligação aos dados ao vivo · mostra-se o último retrato, das {hora}; nova tentativa dentro de um minuto",
       "falhaSemDados": "Sem ligação aos dados ao vivo; nova tentativa dentro de um minuto",
       "espelho": "Muitos leitores ao mesmo tempo: mostra-se a cópia de reserva, atualizada a cada 10 minutos (cópia das {hora}). A página volta à atualização ao minuto quando puder."
+    },
+    "chamadas": {
+      "titulo": "Chamadas das redações",
+      "nenhuma": "Nenhuma redação chamou ainda uma corrida acompanhada.",
+      "resumo": "{n} corridas chamadas: {d} para os democratas, {r} para os republicanos.",
+      "nota": "O Escrutínio não declara vencedores. Cada chamada é de uma redação, registada à mão com a ligação para a fonte.",
+      "linha": {
+        "D": "Chamada para os democratas · {redacao}, {hora}",
+        "R": "Chamada para os republicanos · {redacao}, {hora}",
+        "outro": "Chamada para outro candidato · {redacao}, {hora}"
+      }
     }
   },
   "cartoes": {

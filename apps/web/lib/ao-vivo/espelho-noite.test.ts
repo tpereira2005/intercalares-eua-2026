@@ -11,30 +11,38 @@ function ler(caminho: string): unknown {
 const parciais = ler("test/fixtures/resultados/parciais.json") as ResultadosParciais;
 const projecao = ler("test/fixtures/noite/projecao.json");
 const historico = ler("test/fixtures/noite/historico.json");
+const chamadas = ler("test/fixtures/resultados/chamadas.json");
 const AGORA = new Date("2026-11-04T02:00:00Z");
 
 describe("espelho de emergência", () => {
   it("embrulha os ficheiros válidos na forma das respostas da API", () => {
-    const e = montarEspelho({ parciais, projecao, historico }, AGORA);
+    const e = montarEspelho({ parciais, projecao, historico, chamadas }, AGORA);
     expect(e.resultados).toEqual({
       origem: "espelho",
       confirmadoEm: "2026-11-04T02:00:00.000Z",
       parciais,
+      chamadas,
     });
     expect(e.noite?.historico).toEqual(historico);
     expect(e.rejeitados).toEqual([]);
   });
 
   it("deixa de fora o que falta ou não cumpre o contrato", () => {
-    const e = montarEspelho({ parciais: { unidades: 1 }, projecao: null, historico: null }, AGORA);
+    const e = montarEspelho(
+      { parciais: { unidades: 1 }, projecao: null, historico: null, chamadas: { ano: 2026 } },
+      AGORA,
+    );
     expect(e.resultados).toBeNull();
     expect(e.noite).toBeNull();
-    expect(e.rejeitados).toEqual(["ResultadosParciais"]);
+    expect(e.rejeitados).toEqual(["ResultadosParciais", "ChamadasRedacoes"]);
   });
 
   it("o browser vai ao espelho quando a API falha, mas não quando diz 404", async () => {
     const pedidos: string[] = [];
-    const corpo = montarEspelho({ parciais, projecao: null, historico: null }, AGORA).resultados;
+    const corpo = montarEspelho(
+      { parciais, projecao: null, historico: null, chamadas: null },
+      AGORA,
+    ).resultados;
     const buscar = (estadoApi: number): typeof fetch =>
       ((url: string) => {
         pedidos.push(url);
@@ -53,7 +61,12 @@ describe("espelho de emergência", () => {
     expect((await consultarResultados(buscar(404))).tipo).toBe("ausente");
     expect(pedidos).toEqual(["/api/resultados"]);
 
-    const vazio: EstadoAoVivo = { dados: null, parciais: null, ligacao: { tipo: "build" } };
+    const vazio: EstadoAoVivo = {
+      dados: null,
+      parciais: null,
+      chamadas: null,
+      ligacao: { tipo: "build" },
+    };
     const estado = atualizarEstado(vazio, consulta, { tipo: "ausente" }, null);
     expect(estado.ligacao).toEqual(expect.objectContaining({ tipo: "aoVivo", espelho: true }));
   });

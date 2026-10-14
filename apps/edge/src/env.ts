@@ -7,4 +7,6 @@ export interface Env {
   URL_PARCIAIS: string;
   URL_PROJECAO_NOITE: string;
   URL_HISTORICO_NOITE: string;
+  /** Chamadas das redações registadas à mão (contrato ChamadasRedacoes). */
+  URL_CHAMADAS: string;
 }
