@@ -16,6 +16,8 @@ export type NomeContrato =
   | "VotoAntecipadoNacional"
   | "PrevisaoCongresso"
   | "HistoricoPrevisao"
+  | "CenariosPrevisao"
+  | "AlteracoesPrevisao"
   | "ResultadosParciais"
   | "ProjecaoNoite"
   | "HistoricoNoite"

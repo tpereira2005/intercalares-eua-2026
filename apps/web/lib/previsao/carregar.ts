@@ -10,8 +10,19 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import type { HistoricoPrevisao, PrevisaoCongresso } from "@intercalares/contratos";
-import { DadosInvalidos, obterValidador } from "../validacao.ts";
+import type {
+  AlteracoesPrevisao,
+  CenariosPrevisao,
+  HistoricoPrevisao,
+  PrevisaoCongresso,
+} from "@intercalares/contratos";
+import { DadosInvalidos, obterValidador, type NomeContrato } from "../validacao.ts";
+import {
+  construirAlteracoes,
+  construirVistaCenarios,
+  type VistaAlteracoes,
+  type VistaCenarios,
+} from "./explorador.ts";
 import {
   construirEvolucao,
   construirVistaPrevisao,
@@ -24,8 +35,10 @@ export const PASTA_POR_OMISSAO = "dados/previsao";
 export const VARIAVEL_PASTA = "DADOS_PREVISAO";
 export const FICHEIRO_PREVISAO = "2026.json";
 export const FICHEIRO_HISTORICO = "historico-2026.json";
+export const FICHEIRO_CENARIOS = "cenarios-2026.json";
+export const FICHEIRO_ALTERACOES = "alteracoes-2026.json";
 
-function ler(caminho: string, contrato: "PrevisaoCongresso" | "HistoricoPrevisao"): unknown {
+function ler(caminho: string, contrato: NomeContrato): unknown {
   const absoluto = path.resolve(process.cwd(), caminho);
   if (!existsSync(absoluto)) return null;
   const dados: unknown = JSON.parse(readFileSync(absoluto, "utf-8"));
@@ -44,9 +57,23 @@ export function lerHistorico(caminho: string): HistoricoPrevisao | null {
   return ler(caminho, "HistoricoPrevisao") as HistoricoPrevisao | null;
 }
 
+/** Lê e valida a grelha de cenários; `null` quando não existe. */
+export function lerCenarios(caminho: string): CenariosPrevisao | null {
+  return ler(caminho, "CenariosPrevisao") as CenariosPrevisao | null;
+}
+
+/** Lê e valida o registo de alterações do método; `null` quando não existe. */
+export function lerAlteracoes(caminho: string): AlteracoesPrevisao | null {
+  return ler(caminho, "AlteracoesPrevisao") as AlteracoesPrevisao | null;
+}
+
 export interface DadosPrevisao {
   previsao: VistaPrevisao;
   evolucao: VistaEvolucao | null;
+  /** Cenários do mesmo ano e do mesmo corte da previsão; `null` sem eles. */
+  cenarios: VistaCenarios | null;
+  /** Registo de alterações do método; `null` sem ele. */
+  alteracoes: VistaAlteracoes | null;
 }
 
 const cache = new Map<string, DadosPrevisao | null>();
@@ -60,12 +87,20 @@ export function carregarPrevisao(pasta?: string): DadosPrevisao | null {
     if (historico && dados && historico.ano !== dados.ano) {
       throw new Error(`Histórico de ${String(historico.ano)} com previsão de ${String(dados.ano)}`);
     }
+    // Cenários de outro corte dariam números diferentes dos publicados: ficam de fora.
+    const cenarios = dados ? lerCenarios(path.join(chave, FICHEIRO_CENARIOS)) : null;
+    const alteracoes = dados ? lerAlteracoes(path.join(chave, FICHEIRO_ALTERACOES)) : null;
     cache.set(
       chave,
       dados
         ? {
             previsao: construirVistaPrevisao(dados),
             evolucao: historico ? construirEvolucao(historico, dados.corte) : null,
+            cenarios:
+              cenarios?.ano === dados.ano && cenarios.corte === dados.corte
+                ? construirVistaCenarios(cenarios)
+                : null,
+            alteracoes: alteracoes?.ano === dados.ano ? construirAlteracoes(alteracoes) : null,
           }
         : null,
     );
