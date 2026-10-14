@@ -9,6 +9,8 @@ import {
   FAIXAS_LARGAS,
   linhasUnidades,
   MINIMO_VOTOS_UNIDADE,
+  NIVEIS,
+  nivelPorOmissao,
   type FaixaLarga,
   type NivelGeografico,
   type UnidadeGeografica,
@@ -56,10 +58,10 @@ export function PainelGeografia({
   anoBase: number;
   fontes: readonly ReferenciaFonte[];
 }) {
-  const niveis = (["distrito", "condado"] as const).filter((n) =>
-    unidades.some((u) => u.nivel === n),
+  const niveis = NIVEIS.filter((n) => unidades.some((u) => u.nivel === n));
+  const [nivel, setNivel] = useState<NivelGeografico>(
+    () => nivelPorOmissao(unidades, anoBase) ?? "condado",
   );
-  const [nivel, setNivel] = useState<NivelGeografico>(niveis[0] ?? "condado");
   const [faixa, setFaixa] = useState<FaixaLarga>("18-29");
   const [aberta, setAberta] = useState(false);
   const id = useId();

@@ -1,6 +1,11 @@
 import type { LinhaGeografia } from "@intercalares/contratos";
 import { describe, expect, it } from "vitest";
-import { agruparGeografia, linhasUnidades, MINIMO_VOTOS_UNIDADE } from "./geografia.ts";
+import {
+  agruparGeografia,
+  linhasUnidades,
+  MINIMO_VOTOS_UNIDADE,
+  nivelPorOmissao,
+} from "./geografia.ts";
 
 function linha(
   ano: number,
@@ -78,5 +83,22 @@ describe("linhasUnidades", () => {
     expect(linhas.map((l) => l.codigo)).toEqual(["2", "10", "1"]);
     expect(linhas[2]?.quota).toBeNull();
     expect(linhas[2]?.poucosVotos).toBe(true);
+  });
+});
+
+describe("nivelPorOmissao", () => {
+  const unidades = agruparGeografia(LINHAS);
+
+  it("escolhe o primeiro nível com dados do ano de comparação", () => {
+    // Os distritos só têm 2026; os condados têm 2022.
+    expect(nivelPorOmissao(unidades, 2022)).toBe("condado");
+  });
+
+  it("fica nos distritos quando nenhum nível tem o ano de comparação", () => {
+    expect(nivelPorOmissao(unidades, 2018)).toBe("distrito");
+  });
+
+  it("devolve null sem unidades", () => {
+    expect(nivelPorOmissao([], 2022)).toBeNull();
   });
 });
