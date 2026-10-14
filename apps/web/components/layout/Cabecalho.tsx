@@ -5,7 +5,7 @@ import { IndicadorFase } from "./IndicadorFase.tsx";
 import { SeletorTema } from "./SeletorTema.tsx";
 
 export function Cabecalho() {
-  // Calculada no build; o site é reconstruído a cada atualização de dados.
+  // Calculada no build; o browser volta a calculá-la com o relógio (useFase).
   const fase = faseEm(new Date());
   return (
     <header className="border-b border-rule bg-sheet">
@@ -22,7 +22,7 @@ export function Cabecalho() {
             {t("site.subtitulo")}
           </span>
         </Link>
-        <IndicadorFase fase={fase} />
+        <IndicadorFase faseBuild={fase} />
         <SeletorTema />
       </div>
       <div className="marcas-sincronizacao" aria-hidden="true" />

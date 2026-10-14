@@ -5,6 +5,7 @@ import {
   formatarData,
   formatarDataCurta,
   formatarDataHora,
+  formatarDecimal,
   formatarDuracao,
   formatarHora,
   formatarDiaCiclo,
@@ -21,6 +22,11 @@ describe("formatação pt-PT", () => {
   it("usa vírgula decimal nas percentagens", () => {
     expect(formatarPercentagem(0.124)).toBe("12,4%");
     expect(formatarPercentagem(0.5, 0)).toBe("50%");
+  });
+
+  it("fixa as casas decimais", () => {
+    expect(formatarDecimal(0.0823, 3)).toBe("0,082");
+    expect(formatarDecimal(0.1, 3)).toBe("0,100");
   });
 
   it("agrupa milhares com espaço", () => {

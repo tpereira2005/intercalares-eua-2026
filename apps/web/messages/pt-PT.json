@@ -77,7 +77,17 @@
       "sobrelinha": "Modelo Escrutínio",
       "titulo": "Quem controla o Congresso",
       "texto": "A previsão da Câmara e do Senado está a ser construída: simulação com erros correlacionados entre estados, testada de forma simétrica e congelada a 1 de novembro.",
-      "ligacao": "Sobre a previsão"
+      "ligacao": "Sobre a previsão",
+      "sobrelinhaDepois": "Modelo Escrutínio · previsão congelada",
+      "camara": "Câmara dos Representantes",
+      "senado": "Senado",
+      "lugares": "Mediana de {mediana} lugares democratas (80%: {de} a {ate}) · maioria com {maioria}",
+      "congelada": "Previsão congelada com os dados de {data}, a partir de {simulacoes} simulações. Não muda até ao fim da contagem.",
+      "diaria": "Previsão diária com os dados de {data}, a partir de {simulacoes} simulações. Congela a 1 de novembro.",
+      "fonte": "Previsão do Escrutínio",
+      "metodo": "Probabilidade de cada partido ter a maioria, com a simulação conjunta de todas as corridas e erros correlacionados entre estados. Os independentes que votam com os democratas contam como D.",
+      "ligacaoCompleta": "Ver a previsão completa",
+      "ligacaoCenarios": "Explorar cenários"
     },
     "kpis": {
       "votos": "Votos antecipados nos estados acompanhados",
@@ -95,6 +105,31 @@
       "texto": "Votos antecipados face ao mesmo dia do ciclo de {ano}.",
       "ligacao": "Ver o mapa",
       "metodo": "votos de 2026 / votos no mesmo dia do ciclo de {ano} − 1, em cada estado com a sua própria data. A soma é só dos estados acompanhados, não é um total nacional."
+    },
+    "aoVivo": {
+      "corridasSobrelinha": "Contagem oficial",
+      "corridasTitulo": "Corridas a seguir",
+      "corridasTexto": "As corridas com contagem, primeiro o Senado e depois os distritos mais renhidos na previsão.",
+      "todas": "Ver todas as corridas da noite",
+      "chamadasSobrelinha": "Redações",
+      "aguardaTitulo": "À espera dos primeiros votos",
+      "aguardaTexto": "As primeiras urnas fecham às {lisboa} de Lisboa ({washington} de Washington). A contagem e a projeção aparecem aqui assim que forem publicadas, sem recarregar a página."
+    },
+    "avaliacao": {
+      "sobrelinha": "Depois da noite",
+      "titulo": "Como se saiu a previsão",
+      "texto": "A previsão congelada comparada com as corridas já chamadas pelas redações. A lista cresce com a contagem dos próximos dias.",
+      "fonteChamadas": "Chamadas das redações registadas no Escrutínio",
+      "metodo": "Acerto: a corrida foi chamada para o partido a que a previsão dava mais de 50%. Pontuação de Brier: média de (p − r)², com p a probabilidade democrata e r igual a 1 se ganhou o democrata e 0 se ganhou o republicano; 0 é perfeito e 0,25 é o valor de atirar uma moeda. Ficam de fora as corridas chamadas para outros candidatos.",
+      "vazia": "Ainda não há corridas chamadas que a previsão cubra.",
+      "acertos": "Chamadas para o favorito",
+      "acertosValor": "{acertos} de {n}",
+      "brier": "Pontuação de Brier",
+      "semSurpresas": "Nenhuma das corridas chamadas foi ganha pelo partido menos provável.",
+      "surpresa": {
+        "D": "{corrida}: ganhou o democrata, a quem a previsão dava {prob}.",
+        "R": "{corrida}: ganhou o republicano, a quem a previsão dava {prob}."
+      }
     }
   },
   "seccoes": {
@@ -852,7 +887,8 @@
       "titulo": "Quem controla o Congresso",
       "camara": "Câmara",
       "senado": "Senado",
-      "ligacao": "Ver a noite eleitoral"
+      "ligacao": "Ver a noite eleitoral",
+      "sobrelinhaDepois": "Contagem depois da noite · ao vivo"
     },
     "falta": {
       "sobrelinha": "Voto contado e voto que falta",

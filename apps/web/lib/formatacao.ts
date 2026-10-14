@@ -12,6 +12,14 @@ export function formatarNumero(valor: number): string {
   return numeroInteiro.format(valor);
 }
 
+/** Número com casas decimais fixas, por exemplo "0,082". */
+export function formatarDecimal(valor: number, casasDecimais: number): string {
+  return new Intl.NumberFormat(LOCALE, {
+    minimumFractionDigits: casasDecimais,
+    maximumFractionDigits: casasDecimais,
+  }).format(valor);
+}
+
 export function formatarPercentagem(fracao: number, casasDecimais = 1): string {
   return new Intl.NumberFormat(LOCALE, {
     style: "percent",

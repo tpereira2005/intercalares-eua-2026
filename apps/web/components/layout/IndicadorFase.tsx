@@ -1,10 +1,14 @@
+"use client";
+
 import type { Fase } from "@/lib/fases.ts";
 import { t } from "@/lib/mensagens.ts";
+import { useFase } from "@/lib/use-fase.ts";
 
 const FASES: readonly Fase[] = ["antes", "noite", "depois"];
 
 /** Mostra em que fase do ciclo está o painel principal; a fase depende da data. */
-export function IndicadorFase({ fase }: { fase: Fase }) {
+export function IndicadorFase({ faseBuild }: { faseBuild: Fase }) {
+  const fase = useFase(faseBuild);
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="rotulo">{t("cabecalho.fase")}</span>
