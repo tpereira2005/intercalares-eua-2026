@@ -101,6 +101,7 @@ src/pipeline/
 │   ├── cenarios.py      # grelha de cenários do ambiente nacional (mesmo simulador)
 │   ├── alteracoes.py    # registo público das alterações do método
 │   ├── avaliacao.py     # scorecard da previsão congelada (Brier, log-loss, calibração)
+│   ├── idade.py         # sinal etário do voto antecipado (diagnóstico, peso zero)
 │   └── noite/           # Modelo C: corrida a corrida, ordem de contagem por modo, câmaras, histórico da noite e repetições
 └── jobs/
     ├── previsao.py           # previsão de 2026 (diária até ao congelamento a 1 de novembro)
@@ -109,6 +110,7 @@ src/pipeline/
     ├── repeticao_noite.py    # repetição das noites de 2022 e 2024 com o Modelo C
     ├── projecao_noite.py     # Modelo C na noite eleitoral (e ensaio com 2024)
     ├── sensibilidade_previsao.py # análise de sensibilidade (uma escolha do modelo de cada vez)
+    ├── idade_nc.py           # sinal etário da Carolina do Norte (docs/metodologia/idade.md)
     └── avaliacao_previsao.py # avaliação da previsão congelada (depois da eleição)
 ```
 

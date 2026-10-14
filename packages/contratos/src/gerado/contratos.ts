@@ -287,6 +287,25 @@ export interface Backtest {
   vies_competitivas: number;
 }
 /**
+ * Uma eleição passada projetada com as do mesmo tipo, no mesmo dia.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "BacktestIdade".
+ */
+export interface BacktestIdade {
+  ano: number;
+  dias_antes: number;
+  inclinacao_projetada: number;
+  /**
+   * Pontos de margem que o eleitorado final puxou face aos registados.
+   */
+  inclinacao_real: number;
+  /**
+   * @minItems 1
+   */
+  referencias: [number, ...number[]];
+}
+/**
  * This interface was referenced by `Contratos`'s JSON-Schema
  * via the `definition` "Candidatura".
  */
@@ -611,6 +630,83 @@ export interface PontoHistoricoCorrida {
   id: string;
   margem_prevista: number;
   prob_d: number;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "DiagnosticoIdade".
+ */
+export interface DiagnosticoIdade {
+  ano: number;
+  /**
+   * Eleição com que se compara (a intercalar anterior).
+   */
+  ano_referencia: number;
+  backtests: BacktestIdade[];
+  /**
+   * Último dia de voto antecipado incluído.
+   */
+  data_dados: string;
+  /**
+   * Dias entre ``data_dados`` e a eleição.
+   */
+  dias_antes: number;
+  /**
+   * Inclinação projetada menos a da referência, em pontos de margem D-R: positivo
+   * quando o eleitorado deste ano puxa mais para os democratas do que o da referência.
+   */
+  efeito: number;
+  efeito_p10: number;
+  efeito_p90: number;
+  /**
+   * Raiz do erro quadrático médio da inclinação projetada nos backtests, no mesmo dia.
+   */
+  erro_backtest: number;
+  estado: CodigoEstado;
+  /**
+   * @minItems 1
+   */
+  grupos: [GrupoIdade, ...GrupoIdade[]];
+  inclinacao_projetada: number;
+  inclinacao_referencia: number;
+  metadados: Metadados;
+  notas: string[];
+  /**
+   * O sinal é mostrado, não entra na previsão.
+   */
+  peso_previsao: 0;
+  votos_antecipados: number;
+}
+/**
+ * Uma faixa etária num partido de registo (``outro`` junta-se aos não filiados).
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "GrupoIdade".
+ */
+export interface GrupoIdade {
+  faixa: "18-24" | "25-29" | "30-39" | "40-49" | "50-64" | "65-74" | "75+" | "desconhecida" | "total";
+  /**
+   * Margem D-R estimada do grupo (pontos), versão central.
+   */
+  margem: number;
+  /**
+   * Extremos entre as versões da regressão ecológica (anos e penalizações).
+   */
+  margem_maxima: number;
+  margem_minima: number;
+  partido: "dem" | "rep" | "nao_afiliado";
+  /**
+   * Quota no voto antecipado chegado até ao dia dos dados.
+   */
+  quota_antecipado: number;
+  /**
+   * Quota no eleitorado final da eleição de referência.
+   */
+  quota_final_referencia: number;
+  /**
+   * Quota projetada no eleitorado final.
+   */
+  quota_projetada: number;
+  quota_registados: number;
 }
 /**
  * Estado prioritário que o site não acompanha, e porquê.

@@ -456,6 +456,46 @@
       "title": "Backtest",
       "type": "object"
     },
+    "BacktestIdade": {
+      "additionalProperties": false,
+      "description": "Uma eleição passada projetada com as do mesmo tipo, no mesmo dia.",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "dias_antes": {
+          "title": "Dias Antes",
+          "type": "integer"
+        },
+        "inclinacao_projetada": {
+          "title": "Inclinacao Projetada",
+          "type": "number"
+        },
+        "inclinacao_real": {
+          "description": "Pontos de margem que o eleitorado final puxou face aos registados.",
+          "title": "Inclinacao Real",
+          "type": "number"
+        },
+        "referencias": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Referencias",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ano",
+        "referencias",
+        "dias_antes",
+        "inclinacao_real",
+        "inclinacao_projetada"
+      ],
+      "title": "BacktestIdade",
+      "type": "object"
+    },
     "Candidatura": {
       "additionalProperties": false,
       "properties": {
@@ -1278,6 +1318,120 @@
       "title": "DiaHistorico",
       "type": "object"
     },
+    "DiagnosticoIdade": {
+      "additionalProperties": false,
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "ano_referencia": {
+          "description": "Eleição com que se compara (a intercalar anterior).",
+          "title": "Ano Referencia",
+          "type": "integer"
+        },
+        "backtests": {
+          "items": {
+            "$ref": "#/$defs/BacktestIdade"
+          },
+          "title": "Backtests",
+          "type": "array"
+        },
+        "data_dados": {
+          "description": "Último dia de voto antecipado incluído.",
+          "format": "date",
+          "title": "Data Dados",
+          "type": "string"
+        },
+        "dias_antes": {
+          "description": "Dias entre ``data_dados`` e a eleição.",
+          "title": "Dias Antes",
+          "type": "integer"
+        },
+        "efeito": {
+          "description": "Inclinação projetada menos a da referência, em pontos de margem D-R: positivo\nquando o eleitorado deste ano puxa mais para os democratas do que o da referência.",
+          "title": "Efeito",
+          "type": "number"
+        },
+        "efeito_p10": {
+          "title": "Efeito P10",
+          "type": "number"
+        },
+        "efeito_p90": {
+          "title": "Efeito P90",
+          "type": "number"
+        },
+        "erro_backtest": {
+          "description": "Raiz do erro quadrático médio da inclinação projetada nos backtests, no mesmo dia.",
+          "minimum": 0.0,
+          "title": "Erro Backtest",
+          "type": "number"
+        },
+        "estado": {
+          "$ref": "#/$defs/CodigoEstado"
+        },
+        "grupos": {
+          "items": {
+            "$ref": "#/$defs/GrupoIdade"
+          },
+          "minItems": 1,
+          "title": "Grupos",
+          "type": "array"
+        },
+        "inclinacao_projetada": {
+          "title": "Inclinacao Projetada",
+          "type": "number"
+        },
+        "inclinacao_referencia": {
+          "title": "Inclinacao Referencia",
+          "type": "number"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "notas": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notas",
+          "type": "array"
+        },
+        "peso_previsao": {
+          "const": 0,
+          "default": 0,
+          "description": "O sinal é mostrado, não entra na previsão.",
+          "title": "Peso Previsao",
+          "type": "integer"
+        },
+        "votos_antecipados": {
+          "minimum": 0,
+          "title": "Votos Antecipados",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "estado",
+        "data_dados",
+        "dias_antes",
+        "votos_antecipados",
+        "ano_referencia",
+        "grupos",
+        "inclinacao_projetada",
+        "inclinacao_referencia",
+        "efeito",
+        "efeito_p10",
+        "efeito_p90",
+        "erro_backtest",
+        "peso_previsao",
+        "backtests",
+        "notas"
+      ],
+      "title": "DiagnosticoIdade",
+      "type": "object"
+    },
     "EstadoSemDados": {
       "additionalProperties": false,
       "description": "Estado prioritário que o site não acompanha, e porquê.",
@@ -1409,6 +1563,96 @@
         "obtida_em"
       ],
       "title": "Fonte",
+      "type": "object"
+    },
+    "GrupoIdade": {
+      "additionalProperties": false,
+      "description": "Uma faixa etária num partido de registo (``outro`` junta-se aos não filiados).",
+      "properties": {
+        "faixa": {
+          "enum": [
+            "18-24",
+            "25-29",
+            "30-39",
+            "40-49",
+            "50-64",
+            "65-74",
+            "75+",
+            "desconhecida",
+            "total"
+          ],
+          "title": "Faixa",
+          "type": "string"
+        },
+        "margem": {
+          "description": "Margem D-R estimada do grupo (pontos), versão central.",
+          "maximum": 100.0,
+          "minimum": -100.0,
+          "title": "Margem",
+          "type": "number"
+        },
+        "margem_maxima": {
+          "description": "Extremos entre as versões da regressão ecológica (anos e penalizações).",
+          "maximum": 100.0,
+          "minimum": -100.0,
+          "title": "Margem Maxima",
+          "type": "number"
+        },
+        "margem_minima": {
+          "maximum": 100.0,
+          "minimum": -100.0,
+          "title": "Margem Minima",
+          "type": "number"
+        },
+        "partido": {
+          "enum": [
+            "dem",
+            "rep",
+            "nao_afiliado"
+          ],
+          "title": "Partido",
+          "type": "string"
+        },
+        "quota_antecipado": {
+          "description": "Quota no voto antecipado chegado até ao dia dos dados.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quota Antecipado",
+          "type": "number"
+        },
+        "quota_final_referencia": {
+          "description": "Quota no eleitorado final da eleição de referência.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quota Final Referencia",
+          "type": "number"
+        },
+        "quota_projetada": {
+          "description": "Quota projetada no eleitorado final.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quota Projetada",
+          "type": "number"
+        },
+        "quota_registados": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quota Registados",
+          "type": "number"
+        }
+      },
+      "required": [
+        "faixa",
+        "partido",
+        "quota_antecipado",
+        "quota_projetada",
+        "quota_registados",
+        "quota_final_referencia",
+        "margem",
+        "margem_minima",
+        "margem_maxima"
+      ],
+      "title": "GrupoIdade",
       "type": "object"
     },
     "HistoricoNoite": {
