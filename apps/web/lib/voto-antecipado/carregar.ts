@@ -28,7 +28,8 @@ export const VARIAVEL_PASTA = "DADOS_VOTO_ANTECIPADO";
 
 /**
  * Resumo nacional publicado ao lado dos estados. O site calcula os números a partir dos
- * estados; do resumo só usa a lista dos estados prioritários sem dados, e porquê.
+ * estados; do resumo só usa a lista dos estados prioritários sem dados, e porquê, e o
+ * sinal dos condados de Trump e de Harris.
  */
 export const FICHEIRO_NACIONAL = "nacional.json";
 const IGNORADOS = new Set([FICHEIRO_NACIONAL]);
@@ -122,6 +123,21 @@ export function carregarVistas(pasta?: string): VistaVotoAntecipado[] {
   return carregarTodas(pasta).individuais;
 }
 
+/** Resumo nacional validado, ou `null` sem ficheiro; um resumo inválido faz falhar o build. */
+export function lerNacional(
+  pasta: string = process.env[VARIAVEL_PASTA] ?? PASTA_POR_OMISSAO,
+): VotoAntecipadoNacional | null {
+  const caminho = path.join(pasta, FICHEIRO_NACIONAL);
+  const absoluto = path.resolve(process.cwd(), caminho);
+  if (!existsSync(absoluto)) return null;
+  const dados: unknown = JSON.parse(readFileSync(absoluto, "utf-8"));
+  const valido = obterValidador("VotoAntecipadoNacional");
+  if (!valido(dados)) {
+    throw new DadosInvalidos(caminho, "VotoAntecipadoNacional", valido.errors?.slice(0, 5));
+  }
+  return dados as VotoAntecipadoNacional;
+}
+
 /**
  * Estados prioritários que o site não acompanha, e porquê (`estados_sem_dados` do resumo
  * nacional). Lista vazia sem resumo; um resumo inválido faz falhar o build.
@@ -129,13 +145,5 @@ export function carregarVistas(pasta?: string): VistaVotoAntecipado[] {
 export function lerEstadosSemDados(
   pasta: string = process.env[VARIAVEL_PASTA] ?? PASTA_POR_OMISSAO,
 ): EstadoSemDados[] {
-  const caminho = path.join(pasta, FICHEIRO_NACIONAL);
-  const absoluto = path.resolve(process.cwd(), caminho);
-  if (!existsSync(absoluto)) return [];
-  const dados: unknown = JSON.parse(readFileSync(absoluto, "utf-8"));
-  const valido = obterValidador("VotoAntecipadoNacional");
-  if (!valido(dados)) {
-    throw new DadosInvalidos(caminho, "VotoAntecipadoNacional", valido.errors?.slice(0, 5));
-  }
-  return [...((dados as VotoAntecipadoNacional).estados_sem_dados ?? [])];
+  return [...(lerNacional(pasta)?.estados_sem_dados ?? [])];
 }

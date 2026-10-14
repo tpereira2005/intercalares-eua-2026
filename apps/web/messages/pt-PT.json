@@ -205,7 +205,8 @@
       "momentoSemHistorico": "Sem histórico individual para este ano."
     },
     "comparar": {
-      "rotulo": "Comparar com"
+      "rotulo": "Comparar com",
+      "aviso": "Atenção à comparação com {ano}."
     },
     "legenda": {
       "mesmoDia": "{ano} no mesmo dia",
@@ -384,6 +385,19 @@
     "motivos": {
       "bloqueado": "Fonte bloqueia pedidos automáticos",
       "sem_fonte_gratuita": "Sem fonte oficial gratuita"
+    },
+    "condados": {
+      "sobrelinha": "Condados de Trump e de Harris",
+      "titulo": "De que condados vêm os votos",
+      "texto": "Quota dos votos antecipados que vem de condados que Trump venceu em 2024, e quanto mudou face ao mesmo dia do ano de referência. Só nos estados com votos por condado.",
+      "metodo": "Cada condado classifica-se pelo vencedor da presidencial de 2024. A quota é a parte dos votos antecipados até este dia que vem dos condados de Trump; a margem é a margem de 2024 (D − R) dos condados, ponderada pelos votos antecipados de cada um. Compara-se com o mesmo dia do ciclo do ano de referência.",
+      "estado": "Estado",
+      "quotaTrump": "Condados de Trump",
+      "variacao": "Variação",
+      "margem": "Margem de 2024 ponderada",
+      "margemBase": "({valor} em {ano})",
+      "nota": "Sinal ecológico: mais votos em condados de Trump não dizem quem votou dentro deles. Descreve a geografia de onde vêm os votos, não o voto.",
+      "faceA": "face a {ano}"
     }
   },
   "previsao": {
