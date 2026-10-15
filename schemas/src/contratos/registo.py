@@ -17,6 +17,11 @@ from contratos.previsao import (
     PrevisaoCongresso,
 )
 from contratos.resultados import ResultadosEstado, ResultadosNacional, ResultadosParciais
+from contratos.sensibilidade import (
+    ResumoSensibilidade,
+    SensibilidadePrevisao,
+    VarianteSensibilidade,
+)
 from contratos.sondagens import SondagensCongresso
 from contratos.voto_antecipado import VotoAntecipadoEstado
 from contratos.voto_antecipado_agregado import VotoAntecipadoAgregado, VotoAntecipadoNacional
@@ -40,4 +45,7 @@ MODELOS: tuple[type[BaseModel], ...] = (
     ProjecaoNoite,
     HistoricoNoite,
     SondagensCongresso,
+    ResumoSensibilidade,
+    VarianteSensibilidade,
+    SensibilidadePrevisao,
 )
