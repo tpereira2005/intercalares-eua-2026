@@ -1,3 +1,5 @@
+import { CorridaAoVivo } from "./CorridaAoVivo.tsx";
+import type { Fase } from "@/lib/fases.ts";
 import Link from "next/link";
 import { EvolucaoControlo, OrigemMargem } from "@/components/previsao/graficos.tsx";
 import { FaixaKpis, Kpi } from "@/components/ui/Kpi.tsx";
@@ -272,12 +274,14 @@ export function PaginaCorrida({
   evolucao,
   comSondagens,
   comVotoAntecipado,
+  faseBuild,
 }: {
   corrida: CorridaVista;
   vista: VistaPrevisao;
   evolucao: readonly PontoCorrida[];
   comSondagens: boolean;
   comVotoAntecipado: boolean;
+  faseBuild: Fase;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -300,6 +304,17 @@ export function PaginaCorrida({
           {t("comum.atualizadoEm", { data: formatarData(data(vista.corte)) })}
         </p>
       </header>
+      <CorridaAoVivo
+        id={c.id}
+        faseBuild={faseBuild}
+        previsao={{
+          ano: vista.ano,
+          congelada: vista.congelada,
+          corte: vista.corte,
+          corridasSenado: c.camara === "senado" ? [c] : [],
+          corridasCamara: c.camara === "senado" ? [] : [c],
+        }}
+      />
       <Indicadores c={c} />
       <div className="grid gap-4 lg:grid-cols-2">
         <PainelOrigem c={c} vista={vista} />

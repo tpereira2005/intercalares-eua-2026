@@ -1141,7 +1141,14 @@
       "resultados": "A contagem na noite eleitoral",
       "previsao": "A previsão completa da Câmara e do Senado"
     },
-    "metadados": "Previsão para {corrida}: probabilidade de vitória, margem prevista e de onde vem."
+    "metadados": "Previsão para {corrida}: probabilidade de vitória, margem prevista e de onde vem.",
+    "aoVivo": {
+      "sobrelinha": "Noite eleitoral",
+      "titulo": "Contagem e projeção desta corrida",
+      "texto": "Os votos contados por modalidade, o que falta contar e a margem projetada. O intervalo encolhe à medida que chegam votos; o gráfico mostra como mudou ao longo da noite.",
+      "semContagem": "Ainda não há votos contados nesta corrida. A contagem aparece aqui assim que a fonte oficial a publicar, sem recarregar a página.",
+      "ligacao": "Ver todas as corridas da noite"
+    }
   },
   "demografia": {
     "sobrelinha": "Voto antecipado · grupos · {ano}",
