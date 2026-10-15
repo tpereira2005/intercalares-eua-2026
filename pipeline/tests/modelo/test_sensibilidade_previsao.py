@@ -1,5 +1,7 @@
 """Ajustes da análise de sensibilidade: neutros por omissão, simétricos e no sentido certo."""
 
+from datetime import date
+
 import pytest
 
 from pipeline.jobs.sensibilidade_previsao import TRACO, VARIANTES, markdown
@@ -8,7 +10,9 @@ from pipeline.modelo.previsao import (
     Ajustes,
     Dados,
     desvio_incumbentes,
+    erro_nacional,
     prever,
+    vies_voto_generico,
 )
 
 
@@ -61,6 +65,31 @@ def test_correcao_dos_incumbentes_e_simetrica(
     espelho = prever(dados_espelhados, 2018, ajustes=ajustes)
     assert espelho.camara.prob_controlo_d == pytest.approx(normal.camara.prob_controlo_r, abs=0.02)
     assert espelho.senado.prob_controlo_d == pytest.approx(normal.senado.prob_controlo_r, abs=0.02)
+
+
+def test_vies_do_voto_generico_encolhe_e_troca_de_sinal() -> None:
+    erros = {2014: 3.0, 2016: 1.0, 2018: -1.0}
+    assert vies_voto_generico(erros) == pytest.approx(3.0 / 5)
+    assert vies_voto_generico({a: -e for a, e in erros.items()}) == pytest.approx(-3.0 / 5)
+    assert vies_voto_generico({}) == 0.0
+
+
+def test_correcao_do_vies_e_simetrica(dados_sinteticos: Dados, dados_espelhados: Dados) -> None:
+    ajustes = Ajustes(vies_generico=True)
+    normal = prever(dados_sinteticos, 2018, ajustes=ajustes)
+    espelho = prever(dados_espelhados, 2018, ajustes=ajustes)
+    assert espelho.ambiente.margem == pytest.approx(-normal.ambiente.margem, abs=1e-9)
+    assert espelho.senado.prob_controlo_d == pytest.approx(normal.senado.prob_controlo_r, abs=0.02)
+
+
+def test_erro_do_ambiente_mede_se_a_mesma_distancia(dados_sinteticos: Dados) -> None:
+    final, _ = erro_nacional(dados_sinteticos, 2018)
+    explicito, _ = erro_nacional(dados_sinteticos, 2018, dias_antes=2)
+    assert explicito == final
+    cedo = prever(dados_sinteticos, 2018, corte=date(2018, 10, 25))
+    longe, _ = erro_nacional(dados_sinteticos, 2018, dias_antes=12)
+    assert cedo.ambiente.sd == pytest.approx(longe)
+    assert longe != final
 
 
 def test_variantes_do_ambiente_vem_aos_pares() -> None:

@@ -86,7 +86,15 @@ O centro das simulações é a margem nacional no voto genérico:
 
 Para ficar transparente, a secção 8 mostra o efeito da alternativa: no corte de 14 de outubro, D+7,0 em vez de D+8,3, com 89% em vez de 96% para o controlo democrata da Câmara e 68% em vez de 72% no Senado.
 
-O erro do ambiente é a **raiz do erro quadrático médio** das médias do voto genérico face ao resultado, de 1998 até ao ciclo anterior (3,2 pontos para 2026). **Não se corrige o sinal** do erro histórico: o desvio médio dos últimos ciclos não é estável de ciclo para ciclo, e corrigi-lo seria escolher um lado. O erro entra só como dimensão da incerteza, igual nos dois sentidos.
+O erro do ambiente é a **raiz do erro quadrático médio** das médias do voto genérico face ao resultado, de 1998 até ao ciclo anterior. Cada ano mede-se **à mesma distância da eleição que o corte** (desde 15 de outubro de 2026): 3,2 pontos a dois dias da eleição, que é o valor da previsão congelada, e 3,9 pontos a 19 dias. Longe da eleição a média ainda pode mexer (1,2 pontos, em média, nas últimas três semanas), e as probabilidades diárias antes do congelamento ficam um pouco mais largas.
+
+**O sinal do erro histórico não se corrige no modelo publicado**, mas a evidência mudou e a decisão está com o Tomás. De 1998 a 2022, a nossa média do voto genérico sobrestimou os democratas em 10 de 13 ciclos, em 2,4 pontos em média (desvio-padrão 2,3). Uma regra simétrica, que desconta a média dos anos anteriores encolhida para zero como se houvesse mais dois anos sem erro (`Ajustes.vies_generico`, função `vies_voto_generico`), testada fora da amostra em 10 ciclos (2004 a 2022):
+
+- baixa o erro quadrático médio do ambiente de 3,1 para 2,4 pontos, e acerta mais em 6 dos 10 ciclos;
+- não melhora de forma clara os backtests das corridas: o Brier de 2016 a 2024 quase não muda (Câmara 0,0322 para 0,0320, Senado 0,0438 para 0,0432), e piora em 2018, quando as sondagens subestimaram os democratas;
+- foi medida na nossa média de sondagens; em 2026 o ambiente vem dos agregadores, que podem ter um erro médio diferente.
+
+A secção 8 mostra o efeito da regra em 2026.
 
 ## 4. Sondagens do Senado
 

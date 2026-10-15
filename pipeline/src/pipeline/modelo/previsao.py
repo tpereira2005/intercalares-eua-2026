@@ -369,9 +369,13 @@ def prever(
     fund_s, linhas_s = estimar(dados, ano, "senado")
     _, erros_gb = erro_nacional(dados, ano, aj.meia_vida_dias)
     erro = estimar_erro(dados, ano, erros_gb, aj.meia_vida_dias)
-    sd_nacional, erros_dia = erro_nacional(
-        dados, ano, aj.meia_vida_dias, (DATAS_ELEICAO[ano] - corte).days
-    )
+    try:
+        sd_nacional, erros_dia = erro_nacional(
+            dados, ano, aj.meia_vida_dias, (DATAS_ELEICAO[ano] - corte).days
+        )
+    except ValueError:
+        # Longe demais da eleição para haver médias suficientes: fica o erro final.
+        sd_nacional, erros_dia = erro_nacional(dados, ano, aj.meia_vida_dias)
     medias = _medias(dados, ano, corte, linhas_s[ano], aj.meia_vida_dias)
     if "US" not in medias:
         gerais = _medias(dados, ano, corte, meia_vida=aj.meia_vida_dias)
