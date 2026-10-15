@@ -181,7 +181,8 @@ function Leitura({ v }: { v: VotoQueFalta }) {
   );
 }
 
-function Corrida({ v }: { v: VotoQueFalta }) {
+/** Uma corrida em aberto: o contado por modalidade, o que falta e o intervalo projetado. */
+export function CorridaFalta({ v }: { v: VotoQueFalta }) {
   const nome = nomeCorrida(v.linha);
   return (
     <li className="flex min-w-0 flex-col gap-2 border-t border-rule-2 pt-3">
@@ -281,7 +282,7 @@ export function PainelFalta({ vista }: { vista: VistaResultados }) {
       <p className="font-mono text-[11px] text-ink-3">{t("noite.falta.leituraGrafico")}</p>
       <ul className="grid gap-x-6 gap-y-3 min-[860px]:grid-cols-2">
         {mostradas.map((v) => (
-          <Corrida key={v.linha.id} v={v} />
+          <CorridaFalta key={v.linha.id} v={v} />
         ))}
       </ul>
     </Painel>

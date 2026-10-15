@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PaginaCorrida } from "@/components/corridas/PaginaCorrida.tsx";
 import { SeccaoEmPreparacao } from "@/components/layout/SeccaoEmPreparacao.tsx";
 import { encontrarCorrida, todasCorridas, tituloCorrida } from "@/lib/corridas.ts";
+import { faseEm } from "@/lib/fases.ts";
 import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
 import { carregarPrevisao } from "@/lib/previsao/carregar.ts";
@@ -63,6 +64,7 @@ export default async function Pagina({ params }: { params: Promise<{ corrida: st
       evolucao={dados.evolucao?.corridas.get(corrida.id) ?? []}
       comSondagens={sondagens.some((s) => s.id === corrida.id)}
       comVotoAntecipado={estadosVotoAntecipado.includes(corrida.estado)}
+      faseBuild={faseEm(new Date())}
     />
   );
 }
