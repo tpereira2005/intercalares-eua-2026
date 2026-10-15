@@ -607,6 +607,9 @@ export function VersaoPrevisao({ vista }: { vista: VistaPrevisao }) {
       {vista.congelada ? null : (
         <span className="font-mono text-[11px] text-ink-3">{t("previsao.congela")}</span>
       )}
+      <a href="/previsao/#alteracoes" className={`font-mono text-[11px] ${LIGACAO}`}>
+        {t("previsao.alteracoes.ligacao")}
+      </a>
     </div>
   );
 }
@@ -641,7 +644,11 @@ export function PaginaPrevisao({ dados }: { dados: DadosPrevisao }) {
       <PainelSenado vista={vista} evolucao={evolucao} />
       <PainelCamara vista={vista} evolucao={evolucao} />
       <PainelBacktests vista={vista} />
-      {dados.alteracoes ? <PainelAlteracoes alteracoes={dados.alteracoes} /> : null}
+      {dados.alteracoes ? (
+        <div id="alteracoes" className="scroll-mt-4">
+          <PainelAlteracoes alteracoes={dados.alteracoes} />
+        </div>
+      ) : null}
 
       <section className="rounded-md border border-rule bg-sheet px-[18px] py-3.5 text-sm">
         <h2 className="rotulo mb-2">{t("previsao.notas")}</h2>

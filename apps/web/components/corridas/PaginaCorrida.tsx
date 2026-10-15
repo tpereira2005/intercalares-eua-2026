@@ -1,4 +1,5 @@
 import { CorridaAoVivo } from "./CorridaAoVivo.tsx";
+import { VersaoPrevisao } from "@/components/previsao/PaginaPrevisao.tsx";
 import type { Fase } from "@/lib/fases.ts";
 import Link from "next/link";
 import { EvolucaoControlo, OrigemMargem } from "@/components/previsao/graficos.tsx";
@@ -285,24 +286,24 @@ export function PaginaCorrida({
 }) {
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex min-w-0 flex-col gap-2">
-        <p className="rotulo">
-          {t("corrida.sobrelinha", {
-            camara: t(`previsao.camaraNome.${c.camara}`),
-            ano: vista.ano,
-          })}
-        </p>
-        <h1 className="font-display text-[clamp(30px,5vw,40px)] leading-[1.02] font-bold">
-          {tituloCorrida(c)}
-        </h1>
-        <p className="max-w-[62ch] text-ink-2">{t("corrida.lede")}</p>
-        <ul aria-label={t("corrida.candidatos")} className="flex flex-col gap-1 text-[15px]">
-          <Candidato lado="D" c={c} />
-          <Candidato lado="R" c={c} />
-        </ul>
-        <p className="font-mono text-[11px] text-ink-3">
-          {t("comum.atualizadoEm", { data: formatarData(data(vista.corte)) })}
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+        <div className="flex min-w-0 flex-col gap-2">
+          <p className="rotulo">
+            {t("corrida.sobrelinha", {
+              camara: t(`previsao.camaraNome.${c.camara}`),
+              ano: vista.ano,
+            })}
+          </p>
+          <h1 className="font-display text-[clamp(30px,5vw,40px)] leading-[1.02] font-bold">
+            {tituloCorrida(c)}
+          </h1>
+          <p className="max-w-[62ch] text-ink-2">{t("corrida.lede")}</p>
+          <ul aria-label={t("corrida.candidatos")} className="flex flex-col gap-1 text-[15px]">
+            <Candidato lado="D" c={c} />
+            <Candidato lado="R" c={c} />
+          </ul>
+        </div>
+        <VersaoPrevisao vista={vista} />
       </header>
       <CorridaAoVivo
         id={c.id}

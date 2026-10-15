@@ -766,7 +766,8 @@
       "senado": "Senado:",
       "primeira": "D {depois}",
       "semMudanca": "sem mudança (D {depois})",
-      "pr": "alteração #{numero}"
+      "pr": "alteração #{numero}",
+      "ligacao": "Registo de alterações"
     }
   },
   "agregado": {
