@@ -17,6 +17,7 @@ export type NomeContrato =
   | "PrevisaoCongresso"
   | "HistoricoPrevisao"
   | "CenariosPrevisao"
+  | "SensibilidadePrevisao"
   | "AlteracoesPrevisao"
   | "ResultadosParciais"
   | "ChamadasRedacoes"

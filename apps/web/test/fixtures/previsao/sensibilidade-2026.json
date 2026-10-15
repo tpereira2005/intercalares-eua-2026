@@ -1,0 +1,99 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-10-15T10:13:04.122399Z",
+    "fontes": [
+      {
+        "nome": "Wikipédia: 2026 United States House of Representatives elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-15T10:13:04.122399Z"
+      },
+      {
+        "nome": "Wikipédia: 2026 United States Senate elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_Senate_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-15T10:13:04.122399Z"
+      },
+      {
+        "nome": "FiveThirtyEight: raw_polls.csv (sondagens e resultados até 2022)",
+        "url": "https://raw.githubusercontent.com/fivethirtyeight/data/master/pollster-ratings/raw_polls.csv",
+        "licenca": "CC BY 4.0",
+        "obtida_em": "2026-10-15T10:13:04.122399Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "corte": "2026-10-13",
+  "codigo_commit": null,
+  "variantes": [
+    {
+      "nome": "Modelo publicado",
+      "descricao": "A previsão publicada, sem qualquer ajuste.",
+      "ambiente": 8.44,
+      "camara": {
+        "prob_controlo_d": 0.9675,
+        "lugares_d_mediana": 241,
+        "lugares_d_p10": 222,
+        "lugares_d_p90": 264
+      },
+      "senado": {
+        "prob_controlo_d": 0.789,
+        "lugares_d_mediana": 52,
+        "lugares_d_p10": 48,
+        "lugares_d_p90": 56
+      }
+    },
+    {
+      "nome": "Ambiente −3 pontos",
+      "descricao": "Desloca o ambiente nacional 3 pontos para o lado republicano.",
+      "ambiente": 5.16,
+      "camara": {
+        "prob_controlo_d": 0.82245,
+        "lugares_d_mediana": 230,
+        "lugares_d_p10": 213,
+        "lugares_d_p90": 250
+      },
+      "senado": {
+        "prob_controlo_d": 0.64195,
+        "lugares_d_mediana": 52,
+        "lugares_d_p10": 48,
+        "lugares_d_p90": 55
+      }
+    },
+    {
+      "nome": "Ambiente sem os agregadores",
+      "descricao": "Ignora a média dos agregadores e lê o ambiente nacional nas nossas médias de sondagens.",
+      "ambiente": 7.018648802907551,
+      "camara": {
+        "prob_controlo_d": 0.86985,
+        "lugares_d_mediana": 236,
+        "lugares_d_p10": 215,
+        "lugares_d_p90": 264
+      },
+      "senado": {
+        "prob_controlo_d": 0.67795,
+        "lugares_d_mediana": 52,
+        "lugares_d_p10": 48,
+        "lugares_d_p90": 56
+      }
+    },
+    {
+      "nome": "Sem sondagens do Senado (só fundamentos)",
+      "descricao": "Ignora as sondagens do Senado e usa só os fundamentos de cada corrida.",
+      "ambiente": 8.16,
+      "camara": {
+        "prob_controlo_d": 0.9456,
+        "lugares_d_mediana": 241,
+        "lugares_d_p10": 222,
+        "lugares_d_p90": 264
+      },
+      "senado": {
+        "prob_controlo_d": 0.58955,
+        "lugares_d_mediana": 51,
+        "lugares_d_p10": 48,
+        "lugares_d_p90": 55
+      }
+    }
+  ]
+}
