@@ -1549,6 +1549,54 @@ export interface UnidadeContagem {
   votos_r: number;
 }
 /**
+ * Controlo e lugares do lado democrata numa câmara, para uma variante.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "ResumoSensibilidade".
+ */
+export interface ResumoSensibilidade {
+  lugares_d_mediana: number;
+  lugares_d_p10: number;
+  lugares_d_p90: number;
+  prob_controlo_d: number;
+}
+/**
+ * Sensibilidade da previsão, calculada com os mesmos dados e o mesmo corte da
+ * ``PrevisaoCongresso`` do dia. A primeira variante é o modelo publicado.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "SensibilidadePrevisao".
+ */
+export interface SensibilidadePrevisao {
+  ano: number;
+  codigo_commit: string | null;
+  corte: string;
+  metadados: Metadados;
+  /**
+   * @minItems 1
+   */
+  variantes: [VarianteSensibilidade, ...VarianteSensibilidade[]];
+}
+/**
+ * Uma escolha do modelo alterada e o que ela faz à previsão de 2026.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "VarianteSensibilidade".
+ */
+export interface VarianteSensibilidade {
+  /**
+   * Margem nacional D-R (pontos percentuais) usada nesta variante.
+   */
+  ambiente: number;
+  camara: ResumoSensibilidade;
+  /**
+   * O que muda em relação ao modelo publicado, numa frase.
+   */
+  descricao: string;
+  nome: string;
+  senado: ResumoSensibilidade;
+}
+/**
  * Uma sondagem entre os dois candidatos da corrida.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema

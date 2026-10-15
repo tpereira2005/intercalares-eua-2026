@@ -11,7 +11,9 @@ corte fica fixo: a previsão publicada é a congelada.
 
 Com ``--cenarios`` grava também a grelha de cenários do ambiente nacional, calculada pelo
 mesmo simulador (``modelo.cenarios``); com ``--alteracoes``, o registo de alterações do
-método (``modelo.alteracoes``). No GitHub Actions, os ficheiros levam o commit que os gerou.
+método (``modelo.alteracoes``); com ``--sensibilidade``, a análise de sensibilidade de
+2026, sem backtests (``jobs.sensibilidade_previsao``). No GitHub Actions, os ficheiros
+levam o commit que os gerou.
 """
 
 import argparse
@@ -84,6 +86,7 @@ def executar(
     ficheiro_sondagens: Path | None = None,
     ficheiro_cenarios: Path | None = None,
     ficheiro_alteracoes: Path | None = None,
+    ficheiro_sensibilidade: Path | None = None,
 ) -> None:
     final = corte_final(carga.ANO_ATUAL)
     corte = min(corte or datetime.now(UTC).date(), final)
@@ -149,6 +152,36 @@ def executar(
         ficheiro_cenarios.parent.mkdir(parents=True, exist_ok=True)
         ficheiro_cenarios.write_text(cenarios.model_dump_json(), encoding="utf-8")
         registo.info("%d cenários gravados em %s", len(cenarios.cenarios), ficheiro_cenarios)
+    if ficheiro_sensibilidade is not None:
+        # Importação tardia: o job da sensibilidade importa constantes deste módulo.
+        from pipeline.jobs import sensibilidade_previsao  # noqa: PLC0415
+
+        linhas_sensibilidade = sensibilidade_previsao.analisar(
+            dados, corte, ambiente_publicado, backtests=False
+        )
+        sensibilidade = sensibilidade_previsao.contrato(
+            linhas_sensibilidade,
+            ano=carga.ANO_ATUAL,
+            corte=corte,
+            fontes=fontes(agora),
+            gerado_em=agora,
+            codigo_commit=commit,
+        )
+        base_sensibilidade = sensibilidade.variantes[0]
+        if base_sensibilidade.nome != "Modelo publicado" or (
+            base_sensibilidade.camara.prob_controlo_d,
+            base_sensibilidade.senado.prob_controlo_d,
+        ) != (ficheiro.camara.prob_controlo_d, ficheiro.senado.prob_controlo_d):
+            raise PrevisaoIncoerente(
+                "A variante de base da sensibilidade não reproduz a previsão publicada"
+            )
+        ficheiro_sensibilidade.parent.mkdir(parents=True, exist_ok=True)
+        ficheiro_sensibilidade.write_text(sensibilidade.model_dump_json(), encoding="utf-8")
+        registo.info(
+            "%d variantes de sensibilidade gravadas em %s",
+            len(sensibilidade.variantes),
+            ficheiro_sensibilidade,
+        )
     if ficheiro_alteracoes is not None:
         alteracoes = registo_alteracoes.montar(
             carga.ANO_ATUAL,
@@ -307,6 +340,12 @@ def main() -> None:
         help="Ficheiro do registo de alterações do método (AlteracoesPrevisao).",
     )
     parser.add_argument(
+        "--sensibilidade",
+        type=Path,
+        default=None,
+        help="Ficheiro da análise de sensibilidade, sem backtests (SensibilidadePrevisao).",
+    )
+    parser.add_argument(
         "--apenas-sondagens",
         action="store_true",
         help="Depois do congelamento: atualiza só o ficheiro das sondagens (até à eleição).",
@@ -328,6 +367,7 @@ def main() -> None:
         ficheiro_sondagens=args.sondagens,
         ficheiro_cenarios=args.cenarios,
         ficheiro_alteracoes=args.alteracoes,
+        ficheiro_sensibilidade=args.sensibilidade,
     )
 
 

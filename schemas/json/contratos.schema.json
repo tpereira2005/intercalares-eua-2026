@@ -4336,6 +4336,89 @@
       "title": "ResumoCenarioCamara",
       "type": "object"
     },
+    "ResumoSensibilidade": {
+      "additionalProperties": false,
+      "description": "Controlo e lugares do lado democrata numa câmara, para uma variante.",
+      "properties": {
+        "lugares_d_mediana": {
+          "minimum": 0,
+          "title": "Lugares D Mediana",
+          "type": "integer"
+        },
+        "lugares_d_p10": {
+          "minimum": 0,
+          "title": "Lugares D P10",
+          "type": "integer"
+        },
+        "lugares_d_p90": {
+          "minimum": 0,
+          "title": "Lugares D P90",
+          "type": "integer"
+        },
+        "prob_controlo_d": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Prob Controlo D",
+          "type": "number"
+        }
+      },
+      "required": [
+        "prob_controlo_d",
+        "lugares_d_mediana",
+        "lugares_d_p10",
+        "lugares_d_p90"
+      ],
+      "title": "ResumoSensibilidade",
+      "type": "object"
+    },
+    "SensibilidadePrevisao": {
+      "additionalProperties": false,
+      "description": "Sensibilidade da previsão, calculada com os mesmos dados e o mesmo corte da\n``PrevisaoCongresso`` do dia. A primeira variante é o modelo publicado.",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "codigo_commit": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{7,40}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codigo Commit"
+        },
+        "corte": {
+          "format": "date",
+          "title": "Corte",
+          "type": "string"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "variantes": {
+          "items": {
+            "$ref": "#/$defs/VarianteSensibilidade"
+          },
+          "minItems": 1,
+          "title": "Variantes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "corte",
+        "codigo_commit",
+        "variantes"
+      ],
+      "title": "SensibilidadePrevisao",
+      "type": "object"
+    },
     "SinalCondados": {
       "additionalProperties": false,
       "description": "De que condados vêm os votos antecipados, pela margem presidencial de 2024.",
@@ -4714,6 +4797,43 @@
         "margem"
       ],
       "title": "ValorAgregador",
+      "type": "object"
+    },
+    "VarianteSensibilidade": {
+      "additionalProperties": false,
+      "description": "Uma escolha do modelo alterada e o que ela faz à previsão de 2026.",
+      "properties": {
+        "ambiente": {
+          "description": "Margem nacional D-R (pontos percentuais) usada nesta variante.",
+          "title": "Ambiente",
+          "type": "number"
+        },
+        "camara": {
+          "$ref": "#/$defs/ResumoSensibilidade"
+        },
+        "descricao": {
+          "description": "O que muda em relação ao modelo publicado, numa frase.",
+          "minLength": 1,
+          "title": "Descricao",
+          "type": "string"
+        },
+        "nome": {
+          "minLength": 1,
+          "title": "Nome",
+          "type": "string"
+        },
+        "senado": {
+          "$ref": "#/$defs/ResumoSensibilidade"
+        }
+      },
+      "required": [
+        "nome",
+        "descricao",
+        "ambiente",
+        "camara",
+        "senado"
+      ],
+      "title": "VarianteSensibilidade",
       "type": "object"
     },
     "VotoAntecipadoAgregado": {
