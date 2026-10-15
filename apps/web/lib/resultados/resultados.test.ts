@@ -124,11 +124,15 @@ describe("construirVistaResultados", () => {
       ["TX", 0],
       ["VA", 0],
       ["NE", 0],
+      ["AZ", 0],
+      ["CA", 0],
       ["IA", 1],
     ]);
     expect(vista.cobertura.find((c) => c.estado === "GA")?.soTotal).toBe(true);
     expect(vista.cobertura.find((c) => c.estado === "NE")?.soTotal).toBe(true);
     expect(vista.cobertura.find((c) => c.estado === "VA")?.soTotal).toBe(false);
+    expect(vista.cobertura.find((c) => c.estado === "AZ")?.parcial).toBe(true);
+    expect(vista.cobertura.find((c) => c.estado === "CA")?.soTotal).toBe(true);
     expect(vista.cobertura.find((c) => c.estado === "TX")?.parcial).toBe(true);
   });
 
@@ -142,8 +146,16 @@ describe("construirVistaResultados", () => {
   });
 
   it("a previsão reduzida para o browser dá a mesma vista que a completa", () => {
-    const completa = previsao();
+    // Um distrito sólido num estado sem contagem ao vivo: é o que a redução deixa cair.
+    const base = previsao();
+    const solido = base.corridasCamara.find((c) => c.id === "CA-11");
+    if (!solido) throw new Error("falta CA-11 no ficheiro de exemplo");
+    const completa = {
+      ...base,
+      corridasCamara: [...base.corridasCamara, { ...solido, id: "WY-00", estado: "WY" as const }],
+    };
     const reduzida = previsaoParaResultados(completa);
+    expect(reduzida.corridasCamara.map((c) => c.id)).not.toContain("WY-00");
     expect(reduzida.corridasCamara.length).toBeLessThan(completa.corridasCamara.length);
     expect(construirVistaResultados(exemplo(), reduzida)).toEqual(
       construirVistaResultados(exemplo(), completa),
