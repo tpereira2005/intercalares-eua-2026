@@ -35,6 +35,7 @@ export interface Momento {
 export interface EstadoDemografia {
   estado: VistaVotoAntecipado["estado"];
   qualidade: NivelQualidade;
+  naoOficial: boolean;
   votos: number;
   dadosAte: string;
   diasAntes: number;
@@ -108,6 +109,7 @@ export function demografiaIndividual(vista: VistaVotoAntecipado): EstadoDemograf
   return {
     estado: vista.estado,
     qualidade: vista.momento.length > 0 ? "individual" : faixas.length > 0 ? "parcial" : "agregado",
+    naoOficial: false,
     votos: vista.votos,
     dadosAte: vista.dadosAte,
     diasAntes: vista.diasAntes,
@@ -143,6 +145,7 @@ export function demografiaAgregada(vista: VistaAgregada): EstadoDemografia {
   return {
     estado: vista.estado,
     qualidade: vista.dimensoes.includes("faixa") ? "parcial" : "agregado",
+    naoOficial: vista.naoOficial,
     votos: vista.votos,
     dadosAte: vista.dadosAte,
     diasAntes: vista.diasAntes,

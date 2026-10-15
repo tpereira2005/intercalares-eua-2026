@@ -5,6 +5,7 @@ import { nomeEstado } from "@/lib/estados.ts";
 import {
   formatarCompacto,
   formatarData,
+  formatarDataCurta,
   formatarNumero,
   formatarPercentagem,
   formatarPontos,
@@ -40,7 +41,9 @@ function Indicadores({ vista }: { vista: VistaAgregada }) {
   return (
     <FaixaKpis>
       <Kpi
-        rotulo={t("agregado.kpis.votos")}
+        rotulo={t("agregado.kpis.votos", {
+          data: formatarDataCurta(new Date(`${vista.dadosAte}T12:00:00Z`)),
+        })}
         valor={formatarCompacto(vista.votos)}
         {...(variacaoVotos === null || anoBase === null
           ? {}
@@ -61,6 +64,15 @@ function Indicadores({ vista }: { vista: VistaAgregada }) {
           })}
         />
       )}
+      {pedidos === 0 && vista.pedidosTotal && vista.pedidosTotal.pedidos > 0 ? (
+        <Kpi
+          rotulo={t("agregado.kpis.emitidos")}
+          valor={formatarCompacto(vista.pedidosTotal.pedidos)}
+          detalhe={t("agregado.kpis.emitidosDetalhe", {
+            valor: formatarPercentagem(vista.pedidosTotal.devolvidos / vista.pedidosTotal.pedidos),
+          })}
+        />
+      ) : null}
       {pendentes === null || pedidos === 0 ? null : (
         <Kpi
           rotulo={t("agregado.kpis.pendentes")}
@@ -71,6 +83,94 @@ function Indicadores({ vista }: { vista: VistaAgregada }) {
         />
       )}
     </FaixaKpis>
+  );
+}
+
+const CONDADOS_VISIVEIS = 10;
+
+function LinhaCondado({ c }: { c: VistaAgregada["condados"][number] }) {
+  return (
+    <tr className="border-t border-rule-2">
+      <th scope="row" className="py-1 text-left font-normal">
+        {c.nome}
+      </th>
+      <td className="py-1 pl-3 text-right font-mono text-[13px]">{formatarNumero(c.votos)}</td>
+      <td className="w-[40%] py-1 pl-3">
+        <span className="flex items-center gap-2">
+          <span aria-hidden="true" className="h-2 flex-1 rounded-[1px] bg-rule-2">
+            <span
+              className="block h-full rounded-[1px] bg-ink-3"
+              style={{ width: `${String(c.quota * 100)}%` }}
+            />
+          </span>
+          <span className="w-12 text-right font-mono text-[12px] text-ink-2">
+            {formatarPercentagem(c.quota)}
+          </span>
+        </span>
+      </td>
+    </tr>
+  );
+}
+
+/** Totais por condado nos estados cuja fonte não dá idade por condado. */
+function PainelVotosCondado({
+  vista,
+  fontes,
+}: {
+  vista: VistaAgregada;
+  fontes: { nome: string; url: string }[];
+}) {
+  const primeiros = vista.condados.slice(0, CONDADOS_VISIVEIS);
+  const resto = vista.condados.slice(CONDADOS_VISIVEIS);
+  const cabecalho = (
+    <thead>
+      <tr className="rotulo">
+        <th scope="col" className="pb-1.5 text-left font-medium">
+          {t("agregado.condados.condado")}
+        </th>
+        <th scope="col" className="pb-1.5 pl-3 text-right font-medium">
+          {t("agregado.condados.votos")}
+        </th>
+        <th scope="col" className="pb-1.5 pl-3 text-right font-medium">
+          {t("agregado.condados.quota")}
+        </th>
+      </tr>
+    </thead>
+  );
+  return (
+    <Painel
+      sobrelinha={t("agregado.condados.sobrelinha")}
+      titulo={t("agregado.condados.titulo")}
+      descricao={t("agregado.condados.texto")}
+      fontes={fontes}
+      metodo={t("agregado.condados.metodo")}
+    >
+      <table className="w-full border-collapse text-sm">
+        <caption className="sr-only">{t("agregado.condados.legenda")}</caption>
+        {cabecalho}
+        <tbody>
+          {primeiros.map((c) => (
+            <LinhaCondado key={c.codigo} c={c} />
+          ))}
+        </tbody>
+      </table>
+      {resto.length > 0 ? (
+        <details>
+          <summary className={`cursor-pointer text-sm ${LIGACAO}`}>
+            {t("agregado.condados.mais", { n: resto.length })}
+          </summary>
+          <table className="mt-2 w-full border-collapse text-sm">
+            <caption className="sr-only">{t("agregado.condados.legenda")}</caption>
+            {cabecalho}
+            <tbody>
+              {resto.map((c) => (
+                <LinhaCondado key={c.codigo} c={c} />
+              ))}
+            </tbody>
+          </table>
+        </details>
+      ) : null}
+    </Painel>
   );
 }
 
@@ -124,11 +224,15 @@ export function PaginaAgregado({
             {t("agregado.titulo", { estado })}
           </h1>
           <p className="mt-1.5 max-w-[68ch] text-[15.5px] text-ink-2">
-            {t(`agregado.lede.${vista.granularidade}`)}
+            {t(
+              vista.semPartido && vista.granularidade === "condado"
+                ? "agregado.lede.condadoSemPartido"
+                : `agregado.lede.${vista.granularidade}`,
+            )}
           </p>
         </div>
         <div className="flex flex-col items-start gap-1.5 sm:items-end">
-          <QualidadeDados nivel={qualidade} comTexto />
+          <QualidadeDados nivel={qualidade} naoOficial={vista.naoOficial} comTexto />
           <span className="font-mono text-[11px] text-ink-3">
             {t("votoAntecipado.dadosAte", {
               data: formatarData(new Date(`${vista.dadosAte}T12:00:00Z`)),
@@ -380,6 +484,10 @@ export function PaginaAgregado({
             comParticipacao={false}
             className="min-[860px]:col-span-2"
           />
+        ) : null}
+
+        {vista.geografia.length === 0 && vista.condados.length > 1 ? (
+          <PainelVotosCondado vista={vista} fontes={fontes} />
         ) : null}
 
         <section className="self-start rounded-md border border-rule bg-sheet px-[18px] py-3.5 text-sm">

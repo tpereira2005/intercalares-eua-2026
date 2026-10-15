@@ -329,7 +329,9 @@ export function MapaEstados({
                 {nomeEstado(escolhido as ResumoEstado["estado"])}
               </h2>
             </div>
-            {resumo ? <QualidadeDados nivel={resumo.qualidade} comTexto /> : null}
+            {resumo ? (
+              <QualidadeDados nivel={resumo.qualidade} naoOficial={resumo.naoOficial} comTexto />
+            ) : null}
           </div>
           {resumo ? (
             <>

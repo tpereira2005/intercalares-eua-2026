@@ -36,6 +36,8 @@ export interface ResumoEstado {
   /** Boletins por correspondência pedidos e ainda por devolver (estados agregados). */
   pendentes: number | null;
   qualidade: NivelQualidade;
+  /** Números de uma fonte não oficial (agregador independente). */
+  naoOficial: boolean;
 }
 
 const MAIS_65: readonly FaixaEtaria[] = ["65-74", "75+"];
@@ -118,6 +120,7 @@ export function resumirEstado(vista: VistaVotoAntecipado): ResumoEstado {
         : null,
     pendentes: null,
     qualidade: qualidadeDe(vista),
+    naoOficial: false,
   };
 }
 
@@ -158,6 +161,7 @@ export function resumirAgregado(vista: VistaAgregada): ResumoEstado {
     restantes: null,
     pendentes: partidos.length > 0 ? partidos.reduce((s, p) => s + p.pendentes, 0) : null,
     qualidade: vista.dimensoes.includes("faixa") ? "parcial" : "agregado",
+    naoOficial: vista.naoOficial,
   };
 }
 
