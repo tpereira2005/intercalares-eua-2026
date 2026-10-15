@@ -156,6 +156,7 @@ Notas de leitura:
 - **Ambiente nacional.** Desloca-se sempre nos dois sentidos, com o mesmo valor.
 - **Backtests.** As variantes do ambiente não se avaliam nos backtests: deslocar o ambiente num ano passado só mediria o erro real desse ano.
 - **Colunas dos backtests.** O Brier e a cobertura são médias de 2018, 2022 e 2024.
+- **Publicação diária.** A mesma tabela publica-se todos os dias em `sensibilidade-2026.json` (contrato `SensibilidadePrevisao`), com os mesmos dados e o mesmo corte da previsão, mas sem as colunas dos backtests, que são lentos. O job confirma que a variante "Modelo publicado" reproduz a previsão do dia e falha se não reproduzir.
 
 Corte de 15 de outubro de 2026 (19 dias antes da eleição, com o erro do ambiente a essa distância):
 

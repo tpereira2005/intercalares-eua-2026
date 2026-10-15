@@ -24,6 +24,8 @@ from pathlib import Path
 import httpx
 import numpy as np
 
+from contratos.base import Fonte, Metadados
+from contratos.sensibilidade import SensibilidadePrevisao, VarianteSensibilidade
 from pipeline.jobs.previsao import ANOS_BACKTEST, DESEMPATE_REAL
 from pipeline.modelo import carregar as carga
 from pipeline.modelo.fontes import wikipedia
@@ -49,6 +51,9 @@ MENOS = "\u2212"
 class Variante:
     nome: str
     ajustes: Ajustes
+    descricao: str = ""
+    """O que muda em relação ao modelo publicado, numa frase (vai para o site)."""
+
     backtest: bool = True
     ambiente_proprio: bool = False
     """Ignora a média dos agregadores: o ambiente vem da média própria do voto genérico ou,
@@ -56,30 +61,97 @@ class Variante:
 
 
 VARIANTES: tuple[Variante, ...] = (
-    Variante("Modelo publicado", AJUSTES_PUBLICADOS),
+    Variante("Modelo publicado", AJUSTES_PUBLICADOS, "A previsão publicada, sem qualquer ajuste."),
     *(
         Variante(
             f"Ambiente {d:+d} ponto{'s' if abs(d) > 1 else ''}".replace("-", MENOS),
             Ajustes(desvio_ambiente=float(d)),
+            f"Desloca o ambiente nacional {abs(d)} "
+            f"ponto{'s' if abs(d) > 1 else ''} para o lado "
+            f"{'democrata' if d > 0 else 'republicano'}.",
             backtest=False,
         )
         for d in (-3, -2, -1, 1, 2, 3)
     ),
-    Variante("Ambiente sem os agregadores", AJUSTES_PUBLICADOS, False, True),
-    Variante(f"Erro do ambiente {VEZES} 0,75", Ajustes(fator_sd_nacional=0.75)),
-    Variante(f"Erro do ambiente {VEZES} 1,25", Ajustes(fator_sd_nacional=1.25)),
-    Variante(f"Erro do ambiente {VEZES} 1,5", Ajustes(fator_sd_nacional=1.5)),
-    Variante("t com 3 graus de liberdade", Ajustes(graus_liberdade=3)),
-    Variante("t com 30 graus de liberdade (quase normal)", Ajustes(graus_liberdade=30)),
-    Variante(f"Erro de cada corrida {VEZES} 0,75", Ajustes(fator_sd_corrida=0.75)),
-    Variante(f"Erro de cada corrida {VEZES} 1,25", Ajustes(fator_sd_corrida=1.25)),
-    Variante(f"Erro das sondagens {VEZES} 0,75", Ajustes(fator_erro_sondagens=0.75)),
-    Variante(f"Erro das sondagens {VEZES} 1,5", Ajustes(fator_erro_sondagens=1.5)),
-    Variante("Meia-vida das sondagens de 7 dias", Ajustes(meia_vida_dias=7.0)),
-    Variante("Meia-vida das sondagens de 28 dias", Ajustes(meia_vida_dias=28.0)),
-    Variante("Sem sondagens do Senado (só fundamentos)", Ajustes(sem_sondagens_senado=True)),
-    Variante("Incumbentes corrigidos face às sondagens", Ajustes(incumbentes_sondagens=True)),
-    Variante("Viés histórico do voto genérico corrigido", Ajustes(vies_generico=True)),
+    Variante(
+        "Ambiente sem os agregadores",
+        AJUSTES_PUBLICADOS,
+        "Ignora a média dos agregadores e lê o ambiente nacional nas nossas médias de sondagens.",
+        False,
+        True,
+    ),
+    Variante(
+        f"Erro do ambiente {VEZES} 0,75",
+        Ajustes(fator_sd_nacional=0.75),
+        "Reduz em um quarto o erro assumido para o ambiente nacional.",
+    ),
+    Variante(
+        f"Erro do ambiente {VEZES} 1,25",
+        Ajustes(fator_sd_nacional=1.25),
+        "Aumenta em um quarto o erro assumido para o ambiente nacional.",
+    ),
+    Variante(
+        f"Erro do ambiente {VEZES} 1,5",
+        Ajustes(fator_sd_nacional=1.5),
+        "Aumenta para uma vez e meia o erro assumido para o ambiente nacional.",
+    ),
+    Variante(
+        "t com 3 graus de liberdade",
+        Ajustes(graus_liberdade=3),
+        "Usa erros com caudas muito pesadas, em que os resultados extremos são mais prováveis.",
+    ),
+    Variante(
+        "t com 30 graus de liberdade (quase normal)",
+        Ajustes(graus_liberdade=30),
+        "Usa erros quase normais, com caudas finas.",
+    ),
+    Variante(
+        f"Erro de cada corrida {VEZES} 0,75",
+        Ajustes(fator_sd_corrida=0.75),
+        "Reduz em um quarto o erro próprio de cada corrida.",
+    ),
+    Variante(
+        f"Erro de cada corrida {VEZES} 1,25",
+        Ajustes(fator_sd_corrida=1.25),
+        "Aumenta em um quarto o erro próprio de cada corrida.",
+    ),
+    Variante(
+        f"Erro das sondagens {VEZES} 0,75",
+        Ajustes(fator_erro_sondagens=0.75),
+        "Dá mais confiança às sondagens do Senado, reduzindo-lhes o erro em um quarto.",
+    ),
+    Variante(
+        f"Erro das sondagens {VEZES} 1,5",
+        Ajustes(fator_erro_sondagens=1.5),
+        "Dá menos confiança às sondagens do Senado, aumentando-lhes o erro para uma vez e meia.",
+    ),
+    Variante(
+        "Meia-vida das sondagens de 7 dias",
+        Ajustes(meia_vida_dias=7.0),
+        "As sondagens perdem peso mais depressa: metade do peso ao fim de 7 dias.",
+    ),
+    Variante(
+        "Meia-vida das sondagens de 28 dias",
+        Ajustes(meia_vida_dias=28.0),
+        "As sondagens perdem peso mais devagar: metade do peso ao fim de 28 dias.",
+    ),
+    Variante(
+        "Sem sondagens do Senado (só fundamentos)",
+        Ajustes(sem_sondagens_senado=True),
+        "Ignora as sondagens do Senado e usa só os fundamentos de cada corrida.",
+    ),
+    Variante(
+        "Incumbentes corrigidos face às sondagens",
+        Ajustes(incumbentes_sondagens=True),
+        "Corrige a média das sondagens de cada incumbente pelo desvio histórico. "
+        "Regra testada e não adotada.",
+    ),
+    Variante(
+        "Viés histórico do voto genérico corrigido",
+        Ajustes(vies_generico=True),
+        "Desconta ao ambiente o erro médio dos anos anteriores. "
+        "Regra em avaliação, ainda não adotada.",
+    ),
 )
 
 
@@ -112,21 +184,25 @@ def analisar(
     corte: date,
     ambiente_publicado: tuple[float, str] | None,
     variantes: Sequence[Variante] = VARIANTES,
+    *,
+    backtests: bool = True,
+    ano: int = carga.ANO_ATUAL,
 ) -> list[dict[str, object]]:
     linhas: list[dict[str, object]] = []
     for v in variantes:
         publicado = None if v.ambiente_proprio else ambiente_publicado
         previsao: Previsao = prever(
-            dados, carga.ANO_ATUAL, corte=corte, ambiente_publicado=publicado, ajustes=v.ajustes
+            dados, ano, corte=corte, ambiente_publicado=publicado, ajustes=v.ajustes
         )
         linha: dict[str, object] = {
             "variante": v.nome,
+            "descricao": v.descricao,
             "ajustes": asdict(v.ajustes),
             "ambiente": previsao.ambiente.margem,
             "fonte_ambiente": previsao.fonte_ambiente,
             "camara": _camara(previsao.camara),
             "senado": _camara(previsao.senado),
-            "backtests": _backtests(dados, v.ajustes) if v.backtest else None,
+            "backtests": _backtests(dados, v.ajustes) if backtests and v.backtest else None,
         }
         linhas.append(linha)
         registo.info(
@@ -136,6 +212,37 @@ def analisar(
             previsao.senado.prob_controlo_d,
         )
     return linhas
+
+
+def contrato(
+    linhas: Sequence[dict[str, object]],
+    *,
+    ano: int,
+    corte: date,
+    fontes: list[Fonte],
+    gerado_em: datetime,
+    codigo_commit: str | None,
+) -> SensibilidadePrevisao:
+    """Converte as linhas de ``analisar`` no contrato publicado (sem os backtests)."""
+    variantes = [
+        VarianteSensibilidade.model_validate(
+            {
+                "nome": ln["variante"],
+                "descricao": ln["descricao"],
+                "ambiente": ln["ambiente"],
+                "camara": ln["camara"],
+                "senado": ln["senado"],
+            }
+        )
+        for ln in linhas
+    ]
+    return SensibilidadePrevisao(
+        metadados=Metadados(gerado_em=gerado_em, fontes=tuple(fontes)),
+        ano=ano,
+        corte=corte,
+        codigo_commit=codigo_commit,
+        variantes=tuple(variantes),
+    )
 
 
 def _pct(x: object) -> str:

@@ -118,6 +118,7 @@ src/pipeline/
 uv run python -m pipeline.jobs.referencia_modelo
 uv run python -m pipeline.jobs.previsao --saida data/publicado/previsao/2026.json \
     --cenarios data/publicado/previsao/cenarios-2026.json \
+    --sensibilidade data/publicado/previsao/sensibilidade-2026.json \
     --alteracoes data/publicado/previsao/alteracoes-2026.json
 uv run python -m pipeline.jobs.ensaio_resultados --estado NC --data 2022-11-08 --parciais data/brutos/repeticao/NC-2022
 uv run python -m pipeline.jobs.repeticao_noite --ano 2022 --ordem modos --parciais data/brutos/repeticao/NC-2022
