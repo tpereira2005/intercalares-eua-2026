@@ -489,6 +489,20 @@ export interface CicloVotoAntecipado {
   votos_antecipados: number;
 }
 /**
+ * Classificação de uma corrida por um prognosticador.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Classificacao".
+ */
+export interface Classificacao {
+  categoria: "seguro" | "provavel" | "inclinado" | "ligeiro" | "empate";
+  /**
+   * Lado favorecido; ``None`` só no empate.
+   */
+  partido: ("D" | "R" | "I") | null;
+  prognosticador: string;
+}
+/**
  * Estado de que só se acompanham alguns condados.
  *
  * This interface was referenced by `Contratos`'s JSON-Schema
@@ -583,6 +597,19 @@ export interface VotosCandidato {
    */
   candidato: string;
   votos: number;
+}
+/**
+ * Classificações de uma corrida, com o mesmo ``id`` da ``PrevisaoCongresso``.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "CorridaPrognosticos".
+ */
+export interface CorridaPrognosticos {
+  /**
+   * @minItems 1
+   */
+  classificacoes: [Classificacao, ...Classificacao[]];
+  id: string;
 }
 /**
  * Quanto os votos contados se afastam, em média, da previsão congelada.
@@ -1380,6 +1407,58 @@ export interface PrevisaoCorrida {
    * Cook PVI em pontos (D+ positivo), tal como publicado: a margem é o dobro.
    */
   pvi: number;
+}
+/**
+ * Quem publica as classificações e a data da versão que a tabela cita.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "Prognosticador".
+ */
+export interface Prognosticador {
+  /**
+   * Identificador estável, por exemplo ``cook`` ou ``sabato``.
+   */
+  chave: string;
+  /**
+   * Data da versão das classificações, como a tabela da Wikipedia a indica.
+   */
+  data: string | null;
+  nome: string;
+  url: string | null;
+}
+/**
+ * Classificações publicadas por outros prognosticadores para o Senado e a Câmara.
+ *
+ * Na Câmara só aparecem os distritos que pelo menos um prognosticador não dá como
+ * seguros, como na tabela de origem.
+ *
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "PrognosticosExternos".
+ */
+export interface PrognosticosExternos {
+  ano: number;
+  /**
+   * @minItems 1
+   */
+  camara: [CorridaPrognosticos, ...CorridaPrognosticos[]];
+  /**
+   * Verdadeiro na versão de 1 de novembro, que serve para a avaliação.
+   */
+  congelado: boolean;
+  metadados: Metadados;
+  /**
+   * @minItems 1
+   */
+  prognosticadores_camara: [Prognosticador, ...Prognosticador[]];
+  /**
+   * @minItems 1
+   */
+  prognosticadores_senado: [Prognosticador, ...Prognosticador[]];
+  recolhido_em: string;
+  /**
+   * @minItems 1
+   */
+  senado: [CorridaPrognosticos, ...CorridaPrognosticos[]];
 }
 /**
  * Projeção de uma corrida num instante da contagem.

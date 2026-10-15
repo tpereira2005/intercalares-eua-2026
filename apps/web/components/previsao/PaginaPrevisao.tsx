@@ -384,7 +384,7 @@ export function PainelSenado({
   );
 }
 
-const ESTILO_CATEGORIA: Record<
+export const ESTILO_CATEGORIA: Record<
   Categoria,
   { className: string; style?: { opacity?: number; background?: string } }
 > = {

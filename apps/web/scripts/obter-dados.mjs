@@ -52,6 +52,11 @@ const FICHEIROS_PREVISAO = [
     variavel: "URL_SENSIBILIDADE_PREVISAO",
   },
   {
+    destino: "prognosticos-2026.json",
+    asset: "prognosticos-2026.json",
+    variavel: "URL_PROGNOSTICOS_PREVISAO",
+  },
+  {
     destino: "alteracoes-2026.json",
     asset: "alteracoes-2026.json",
     variavel: "URL_ALTERACOES_PREVISAO",

@@ -22,6 +22,7 @@ import type {
   VistaPrevisao,
 } from "@/lib/previsao/vista.ts";
 import { EvolucaoControlo } from "./graficos.tsx";
+import { PainelPrognosticosCamara } from "./PainelPrognosticos.tsx";
 import {
   Estimativa,
   PainelCamara,
@@ -329,6 +330,10 @@ export function PaginaCamara({ dados, camara }: { dados: DadosPrevisao; camara: 
       ) : (
         <PainelCamara vista={vista} evolucao={evolucao} todos />
       )}
+
+      {dados.prognosticos ? (
+        <PainelPrognosticosCamara vista={dados.prognosticos} resumo={dados.prognosticos[camara]} />
+      ) : null}
 
       <p className="text-sm">
         <Link href="/previsao/" className={LIGACAO}>

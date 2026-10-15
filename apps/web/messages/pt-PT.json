@@ -783,6 +783,42 @@
       "igual": "igual",
       "lugares": "{n} lugares D",
       "ambiente": "Ambiente {ambiente}"
+    },
+    "prognosticos": {
+      "sobrelinha": "Outros prognósticos",
+      "titulo": "Escrutínio e os outros prognósticos",
+      "tituloCorrida": "O que dizem os outros prognosticadores",
+      "texto": {
+        "senado": "O Escrutínio ao lado das classificações publicadas por outros prognosticadores. Das {n} corridas ao Senado classificadas, o favorito coincide com o consenso em {iguais} e é diferente em {diferentes}.",
+        "camara": "O Escrutínio ao lado das classificações publicadas por outros prognosticadores. Dos {n} distritos que pelo menos um não dá como seguros, o favorito coincide com o consenso em {iguais} e é diferente em {diferentes}. A tabela mostra só os distritos onde divergimos."
+      },
+      "textoCorrida": "O Escrutínio dá {nossa}; o consenso de {n} prognosticadores é {consenso}.",
+      "quem": "Classificações de {nomes}.",
+      "legenda": {
+        "senado": "Corridas ao Senado: categoria do Escrutínio e consenso dos outros prognosticadores",
+        "camara": "Distritos da Câmara onde o Escrutínio diverge do consenso dos outros prognosticadores"
+      },
+      "corrida": "Corrida",
+      "escrutinio": "Escrutínio",
+      "consenso": "Consenso",
+      "probD": "{p} D",
+      "n": "{n} classificações",
+      "faixaAria": "Classificações, da mais democrata à mais republicana: {lista}",
+      "empate": "Empate",
+      "categorias": {
+        "seguro": "Segura {lado}",
+        "provavel": "Provável {lado}",
+        "inclinado": "Inclinada {lado}",
+        "ligeiro": "Ligeira {lado}"
+      },
+      "entre": "Entre {a} e {b}",
+      "divergeFavorito": "Favorito diferente do consenso.",
+      "divergeMais": "Mesmo favorito, com mais certeza do que o consenso.",
+      "divergeMenos": "Mesmo favorito, com menos certeza do que o consenso.",
+      "semDivergencias": "Em nenhum distrito o Escrutínio fica a duas ou mais categorias do consenso.",
+      "congelado": "Versão de 1 de novembro",
+      "metodo": "Classificações lidas nas tabelas da Wikipedia a {data}, com a data de cada prognosticador. Para comparar, cada classificação ocupa um lugar na escala das categorias do Escrutínio (Safe/Solid é sólida, Likely provável, Lean inclinada, Tossup renhida; Tilt fica entre inclinada e renhida), e o consenso é a mediana desses lugares. Diverge quando o favorito é outro ou há duas ou mais categorias de distância.",
+      "metodoCongelado": "Versão congelada a {data}, com a previsão, para avaliar todos pela mesma régua depois da eleição. Para comparar, cada classificação ocupa um lugar na escala das categorias do Escrutínio (Safe/Solid é sólida, Likely provável, Lean inclinada, Tossup renhida; Tilt fica entre inclinada e renhida), e o consenso é a mediana desses lugares."
     }
   },
   "agregado": {
