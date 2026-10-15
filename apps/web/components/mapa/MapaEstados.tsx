@@ -180,7 +180,11 @@ export function MapaEstados({
                 const valor = r ? valorDe(r, indicador) : null;
                 const cor = valor === null ? null : preenchimento(valor, extremo, indicador);
                 const ativo = e.codigo === escolhido;
-                const texto = cor?.forte ? "fill-sheet" : "fill-ink";
+                const pequeno = lado < 34;
+                const textoValor = valor === null ? null : formatarValor(valor, indicador);
+                // Chapa sólida atrás do texto: o padrão tracejado e o risco dos estados de
+                // fora passariam por baixo das letras e tirariam contraste (1.4.3).
+                const chapa = cor !== null || semFonte !== undefined;
                 return (
                   <g
                     key={e.codigo}
@@ -249,20 +253,40 @@ export function MapaEstados({
                         className="stroke-ink-3"
                       />
                     ) : null}
+                    {chapa ? (
+                      <rect
+                        x={x + 3}
+                        y={y + 3}
+                        width={pequeno ? 20 : 26}
+                        height={pequeno ? 15 : 17}
+                        rx={2}
+                        aria-hidden="true"
+                        opacity={1}
+                        className="pointer-events-none fill-sheet"
+                      />
+                    ) : null}
+                    {chapa && lado >= 44 && textoValor !== null ? (
+                      <rect
+                        x={x + 3}
+                        y={y + lado - 21}
+                        width={Math.min(lado - 6, 9 + textoValor.length * 6.4)}
+                        height={17}
+                        rx={2}
+                        aria-hidden="true"
+                        opacity={1}
+                        className="pointer-events-none fill-sheet"
+                      />
+                    ) : null}
                     <text
                       x={x + 6}
-                      y={y + (lado < 34 ? 13 : 16)}
-                      className={`font-mono font-bold ${texto} ${lado < 34 ? "text-[9.5px]" : "text-[12px]"}`}
+                      y={y + (pequeno ? 13 : 16)}
+                      className={`font-mono font-bold fill-ink ${pequeno ? "text-[9.5px]" : "text-[12px]"}`}
                     >
                       {e.codigo}
                     </text>
-                    {lado >= 44 && valor !== null ? (
-                      <text
-                        x={x + 6}
-                        y={y + lado - 8}
-                        className={`font-mono text-[10.5px] ${cor?.forte ? "fill-sheet" : "fill-ink-2"}`}
-                      >
-                        {formatarValor(valor, indicador)}
+                    {lado >= 44 && textoValor !== null ? (
+                      <text x={x + 6} y={y + lado - 8} className="font-mono text-[10.5px] fill-ink">
+                        {textoValor}
                       </text>
                     ) : null}
                     {lado >= 30 && r ? (
@@ -270,7 +294,7 @@ export function MapaEstados({
                         x={x + lado - 9}
                         y={y + 11}
                         nivel={r.qualidade}
-                        claro={cor?.forte ?? false}
+                        claro={(cor?.forte ?? false) && lado >= 44}
                       />
                     ) : null}
                   </g>

@@ -234,7 +234,7 @@ export function MomentoEstados({
                     ] as const;
                     let x = esquerda;
                     return (
-                      <g key={l.chave} opacity={l.secundaria ? 0.75 : 1}>
+                      <g key={l.chave}>
                         <text
                           x={8}
                           y={centro + 4}
@@ -246,6 +246,7 @@ export function MomentoEstados({
                         >
                           {l.rotulo}
                         </text>
+                        {/* O esbatimento só nas barras: o rótulo mantém o contraste (1.4.3). */}
                         {partes.map((p) => {
                           const w = util * p.valor;
                           const comeco = x;
@@ -253,6 +254,7 @@ export function MomentoEstados({
                           return (
                             <g key={p.chave}>
                               <rect
+                                opacity={l.secundaria ? 0.75 : 1}
                                 x={comeco}
                                 y={centro - (l.secundaria ? 5 : 8)}
                                 width={Math.max(0, w - 1)}

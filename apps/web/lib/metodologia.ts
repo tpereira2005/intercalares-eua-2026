@@ -118,8 +118,10 @@ export function converter(
     .replaceAll("<table>", () => {
       tabelas += 1;
       const rotulo = rotuloTabela.replace("{n}", String(tabelas));
-      return `<div class="tabela-deslizante" tabindex="0" role="region" aria-label="${escapar(rotulo)}"><table>`;
+      return `<div class="tabela-deslizante" tabindex="0" role="region" aria-label="${escapar(rotulo)}"><table aria-label="${escapar(rotulo)}">`;
     })
+    // O Markdown só gera cabeçalhos de coluna: com scope, os leitores de ecrã associam-nos às células.
+    .replaceAll(/<th(?=[ >])/g, '<th scope="col"')
     .replaceAll("</table>", "</table></div>")
     .replaceAll("<pre>", () => {
       blocos += 1;

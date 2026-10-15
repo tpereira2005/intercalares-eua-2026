@@ -278,7 +278,13 @@ function PainelPartidoModo({
       {resumos.some((r) => r.vantagemDemRep !== null) ? null : (
         <p className="text-sm text-ink-2">{t("demografia.partidoModo.semPartido")}</p>
       )}
-      <div className="overflow-x-auto">
+      {/* Em ecrãs estreitos a tabela desliza dentro de si: foco de teclado e nome (2.1.1). */}
+      <div
+        className="overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label={t("demografia.partidoModo.regiao")}
+      >
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">{t("demografia.partidoModo.legenda")}</caption>
           <thead>

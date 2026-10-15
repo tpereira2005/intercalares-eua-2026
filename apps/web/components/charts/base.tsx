@@ -10,14 +10,18 @@ import {
 } from "react";
 
 /** Largura disponível de um contentor, atualizada quando o ecrã muda. */
-export function useLargura<T extends HTMLElement>(inicial = 640): [RefObject<T | null>, number] {
+export function useLargura<T extends HTMLElement>(
+  inicial = 640,
+): [RefObject<T | null>, number, boolean] {
   const ref = useRef<T>(null);
   const [largura, setLargura] = useState(inicial);
+  const [medida, setMedida] = useState(false);
   useEffect(() => {
     const elemento = ref.current;
     if (!elemento) return;
     const medir = () => {
       setLargura(Math.max(260, Math.floor(elemento.clientWidth)));
+      setMedida(true);
     };
     medir();
     const observador = new ResizeObserver(medir);
@@ -26,7 +30,7 @@ export function useLargura<T extends HTMLElement>(inicial = 640): [RefObject<T |
       observador.disconnect();
     };
   }, []);
-  return [ref, largura];
+  return [ref, largura, medida];
 }
 
 const PASSOS = [0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
@@ -73,7 +77,7 @@ export function Grafico({
   interativo?: boolean;
   children: (largura: number) => ReactNode;
 }) {
-  const [ref, largura] = useLargura<HTMLDivElement>();
+  const [ref, largura, medida] = useLargura<HTMLDivElement>();
   const alturaFinal = alturaPorLargura ? alturaPorLargura(largura) : altura;
   return (
     <div ref={ref} className="w-full min-w-0">
@@ -83,7 +87,9 @@ export function Grafico({
         viewBox={`0 0 ${String(largura)} ${String(alturaFinal)}`}
         role={interativo ? "group" : "img"}
         aria-label={titulo}
-        className="block max-w-full overflow-visible font-sans"
+        // Antes da medição o SVG escala com o contentor, na mesma proporção: a altura
+        // quase não muda quando a largura real chega (sem salto de esquema).
+        className={`block max-w-full overflow-visible font-sans ${medida ? "" : "h-auto w-full"}`}
       >
         <title>{titulo}</title>
         {children(largura)}

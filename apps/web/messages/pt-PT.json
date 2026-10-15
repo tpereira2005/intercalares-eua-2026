@@ -1231,6 +1231,7 @@
         "vantagemBase": "D−R referência",
         "correio": "Correio"
       },
+      "regiao": "Tabela de ritmo, partido e correio por estado (desliza na horizontal)",
       "semPartido": "Nenhum estado acompanhado publica ainda o partido de registo dos votos."
     }
   },

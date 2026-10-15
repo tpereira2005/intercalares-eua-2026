@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Grafico } from "@/components/charts/base.tsx";
 import { formatarMargemPontos, formatarPercentagem, formatarPontos } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
@@ -291,6 +291,8 @@ export function ExploradorCenarios({
   const [indice, setIndice] = useState(indiceZero);
   const [fator, setFator] = useState(fatorPublicado);
   const id = useId();
+  // Ao repor, o botão fica desativado e perderia o foco: passa para o controlo do ambiente.
+  const ambienteRef = useRef<HTMLInputElement>(null);
   const desvio = vista.desvios[indice] ?? 0;
   const cenario = obterCenario(vista, desvio, fator);
   const base = obterCenario(vista, 0, fatorPublicado);
@@ -306,14 +308,18 @@ export function ExploradorCenarios({
       <div className="grid gap-4 min-[860px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-3">
           <label htmlFor={`${id}-ambiente`} className="flex flex-col gap-1">
-            <span className="rotulo">{t("previsao.cenarios.ambiente")}</span>
+            <span id={`${id}-ambiente-rotulo`} className="rotulo">
+              {t("previsao.cenarios.ambiente")}
+            </span>
             <span className="font-display text-[28px] leading-none font-bold">
               {formatarMargemPontos(cenario.ambiente)}
             </span>
             <span className="text-[13px] text-ink-2">{textoDesvio}</span>
           </label>
           <input
+            ref={ambienteRef}
             id={`${id}-ambiente`}
+            aria-labelledby={`${id}-ambiente-rotulo`}
             type="range"
             min={0}
             max={vista.desvios.length - 1}
@@ -341,7 +347,7 @@ export function ExploradorCenarios({
                 return (
                   <label
                     key={f}
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-[2px] border border-rule px-2.5 py-1.5 text-[13px] has-[:checked]:border-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-signal"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-[2px] border border-rule px-2.5 py-1.5 text-[13px] has-[:checked]:border-ink has-[:checked]:shadow-[inset_0_0_0_1px_var(--ink)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-signal"
                   >
                     <input
                       type="radio"
@@ -365,6 +371,7 @@ export function ExploradorCenarios({
             onClick={() => {
               setIndice(indiceZero);
               setFator(fatorPublicado);
+              ambienteRef.current?.focus();
             }}
             disabled={indice === indiceZero && fator === fatorPublicado}
             className="self-start rounded-[2px] border border-rule px-2.5 py-1.5 text-[13px] text-ink hover:border-ink-3 disabled:cursor-default disabled:opacity-50"

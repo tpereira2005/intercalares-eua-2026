@@ -7,7 +7,10 @@
  *  3. cenários da previsão: barra deslizante com as setas e "Repor a previsão publicada";
  *  4. resultados sem API (o servidor estático responde 404 a /api/*);
  *  5. alternância entre tema claro e escuro (e persistência);
- *  6. indicador de foco visível em todas as paragens do teclado.
+ *  6. indicador de foco visível em todas as paragens do teclado;
+ *  7. mapa: indicador "Partido" e escolha de um estado com o teclado;
+ *  8. página de uma corrida durante a noite (relógio a 4 de novembro, API simulada);
+ *  9. tabelas novas (grupos, início, estado): legenda, cabeçalhos com escopo e nome a 390 px.
  *
  * Uso (depois de `pnpm build`):
  *   pnpm --filter @intercalares/web fluxos
@@ -18,7 +21,7 @@
 // O código dentro de evaluate corre no navegador.
 /* global window, document, getComputedStyle */
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { RAIZ, servir } from "./servidor-estatico.mjs";
 
@@ -215,6 +218,11 @@ async function fluxoCenarios({ abrir }) {
     await repor.isDisabled(),
     "'Repor a previsão publicada' devia ficar desativado após repor",
   );
+  // O botão desativa-se ao repor: o foco passa para a barra deslizante em vez de se perder.
+  exigir(
+    await barra.evaluate((e) => e === document.activeElement),
+    "depois de repor, o foco do teclado perdeu-se em vez de passar para a barra deslizante",
+  );
 }
 
 /* ---------- Fluxo 4: resultados sem API ---------- */
@@ -286,6 +294,8 @@ async function fluxoTema({ abrir }) {
 async function fluxoFocoVisivel({ abrir, estadoVoto }) {
   for (const endereco of [
     "/",
+    "/demografia/",
+    "/corridas/nc-01/",
     `/voto-antecipado/${estadoVoto}/`,
     "/mapa/",
     "/previsao/cenarios/",
@@ -333,6 +343,128 @@ async function fluxoFocoVisivel({ abrir, estadoVoto }) {
   }
 }
 
+/* ---------- Fluxo 7: mapa, indicador partidário ---------- */
+
+async function fluxoMapaPartido({ abrir }) {
+  const pagina = await abrir("/mapa/");
+  const partido = pagina.getByRole("button", { name: "Partido", exact: true });
+  await premirComTeclado(partido, "Enter");
+  exigir(
+    (await partido.getAttribute("aria-pressed")) === "true",
+    "'Partido' não ficou marcado (aria-pressed) depois de Enter",
+  );
+  const quadrado = pagina.locator("svg [role='button']", { hasText: /^NC/ }).first();
+  const nome = (await quadrado.getAttribute("aria-label")) ?? "";
+  exigir(
+    /^Carolina do Norte, NC: [DR] /.test(nome),
+    `o quadrado de NC devia ter o nome "Carolina do Norte, NC: D/R …", mas tem "${nome}"`,
+  );
+  await quadrado.focus();
+  await pagina.keyboard.press("Enter");
+  exigir(
+    (await quadrado.getAttribute("aria-pressed")) === "true",
+    "escolher o quadrado de NC com Enter não o marcou (aria-pressed)",
+  );
+  await esperarPor(
+    pagina,
+    () => document.querySelector("h2")?.textContent?.includes("Carolina do Norte") ?? false,
+    undefined,
+    "o painel do estado escolhido não passou a mostrar a Carolina do Norte",
+  );
+}
+
+/* ---------- Fluxo 8: corrida durante a noite ---------- */
+
+function fixture(ficheiro) {
+  return JSON.parse(readFileSync(new URL(`../test/fixtures/${ficheiro}`, import.meta.url), "utf8"));
+}
+
+async function fluxoCorridaNoite({ contexto, base }) {
+  const pagina = await contexto.newPage();
+  const confirmadoEm = "2026-11-04T02:29:00Z";
+  await pagina.clock.install({ time: new Date("2026-11-04T02:30:00Z") });
+  await pagina.route("**/api/resultados", (r) =>
+    r.fulfill({
+      json: {
+        confirmadoEm,
+        parciais: fixture("resultados/parciais.json"),
+        chamadas: fixture("resultados/chamadas.json"),
+      },
+    }),
+  );
+  await pagina.route("**/api/noite", (r) =>
+    r.fulfill({
+      json: {
+        confirmadoEm,
+        projecao: fixture("noite/projecao.json"),
+        historico: fixture("noite/historico.json"),
+      },
+    }),
+  );
+  await pagina.goto(`${base}/corridas/nc-01/`, { waitUntil: "networkidle" });
+  await pagina.clock.runFor(3000);
+  const titulo = pagina.getByRole("heading", {
+    level: 2,
+    name: "Contagem e projeção desta corrida",
+  });
+  await titulo.waitFor({ timeout: LIMITE_ESPERA }).catch(() => {
+    throw new Falha("o painel da noite não apareceu na página da corrida às 02:30 UTC");
+  });
+  const niveis = await pagina.evaluate(() =>
+    [...document.querySelectorAll("h1,h2,h3")].map((h) => Number(h.tagName[1])),
+  );
+  exigir(
+    niveis.every((n, i) => i === 0 || n <= niveis[i - 1] + 1),
+    `os títulos da página saltam de nível: ${niveis.join(",")}`,
+  );
+  exigir(
+    await pagina.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    "a página da corrida tem deslocamento horizontal à noite",
+  );
+  const semNome = await pagina.evaluate(() =>
+    [...document.querySelectorAll("a[href], button, [role='img']")]
+      .filter(
+        (e) =>
+          !(e.getAttribute("aria-label") ?? e.textContent ?? "").trim() &&
+          !e.getAttribute("aria-labelledby"),
+      )
+      .map((e) => e.outerHTML.slice(0, 60)),
+  );
+  exigir(semNome.length === 0, `elementos sem nome acessível: ${semNome.slice(0, 2).join(" | ")}`);
+  await pagina.close();
+}
+
+/* ---------- Fluxo 9: tabelas novas a 390 px ---------- */
+
+async function fluxoTabelas({ navegador, base }) {
+  const contexto = await navegador.newContext({ viewport: { width: 390, height: 800 } });
+  for (const endereco of ["/demografia/", "/", `/voto-antecipado/nc/`]) {
+    const pagina = await contexto.newPage();
+    await pagina.goto(base + endereco, { waitUntil: "networkidle" });
+    const problemas = await pagina.evaluate(() => {
+      const erros = [];
+      const tabelas = [...document.querySelectorAll("table")];
+      if (tabelas.length === 0) erros.push("sem tabelas");
+      for (const tabela of tabelas) {
+        if (!tabela.querySelector("caption")) erros.push("tabela sem legenda");
+        if ([...tabela.querySelectorAll("th")].some((th) => !th.getAttribute("scope"))) {
+          erros.push("cabeçalho sem scope");
+        }
+        const pai = tabela.parentElement;
+        if (pai && pai.scrollWidth > pai.clientWidth + 1 && pai.tabIndex < 0) {
+          erros.push("tabela que desliza sem acesso por teclado");
+        }
+      }
+      if (document.documentElement.scrollWidth > window.innerWidth)
+        erros.push("deslocamento horizontal");
+      return erros;
+    });
+    exigir(problemas.length === 0, `${endereco} a 390 px: ${[...new Set(problemas)].join("; ")}`);
+    await pagina.close();
+  }
+  await contexto.close();
+}
+
 /* ---------- Execução ---------- */
 
 if (!existsSync(RAIZ)) {
@@ -356,6 +488,9 @@ const FLUXOS = [
   ["Resultados sem API (404 em /api/*)", fluxoResultadosSemApi],
   ["Tema claro e escuro", fluxoTema],
   ["Indicador de foco visível", fluxoFocoVisivel],
+  ["Mapa: indicador partidário e escolha de um estado", fluxoMapaPartido],
+  ["Corrida durante a noite: painel ao vivo", fluxoCorridaNoite],
+  ["Tabelas novas: legenda, escopo e 390 px", fluxoTabelas],
 ];
 
 let falhados = 0;
@@ -370,7 +505,7 @@ for (const [nome, fluxo] of FLUXOS) {
     return pagina;
   };
   try {
-    await fluxo({ abrir, contexto, base, estadoVoto });
+    await fluxo({ abrir, contexto, base, estadoVoto, navegador });
     console.log(`ok    ${nome}`);
   } catch (erro) {
     falhados += 1;
