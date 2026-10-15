@@ -109,6 +109,14 @@ export interface VistaAgregada {
    */
   cruzamentos: CruzamentoFaixa<FaixaAgregada>[];
   anoCruzamentos: number | null;
+  /** Alguma fonte não é oficial (um agregador independente): o site mostra o selo. */
+  naoOficial: boolean;
+  /** A fonte não dá partido (Arizona): nada se diz sobre partidos. */
+  semPartido: boolean;
+  /** Boletins pedidos (ou emitidos) e devolvidos em 2026, no total; `null` sem eles. */
+  pedidosTotal: { pedidos: number; devolvidos: number } | null;
+  /** Votos de 2026 por condado, do maior para o menor, com a quota do estado. */
+  condados: { codigo: string; nome: string; votos: number; quota: number }[];
 }
 
 /** Janela das curvas, igual à da Carolina do Norte. */
@@ -230,6 +238,22 @@ function geografia(dados: VotoAntecipadoAgregado): UnidadeGeografica[] {
   );
 }
 
+/** Totais de 2026 por condado (linhas sem partido nem faixa). */
+function condados(dados: VotoAntecipadoAgregado): VistaAgregada["condados"] {
+  const linhas = dados.geografia.filter(
+    (l) =>
+      l.ano === dados.ano &&
+      l.nivel === "condado" &&
+      l.partido === "total" &&
+      (l.faixa === undefined || l.faixa === "total"),
+  );
+  const total = linhas.reduce((s, l) => s + l.votos, 0);
+  if (total <= 0) return [];
+  return linhas
+    .map((l) => ({ codigo: l.codigo, nome: l.nome, votos: l.votos, quota: l.votos / total }))
+    .sort((a, b) => b.votos - a.votos || a.nome.localeCompare(b.nome, "pt-PT"));
+}
+
 type PontoDia = PontoSerieAgregado;
 
 function quotasPartido(
@@ -324,5 +348,14 @@ export function construirVistaAgregada(dados: VotoAntecipadoAgregado): VistaAgre
     geografia: geografia(dados),
     cruzamentos: cruzamentos(dados, anoCruzamentos),
     anoCruzamentos,
+    naoOficial: dados.metadados.fontes.some((f) => f.oficial === false),
+    semPartido: !dados.dimensoes.includes("partido"),
+    pedidosTotal: (() => {
+      const l = dados.pedidos.find(
+        (x) => x.ano === dados.ano && x.faixa === "total" && x.partido === "total",
+      );
+      return l ? { pedidos: l.pedidos, devolvidos: l.devolvidos } : null;
+    })(),
+    condados: condados(dados),
   };
 }

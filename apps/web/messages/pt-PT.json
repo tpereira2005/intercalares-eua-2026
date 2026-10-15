@@ -33,7 +33,7 @@
     "demografia": "Grupos"
   },
   "rodape": {
-    "texto": "Escrutínio · Intercalares EUA 2026. Dados de fontes oficiais e gratuitas; cada número indica a fonte e o método.",
+    "texto": "Escrutínio · Intercalares EUA 2026. Dados de fontes públicas e gratuitas; cada número indica a fonte e o método.",
     "codigo": "Código aberto",
     "sistema": "Sistema visual"
   },
@@ -51,10 +51,12 @@
       "estimativa": "Estimativa",
       "oficial": "Oficial",
       "aoVivo": "Ao vivo",
-      "manual": "Introduzido à mão"
+      "manual": "Introduzido à mão",
+      "naoOficial": "Não oficial"
     },
     "atualizadoEm": "Atualizado a {data}",
-    "semDados": "n.d."
+    "semDados": "n.d.",
+    "naoOficialTexto": "fonte não oficial"
   },
   "inicio": {
     "titulo": "Intercalares EUA 2026",
@@ -824,15 +826,18 @@
     "titulo": "{estado}, voto antecipado",
     "lede": {
       "boletim": "Um registo por boletim, sem nomes. Sem os recenseados de cada grupo não há taxas de participação: comparamos votos com votos no mesmo dia do ciclo.",
-      "condado": "Só os totais por condado e partido que a fonte publica. Comparamos votos com votos no mesmo dia do ciclo, sem taxas de participação."
+      "condado": "Só os totais por condado e partido que a fonte publica. Comparamos votos com votos no mesmo dia do ciclo, sem taxas de participação.",
+      "condadoSemPartido": "Só os totais por condado que a fonte publica, sem partido nem idade. Mostramos o ritmo diário e de onde vêm os votos."
     },
     "kpis": {
-      "votos": "Votos antecipados até hoje",
+      "votos": "Votos antecipados até {data}",
       "votosDetalhe": "{variacao} face ao mesmo dia de {ano}",
       "quota65": "Quota dos eleitores com 65 ou mais anos",
       "quota65Detalhe": "{pontos} face a {ano}",
       "pendentes": "Boletins pedidos por devolver",
-      "pendentesDetalhe": "{valor} dos pedidos já voltaram"
+      "pendentesDetalhe": "{valor} dos pedidos já voltaram",
+      "emitidos": "Boletins pedidos ou enviados",
+      "emitidosDetalhe": "{valor} já voltaram"
     },
     "ritmo": {
       "sobrelinha": "Ritmo",
@@ -877,6 +882,17 @@
       "texto": "Partido de registo de quem já votou, por faixa etária. À direita, quanto mudou a diferença entre democratas e republicanos na faixa face ao mesmo dia do ano de referência.",
       "metodo": "Quotas de cada partido nos votos antecipados da faixa em {ano}, no dia do ficheiro. A variação D − R é a diferença entre as quotas democrata e republicana da faixa em {ano} menos a mesma diferença no mesmo dia do ciclo de {base}, em pontos.",
       "aria": "Partido de registo por faixa etária: {lista}."
+    },
+    "condados": {
+      "sobrelinha": "Geografia",
+      "titulo": "Votos por condado",
+      "texto": "Boletins devolvidos em cada condado e a sua parte do total do estado. São boletins recebidos, não votos contados.",
+      "metodo": "Totais por condado da fonte. Cada condado entra com o último dia que a fonte indica para ele, por isso os condados podem estar em dias diferentes.",
+      "legenda": "Votos antecipados por condado, do maior para o menor",
+      "condado": "Condado",
+      "votos": "Votos",
+      "quota": "Do estado",
+      "mais": "Mais {n} condados"
     }
   },
   "resultados": {

@@ -8,13 +8,18 @@ const PREENCHIMENTO: Record<NivelQualidade, string> = {
   agregado: "bg-transparent",
 };
 
-/** Ponto cheio (dados individuais), meio (parciais) ou vazio (agregados ou geográficos). */
+/**
+ * Ponto cheio (dados individuais), meio (parciais) ou vazio (agregados ou geográficos).
+ * Uma fonte não oficial diz-se sempre por extenso, mesmo na forma compacta.
+ */
 export function QualidadeDados({
   nivel,
   comTexto = false,
+  naoOficial = false,
 }: {
   nivel: NivelQualidade;
   comTexto?: boolean;
+  naoOficial?: boolean;
 }) {
   const texto = t(`comum.qualidade.${nivel}`);
   return (
@@ -24,6 +29,11 @@ export function QualidadeDados({
         aria-hidden="true"
       />
       {comTexto ? texto : <span className="sr-only">{texto}</span>}
+      {naoOficial ? (
+        <span className="rounded-[2px] border border-dashed border-ink-3 px-1 font-mono text-[10px] leading-[1.4] tracking-[0.06em] whitespace-nowrap text-ink-2 uppercase">
+          {t("comum.selos.naoOficial")}
+        </span>
+      ) : null}
     </span>
   );
 }

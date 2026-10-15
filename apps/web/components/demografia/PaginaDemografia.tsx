@@ -348,7 +348,7 @@ function PainelEstados({ estados }: { estados: readonly EstadoDemografia[] }) {
       <ul className="flex flex-col gap-2 text-sm">
         {estados.map((e) => (
           <li key={e.estado} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <QualidadeDados nivel={e.qualidade} />
+            <QualidadeDados nivel={e.qualidade} naoOficial={e.naoOficial} />
             <Link href={caminhoEstado(e.estado)} prefetch={false} className={LIGACAO}>
               {t("demografia.estados.linha", {
                 estado: nomeEstado(e.estado),

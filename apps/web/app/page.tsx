@@ -219,7 +219,7 @@ function EstadosAcompanhados({
             ) : (
               <span>{nomeEstado(r.estado)}</span>
             )}
-            <QualidadeDados nivel={r.qualidade} />
+            <QualidadeDados nivel={r.qualidade} naoOficial={r.naoOficial} />
             <span className="text-right font-mono text-[13px] font-medium">
               <span className="sr-only">{t("inicio.estados.colunaRitmo")}: </span>
               {r.variacaoVotos === null ? t("comum.semDados") : formatarVariacao(r.variacaoVotos)}
