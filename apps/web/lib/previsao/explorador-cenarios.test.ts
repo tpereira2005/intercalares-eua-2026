@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { AlteracoesPrevisao, CenariosPrevisao } from "@intercalares/contratos";
+import type {
+  AlteracoesPrevisao,
+  CenariosPrevisao,
+  PrevisaoCongresso,
+} from "@intercalares/contratos";
 import {
+  cenariosBatemCerto,
   cenarioPublicado,
   construirAlteracoes,
   construirVistaCenarios,
@@ -87,5 +92,27 @@ describe("registo de alterações", () => {
       "PR 16",
       "PR 11",
     ]);
+  });
+});
+
+describe("cenários face à previsão publicada", () => {
+  const previsao = {
+    ano: 2026,
+    corte: "2026-10-14",
+    codigo_commit: "abc1234",
+    ambiente: { margem: 3 },
+    camara: { prob_controlo_d: 0.7 },
+    senado: { prob_controlo_d: 0.2 },
+  } as unknown as PrevisaoCongresso;
+
+  it("aceita a grelha cujo cenário central dá a previsão publicada", () => {
+    expect(cenariosBatemCerto(grelha(), previsao)).toBe(true);
+  });
+
+  it("recusa a grelha de outra corrida do modelo", () => {
+    const outra = { ...previsao, senado: { prob_controlo_d: 0.25 } } as PrevisaoCongresso;
+    expect(cenariosBatemCerto(grelha(), outra)).toBe(false);
+    expect(cenariosBatemCerto(grelha(), { ...previsao, codigo_commit: "def5678" })).toBe(false);
+    expect(cenariosBatemCerto(grelha(), { ...previsao, corte: "2026-10-15" })).toBe(false);
   });
 });
