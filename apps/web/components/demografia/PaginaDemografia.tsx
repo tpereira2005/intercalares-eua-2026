@@ -310,7 +310,7 @@ function PainelPartidoModo({
             {resumos.map((r) => (
               <tr key={r.estado} className="border-t border-rule-2">
                 <th scope="row" className="py-1.5 pr-3 text-left font-semibold">
-                  <Link href={caminhoEstado(r.estado)} className={LIGACAO}>
+                  <Link href={caminhoEstado(r.estado)} prefetch={false} className={LIGACAO}>
                     {nomeEstado(r.estado)}
                   </Link>
                 </th>
@@ -349,7 +349,7 @@ function PainelEstados({ estados }: { estados: readonly EstadoDemografia[] }) {
         {estados.map((e) => (
           <li key={e.estado} className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <QualidadeDados nivel={e.qualidade} />
-            <Link href={caminhoEstado(e.estado)} className={LIGACAO}>
+            <Link href={caminhoEstado(e.estado)} prefetch={false} className={LIGACAO}>
               {t("demografia.estados.linha", {
                 estado: nomeEstado(e.estado),
                 votos: formatarCompacto(e.votos),

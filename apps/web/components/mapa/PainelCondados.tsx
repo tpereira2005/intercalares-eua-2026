@@ -59,7 +59,7 @@ export function PainelCondados({
             return (
               <tr key={s.estado} className="border-t border-rule-2">
                 <th scope="row" className="py-1.5 pr-3 text-left font-sans font-normal">
-                  <Link href={caminhoEstado(s.estado)} className={LIGACAO}>
+                  <Link href={caminhoEstado(s.estado)} prefetch={false} className={LIGACAO}>
                     {nomeEstado(s.estado)}
                   </Link>
                 </th>

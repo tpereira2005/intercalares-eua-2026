@@ -251,7 +251,7 @@ function Seguir({
         ) : null}
         {comVotoAntecipado ? (
           <li>
-            <Link href={caminhoEstado(c.estado)} className={LIGACAO}>
+            <Link href={caminhoEstado(c.estado)} prefetch={false} className={LIGACAO}>
               {t("corrida.seguir.votoAntecipado")}
             </Link>
           </li>
