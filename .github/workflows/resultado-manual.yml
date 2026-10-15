@@ -1,0 +1,85 @@
+name: Resultado manual
+
+# Na noite eleitoral, para os estados que recusam pedidos automáticos: copia-se da página
+# oficial do estado os totais de uma corrida e lança-se este workflow (no site do GitHub ou
+# na aplicação: Actions → Resultado manual → Run workflow). Ele valida a entrada, atualiza
+# manual.json na Release "resultados-2026" e a recolha da noite publica a corrida no ciclo
+# seguinte, com o selo "introduzido manualmente". Ver docs/noite-eleitoral-operacao.md.
+on:
+  workflow_dispatch:
+    inputs:
+      corrida:
+        description: "Corrida (ex.: PA-S, MI-G, PA-07)"
+        required: true
+      candidatos:
+        description: "Nome (D): votos; Nome (R): votos; Outros: votos"
+        default: ""
+      apuramento:
+        description: "Percentagem (87%) ou secções (1234/2000), como na página oficial"
+        default: ""
+      fonte:
+        description: "Página oficial de onde se copiaram os números"
+        default: ""
+      apagar:
+        description: "Apagar esta corrida do ficheiro"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Duas entradas seguidas não podem escrever por cima uma da outra.
+concurrency:
+  group: resultado-manual
+  cancel-in-progress: false
+
+env:
+  UV_LOCKED: "1"
+  ETIQUETA: resultados-2026
+
+jobs:
+  entrada:
+    name: Introduzir ${{ inputs.corrida }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Obter o manual.json atual
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view "$ETIQUETA" > /dev/null 2>&1 || gh release create "$ETIQUETA" \
+            --title "Resultados da noite eleitoral de 2026" --latest=false \
+            --notes "Resultados oficiais tal como publicados por cada estado; substituídos a cada recolha."
+          if gh release view "$ETIQUETA" --json assets -q '.assets[].name' | grep -qx manual.json; then
+            gh release download "$ETIQUETA" --pattern manual.json --clobber
+          fi
+      - name: Validar e atualizar
+        env:
+          CORRIDA: ${{ inputs.corrida }}
+          CANDIDATOS: ${{ inputs.candidatos }}
+          APURAMENTO: ${{ inputs.apuramento }}
+          FONTE: ${{ inputs.fonte }}
+          APAGAR: ${{ inputs.apagar }}
+        run: |
+          argumentos=(--ficheiro manual.json --corrida "$CORRIDA")
+          if [ "$APAGAR" = "true" ]; then
+            argumentos+=(--apagar)
+          else
+            argumentos+=(--candidatos "$CANDIDATOS" --apuramento "$APURAMENTO" --fonte "$FONTE")
+          fi
+          uv run python -m pipeline.jobs.resultado_manual "${argumentos[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "$ETIQUETA" manual.json --clobber

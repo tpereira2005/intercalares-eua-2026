@@ -52,6 +52,8 @@ from pipeline.comum.descarga import (
 )
 from pipeline.comum.erros import ErroPipeline
 from pipeline.connectors.results.comum import ConectorResultados
+from pipeline.connectors.results.manual import FICHEIRO as FICHEIRO_MANUAL
+from pipeline.connectors.results.manual import ConectorManual, aceita_manual, ler_ficheiro
 from pipeline.connectors.results.registo import CONECTORES, nomes_geo
 from pipeline.transform.resultados import ensaio
 from pipeline.transform.resultados.montar import Leitura, montar, nacional
@@ -142,11 +144,18 @@ class Recolha:
     )
     estados: dict[CodigoEstado, EstadoRecolha] = field(default_factory=dict)
     orcamento: float = ORCAMENTO_CICLO
+    manual: str | None = None
+    """URL do ``manual.json`` (resultados introduzidos à mão); ``None`` para não o ler."""
     _executor: ThreadPoolExecutor = field(
         default_factory=lambda: ThreadPoolExecutor(max_workers=16, thread_name_prefix="estado"),
         repr=False,
     )
-    _em_curso: dict[CodigoEstado, Future[Path | None]] = field(default_factory=dict, repr=False)
+    sobrepostos: dict[CodigoEstado, EstadoRecolha] = field(default_factory=dict)
+    """Entradas manuais nos estados acompanhados só por alguns condados (Texas, Arizona):
+    publicam-se à parte (``tx-manual.json``) e substituem, no resumo e nos parciais, as
+    corridas desses condados."""
+
+    _em_curso: dict[str, Future[Path | None]] = field(default_factory=dict, repr=False)
 
     def url(self, url: str) -> str:
         if self.espelho is None:
@@ -165,16 +174,19 @@ class Recolha:
         resultado entra no ciclo em que terminar."""
         # Primeiro, o que acabou em fundo desde o ciclo anterior (fica livre para relançar).
         alterados = self._recolher_terminados()
+        conectores = [*conectores, *self._conectores_manuais(conectores)]
         agora = datetime.now(UTC)
         lancados: list[Future[Path | None]] = []
         for conector in conectores:
-            estado = self.estados.setdefault(conector.estado, EstadoRecolha())
-            if conector.estado in self._em_curso:
+            registos = self.sobrepostos if _sobreposto(conector) else self.estados
+            estado = registos.setdefault(conector.estado, EstadoRecolha())
+            chave = _chave(conector)
+            if chave in self._em_curso:
                 continue
             if estado.nao_antes is not None and agora < estado.nao_antes:
                 continue
             futuro = self._executor.submit(self._processar, conector, estado)
-            self._em_curso[conector.estado] = futuro
+            self._em_curso[chave] = futuro
             lancados.append(futuro)
         # Só se espera pelos lançados agora: um estado que já vinha atrasado não volta a
         # prender o ciclo.
@@ -191,18 +203,47 @@ class Recolha:
                 registo.exception("Falhou o resumo nacional ou os parciais")
         return alterados
 
+    def _conectores_manuais(
+        self, automaticos: Sequence[ConectorResultados]
+    ) -> list[ConectorResultados]:
+        """Um ``ConectorManual`` por estado com entradas em ``manual.json``. Os estados com
+        fonte estadual automática ficam de fora (os números vêm da fonte aberta); nos
+        acompanhados só por alguns condados, a entrada manual fica sobreposta."""
+        if self.manual is None:
+            return []
+        destino = self.brutos / "manual" / FICHEIRO_MANUAL
+        try:
+            self._descarregar(self.manual, destino)
+            estados = ler_ficheiro(destino).estados()
+        except Exception as erro:  # sem entradas novas, a noite segue
+            if destino.exists():
+                registo.warning("Entrada manual: %s", erro)
+            return []
+        tipos = {c.estado: c for c in automaticos}
+        ignorados = sorted(uf for uf in estados if uf in tipos and not aceita_manual(tipos[uf]))
+        if ignorados:
+            registo.warning("Entrada manual ignorada (há fonte automática): %s", ignorados)
+        return [
+            ConectorManual(uf, self.manual, sobreposto=uf in tipos)
+            for uf in sorted(estados - set(ignorados))
+        ]
+
     def _recolher_terminados(self) -> list[Path]:
         alterados: list[Path] = []
-        for uf, futuro in list(self._em_curso.items()):
+        for chave, futuro in list(self._em_curso.items()):
             if futuro.done():
-                del self._em_curso[uf]
+                del self._em_curso[chave]
                 if (caminho := futuro.result()) is not None:
                     alterados.append(caminho)
         return alterados
 
     def em_curso(self) -> set[CodigoEstado]:
         """Estados cuja recolha ainda não terminou (continuam em fundo)."""
-        return {uf for uf, futuro in self._em_curso.items() if not futuro.done()}
+        return {
+            CodigoEstado(chave[:2].upper())
+            for chave, futuro in self._em_curso.items()
+            if not futuro.done()
+        }
 
     def _processar(self, conector: ConectorResultados, estado: EstadoRecolha) -> Path | None:
         """Recolhe um estado e atualiza o seu registo; nunca falha."""
@@ -236,7 +277,7 @@ class Recolha:
             "gerado_em": agora.isoformat(),
             "data_eleicao": self.data.isoformat(),
             "estados": {
-                uf.value: {
+                chave: {
                     "ultimo_sucesso": hora(e.ultimo_sucesso),
                     "ultima_alteracao": hora(e.ultima_alteracao),
                     "falhas_seguidas": e.falhas_seguidas,
@@ -244,7 +285,7 @@ class Recolha:
                     "apurado": e.apurado(),
                     "alerta": e.alerta(agora),
                 }
-                for uf, e in sorted(self.estados.items())
+                for chave, e in self._registos()
             },
         }
 
@@ -253,8 +294,15 @@ class Recolha:
         _escrever(saida, json.dumps(self.saude(), ensure_ascii=False, indent=2))
         return saida
 
+    def _registos(self) -> list[tuple[str, EstadoRecolha]]:
+        """Todos os registos, com a chave da saúde (``TX``, ``TX-manual``)."""
+        return sorted(
+            [(uf.value, e) for uf, e in self.estados.items()]
+            + [(f"{uf.value}-manual", e) for uf, e in self.sobrepostos.items()]
+        )
+
     def _estado(self, conector: ConectorResultados, estado: EstadoRecolha) -> Path | None:
-        uf = conector.estado.value.lower()
+        uf = _chave(conector)
         pasta = self.brutos / uf / "atual"
         pedidos = conector.pedidos(self.data, self.obter)
         sentinelas = [p for p in pedidos if p.sentinela]
@@ -316,8 +364,8 @@ class Recolha:
 
     def _nacional(self) -> Path:
         estados = [
-            (r.ultimo, f"{uf.value.lower()}.json")
-            for uf, r in sorted(self.estados.items())
+            (r.ultimo, f"{chave.lower()}.json")
+            for chave, r in self._registos()
             if r.ultimo is not None
         ]
         resumo = nacional(estados, data_eleicao=self.data)
@@ -327,7 +375,7 @@ class Recolha:
 
     def _parciais(self) -> Path:
         agora = datetime.now(UTC)
-        prontos = [r for _, r in sorted(self.estados.items()) if r.ultimo and r.leitura]
+        prontos = [r for _, r in self._registos() if r.ultimo and r.leitura]
         parciais = montar_parciais(
             [r.leitura for r in prontos if r.leitura is not None],
             ano=self.data.year,
@@ -348,6 +396,16 @@ class Recolha:
         resultado = subprocess.run(comando, check=False, capture_output=True, text=True)  # noqa: S603
         if resultado.returncode != 0:
             registo.error("Falhou a publicação: %s", resultado.stderr.strip())
+
+
+def _sobreposto(conector: ConectorResultados) -> bool:
+    return isinstance(conector, ConectorManual) and conector.sobreposto
+
+
+def _chave(conector: ConectorResultados) -> str:
+    """Nome do ficheiro e da pasta de brutos: ``tx``, ou ``tx-manual`` sobreposto."""
+    uf = conector.estado.value.lower()
+    return f"{uf}-manual" if _sobreposto(conector) else uf
 
 
 def _nao_antes(erro: BaseException) -> datetime | None:
@@ -419,11 +477,14 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--duracao", type=float, help="segundos; sem valor, corre um ciclo")
     parser.add_argument("--espelho", help="servidor local que substitui as fontes (ensaio)")
     parser.add_argument("--publicar", help="etiqueta da Release para onde enviar os ficheiros")
+    parser.add_argument("--manual", help="URL do manual.json com os resultados introduzidos à mão")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)
     conectores = [CONECTORES[CodigoEstado(e.strip().upper())] for e in args.estados.split(",")]
-    recolha = Recolha(args.data, args.saida, args.brutos, args.espelho, args.publicar)
+    recolha = Recolha(
+        args.data, args.saida, args.brutos, args.espelho, args.publicar, manual=args.manual
+    )
     executar(
         recolha,
         conectores,

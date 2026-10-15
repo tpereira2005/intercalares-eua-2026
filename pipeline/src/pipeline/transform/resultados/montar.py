@@ -83,6 +83,8 @@ class Leitura:
     cobertura_condados: tuple[str, ...] = ()
     """FIPS dos condados quando a fonte cobre só alguns condados do estado (ver
     ``connectors.results.condados``); vazio quando cobre o estado inteiro."""
+    manual: bool = False
+    """Totais introduzidos à mão (``connectors.results.manual``)."""
 
 
 def vazio_unidades() -> pl.DataFrame:
@@ -214,6 +216,7 @@ def montar(
                 tipo_unidade=leitura.tipo_unidade,
                 geografia=geografia,
                 notas=desc.notas,
+                manual=leitura.manual,
             )
         )
     parcial = bool(leitura.cobertura_condados)
@@ -298,6 +301,7 @@ def linhas_nacionais(resultados: ResultadosEstado, ficheiro: str) -> list[LinhaC
                 votos_outros=por_partido["outro"],
                 apuramento=apuramento,
                 cobertura=resultados.cobertura,
+                manual=c.manual,
             )
         )
     return linhas
@@ -310,7 +314,14 @@ def nacional(
     gerado_em: datetime | None = None,
 ) -> ResultadosNacional:
     fontes = tuple(f for r, _ in estados for f in r.metadados.fontes)
-    linhas = [linha for r, f in estados for linha in linhas_nacionais(r, f)]
+    # Uma corrida introduzida à mão num estado com fonte só de alguns condados (Texas,
+    # Arizona) substitui a linha desses condados: traz o total do estado.
+    por_id: dict[str, LinhaCorridaNacional] = {}
+    for r, f in estados:
+        for linha in linhas_nacionais(r, f):
+            if linha.manual or linha.id not in por_id:
+                por_id[linha.id] = linha
+    linhas = list(por_id.values())
     return ResultadosNacional(
         metadados=Metadados(gerado_em=gerado_em or datetime.now(UTC), fontes=fontes),
         data_eleicao=data_eleicao,
