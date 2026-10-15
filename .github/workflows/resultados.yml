@@ -142,6 +142,7 @@ jobs:
         run: >-
           uv run python -m pipeline.jobs.resultados
           --data "$DATA" --duracao "$DURACAO" --estados "$ESTADOS" --publicar "$ETIQUETA"
+          --manual "https://github.com/$GH_REPO/releases/download/$ETIQUETA/manual.json"
       - name: Guardar os retratos da noite
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

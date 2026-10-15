@@ -72,6 +72,8 @@ class ResultadoGeografico(ModeloContrato):
 
 
 class Corrida(ModeloContrato):
+    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("manual"))
+
     id: str = Field(pattern=r"^[A-Z]{2}-(S|G|\d{2})(-especial)?$")
     """Os mesmos identificadores da previsão (``PrevisaoCongresso``): ``NC-S``, ``PA-08``,
     ``AK-00``, ``OH-S-especial``; e ``XX-G`` para governador."""
@@ -94,6 +96,9 @@ class Corrida(ModeloContrato):
     tipo_unidade: UnidadeApuramento | None = None
     geografia: tuple[ResultadoGeografico, ...] = ()
     notas: tuple[str, ...] = ()
+    manual: bool = False
+    """Totais oficiais copiados à mão da página do estado (estados que recusam pedidos
+    automáticos). O site mostra-os com o selo "introduzido manualmente"."""
 
     @model_validator(mode="after")
     def _coerente(self) -> Self:
@@ -158,7 +163,7 @@ class ResultadosEstado(ModeloContrato):
 class LinhaCorridaNacional(ModeloContrato):
     """Resumo de uma corrida para o painel da noite eleitoral."""
 
-    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("cobertura"))
+    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("cobertura", "manual"))
 
     id: str
     estado: CodigoEstado
@@ -177,6 +182,8 @@ class LinhaCorridaNacional(ModeloContrato):
 
     cobertura: Cobertura = "estado"
     """``condados``: os votos são só dos condados acompanhados, não do estado inteiro."""
+    manual: bool = False
+    """Totais introduzidos à mão (ver ``Corrida.manual``)."""
 
 
 class ResultadosNacional(ModeloContrato):
@@ -231,7 +238,9 @@ class CoberturaParcial(ModeloContrato):
 class ResultadosParciais(ModeloContrato):
     """Um instante da contagem em todos os estados acompanhados (entrada do Modelo C)."""
 
-    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("cobertura_parcial"))
+    model_config = ConfigDict(
+        json_schema_extra=opcionais_no_esquema("cobertura_parcial", "corridas_manuais")
+    )
 
     metadados: Metadados
     ano: int
@@ -243,14 +252,24 @@ class ResultadosParciais(ModeloContrato):
     unidades: tuple[UnidadeContagem, ...]
     cobertura_parcial: tuple[CoberturaParcial, ...] = ()
     """Estados com só alguns condados: as suas unidades são esses condados (FIPS), sem
-    ``total`` do estado."""
+    ``total`` do estado (exceto as corridas em ``corridas_manuais``)."""
+
+    corridas_manuais: tuple[str, ...] = ()
+    """Corridas com totais introduzidos à mão (ver ``Corrida.manual``): o site mostra-as com
+    o selo "introduzido manualmente". Num estado com cobertura parcial, a entrada manual
+    traz o total do estado e substitui os condados dessa corrida."""
 
     @model_validator(mode="after")
     def _unidades_dos_condados(self) -> Self:
         parciais = {c.estado.value: set(c.condados) for c in self.cobertura_parcial}
+        manuais = set(self.corridas_manuais)
         for u in self.unidades:
             condados = parciais.get(u.corrida[:2])
-            if condados is not None and u.unidade not in condados:
+            if u.corrida in manuais:
+                if u.unidade != "total":
+                    msg = f"{u.corrida}: corrida manual só com a unidade total"
+                    raise ValueError(msg)
+            elif condados is not None and u.unidade not in condados:
                 msg = f"{u.corrida}: unidade {u.unidade} fora dos condados acompanhados"
                 raise ValueError(msg)
         return self

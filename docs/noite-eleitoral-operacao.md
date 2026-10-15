@@ -50,6 +50,24 @@ Medida no ensaio de 13 de outubro com os ficheiros reais de 2024 de NC, FL, GA, 
 
 Da fonte à Release: cerca de 20 a 40 segundos para os resultados e de 40 a 80 segundos para a projeção.
 
+## Entrada manual
+
+Os estados que recusam pedidos automáticos (Pensilvânia, Michigan, Ohio, Nevada, Carolina do Sul, Iowa, entre outros) entram à mão, com os totais copiados da página oficial do estado. Só para as corridas que interessam: Senado, governador e distritos disputados.
+
+No GitHub (site ou aplicação do telemóvel): **Actions → Resultado manual → Run workflow**, com:
+
+| Campo        | Exemplo                                                        |
+| ------------ | -------------------------------------------------------------- |
+| `corrida`    | `PA-S` (Senado), `MI-G` (governador), `PA-07` (distrito 7)     |
+| `candidatos` | `Nome A (D): 1.234.567; Nome B (R): 1.200.000; Outros: 30.000` |
+| `apuramento` | `87%`, ou `1234/2000` se a página mostrar secções              |
+| `fonte`      | o endereço da página oficial de onde se copiaram os números    |
+| `apagar`     | marcar só para retirar uma corrida introduzida por engano      |
+
+O workflow valida tudo antes de escrever (um erro deixa o ficheiro como estava) e atualiza `manual.json` na Release `resultados-2026`. A recolha lê-o a cada ciclo: a corrida aparece no `nacional.json` e no `parciais.json` no ciclo seguinte (`manual: true` e `corridas_manuais`), e o site mostra o selo "introduzido manualmente". Para atualizar uma corrida, volta-se a lançar com os números novos; um total que desce dá um aviso no resumo do workflow (pode ser uma correção da página oficial).
+
+Estados com fonte estadual automática (NC, FL, GA, AK, VA, NE e CA) são recusados: aí os números vêm da fonte aberta. O Texas e o Arizona aceitam entradas manuais, porque a recolha automática só tem Harris e Maricopa. Aí a entrada fica sobreposta: publica-se em `tx-manual.json` (ou `az-manual.json`) e, nessa corrida, o total do estado substitui os condados no resumo nacional e nos parciais. As outras corridas continuam a vir dos condados. Exemplo: `TX-S` à mão, `TX-07` de Harris.
+
 ## Ensaio com falhas
 
 `pipeline.jobs.ensaio_noite` corre o ciclo real da recolha contra um espelho local com os ficheiros finais de 2022 ou 2024 e um calendário de falhas. São sete: fonte em baixo (404), erro do servidor (5xx), 429 com `Retry-After`, ficheiro truncado, resposta vazia, fonte lenta (22 s, acima do tempo limite) e desafio anti-robô. No fim de cada ciclo verifica onze invariantes. O código de saída é 1 se algum falhar.

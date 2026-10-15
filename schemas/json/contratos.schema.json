@@ -1167,6 +1167,12 @@
           "title": "Id",
           "type": "string"
         },
+        "manual": {
+          "default": false,
+          "description": "Totais oficiais copiados à mão da página do estado (estados que recusam pedidos\nautomáticos). O site mostra-os com o selo \"introduzido manualmente\".",
+          "title": "Manual",
+          "type": "boolean"
+        },
         "nome_fonte": {
           "description": "Nome da corrida tal como a fonte o escreve.",
           "title": "Nome Fonte",
@@ -2042,6 +2048,12 @@
         "id": {
           "title": "Id",
           "type": "string"
+        },
+        "manual": {
+          "default": false,
+          "description": "Totais introduzidos à mão (ver ``Corrida.manual``).",
+          "title": "Manual",
+          "type": "boolean"
         },
         "total": {
           "minimum": 0,
@@ -4057,11 +4069,20 @@
         },
         "cobertura_parcial": {
           "default": [],
-          "description": "Estados com só alguns condados: as suas unidades são esses condados (FIPS), sem\n``total`` do estado.",
+          "description": "Estados com só alguns condados: as suas unidades são esses condados (FIPS), sem\n``total`` do estado (exceto as corridas em ``corridas_manuais``).",
           "items": {
             "$ref": "#/$defs/CoberturaParcial"
           },
           "title": "Cobertura Parcial",
+          "type": "array"
+        },
+        "corridas_manuais": {
+          "default": [],
+          "description": "Corridas com totais introduzidos à mão (ver ``Corrida.manual``): o site mostra-as com\no selo \"introduzido manualmente\". Num estado com cobertura parcial, a entrada manual\ntraz o total do estado e substitui os condados dessa corrida.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Corridas Manuais",
           "type": "array"
         },
         "instante": {

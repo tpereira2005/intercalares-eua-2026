@@ -10,7 +10,9 @@ votos por tipo em cada condado. Regras da interface acordada com o Modelo C:
 - só Senado e Câmara, com os identificadores da previsão;
 - nos estados acompanhados só por alguns condados, as unidades são esses condados (nunca
   ``total``) e o estado vem em ``cobertura_parcial``, para o Modelo C não tomar a soma
-  desses condados pelo estado inteiro.
+  desses condados pelo estado inteiro;
+- as corridas introduzidas à mão (``Leitura.manual``) vêm em ``corridas_manuais`` com a
+  unidade ``total``; num estado com cobertura parcial substituem os condados da corrida.
 """
 
 from collections.abc import Sequence
@@ -118,7 +120,11 @@ def montar_parciais(
     reconstruido: bool = False,
     gerado_em: datetime | None = None,
 ) -> ResultadosParciais:
-    unidades = [u for leitura in leituras for u in _unidades_leitura(leitura)]
+    por_leitura = [(leitura.manual, _unidades_leitura(leitura)) for leitura in leituras]
+    manuais = {u.corrida for manual, lista in por_leitura if manual for u in lista}
+    unidades = [
+        u for manual, lista in por_leitura for u in lista if manual or u.corrida not in manuais
+    ]
     cobertura = [
         CoberturaParcial(
             estado=CodigoEstado(leitura.corridas[0].id[:2]),
@@ -130,6 +136,7 @@ def montar_parciais(
     ]
     return ResultadosParciais(
         cobertura_parcial=tuple(sorted(cobertura, key=lambda c: c.estado.value)),
+        corridas_manuais=tuple(sorted(manuais)),
         metadados=Metadados(gerado_em=gerado_em or datetime.now(UTC), fontes=tuple(fontes)),
         ano=ano,
         instante=instante,

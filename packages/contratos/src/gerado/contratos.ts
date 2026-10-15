@@ -538,6 +538,11 @@ export interface Corrida {
    */
   id: string;
   /**
+   * Totais oficiais copiados à mão da página do estado (estados que recusam pedidos
+   * automáticos). O site mostra-os com o selo "introduzido manualmente".
+   */
+  manual?: boolean;
+  /**
    * Nome da corrida tal como a fonte o escreve.
    */
   nome_fonte: string;
@@ -910,6 +915,10 @@ export interface LinhaCorridaNacional {
    */
   ficheiro: string;
   id: string;
+  /**
+   * Totais introduzidos à mão (ver ``Corrida.manual``).
+   */
+  manual?: boolean;
   total: number;
   votos_dem: number;
   votos_outros: number;
@@ -1505,9 +1514,15 @@ export interface ResultadosParciais {
   ano: number;
   /**
    * Estados com só alguns condados: as suas unidades são esses condados (FIPS), sem
-   * ``total`` do estado.
+   * ``total`` do estado (exceto as corridas em ``corridas_manuais``).
    */
   cobertura_parcial?: CoberturaParcial[];
+  /**
+   * Corridas com totais introduzidos à mão (ver ``Corrida.manual``): o site mostra-as com
+   * o selo "introduzido manualmente". Num estado com cobertura parcial, a entrada manual
+   * traz o total do estado e substitui os condados dessa corrida.
+   */
+  corridas_manuais?: string[];
   instante: string;
   metadados: Metadados;
   /**

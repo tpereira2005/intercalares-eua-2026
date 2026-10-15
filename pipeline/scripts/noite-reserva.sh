@@ -102,7 +102,8 @@ restante() {
 
 recolha() {
   uv run python -m pipeline.jobs.resultados --data "$DATA" --estados "$ESTADOS" \
-    --intervalo "$INTERVALO" --duracao "$1" --publicar resultados-2026
+    --intervalo "$INTERVALO" --duracao "$1" --publicar resultados-2026 \
+    --manual "https://github.com/$REPO/releases/download/resultados-2026/manual.json"
 }
 
 projecao() {
