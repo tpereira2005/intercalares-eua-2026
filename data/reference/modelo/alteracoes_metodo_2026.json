@@ -40,5 +40,12 @@
   "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/76",
   "camara": {"antes": 0.96445, "depois": 0.96445},
   "senado": {"antes": 0.72045, "depois": 0.72045}
+ },
+ {
+  "data": "2026-10-15",
+  "descricao": "O erro do ambiente nacional passa a medir-se à mesma distância da eleição que o corte (3,9 pontos a 19 dias, 3,2 a dois dias), por isso as probabilidades diárias antes do congelamento ficam um pouco mais largas. A previsão congelada não muda. A correção do viés histórico do voto genérico fica testada e desligada, à espera de decisão.",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/84",
+  "camara": {"antes": 0.96445, "depois": 0.9456},
+  "senado": {"antes": 0.72045, "depois": 0.71245}
  }
 ]

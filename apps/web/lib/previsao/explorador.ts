@@ -6,7 +6,11 @@
  * corresponde à deslocação do ambiente e ao fator de erro pedidos.
  */
 
-import type { AlteracoesPrevisao, CenariosPrevisao } from "@intercalares/contratos";
+import type {
+  AlteracoesPrevisao,
+  CenariosPrevisao,
+  PrevisaoCongresso,
+} from "@intercalares/contratos";
 import type { Camara } from "./vista.ts";
 
 export interface ResumoCenario {
@@ -73,6 +77,28 @@ export function construirVistaCenarios(dados: CenariosPrevisao): VistaCenarios {
 }
 
 const IGUAL = 1e-6;
+
+/**
+ * O cenário central da grelha (sem deslocação, erro das sondagens como no modelo) tem de
+ * dar a previsão publicada, com o mesmo corte e o mesmo código. Se não der, os cenários
+ * vêm de outra corrida do modelo e não se mostram.
+ */
+export function cenariosBatemCerto(
+  cenarios: CenariosPrevisao,
+  previsao: PrevisaoCongresso,
+): boolean {
+  if (cenarios.ano !== previsao.ano || cenarios.corte !== previsao.corte) return false;
+  if ((cenarios.codigo_commit ?? null) !== (previsao.codigo_commit ?? null)) return false;
+  if (Math.abs(cenarios.ambiente_base - previsao.ambiente.margem) > IGUAL) return false;
+  const base = cenarios.cenarios.find(
+    (c) => Math.abs(c.desvio_ambiente) < IGUAL && Math.abs(c.fator_erro_sondagens - 1) < IGUAL,
+  );
+  return (
+    base !== undefined &&
+    Math.abs(base.camara.prob_controlo_d - previsao.camara.prob_controlo_d) < IGUAL &&
+    Math.abs(base.senado.prob_controlo_d - previsao.senado.prob_controlo_d) < IGUAL
+  );
+}
 
 /** Cenário da grelha com esta deslocação e este fator; `null` se não existir. */
 export function obterCenario(

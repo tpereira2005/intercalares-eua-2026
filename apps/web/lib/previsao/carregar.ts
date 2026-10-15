@@ -19,6 +19,7 @@ import type {
 import { DadosInvalidos, obterValidador, type NomeContrato } from "../validacao.ts";
 import {
   construirAlteracoes,
+  cenariosBatemCerto,
   construirVistaCenarios,
   type VistaAlteracoes,
   type VistaCenarios,
@@ -87,7 +88,8 @@ export function carregarPrevisao(pasta?: string): DadosPrevisao | null {
     if (historico && dados && historico.ano !== dados.ano) {
       throw new Error(`Histórico de ${String(historico.ano)} com previsão de ${String(dados.ano)}`);
     }
-    // Cenários de outro corte dariam números diferentes dos publicados: ficam de fora.
+    // Cenários de outro corte ou de outra corrida do modelo dariam números diferentes dos
+    // publicados: ficam de fora.
     const cenarios = dados ? lerCenarios(path.join(chave, FICHEIRO_CENARIOS)) : null;
     const alteracoes = dados ? lerAlteracoes(path.join(chave, FICHEIRO_ALTERACOES)) : null;
     cache.set(
@@ -97,7 +99,7 @@ export function carregarPrevisao(pasta?: string): DadosPrevisao | null {
             previsao: construirVistaPrevisao(dados),
             evolucao: historico ? construirEvolucao(historico, dados.corte) : null,
             cenarios:
-              cenarios?.ano === dados.ano && cenarios.corte === dados.corte
+              cenarios && cenariosBatemCerto(cenarios, dados)
                 ? construirVistaCenarios(cenarios)
                 : null,
             alteracoes: alteracoes?.ano === dados.ano ? construirAlteracoes(alteracoes) : null,
