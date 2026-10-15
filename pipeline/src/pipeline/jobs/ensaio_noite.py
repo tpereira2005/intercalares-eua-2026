@@ -17,7 +17,10 @@ pedidos condicionais, repetições e tempos limite) contra um servidor HTTP loca
 * muda o conteúdo servido em instantes marcados (``Alteracao``), para medir a latência entre
   a alteração na fonte e o momento em que ``parciais.json`` a reflete. Cada anfitrião começa
   com uma versão reduzida dos seus ficheiros (as primeiras linhas, ou os primeiros itens de
-  uma lista JSON) e cresce até ao ficheiro final a cada alteração.
+  uma lista JSON) e cresce até ao ficheiro final a cada alteração;
+* com ``--manual``, serve também um ``manual.json`` que cresce como o de quem introduz os
+  totais à mão (``MANUAIS``: Senado da Pensilvânia e, com o Texas, o do Texas, sobreposto a
+  Harris). Essas corridas ficam fora da medição da latência dos estados.
 
 Depois de cada ciclo, o observador verifica os invariantes (ver ``INVARIANTES``) e regista as
 durações. O relatório em Markdown diz o que passou e o que falhou; o código de saída é 1 se
@@ -58,8 +61,9 @@ from contratos.resultados import (
 from pipeline.comum.descarga import USER_AGENT, contexto_tls, descarregar, obter_texto
 from pipeline.comum.erros import ErroPipeline
 from pipeline.connectors.results.comum import ConectorResultados
+from pipeline.connectors.results.manual import FicheiroManual
 from pipeline.connectors.results.registo import CONECTORES
-from pipeline.jobs import vigia
+from pipeline.jobs import resultado_manual, vigia
 from pipeline.jobs.resultados import (
     FALHAS_ALERTA,
     NACIONAL,
@@ -68,6 +72,7 @@ from pipeline.jobs.resultados import (
     SAUDE,
     EstadoRecolha,
     Recolha,
+    chave_recolha,
 )
 from pipeline.jobs.resultados import executar as executar_recolha
 from pipeline.transform.resultados import ensaio
@@ -109,7 +114,22 @@ INVARIANTES: dict[str, str] = {
     "lento_isolado": "Uma fonte lenta não atrasa os outros estados do mesmo ciclo",
     "latencia": "Cada alteração da fonte chega a parciais.json em tempo útil",
     "falhas_exercitadas": "Cada falha do calendário chegou a ser servida",
+    "manual": "Cada entrada manual chega aos parciais com o selo, sem corridas duplicadas",
 }
+
+URL_MANUAL = (
+    "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/"
+    "resultados-2026/manual.json"
+)
+ANFITRIAO_MANUAL = urlsplit(URL_MANUAL).netloc
+MANUAIS: dict[str, tuple[str, str]] = {
+    "PA-S": ("Bob Casey (D): {d}; Dave McCormick (R): {r}", "3384180:3399295"),
+    "TX-S": ("Colin Allred (D): {d}; Ted Cruz (R): {r}", "5031249:5990741"),
+}
+"""Corridas introduzidas à mão no ensaio, com os totais finais de 2024 (D:R)."""
+
+FRACOES_MANUAIS: tuple[float, ...] = (0.15, 0.35, 0.55, 0.75)
+"""Instantes (frações da duração) das entradas manuais; cada uma traz mais votos."""
 
 
 class ErroEnsaio(ErroPipeline):
@@ -231,10 +251,15 @@ def reduzir(nome: str, conteudo: bytes, fracao: float) -> bytes:
     return b"".join(linhas[: 1 + max(1, int((len(linhas) - 1) * fracao))])
 
 
-def marcas_parciais(parciais: ResultadosParciais) -> dict[str, str]:
-    """Impressão digital das unidades de ``parciais`` por estado: muda sempre que muda um voto."""
+def marcas_parciais(
+    parciais: ResultadosParciais, ignorar: frozenset[str] = frozenset()
+) -> dict[str, str]:
+    """Impressão digital das unidades de ``parciais`` por estado: muda sempre que muda um voto.
+    As corridas em ``ignorar`` (as manuais do ensaio) ficam de fora."""
     grupos: dict[str, list[tuple[object, ...]]] = {}
     for u in parciais.unidades:
+        if u.corrida in ignorar:
+            continue
         grupos.setdefault(u.corrida[:2], []).append(
             (u.corrida, u.unidade, u.votos_d, u.votos_r, u.votos_outros)
         )
@@ -256,7 +281,11 @@ class Versoes:
 
 
 def _marca_versao(
-    conector: ConectorResultados, data: date, ficheiros: dict[str, bytes], fonte: Fonte
+    conector: ConectorResultados,
+    data: date,
+    ficheiros: dict[str, bytes],
+    fonte: Fonte,
+    ignorar: frozenset[str] = frozenset(),
 ) -> str:
     with tempfile.TemporaryDirectory() as tmp:
         for nome, conteudo in ficheiros.items():
@@ -269,7 +298,7 @@ def _marca_versao(
             msg = f"{conector.estado.value}: versão do espelho ilegível: {erro}"
             raise ErroEnsaio(msg) from erro
     parciais = montar_parciais([leitura], ano=data.year, instante=datetime.now(UTC), fontes=[fonte])
-    return marcas_parciais(parciais).get(conector.estado.value, "")
+    return marcas_parciais(parciais, ignorar).get(conector.estado.value, "")
 
 
 def construir_versoes(
@@ -278,6 +307,8 @@ def construir_versoes(
     raiz: Path,
     n_alteracoes: int,
     obter: Callable[[str], str],
+    *,
+    ignorar: frozenset[str] = frozenset(),
 ) -> Versoes:
     """``n_alteracoes`` versões reduzidas, cada uma legível e com resultados diferentes da
     seguinte (a fração baixa até a leitura mudar), mais o ficheiro final."""
@@ -289,7 +320,7 @@ def construir_versoes(
         licenca=conector.licenca,
         obtida_em=datetime.now(UTC),
     )
-    posterior = _marca_versao(conector, data, originais, fonte)
+    posterior = _marca_versao(conector, data, originais, fonte, ignorar)
     marcas = [""] * n_alteracoes + [posterior]
     reduzidas: list[dict[str, bytes]] = [{} for _ in range(n_alteracoes)]
     limite = 1.0
@@ -298,7 +329,7 @@ def construir_versoes(
         while True:
             candidata = {f: reduzir(f, b, fracao) for f, b in originais.items()}
             try:
-                marca = _marca_versao(conector, data, candidata, fonte)
+                marca = _marca_versao(conector, data, candidata, fonte, ignorar)
             except ErroEnsaio:
                 marca = posterior
             if marca != posterior:
@@ -316,6 +347,30 @@ def construir_versoes(
         for p in pedidos
     }
     return Versoes(ficheiros, marcas)
+
+
+def versoes_manuais(estados: Sequence[CodigoEstado], data: date) -> list[bytes]:
+    """``manual.json`` vazio e depois uma versão por ``FRACOES_MANUAIS``, como o escreveria o
+    workflow **Resultado manual**: cada entrada com mais votos e mais apuramento."""
+    corridas = [c for c in MANUAIS if c == "PA-S" or CodigoEstado(c[:2]) in estados]
+    ficheiro = FicheiroManual()
+    versoes = [ficheiro.model_dump_json().encode()]
+    for k in range(1, len(FRACOES_MANUAIS) + 1):
+        progresso = k / len(FRACOES_MANUAIS)
+        for corrida in corridas:
+            modelo, finais = MANUAIS[corrida]
+            d, r = (round(int(v) * progresso) for v in finais.split(":"))
+            ficheiro, _ = resultado_manual.atualizar(
+                ficheiro,
+                corrida,
+                texto_candidatos=modelo.format(d=d, r=r),
+                texto_apuramento=f"{round(progresso * 99)}%",
+                fonte="https://www.electionreturns.pa.gov/",
+                apagar=False,
+                agora=datetime.combine(data, datetime.min.time(), UTC),
+            )
+        versoes.append(ficheiro.model_dump_json().encode())
+    return versoes
 
 
 def preparar_espelho(
@@ -657,6 +712,11 @@ class Observador:
         self.fim_ciclos: list[float] = []
         """Hora (``time.time()``) do fim de cada ciclo."""
 
+        self.manuais_vistos: set[int] = set()
+        self.vistos_manuais: set[str] = set()
+        """Corridas que já apareceram em ``corridas_manuais``."""
+        """Votos democratas de PA-S vistos em ``parciais.json`` (um por entrada manual)."""
+
     def ciclo_inicio(self) -> None:
         self._atual = Ciclo(len(self.ciclos), self.espelho.agora())
         self._inicio_mono = time.monotonic()
@@ -689,6 +749,7 @@ class Observador:
         alertas_vigia = "\n".join(vigia.alertas(saude, agora, vigia.MAXIMO_MINUTOS))
         for uf, estado in recolha.estados.items():
             reg = ciclo.estados.get(uf.value)
+            anfitriao = self.anfitrioes.get(uf.value, ANFITRIAO_MANUAL)
             if reg is None:
                 # Um estado ainda em curso (fonte lenta) ou em pausa por um Retry-After não
                 # entra neste ciclo; os outros seguem sem ele.
@@ -702,7 +763,7 @@ class Observador:
             reg.falhas_seguidas = estado.falhas_seguidas
             reg.alerta = estado.alerta(agora)
             reg.afetado_por = self.espelho.falhas_entre(
-                self.anfitrioes[uf.value], reg.t_inicio, reg.t_inicio + reg.gasto
+                anfitriao, reg.t_inicio, reg.t_inicio + reg.gasto
             )
             self.max_falhas[uf.value] = max(self.max_falhas.get(uf.value, 0), reg.falhas_seguidas)
             self._saudaveis(n, reg)
@@ -710,6 +771,31 @@ class Observador:
             self._preservado(n, reg)
             self._alertas(n, reg, alertas_vigia)
         self._ficheiros(n, ciclo)
+        self._manuais(n)
+
+    def _manuais(self, n: int) -> None:
+        """Corridas únicas no resumo; as manuais com o selo e só a unidade ``total``."""
+        v = self.violacoes["manual"]
+        if (self.saida / NACIONAL).exists():
+            resumo = ResultadosNacional.model_validate_json((self.saida / NACIONAL).read_bytes())
+            ids = [c.id for c in resumo.corridas]
+            for repetida in sorted({i for i in ids if ids.count(i) > 1}):
+                v.append(f"ciclo {n}: {repetida} repetida em {NACIONAL}")
+            for c in resumo.corridas:
+                if c.manual and c.id not in MANUAIS:
+                    v.append(f"ciclo {n}: {c.id} com o selo manual sem entrada manual")
+                elif c.id in self.vistos_manuais and not c.manual:
+                    v.append(f"ciclo {n}: {c.id} sem o selo manual em {NACIONAL}")
+        if not (self.saida / PARCIAIS).exists():
+            return
+        parciais = ResultadosParciais.model_validate_json((self.saida / PARCIAIS).read_bytes())
+        for corrida in parciais.corridas_manuais:
+            self.vistos_manuais.add(corrida)
+            if corrida not in MANUAIS:
+                v.append(f"ciclo {n}: {corrida} marcada como manual sem entrada manual")
+        for u in parciais.unidades:
+            if u.corrida == "PA-S":
+                self.manuais_vistos.add(u.votos_d)
 
     def _saudaveis(self, n: int, reg: RegistoEstado) -> None:
         if reg.falhou and not reg.afetado_por:
@@ -782,13 +868,13 @@ class Observador:
                 )
                 continue
             if isinstance(modelo, ResultadosEstado):
-                anterior = self._anteriores.get(modelo.estado.value)
+                anterior = self._anteriores.get(caminho.name)
                 if anterior is not None:
                     for p in ensaio.verificar_sequencia([anterior, modelo]):
                         self.violacoes["sem_regressao"].append(
                             f"ciclo {n}: {caminho.name} {p.corrida}: {p.descricao}"
                         )
-                self._anteriores[modelo.estado.value] = modelo
+                self._anteriores[caminho.name] = modelo
         del ciclo
 
     def _validar(
@@ -805,7 +891,8 @@ class Observador:
         if nome == PARCIAIS:
             return ResultadosParciais.model_validate_json(texto)
         estado = ResultadosEstado.model_validate_json(texto)
-        if nome != f"{estado.estado.value.lower()}.json" or estado.data_eleicao != self.data:
+        uf = estado.estado.value.lower()
+        if nome not in (f"{uf}.json", f"{uf}-manual.json") or estado.data_eleicao != self.data:
             msg = f"{nome}: estado ou data errados ({estado.estado.value}, {estado.data_eleicao})"
             raise ValueError(msg)
         return estado
@@ -829,7 +916,8 @@ class RecolhaObservada(Recolha):
             return super()._estado(conector, estado)
         finally:
             if obs:
-                obs.estado_feito(conector.estado.value, inicio, obs.espelho.agora())
+                # A entrada manual sobreposta ao Texas regista-se à parte (TX-manual).
+                obs.estado_feito(chave_recolha(conector).upper(), inicio, obs.espelho.agora())
 
     def escrever_saude(self) -> Path:
         caminho = super().escrever_saude()
@@ -842,9 +930,10 @@ class Vigilante(threading.Thread):
     """Lê ``parciais.json`` de ``SONDAGEM_S`` em ``SONDAGEM_S`` segundos e guarda cada versão
     nova com a hora a que foi vista, para medir a latência das alterações."""
 
-    def __init__(self, caminho: Path) -> None:
+    def __init__(self, caminho: Path, ignorar: frozenset[str] = frozenset()) -> None:
         super().__init__(daemon=True, name="vigilante")
         self.caminho = caminho
+        self.ignorar = ignorar
         self.parar = threading.Event()
         self.eventos: list[tuple[float, dict[str, str]]] = []
 
@@ -860,7 +949,7 @@ class Vigilante(threading.Thread):
                 continue
             visto = chave
             try:
-                somas = marcas_parciais(ResultadosParciais.model_validate_json(texto))
+                somas = marcas_parciais(ResultadosParciais.model_validate_json(texto), self.ignorar)
             except ValidationError:
                 continue
             self.eventos.append((time.time(), somas))
@@ -1027,6 +1116,8 @@ def _latencias(
 ) -> list[Latencia]:
     resultado: list[Latencia] = []
     for m in sorted(espelho.mudancas, key=lambda m: m.epoca):
+        if m.alteracao.anfitriao not in ufs:  # manual.json: verificado à parte
+            continue
         uf = ufs[m.alteracao.anfitriao]
         esperado = versoes[uf].marcas[m.versao]
         anterior = versoes[uf].marcas[m.versao - 1]
@@ -1108,9 +1199,10 @@ def _fechar(  # noqa: PLR0912, PLR0917
                 f"{x.uf}: a alteração dos {x.instante_s:.1f} s chegou ao fim de "
                 f"{x.escrita_s:.1f} s (máximo {latencia_maxima:.1f} s)"
             )
-    if len(latencias) < len(plano.alteracoes):
+    dos_estados = [a for a in plano.alteracoes if a.anfitriao in observador.anfitrioes.values()]
+    if len(latencias) < len(dos_estados):
         v["latencia"].append(
-            f"só {len(latencias)} de {len(plano.alteracoes)} alterações ocorreram antes do fim"
+            f"só {len(latencias)} de {len(dos_estados)} alterações ocorreram antes do fim"
         )
     for f in plano.falhas:
         if not any(p.anfitriao == f.anfitriao and p.falha == f.tipo for p in espelho.pedidos):
@@ -1135,9 +1227,11 @@ def executar(
     lento_s: float = 22.0,
     retry_after: int = 5,
     latencia_maxima: float | None = None,
+    manual: bool = False,
 ) -> Relatorio:
     """Corre o ensaio e devolve o relatório (não termina o processo)."""
     conectores = [CONECTORES[e] for e in estados]
+    ignorar = frozenset(MANUAIS) if manual else frozenset()
     preparar_espelho(raiz, conectores, data, descarga=descarga)
     anfitrioes = {
         c.estado.value: urlsplit(c.pedidos(data, _sem_rede)[0].url).netloc for c in conectores
@@ -1146,15 +1240,31 @@ def executar(
     plano = plano or plano_padrao(anfitrioes, duracao, intervalo)
     versoes = {
         c.estado.value: construir_versoes(
-            c, data, raiz, len(plano.alteracoes_de(anfitrioes[c.estado.value])), _sem_rede
+            c,
+            data,
+            raiz,
+            len(plano.alteracoes_de(anfitrioes[c.estado.value])),
+            _sem_rede,
+            ignorar=ignorar,
         )
         for c in conectores
         if plano.alteracoes_de(anfitrioes[c.estado.value])
     }
+    servidas = dict(versoes)
+    if manual:
+        partes = urlsplit(URL_MANUAL)
+        servidas["manual"] = Versoes(
+            {f"{partes.netloc}{partes.path}": versoes_manuais(estados, data)}, []
+        )
+        plano = Plano(
+            plano.falhas,
+            plano.alteracoes
+            + tuple(Alteracao(ANFITRIAO_MANUAL, round(f * duracao, 2)) for f in FRACOES_MANUAIS),
+        )
     brutos = saida.parent / f"{saida.name}-brutos"
     for pasta in (saida, brutos):
         shutil.rmtree(pasta, ignore_errors=True)
-    espelho = Espelho(raiz, plano, versoes, lento_s=lento_s, retry_after=retry_after)
+    espelho = Espelho(raiz, plano, servidas, lento_s=lento_s, retry_after=retry_after)
     espelho.arrancar()
     proprio = cliente is None
     http = cliente or httpx.Client(
@@ -1170,9 +1280,10 @@ def executar(
         espelho.url,
         cliente=http,
         orcamento=min(ORCAMENTO_CICLO, intervalo / 3),
+        manual=URL_MANUAL if manual else None,
         observador=observador,
     )
-    vigilante = Vigilante(saida / PARCIAIS)
+    vigilante = Vigilante(saida / PARCIAIS, ignorar)
     vigilante.start()
     erro_fatal: str | None = None
     espelho.iniciar_relogio()
@@ -1190,6 +1301,13 @@ def executar(
             http.close()
     latencias = _latencias(espelho, vigilante, observador, versoes, ufs)
     maxima = latencia_maxima if latencia_maxima is not None else MARGEM_LATENCIA * intervalo
+    if manual:
+        servidos = {m.versao for m in espelho.mudancas if m.alteracao.anfitriao == ANFITRIAO_MANUAL}
+        if len(observador.manuais_vistos - {0}) < len(servidos):
+            observador.violacoes["manual"].append(
+                f"só {len(observador.manuais_vistos - {0})} de {len(servidos)} entradas "
+                "manuais chegaram a parciais.json"
+            )
     invariantes = _fechar(observador, plano, latencias, espelho, intervalo, maxima, erro_fatal)
     return Relatorio(
         data=data,
@@ -1219,6 +1337,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sem-descarga", action="store_true")
     parser.add_argument("--lento", type=float, default=22.0, help="demora da fonte lenta (s)")
     parser.add_argument("--latencia-maxima", type=float)
+    parser.add_argument(
+        "--manual", action="store_true", help="servir também entradas manuais (PA-S, TX-S)"
+    )
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s %(message)s")
     estados = [CodigoEstado(e.strip().upper()) for e in args.estados.split(",")]
@@ -1232,6 +1353,7 @@ def main(argv: list[str] | None = None) -> int:
         descarga=not args.sem_descarga,
         lento_s=args.lento,
         latencia_maxima=args.latencia_maxima,
+        manual=args.manual,
     )
     texto = para_markdown(relatorio)
     if args.relatorio:

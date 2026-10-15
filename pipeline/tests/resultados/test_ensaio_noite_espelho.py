@@ -2,8 +2,9 @@
 
 Usa os ficheiros pequenos de ``dados/`` (Florida, Geórgia e Alasca, 2024), sem rede. A
 Florida nunca falha; a Geórgia e o Alasca recebem todos os tipos de falha em janelas
-curtas. Todos os invariantes têm de passar, incluindo os de tempo: os estados correm em
-paralelo, por isso a fonte lenta e o 429 só atrasam o próprio estado.
+curtas. Ao mesmo tempo chegam quatro entradas manuais do Senado da Pensilvânia. Todos
+os invariantes têm de passar, incluindo os de tempo: os estados correm em paralelo, por
+isso a fonte lenta e o 429 só atrasam o próprio estado.
 """
 
 import shutil
@@ -77,6 +78,7 @@ def test_ensaio_curto_com_todas_as_falhas(tmp_path: Path) -> None:
         lento_s=1.0,
         retry_after=1,
         latencia_maxima=5.0,
+        manual=True,
     )
     cliente.close()
     assert not relatorio.erros_ensaio
@@ -91,3 +93,6 @@ def test_ensaio_curto_com_todas_as_falhas(tmp_path: Path) -> None:
     assert len(relatorio.latencias) == 4
     assert all(x.escrita_s is not None for x in relatorio.latencias)
     assert "Resultado" in para_markdown(relatorio)
+    # As entradas manuais chegaram todas, sem falhas, e não contam na latência dos estados.
+    assert relatorio.max_falhas["PA"] == 0
+    assert (tmp_path / "saida" / "pa.json").exists()
