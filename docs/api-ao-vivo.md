@@ -22,7 +22,7 @@ Sem ficheiro publicado: `404`. Fonte em baixo e nenhuma cópia: `503`.
 
 ## Limites do plano gratuito
 
-O plano gratuito dos Workers dá 100 000 pedidos por dia ao código do Worker e 10 ms de CPU por pedido. Os ficheiros estáticos não contam. Cada visitante com a página da noite aberta faz 2 pedidos por minuto (120 por hora), o que chega para cerca de 800 horas de visita por dia. Se o limite for ultrapassado, a API deixa de responder até à meia-noite UTC e a página passa para o espelho de emergência, com um aviso discreto. A CPU só pesa quando um ficheiro muda: ler e validar a projeção (160 KB) leva cerca de 2 ms.
+O plano gratuito dos Workers dá 100 000 pedidos por dia ao código do Worker e 10 ms de CPU por pedido. Os ficheiros estáticos não contam. Cada visitante com a página da noite aberta faz 2 pedidos por minuto (120 por hora), o que chega para cerca de 800 horas de visita por dia. Se o limite for ultrapassado, a API deixa de responder até à meia-noite UTC e a página passa para o espelho de emergência, com um aviso discreto. A CPU só pesa quando um ficheiro muda: ler e validar a projeção (160 KB) leva cerca de 2 ms. O ensaio de carga, as contas do orçamento (cerca de 100 leitores simultâneos durante toda a noite) e as propostas de mitigação estão em [teste-carga-noite.md](teste-carga-noite.md).
 
 ## Chamadas das redações
 
