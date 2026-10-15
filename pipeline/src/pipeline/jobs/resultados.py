@@ -180,7 +180,7 @@ class Recolha:
         for conector in conectores:
             registos = self.sobrepostos if _sobreposto(conector) else self.estados
             estado = registos.setdefault(conector.estado, EstadoRecolha())
-            chave = _chave(conector)
+            chave = chave_recolha(conector)
             if chave in self._em_curso:
                 continue
             if estado.nao_antes is not None and agora < estado.nao_antes:
@@ -302,7 +302,7 @@ class Recolha:
         )
 
     def _estado(self, conector: ConectorResultados, estado: EstadoRecolha) -> Path | None:
-        uf = _chave(conector)
+        uf = chave_recolha(conector)
         pasta = self.brutos / uf / "atual"
         pedidos = conector.pedidos(self.data, self.obter)
         sentinelas = [p for p in pedidos if p.sentinela]
@@ -402,7 +402,7 @@ def _sobreposto(conector: ConectorResultados) -> bool:
     return isinstance(conector, ConectorManual) and conector.sobreposto
 
 
-def _chave(conector: ConectorResultados) -> str:
+def chave_recolha(conector: ConectorResultados) -> str:
     """Nome do ficheiro e da pasta de brutos: ``tx``, ou ``tx-manual`` sobreposto."""
     uf = conector.estado.value.lower()
     return f"{uf}-manual" if _sobreposto(conector) else uf

@@ -70,10 +70,10 @@ Estados com fonte estadual automática (NC, FL, GA, AK, VA, NE e CA) são recusa
 
 ## Ensaio com falhas
 
-`pipeline.jobs.ensaio_noite` corre o ciclo real da recolha contra um espelho local com os ficheiros finais de 2022 ou 2024 e um calendário de falhas. São sete: fonte em baixo (404), erro do servidor (5xx), 429 com `Retry-After`, ficheiro truncado, resposta vazia, fonte lenta (22 s, acima do tempo limite) e desafio anti-robô. No fim de cada ciclo verifica onze invariantes. O código de saída é 1 se algum falhar.
+`pipeline.jobs.ensaio_noite` corre o ciclo real da recolha contra um espelho local com os ficheiros finais de 2022 ou 2024 e um calendário de falhas. São sete: fonte em baixo (404), erro do servidor (5xx), 429 com `Retry-After`, ficheiro truncado, resposta vazia, fonte lenta (22 s, acima do tempo limite) e desafio anti-robô. No fim de cada ciclo verifica doze invariantes. O código de saída é 1 se algum falhar. Com `--manual`, o espelho serve também um `manual.json` que cresce em quatro entradas, como na noite: o Senado da Pensilvânia e, com o Texas na lista, o do Texas, sobreposto a Harris. O décimo segundo invariante confirma que cada entrada chega a `parciais.json` com o selo, sem corridas repetidas no resumo nacional.
 
 ```sh
-uv run python -m pipeline.jobs.ensaio_noite --data 2024-11-05 --relatorio ensaio-2024.md
+uv run python -m pipeline.jobs.ensaio_noite --data 2024-11-05 --manual --relatorio ensaio-2024.md
 uv run python -m pipeline.jobs.ensaio_noite --data 2022-11-08 --estados NC,GA,TX --duracao 180
 ```
 
@@ -90,6 +90,8 @@ Na segunda volta passaram todos os invariantes, nos dois anos:
 | -------------------------------- | -----: | ---------------: | ------------------------------------ |
 | 2024: NC, FL, GA, AK e TX, 300 s |     60 |            1,7 s | mediana 0,7 s, máximo 4,3 s          |
 | 2022: NC, GA e TX, 180 s         |     36 |            1,7 s | mediana 2,0 s, máximo 4,1 s          |
+
+A 15 de outubro, o ensaio de 2024 com `--manual` (60 ciclos) passou os doze invariantes: as quatro entradas manuais de PA-S e TX-S chegaram todas aos parciais, o ciclo mais longo durou 1,7 s e a latência dos estados manteve-se (mediana 0,7 s, máximo 4,3 s).
 
 Antes das correções, o ciclo mais longo era de 22 s e a pior latência de 17 s (2024) e de 23 s (2022).
 

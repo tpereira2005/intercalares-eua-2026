@@ -147,10 +147,10 @@ VARIANTES: tuple[Variante, ...] = (
         "Regra testada e não adotada.",
     ),
     Variante(
-        "Viés histórico do voto genérico corrigido",
-        Ajustes(vies_generico=True),
-        "Desconta ao ambiente o erro médio dos anos anteriores. "
-        "Regra em avaliação, ainda não adotada.",
+        "Sem correção do viés do voto genérico",
+        Ajustes(vies_generico=False),
+        "Usa o voto genérico sem descontar o erro médio das sondagens nos anos anteriores, "
+        "como antes de 15 de outubro de 2026.",
     ),
 )
 
