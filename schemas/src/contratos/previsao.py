@@ -38,11 +38,18 @@ class AgregadorVotoGenerico(ModeloContrato):
 class AmbienteNacional(ModeloContrato):
     """Margem nacional no voto para a Câmara (D-R) que serve de centro às simulações."""
 
+    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("correcao_vies"))
+
     margem: float
     desvio_padrao: float = Field(gt=0)
     """Erro histórico (raiz do erro quadrático médio) das médias do voto genérico."""
 
     fonte: FonteAmbiente
+    correcao_vies: float = 0.0
+    """Pontos (D-R) já descontados em ``margem`` pelo erro médio das médias do voto
+    genérico nos anos anteriores. Positivo quando as sondagens sobrestimaram os democratas.
+    Ausente nos ficheiros anteriores a 15 de outubro de 2026."""
+
     agregadores: tuple[AgregadorVotoGenerico, ...]
 
 

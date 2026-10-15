@@ -30,10 +30,7 @@ def linhas(dados_sinteticos: Dados) -> list[dict[str, object]]:
 def test_todas_as_variantes_tem_descricao() -> None:
     assert all(v.descricao.strip() for v in sens.VARIANTES)
     adotadas = [v for v in sens.VARIANTES if "não adotada" in v.descricao]
-    assert {v.nome for v in adotadas} == {
-        "Incumbentes corrigidos face às sondagens",
-        "Viés histórico do voto genérico corrigido",
-    }
+    assert {v.nome for v in adotadas} == {"Incumbentes corrigidos face às sondagens"}
 
 
 def test_contrato_valida(linhas: list[dict[str, object]]) -> None:

@@ -75,9 +75,9 @@ def test_vies_do_voto_generico_encolhe_e_troca_de_sinal() -> None:
 
 
 def test_correcao_do_vies_e_simetrica(dados_sinteticos: Dados, dados_espelhados: Dados) -> None:
-    ajustes = Ajustes(vies_generico=True)
-    normal = prever(dados_sinteticos, 2018, ajustes=ajustes)
-    espelho = prever(dados_espelhados, 2018, ajustes=ajustes)
+    assert AJUSTES_PUBLICADOS.vies_generico
+    normal = prever(dados_sinteticos, 2018)
+    espelho = prever(dados_espelhados, 2018)
     assert espelho.ambiente.margem == pytest.approx(-normal.ambiente.margem, abs=1e-9)
     assert espelho.senado.prob_controlo_d == pytest.approx(normal.senado.prob_controlo_r, abs=0.02)
 

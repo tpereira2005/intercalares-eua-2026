@@ -97,6 +97,12 @@
           "title": "Agregadores",
           "type": "array"
         },
+        "correcao_vies": {
+          "default": 0.0,
+          "description": "Pontos (D-R) já descontados em ``margem`` pelo erro médio das médias do voto\ngenérico nos anos anteriores. Positivo quando as sondagens sobrestimaram os democratas.\nAusente nos ficheiros anteriores a 15 de outubro de 2026.",
+          "title": "Correcao Vies",
+          "type": "number"
+        },
         "desvio_padrao": {
           "description": "Erro histórico (raiz do erro quadrático médio) das médias do voto genérico.",
           "exclusiveMinimum": 0,
