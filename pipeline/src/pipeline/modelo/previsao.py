@@ -106,6 +106,10 @@ class Ajustes:
     sem_sondagens_senado: bool = False
     """Ignora as sondagens de cada corrida ao Senado (fica só com os fundamentos)."""
 
+    vies_generico: bool = False
+    """Desconta ao voto genérico o erro médio das médias dos anos anteriores
+    (``vies_voto_generico``)."""
+
     incumbentes_sondagens: bool = False
     """Corrige a média de sondagens de cada incumbente do Senado pelo desvio médio dos
     incumbentes face às sondagens nos anos anteriores, igual para os dois partidos
@@ -223,19 +227,40 @@ def _mesmos_candidatos(sondagem: Sondagem, lado_d: str, lado_r: str) -> bool:
 
 
 def erro_nacional(
-    dados: Dados, ano: int, meia_vida: float = MEIA_VIDA_DIAS
+    dados: Dados, ano: int, meia_vida: float = MEIA_VIDA_DIAS, dias_antes: int = DIAS_CORTE
 ) -> tuple[float, dict[int, float]]:
-    """Raiz do erro quadrático médio do voto genérico nos anos anteriores, e erros por ano."""
+    """Raiz do erro quadrático médio do voto genérico nos anos anteriores, e erros por ano.
+
+    Cada ano mede-se à mesma distância da eleição (``dias_antes``) que o corte: longe da
+    eleição, a média ainda pode mexer, e o erro é maior.
+    """
     erros: dict[int, float] = {}
     for a in sorted(DATAS_ELEICAO):
         if a >= ano or a not in dados.nacional:
             continue
-        m = _medias(dados, a, corte_final(a), meia_vida=meia_vida).get("US")
+        corte = DATAS_ELEICAO[a] - timedelta(days=max(dias_antes, DIAS_CORTE))
+        m = _medias(dados, a, corte, meia_vida=meia_vida).get("US")
         if m is not None:
             erros[a] = m.margem - dados.nacional[a]
     if len(erros) < 5:
         raise ValueError("Anos insuficientes para estimar o erro do voto genérico")
     return erro_quadratico_medio(list(erros.values())), erros
+
+
+ENCOLHIMENTO_VIES = 2.0
+"""Anos fictícios sem erro somados aos reais: encolhem para zero a média histórica."""
+
+
+def vies_voto_generico(erros: dict[int, float], encolhimento: float = ENCOLHIMENTO_VIES) -> float:
+    """Erro médio (média de sondagens menos resultado) do voto genérico nos anos dados.
+
+    Positivo quando as sondagens sobrestimaram os democratas. A média encolhe para zero
+    como se houvesse ``encolhimento`` anos a mais sem erro. A regra não depende do sentido:
+    com os partidos trocados, o erro e a correção trocam de sinal.
+    """
+    if not erros:
+        return 0.0
+    return sum(erros.values()) / (len(erros) + encolhimento)
 
 
 def estimar_erro(
@@ -342,8 +367,11 @@ def prever(
     aj = ajustes
     fund_c, linhas_c = estimar(dados, ano, "camara")
     fund_s, linhas_s = estimar(dados, ano, "senado")
-    sd_nacional, erros_gb = erro_nacional(dados, ano, aj.meia_vida_dias)
+    _, erros_gb = erro_nacional(dados, ano, aj.meia_vida_dias)
     erro = estimar_erro(dados, ano, erros_gb, aj.meia_vida_dias)
+    sd_nacional, erros_dia = erro_nacional(
+        dados, ano, aj.meia_vida_dias, (DATAS_ELEICAO[ano] - corte).days
+    )
     medias = _medias(dados, ano, corte, linhas_s[ano], aj.meia_vida_dias)
     if "US" not in medias:
         gerais = _medias(dados, ano, corte, meia_vida=aj.meia_vida_dias)
@@ -370,6 +398,8 @@ def prever(
         # das sondagens do Senado ao erro do voto genérico.
         margem, fonte = implicito, "sondagens_senado"
         sd = math.sqrt(sd_nacional**2 + erro.sd_ano**2)
+    if aj.vies_generico and fonte != "sondagens_senado":
+        margem -= vies_voto_generico(erros_dia)
     ambiente = Ambiente(margem=margem + aj.desvio_ambiente, sd=sd)
 
     rng = np.random.default_rng(semente)
