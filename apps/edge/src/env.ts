@@ -9,4 +9,6 @@ export interface Env {
   URL_HISTORICO_NOITE: string;
   /** Chamadas das redações registadas à mão (contrato ChamadasRedacoes). */
   URL_CHAMADAS: string;
+  /** Intervalo de consulta sugerido aos browsers, em segundos (30 a 600; omissão 60). */
+  INTERVALO_S?: string;
 }

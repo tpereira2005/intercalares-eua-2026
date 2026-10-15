@@ -3,13 +3,13 @@
  *
  * Arranca uma fonte falsa (servidor HTTP local com os ficheiros de exemplo do site), o
  * Worker em `wrangler dev --local` apontado para ela e N "browsers" simulados que
- * consultam /api/resultados e /api/noite a cada INTERVALO segundos, como o site. Não toca
+ * consultam /api/ao-vivo (um só pedido) a cada INTERVALO segundos, como o site. Não toca
  * em nenhum serviço externo nem no Worker de produção.
  *
  * Uso (na pasta apps/edge, depois de `pnpm install`):
  *   node scripts/teste-carga.mjs [--browsers 500] [--intervalo 60] [--porta 8799]
  *
- * O tempo NÃO é comprimido: os 20 s de frescura e os 8 s de limite do Worker são reais,
+ * O tempo NÃO é comprimido: os 20 s de frescura, os 4 s de limite do pedido à fonte e os 1,5 s de espera máxima do Worker são reais,
  * por isso o ensaio completo demora cerca de 8 minutos. Termina com código 1 se alguma
  * verificação falhar. Fica um resumo em JSON no fim da saída.
  */
@@ -77,7 +77,7 @@ const servidorFonte = createServer((req, res) => {
     return void res.writeHead(429, { "Retry-After": "60" }).end("limite");
   }
   if (fonte.modo === "pendurado") {
-    registo.estado = 0; // nunca responde: o Worker desiste ao fim de 8 s
+    registo.estado = 0; // nunca responde: o Worker serve a cópia antiga ao fim de 1,5 s e desiste da fonte aos 4 s
     pendurados.add(res);
     return;
   }
@@ -196,13 +196,16 @@ async function pedir(rota) {
       estado: r.status,
       cache: r.headers.get("cache-control"),
       origem: r.headers.get("x-origem"),
-      confirmadoEm: corpo?.confirmadoEm ?? null,
+      // Hora de confirmação da contagem (a parte "resultados" do corpo combinado).
+      confirmadoEm: corpo?.resultados?.confirmadoEm ?? null,
       bytes: texto.length,
       completo:
         corpo !== null &&
-        (rota === "/api/resultados"
-          ? "parciais" in corpo && "chamadas" in corpo
-          : "projecao" in corpo && "historico" in corpo),
+        "parciais" in (corpo.resultados ?? {}) &&
+        "chamadas" in (corpo.resultados ?? {}) &&
+        "projecao" in (corpo.noite ?? {}) &&
+        "historico" in (corpo.noite ?? {}) &&
+        typeof corpo.intervaloS === "number",
     };
   } catch (erro) {
     return { rota, t: Date.now(), ms: performance.now() - inicio, estado: 0, erro: String(erro) };
@@ -220,19 +223,19 @@ const contar = (lista, chave) => {
 async function cenarioArranqueFrio() {
   console.log("\n[0] Fonte em baixo sem nenhuma cópia (arranque a frio)");
   fonte.modo = "500";
-  const r = await pedir("/api/resultados");
+  const r = await pedir("/api/ao-vivo");
   verificar(r.estado === 503, `sem cópia e fonte a 500 responde 503 (obtido ${r.estado})`);
   verificar(r.cache === "no-store", `o 503 leva Cache-Control no-store (obtido ${r.cache})`);
   fonte.modo = "ok";
   await esperar(FRESCURA_MS + 1500); // a fonte em baixo não é consultada antes de 20 s
-  const s = await pedir("/api/resultados");
+  const s = await pedir("/api/ao-vivo");
   verificar(s.estado === 200 && s.origem === "fonte", `recupera sozinha (${s.estado} ${s.origem})`);
 }
 
 /** Cenário contínuo: N browsers, fases da fonte, medição por minuto. */
 async function cenarioContinuo() {
   console.log(
-    `\n[1] ${BROWSERS} browsers, 2 pedidos de ${INTERVALO_MS / 1000} s, ${DURACAO_S} s, ` +
+    `\n[1] ${BROWSERS} browsers, 1 pedido de ${INTERVALO_MS / 1000} s, ${DURACAO_S} s, ` +
       `fonte: ${FASES.map((f) => `${f.modo} até ${f.ate} s`).join(", ")}`,
   );
   const medicoes = [];
@@ -261,8 +264,7 @@ async function cenarioContinuo() {
   const browsers = Array.from({ length: BROWSERS }, async () => {
     await esperar(Math.random() * INTERVALO_MS);
     while (Date.now() < fim) {
-      const par = await Promise.all([pedir("/api/resultados"), pedir("/api/noite")]);
-      medicoes.push(...par);
+      medicoes.push(await pedir("/api/ao-vivo"));
       await esperar(INTERVALO_MS);
     }
   });
@@ -344,26 +346,22 @@ function analisarContinuo({ medicoes, inicio }) {
     maximo <= 16,
     `no máximo ${maximo} pedidos/min à fonte (limite pela frescura: 12, tolerância de fronteira 16), com ${BROWSERS} browsers`,
   );
-  const pedidosPorMinutoPorBrowser = (BROWSERS * 2).toFixed(0);
+  const pedidosPorMinutoPorBrowser = ((BROWSERS * 60_000) / INTERVALO_MS).toFixed(0);
   console.log(`  Pedidos ao Worker por minuto (aprox.): ${pedidosPorMinutoPorBrowser}`);
   return { global, porFase, origens, porMinuto, totalPedidosWorker: medicoes.length };
 }
 
 async function cenarioRajada() {
-  console.log(`\n[2] Rajada: ${BROWSERS} browsers a pedir os dois ficheiros ao mesmo tempo`);
+  console.log(`\n[2] Rajada: ${BROWSERS} browsers a pedir /api/ao-vivo ao mesmo tempo`);
   const resultados = [];
   for (let ronda = 1; ronda <= 3; ronda++) {
     // Espera que a cópia fique velha para a rajada apanhar a ida à fonte.
     if (ronda > 1) await esperar(FRESCURA_MS + 500);
     const antes = fonte.pedidos.length;
     const t0 = performance.now();
-    const medicoes = (
-      await Promise.all(
-        Array.from({ length: BROWSERS }, () =>
-          Promise.all([pedir("/api/resultados"), pedir("/api/noite")]),
-        ),
-      )
-    ).flat();
+    const medicoes = await Promise.all(
+      Array.from({ length: BROWSERS }, () => pedir("/api/ao-vivo")),
+    );
     const duracao = performance.now() - t0;
     const aFonte = fonte.pedidos.length - antes;
     const ok = medicoes.filter((m) => m.estado === 200).length;

@@ -722,9 +722,9 @@
     "commitTitulo": "Versão do código que gerou estes números",
     "cenarios": {
       "titulo": "Cenários do ambiente nacional",
-      "descricao": "E se o ambiente nacional for diferente do previsto? Probabilidade de controlo, lugares e corridas ao Senado com o voto genérico deslocado e o erro das sondagens maior ou menor.",
+      "descricao": "E se o ambiente nacional for diferente do previsto? Probabilidade de controlo, lugares e corridas ao Senado com o voto genérico deslocado e o erro das sondagens maior ou menor. E como mudam os números quando o modelo faz outras escolhas.",
       "lede": "A previsão parte de um ambiente nacional de {ambiente} no voto genérico. Aqui pode deslocá-lo e ver como mudam a Câmara, o Senado e cada corrida ao Senado, com os números simulados pelo próprio modelo.",
-      "ligacao": "Explorar cenários do ambiente nacional",
+      "ligacao": "Explorar cenários e sensibilidade do modelo",
       "sobrelinha": "E se…",
       "painelTitulo": "Desloca o ambiente nacional",
       "texto": "Cada cenário volta a correr a simulação com o centro do ambiente nacional deslocado; a incerteza à volta desse centro mantém-se. Não é uma previsão nova: mostra quão sensíveis são os números ao ambiente.",
@@ -769,6 +769,20 @@
       "semMudanca": "sem mudança (D {depois})",
       "pr": "alteração #{numero}",
       "ligacao": "Registo de alterações"
+    },
+    "sensibilidade": {
+      "sobrelinha": "Sensibilidade",
+      "titulo": "E se o modelo fizesse outras escolhas?",
+      "texto": "Cada linha muda uma só escolha do modelo (o ambiente nacional, o tamanho dos erros, o peso das sondagens) e volta a correr a simulação com os mesmos dados. Mostra a probabilidade de controlo democrata e quanto ela muda face à previsão publicada. As variantes não são previsões alternativas: algumas são regras ainda em avaliação, e a descrição de cada uma diz qual.",
+      "metodo": "análise de sensibilidade do modelo do Escrutínio, calculada no mesmo dia, com os mesmos dados e o mesmo corte da previsão publicada; a primeira linha é a própria previsão. Diferenças em pontos percentuais da probabilidade de controlo; lugares democratas na mediana das simulações.",
+      "legenda": "Probabilidade de controlo democrata da Câmara e do Senado em cada variante do modelo, comparada com a previsão publicada",
+      "variante": "Variante",
+      "camara": "Câmara",
+      "senado": "Senado",
+      "referencia": "publicada",
+      "igual": "igual",
+      "lugares": "{n} lugares D",
+      "ambiente": "Ambiente {ambiente}"
     }
   },
   "agregado": {

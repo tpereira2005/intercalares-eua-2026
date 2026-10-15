@@ -8,6 +8,7 @@ import type { DadosPrevisao } from "@/lib/previsao/carregar.ts";
 import type { VistaCenarios } from "@/lib/previsao/explorador.ts";
 import { ExploradorCenarios } from "./ExploradorCenarios.tsx";
 import { Estimativa, VersaoPrevisao } from "./PaginaPrevisao.tsx";
+import { PainelSensibilidade } from "./PainelSensibilidade.tsx";
 
 const LIGACAO = "text-ink underline decoration-rule underline-offset-[3px]";
 
@@ -64,6 +65,8 @@ export function PaginaCenarios({
           maiorias={{ camara: vista.camara.maioria, senado: vista.senado.maioria }}
         />
       </Painel>
+
+      {dados.sensibilidade ? <PainelSensibilidade vista={dados.sensibilidade} /> : null}
 
       <p className="text-sm">
         <Link href="/previsao/" className={LIGACAO}>

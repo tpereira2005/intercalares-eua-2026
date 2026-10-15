@@ -35,6 +35,8 @@
 
   "vars": {
     "AMBIENTE": "producao",
+    // Intervalo (segundos) que /api/ao-vivo sugere aos browsers; limitado a 30-600.
+    "INTERVALO_S": "60",
     // Ficheiros servidos por /api/resultados e /api/noite (docs/api-ao-vivo.md). Para um
     // ensaio local: wrangler dev --var URL_PROJECAO_NOITE:<url do ficheiro de 2024>.
     "URL_PARCIAIS": "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/resultados-2026/parciais.json",

@@ -14,7 +14,12 @@ import type { Validador } from "./gerado/validadores.js";
 /** Tempo durante o qual uma cópia em memória se serve sem perguntar à fonte. */
 export const FRESCURA_MS = 20_000;
 /** Tempo máximo de espera por uma resposta da fonte. */
-export const LIMITE_PEDIDO_MS = 8_000;
+export const LIMITE_PEDIDO_MS = 4_000;
+/**
+ * Com uma cópia em memória, espera-se no máximo isto pela renovação antes de servir a
+ * cópia que expirou; a renovação continua em segundo plano (stale-while-revalidate).
+ */
+export const ESPERA_MAXIMA_MS = 1_500;
 export const USER_AGENT = "Escrutinio/0.1 (+https://github.com/tpereira2005/intercalares-eua-2026)";
 
 export interface Fonte {
@@ -61,7 +66,11 @@ export class LeitorAoVivo {
     private readonly agora: () => number = Date.now,
   ) {}
 
-  async ler(fonte: Fonte): Promise<Leitura> {
+  /**
+   * `esperarDepois` (por exemplo `ctx.waitUntil`) mantém a renovação a correr depois de
+   * a resposta sair, quando se serve a cópia expirada sem esperar por ela.
+   */
+  async ler(fonte: Fonte, esperarDepois?: (p: Promise<unknown>) => void): Promise<Leitura> {
     const estado = this.estados.get(fonte.url) ?? {
       copia: null,
       verificadaEm: -Infinity,
@@ -73,12 +82,19 @@ export class LeitorAoVivo {
     this.estados.set(fonte.url, estado);
     let origem: Origem = "memoria";
     if (this.agora() - estado.verificadaEm >= FRESCURA_MS) {
+      const tinhaCopia = estado.copia !== null;
       // Pedidos simultâneos no mesmo isolate partilham uma só ida à fonte.
       estado.pedido ??= this.atualizar(fonte, estado).finally(() => {
         estado.pedido = null;
       });
-      await estado.pedido;
-      origem = "fonte";
+      const pedido = estado.pedido;
+      if (!tinhaCopia) {
+        await pedido;
+        origem = "fonte";
+      } else {
+        esperarDepois?.(pedido);
+        if (await this.renovouAtempo(pedido)) origem = "fonte";
+      }
     }
     if (estado.copia) {
       return {
@@ -90,6 +106,22 @@ export class LeitorAoVivo {
     }
     if (estado.ausente) return { tipo: "ausente" };
     return { tipo: "erro", erro: estado.erro ?? "Sem dados." };
+  }
+
+  /** Verdadeiro se a renovação acabou antes de ESPERA_MAXIMA_MS; limpa sempre o temporizador. */
+  private async renovouAtempo(pedido: Promise<void>): Promise<boolean> {
+    let acabarEspera: (resultado: false) => void = () => undefined;
+    const limite = new Promise<false>((resolver) => {
+      acabarEspera = resolver;
+    });
+    const temporizador = setTimeout(() => {
+      acabarEspera(false);
+    }, ESPERA_MAXIMA_MS);
+    try {
+      return await Promise.race([pedido.then(() => true as const), limite]);
+    } finally {
+      clearTimeout(temporizador);
+    }
   }
 
   private async atualizar(fonte: Fonte, estado: EstadoFonte): Promise<void> {

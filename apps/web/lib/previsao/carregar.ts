@@ -15,6 +15,7 @@ import type {
   CenariosPrevisao,
   HistoricoPrevisao,
   PrevisaoCongresso,
+  SensibilidadePrevisao,
 } from "@intercalares/contratos";
 import { DadosInvalidos, obterValidador, type NomeContrato } from "../validacao.ts";
 import {
@@ -24,6 +25,11 @@ import {
   type VistaAlteracoes,
   type VistaCenarios,
 } from "./explorador.ts";
+import {
+  construirVistaSensibilidade,
+  sensibilidadeBateCerto,
+  type VistaSensibilidade,
+} from "./sensibilidade.ts";
 import {
   construirEvolucao,
   construirVistaPrevisao,
@@ -38,6 +44,7 @@ export const FICHEIRO_PREVISAO = "2026.json";
 export const FICHEIRO_HISTORICO = "historico-2026.json";
 export const FICHEIRO_CENARIOS = "cenarios-2026.json";
 export const FICHEIRO_ALTERACOES = "alteracoes-2026.json";
+export const FICHEIRO_SENSIBILIDADE = "sensibilidade-2026.json";
 
 function ler(caminho: string, contrato: NomeContrato): unknown {
   const absoluto = path.resolve(process.cwd(), caminho);
@@ -63,6 +70,11 @@ export function lerCenarios(caminho: string): CenariosPrevisao | null {
   return ler(caminho, "CenariosPrevisao") as CenariosPrevisao | null;
 }
 
+/** Lê e valida a análise de sensibilidade; `null` quando não existe. */
+export function lerSensibilidade(caminho: string): SensibilidadePrevisao | null {
+  return ler(caminho, "SensibilidadePrevisao") as SensibilidadePrevisao | null;
+}
+
 /** Lê e valida o registo de alterações do método; `null` quando não existe. */
 export function lerAlteracoes(caminho: string): AlteracoesPrevisao | null {
   return ler(caminho, "AlteracoesPrevisao") as AlteracoesPrevisao | null;
@@ -75,6 +87,8 @@ export interface DadosPrevisao {
   cenarios: VistaCenarios | null;
   /** Registo de alterações do método; `null` sem ele. */
   alteracoes: VistaAlteracoes | null;
+  /** Sensibilidade calculada sobre esta mesma previsão; `null` sem ela. */
+  sensibilidade: VistaSensibilidade | null;
 }
 
 const cache = new Map<string, DadosPrevisao | null>();
@@ -92,6 +106,7 @@ export function carregarPrevisao(pasta?: string): DadosPrevisao | null {
     // publicados: ficam de fora.
     const cenarios = dados ? lerCenarios(path.join(chave, FICHEIRO_CENARIOS)) : null;
     const alteracoes = dados ? lerAlteracoes(path.join(chave, FICHEIRO_ALTERACOES)) : null;
+    const sensibilidade = dados ? lerSensibilidade(path.join(chave, FICHEIRO_SENSIBILIDADE)) : null;
     cache.set(
       chave,
       dados
@@ -103,6 +118,10 @@ export function carregarPrevisao(pasta?: string): DadosPrevisao | null {
                 ? construirVistaCenarios(cenarios)
                 : null,
             alteracoes: alteracoes?.ano === dados.ano ? construirAlteracoes(alteracoes) : null,
+            sensibilidade:
+              sensibilidade && sensibilidadeBateCerto(sensibilidade, dados)
+                ? construirVistaSensibilidade(sensibilidade)
+                : null,
           }
         : null,
     );

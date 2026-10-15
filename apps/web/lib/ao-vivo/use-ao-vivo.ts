@@ -5,16 +5,17 @@ import type { DadosNoiteEleitoral } from "../resultados/carregar.ts";
 import type { PrevisaoResultados } from "../resultados/vista.ts";
 import {
   atualizarEstado,
-  consultarNoite,
-  consultarResultados,
+  consultaFalhou,
+  consultarAoVivo,
   INTERVALO_MS,
   INTERVALO_SEM_DADOS_MS,
+  proximaEspera,
   type EstadoAoVivo,
 } from "./estado.ts";
 
 /**
- * Hook da noite (o nome segue a regra do React). Consulta a API do Worker a cada minuto enquanto o separador está visível e mantém o
- * que está no ecrã quando a API falha. `ativo` falso não consulta (antes da noite).
+ * Hook da noite (o nome segue a regra do React). Consulta a API do Worker (um só pedido por vez) ao ritmo que ela sugerir, 60 s por omissão, enquanto o separador está visível; recua se falhar e mantém o
+ * que está no ecrã. `ativo` falso não consulta (antes da noite).
  */
 export function useAoVivo(
   inicial: DadosNoiteEleitoral | null,
@@ -32,34 +33,43 @@ export function useAoVivo(
     if (!ativo) return;
     let temporizador: ReturnType<typeof setTimeout> | undefined;
     let ultima = 0;
+    /** Espera calculada depois da última consulta; usada ao voltar ao separador. */
+    let espera = INTERVALO_MS;
+    let falhasSeguidas = 0;
     let montado = true;
 
     async function consultar() {
       clearTimeout(temporizador);
       ultima = Date.now();
-      const [resultados, noite] = await Promise.all([consultarResultados(), consultarNoite()]);
+      const { resultados, noite, intervaloMs } = await consultarAoVivo();
       if (!montado) return;
       setEstado((atual) => atualizarEstado(atual, resultados, noite, previsao));
+      falhasSeguidas = consultaFalhou(resultados, noite) ? falhasSeguidas + 1 : 0;
       const semDados = resultados.tipo === "ausente" && noite.tipo === "ausente";
-      agendar(semDados ? INTERVALO_SEM_DADOS_MS : INTERVALO_MS);
+      espera = proximaEspera({
+        base: semDados ? INTERVALO_SEM_DADOS_MS : (intervaloMs ?? INTERVALO_MS),
+        falhasSeguidas,
+        aleatorio: Math.random(),
+      });
+      agendar(espera);
     }
 
-    function agendar(espera: number) {
+    function agendar(depoisDe: number) {
       clearTimeout(temporizador);
       if (document.visibilityState === "visible") {
-        temporizador = setTimeout(() => void consultar(), espera);
+        temporizador = setTimeout(() => void consultar(), depoisDe);
       }
     }
 
-    /** Separador escondido: não se consulta. Ao voltar, consulta já se passou o intervalo. */
+    /** Separador escondido: não se consulta. Ao voltar, consulta já se passou a espera. */
     function aoMudarVisibilidade() {
       if (document.visibilityState !== "visible") {
         clearTimeout(temporizador);
         return;
       }
       const passou = Date.now() - ultima;
-      if (passou >= INTERVALO_MS) void consultar();
-      else agendar(INTERVALO_MS - passou);
+      if (passou >= espera) void consultar();
+      else agendar(espera - passou);
     }
 
     if (document.visibilityState === "visible") void consultar();

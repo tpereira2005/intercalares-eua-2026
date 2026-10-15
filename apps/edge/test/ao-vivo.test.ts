@@ -1,10 +1,11 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { beforeEach, describe, expect, it } from "vitest";
-import { FRESCURA_MS, LeitorAoVivo, USER_AGENT } from "../src/ao-vivo.ts";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ESPERA_MAXIMA_MS, FRESCURA_MS, LeitorAoVivo, USER_AGENT } from "../src/ao-vivo.ts";
 import { app, definirLeitor } from "../src/app.ts";
 import type { Env } from "../src/env.ts";
+import { ResultadosParciais } from "../src/gerado/validadores.js";
 
 const FIXTURES = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -173,5 +174,217 @@ describe("/api/noite", () => {
     fonte.respostas.set(env.URL_HISTORICO_NOITE, ficheiro(HISTORICO));
     const resposta = await app.request("/api/noite", {}, env);
     expect(resposta.status).toBe(404);
+  });
+});
+
+describe("stale-while-revalidate", () => {
+  const FONTE = { url: "https://fonte.test/parciais.json", validar: ResultadosParciais };
+
+  /** Fonte cuja resposta só sai quando o teste a liberar (ou nunca). */
+  function fonteControlada() {
+    const pendentes: ((r: Response) => void)[] = [];
+    let pedidos = 0;
+    const buscar: typeof fetch = () => {
+      pedidos += 1;
+      return new Promise<Response>((resolver) => pendentes.push(resolver));
+    };
+    return {
+      buscar,
+      pedidos: () => pedidos,
+      responder: (texto: string, etag: string) =>
+        pendentes.shift()?.(new Response(texto, { headers: { ETag: etag } })),
+    };
+  }
+
+  /** Aquece a cópia (primeira leitura, a fonte responde logo) e deixa-a expirar. */
+  async function comCopiaExpirada() {
+    const controlada = fonteControlada();
+    const leitorLocal = new LeitorAoVivo(controlada.buscar, () => agora);
+    const primeira = leitorLocal.ler(FONTE);
+    controlada.responder(PARCIAIS, '"v1"');
+    await primeira;
+    agora += FRESCURA_MS;
+    return { controlada, leitorLocal };
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("sem cópia, espera pela fonte", async () => {
+    const controlada = fonteControlada();
+    const leitorLocal = new LeitorAoVivo(controlada.buscar, () => agora);
+    let resultado: unknown = null;
+    const leitura = leitorLocal.ler(FONTE).then((l) => (resultado = l));
+
+    await vi.advanceTimersByTimeAsync(ESPERA_MAXIMA_MS * 3);
+    expect(resultado).toBeNull();
+
+    controlada.responder(PARCIAIS, '"v1"');
+    await leitura;
+    expect(resultado).toMatchObject({ tipo: "dados", origem: "fonte" });
+  });
+
+  it("com a fonte pendurada, serve a cópia expirada ao fim de ESPERA_MAXIMA_MS", async () => {
+    const { controlada, leitorLocal } = await comCopiaExpirada();
+    const entregues: Promise<unknown>[] = [];
+    let resultado: unknown = null;
+    const leitura = leitorLocal.ler(FONTE, (p) => entregues.push(p)).then((l) => (resultado = l));
+
+    await vi.advanceTimersByTimeAsync(ESPERA_MAXIMA_MS - 1);
+    expect(resultado).toBeNull();
+    await vi.advanceTimersByTimeAsync(1);
+    await leitura;
+
+    expect(resultado).toMatchObject({ tipo: "dados", texto: PARCIAIS, origem: "memoria" });
+    // A renovação continua em segundo plano e foi entregue ao contexto.
+    expect(entregues).toHaveLength(1);
+    expect(controlada.pedidos()).toBe(2);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("devolve dados novos quando a fonte responde dentro do prazo", async () => {
+    const { controlada, leitorLocal } = await comCopiaExpirada();
+    const leitura = leitorLocal.ler(FONTE, () => undefined);
+    await vi.advanceTimersByTimeAsync(100);
+    controlada.responder(PARCIAIS, '"v2"');
+    const resultado = await leitura;
+
+    expect(resultado).toMatchObject({ tipo: "dados", origem: "fonte", confirmadaEm: agora });
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("pedidos simultâneos partilham a renovação e uma fonte em falha só é perguntada uma vez", async () => {
+    const { controlada, leitorLocal } = await comCopiaExpirada();
+    const leituras = [1, 2, 3].map(async () => leitorLocal.ler(FONTE, () => undefined));
+    await vi.advanceTimersByTimeAsync(ESPERA_MAXIMA_MS);
+    await Promise.all(leituras);
+    expect(controlada.pedidos()).toBe(2);
+
+    // A renovação falha (JSON inválido): serve-se a cópia antiga e não se insiste antes do prazo.
+    controlada.responder("", '"x"');
+    await vi.advanceTimersByTimeAsync(0);
+    const depois = await leitorLocal.ler(FONTE, () => undefined);
+    expect(depois).toMatchObject({ tipo: "dados", origem: "copia-antiga" });
+    expect(controlada.pedidos()).toBe(2);
+  });
+
+  it("assinala copia-antiga quando a última tentativa falhou", async () => {
+    const { controlada, leitorLocal } = await comCopiaExpirada();
+    const primeira = leitorLocal.ler(FONTE, () => undefined);
+    controlada.responder("<html>", '"v2"');
+    await primeira;
+    agora += FRESCURA_MS;
+    const segunda = leitorLocal.ler(FONTE, () => undefined);
+    await vi.advanceTimersByTimeAsync(ESPERA_MAXIMA_MS);
+    expect(await segunda).toMatchObject({ origem: "copia-antiga" });
+  });
+});
+
+describe("/api/ao-vivo", () => {
+  function tudo() {
+    fonte.respostas.set(env.URL_PARCIAIS, ficheiro(PARCIAIS));
+    fonte.respostas.set(env.URL_CHAMADAS, ficheiro(CHAMADAS));
+    fonte.respostas.set(env.URL_PROJECAO_NOITE, ficheiro(PROJECAO));
+    fonte.respostas.set(env.URL_HISTORICO_NOITE, ficheiro(HISTORICO));
+  }
+
+  it("junta os corpos de /api/resultados e /api/noite e o intervalo", async () => {
+    tudo();
+    const resposta = await app.request("/api/ao-vivo", {}, env);
+
+    expect(resposta.status).toBe(200);
+    expect(resposta.headers.get("Cache-Control")).toBe("public, max-age=15");
+    expect(resposta.headers.get("X-Origem")).toBe("fonte");
+    const texto = await resposta.text();
+    const corpo = JSON.parse(texto) as Record<string, unknown>;
+    const resultados = await (await app.request("/api/resultados", {}, env)).text();
+    const noite = await (await app.request("/api/noite", {}, env)).text();
+    expect(corpo.intervaloS).toBe(60);
+    // O corpo de cada parte é o texto da rota própria; só a origem muda (agora vem da memória).
+    expect(corpo.resultados).toEqual({ ...JSON.parse(resultados), origem: "fonte" });
+    expect(corpo.noite).toEqual({ ...JSON.parse(noite), origem: "fonte" });
+  });
+
+  it("não volta a serializar os ficheiros: o texto da fonte vai tal como chegou", async () => {
+    tudo();
+    const texto = await (await app.request("/api/ao-vivo", {}, env)).text();
+    expect(texto).toContain(PARCIAIS);
+    expect(texto).toContain(PROJECAO);
+  });
+
+  it("200 com uma das partes ausente (null)", async () => {
+    fonte.respostas.set(env.URL_PROJECAO_NOITE, ficheiro(PROJECAO));
+    const resposta = await app.request("/api/ao-vivo", {}, env);
+
+    expect(resposta.status).toBe(200);
+    const corpo = await resposta.json<{ resultados: unknown; noite: unknown }>();
+    expect(corpo.resultados).toBeNull();
+    expect(corpo.noite).not.toBeNull();
+  });
+
+  it("404 quando nenhuma das partes foi publicada", async () => {
+    const resposta = await app.request("/api/ao-vivo", {}, env);
+    expect(resposta.status).toBe(404);
+    expect(resposta.headers.get("Cache-Control")).toBe("no-store");
+  });
+
+  it("503 quando falha sem cópia, mesmo que a outra parte esteja ausente", async () => {
+    fonte.respostas.set(env.URL_PARCIAIS, ficheiro("<html>"));
+    const resposta = await app.request("/api/ao-vivo", {}, env);
+    expect(resposta.status).toBe(503);
+    expect(resposta.headers.get("Cache-Control")).toBe("no-store");
+  });
+
+  it("limita INTERVALO_S a 30-600 e usa 60 se faltar ou for inválido", async () => {
+    tudo();
+    const intervalo = async (valor: string | undefined) => {
+      const resposta = await app.request(
+        "/api/ao-vivo",
+        {},
+        valor === undefined ? env : { ...env, INTERVALO_S: valor },
+      );
+      return (await resposta.json<{ intervaloS: number }>()).intervaloS;
+    };
+    expect(await intervalo(undefined)).toBe(60);
+    expect(await intervalo("120")).toBe(120);
+    expect(await intervalo("5")).toBe(30);
+    expect(await intervalo("9999")).toBe(600);
+    expect(await intervalo("abc")).toBe(60);
+    expect(await intervalo("")).toBe(60);
+  });
+
+  it("entrega a renovação ao waitUntil do contexto quando há cópia expirada", async () => {
+    tudo();
+    await app.request("/api/ao-vivo", {}, env);
+    agora += FRESCURA_MS;
+    const waitUntil = vi.fn();
+    const contexto = { waitUntil, passThroughOnException: vi.fn() } as unknown as ExecutionContext;
+    const resposta = await app.request("/api/ao-vivo", {}, env, contexto);
+
+    expect(resposta.status).toBe(200);
+    expect(waitUntil).toHaveBeenCalled();
+  });
+
+  it("X-Origem é a pior das duas partes", async () => {
+    tudo();
+    await app.request("/api/ao-vivo", {}, env);
+    agora += FRESCURA_MS;
+    // Só a projeção passa a falhar; a contagem é confirmada com 304.
+    fonte.respostas.set(env.URL_PARCIAIS, () => new Response(null, { status: 304 }));
+    fonte.respostas.set(env.URL_PROJECAO_NOITE, () => new Response("", { status: 502 }));
+    const resposta = await app.request("/api/ao-vivo", {}, env);
+
+    expect(resposta.status).toBe(200);
+    expect(resposta.headers.get("X-Origem")).toBe("copia-antiga");
+    const corpo = await resposta.json<{
+      resultados: { origem: string };
+      noite: { origem: string };
+    }>();
+    expect(corpo.resultados.origem).toBe("fonte");
+    expect(corpo.noite.origem).toBe("copia-antiga");
   });
 });
