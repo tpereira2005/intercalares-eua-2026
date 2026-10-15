@@ -3,7 +3,10 @@
  *
  * Para cada página e cada combinação de largura (1280 e 320 px) e tema (claro e escuro):
  * - corre o axe-core com as regras WCAG 2.0/2.1 A e AA e as boas práticas;
- * - confirma que há exatamente um h1 e nenhum deslocamento horizontal;
+ * - confirma que há exatamente um h1, que os títulos não saltam de nível e que não há
+ *   deslocamento horizontal;
+ * - confirma que as tabelas têm legenda e cabeçalhos com escopo, e que as regiões que
+ *   deslizam dentro de si se alcançam com o teclado;
  * - mede o deslocamento cumulativo do esquema (CLS) até a página estabilizar.
  *
  * Uso (depois de `pnpm build`):
@@ -33,6 +36,7 @@ const PAGINAS = [
   "/previsao/senado/",
   "/previsao/cenarios/",
   "/demografia/",
+  "/corridas/nc-01/",
   "/sondagens/",
   "/resultados/",
   "/voto-antecipado/",
@@ -107,6 +111,36 @@ for (const configuracao of CONFIGURACOES) {
           nos: v.nodes.map((n) => ({ alvo: n.target.join(" "), html: n.html })),
         })),
         h1: document.querySelectorAll("h1").length,
+        saltosDeTitulo: (() => {
+          const niveis = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")];
+          return niveis.flatMap((h, i) => {
+            const antes = i === 0 ? 0 : Number(niveis[i - 1].tagName[1]);
+            const agora = Number(h.tagName[1]);
+            return agora > antes + 1 ? [`${h.tagName} "${h.textContent.trim().slice(0, 40)}"`] : [];
+          });
+        })(),
+        tabelasSemLegenda: [...document.querySelectorAll("table")]
+          .filter(
+            (tabela) =>
+              !tabela.querySelector("caption") &&
+              !tabela.getAttribute("aria-label") &&
+              !tabela.getAttribute("aria-labelledby"),
+          )
+          .map((tabela) => tabela.textContent.trim().slice(0, 30)),
+        cabecalhosSemEscopo: [...document.querySelectorAll("table th")]
+          .filter((th) => !th.getAttribute("scope"))
+          .map((th) => th.textContent.trim().slice(0, 30)),
+        deslizantesSemTeclado: [...document.querySelectorAll("body *")]
+          .filter((e) => {
+            const estilo = window.getComputedStyle(e);
+            return (
+              ["auto", "scroll"].includes(estilo.overflowX) &&
+              e.scrollWidth > e.clientWidth + 1 &&
+              e.tabIndex < 0 &&
+              !e.querySelector("a[href], button, input, select, textarea, [tabindex]")
+            );
+          })
+          .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 30)}`),
         larguraExcedente: document.documentElement.scrollWidth > window.innerWidth,
         cls: window.__cls,
       };
@@ -117,6 +151,12 @@ for (const configuracao of CONFIGURACOES) {
       if (nos.length > 0) falhas.push(`${v.id}: ${v.ajuda} (${nos[0].alvo})`);
     }
     if (resultado.h1 !== 1) falhas.push(`${String(resultado.h1)} títulos h1 (esperado: 1)`);
+    for (const salto of resultado.saltosDeTitulo) falhas.push(`título salta de nível: ${salto}`);
+    for (const tabela of resultado.tabelasSemLegenda) falhas.push(`tabela sem legenda: ${tabela}`);
+    for (const th of resultado.cabecalhosSemEscopo) falhas.push(`cabeçalho sem scope: ${th}`);
+    for (const e of resultado.deslizantesSemTeclado) {
+      falhas.push(`região que desliza sem acesso por teclado: ${e}`);
+    }
     if (resultado.larguraExcedente) falhas.push("deslocamento horizontal");
     if (resultado.cls > LIMITE_CLS) falhas.push(`CLS ${resultado.cls.toFixed(3)}`);
     const estado = falhas.length === 0 ? "ok" : "FALHA";

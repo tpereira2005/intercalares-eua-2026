@@ -32,9 +32,28 @@ pnpm --filter @intercalares/web fluxos   # CAMINHO_CHROMIUM=... (por omissão /o
 | Cenários             | Setas, `Fim` e botões de opção mudam os cartões da Câmara e do Senado; "Repor a previsão publicada" volta à previsão                                           |
 | Resultados sem API   | `/api/*` responde 404 (servidor estático): a página renderiza sem erros de script nem janela de erro                                                           |
 | Tema                 | Claro e escuro pelo teclado, com o fundo a mudar e a escolha mantida ao recarregar                                                                             |
-| Foco visível         | Todas as paragens do teclado de cinco páginas têm contorno visível (ou traço na linha do gráfico)                                                              |
+| Foco visível         | Todas as paragens do teclado de sete páginas têm contorno visível (ou traço na linha do gráfico)                                                               |
+| Mapa (partido)       | "Partido" marca-se com `Enter`; o quadrado de NC tem nome "Carolina do Norte, NC: D/R …" e escolhe-se com `Enter`                                              |
+| Corrida à noite      | Com o relógio a 4 de novembro e a API simulada, o painel ao vivo aparece, sem saltos de título, sem deslocamento horizontal e sem elementos sem nome           |
+| Tabelas novas        | Grupos, início e estado a 390 px: legenda, `scope` nos cabeçalhos e acesso por teclado às tabelas que deslizam                                                 |
 
 Os dois scripts partilham o servidor de `scripts/servidor-estatico.mjs`.
+
+## Revisão de 15 de outubro de 2026
+
+Páginas: grupos (`/demografia/`), início, voto antecipado de NC, mapa, corrida (também à noite) e cenários. A auditoria passou a verificar também saltos de nível de título, legendas e `scope` das tabelas e regiões que deslizam sem teclado, e inclui `/corridas/nc-01/`.
+
+| Problema                                                                                                                            | Critério   | Correção                                                                                    |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
+| Mapa: o código do estado e o valor ficavam sobre o padrão tracejado republicano, sobre cores de meio-tom ou atravessados pelo risco | 1.4.3      | Chapa sólida atrás do texto, que passa sempre a `ink` (`MapaEstados.tsx`)                   |
+| Grupos: rótulo do ano de referência com contraste 3,1:1 por o grupo inteiro ter 75% de opacidade                                    | 1.4.3      | O esbatimento fica só nas barras (`demografia/graficos.tsx`)                                |
+| Grupos: tabela do ritmo, partido e correio desliza a 390 px sem acesso por teclado                                                  | 2.1.1      | `tabindex`, `role="region"` e nome na tabela                                                |
+| Metodologia: tabelas do Markdown sem nome nem `scope` nos cabeçalhos                                                                | 1.3.1      | `aria-label` na tabela e `scope="col"` (`lib/metodologia.ts`)                               |
+| Cenários: depois de "Repor a previsão publicada" o foco perdia-se (o botão fica desativado)                                         | 2.4.3      | O foco passa para a barra do ambiente; a barra tem o nome só do rótulo, sem o valor mutável |
+| Cenários: o erro das sondagens escolhido só se distinguia pela cor do contorno                                                      | 1.4.1      | Contorno duplo na opção escolhida                                                           |
+| Gráficos: altura muda quando a largura medida chega                                                                                 | Desempenho | Antes da medição o SVG escala com o contentor (`charts/base.tsx`)                           |
+
+Conhecido e não corrigido: o CLS de `/mapa/` a 320 px fica perto do limite em alguns arranques (a quebra de linha do texto introdutório muda quando a letra definitiva chega), e os números sobre as barras dos gráficos de grupos usam contorno da cor da folha, como no resto do site.
 
 ## Revisão de 14 de outubro de 2026
 
