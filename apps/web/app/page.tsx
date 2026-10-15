@@ -213,7 +213,7 @@ function EstadosAcompanhados({
             className="grid grid-cols-[minmax(0,1fr)_auto_4.5rem_4.5rem] items-center gap-3 border-t border-rule-2 py-2.5 text-sm first:border-t-0"
           >
             {comPagina.has(r.estado) ? (
-              <Link href={caminhoEstado(r.estado)} className={LIGACAO}>
+              <Link href={caminhoEstado(r.estado)} prefetch={false} className={LIGACAO}>
                 {nomeEstado(r.estado)}
               </Link>
             ) : (
@@ -333,7 +333,7 @@ export default function Inicio() {
                 data: formatarData(new Date(`${resumoPrincipal.dadosAte}T12:00:00Z`)),
               })}
             </span>
-            <Link href={caminhoEstado(resumoPrincipal.estado)} className={LIGACAO}>
+            <Link href={caminhoEstado(resumoPrincipal.estado)} prefetch={false} className={LIGACAO}>
               {t("inicio.verRastreador")}
             </Link>
           </p>
@@ -398,7 +398,7 @@ export default function Inicio() {
             >
               <QuemVotouCriterios blocos={criteriosQuemVotou(principal)} ano={principal.ano} />
               <p className="text-sm">
-                <Link href={caminhoEstado(principal.estado)} className={LIGACAO}>
+                <Link href={caminhoEstado(principal.estado)} prefetch={false} className={LIGACAO}>
                   {t("inicio.quemVotou.ligacao")}
                 </Link>
               </p>

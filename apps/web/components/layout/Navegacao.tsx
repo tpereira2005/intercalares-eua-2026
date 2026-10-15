@@ -41,8 +41,12 @@ export function Navegacao() {
           const atual = seccao.href === ativa;
           return (
             <li key={seccao.href} className="flex-none">
+              {/* Sem pré-carregamento: cada página carregaria o conteúdo de todas as secções
+                  (cerca de 250 kB) só por estarem na navegação; no telemóvel, na noite
+                  eleitoral, essa rede faz falta à contagem ao vivo. */}
               <Link
                 href={seccao.href}
+                prefetch={false}
                 aria-current={atual ? "page" : undefined}
                 className={`inline-block border-b-[3px] px-3 pt-3 pb-2.5 text-sm leading-none font-semibold whitespace-nowrap no-underline ${
                   atual ? "border-signal text-ink" : "border-transparent text-ink-2 hover:text-ink"

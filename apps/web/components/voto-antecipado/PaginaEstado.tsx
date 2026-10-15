@@ -106,6 +106,7 @@ export function EscolhaEstado({
         <Link
           key={codigo}
           href={caminhoEstado(codigo)}
+          prefetch={false}
           aria-current={codigo === atual ? "page" : undefined}
           className={`rounded-[2px] border px-2 py-1 text-[13px] leading-none ${
             codigo === atual
