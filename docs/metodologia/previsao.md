@@ -254,6 +254,12 @@ A previsão e os cenários levam em `codigo_commit` o commit que os gerou (`GITH
 
 No congelamento, os cenários também ficam congelados: a 1 de novembro o workflow exige que `cenarios-2026.json` tenha `congelada` com corte de 1 de novembro, e depois disso nunca o reenvia.
 
+### Outros prognósticos
+
+A mesma execução recolhe as classificações publicadas por outros prognosticadores (Cook, Inside Elections, Sabato, The Economist, Split Ticket e outros) em **`prognosticos-2026.json`** (contrato `PrognosticosExternos`), lidas das tabelas da Wikipedia: a secção "Predictions" de _2026 United States Senate elections_ e a primeira tabela de _2026 United States House of Representatives election ratings_ (CC BY-SA 4.0). Cada coluna identifica-se pela ligação no cabeçalho, nunca pela posição, e uma categoria, uma corrida ou uma coluna que não se reconheça faz falhar a leitura (`pipeline/src/pipeline/connectors/prognosticos.py`). Na Câmara, a tabela só tem os distritos que pelo menos um prognosticador não dá como seguros.
+
+O site põe essas classificações ao lado da previsão sem as misturar com ela. Para comparar, cada classificação ocupa um lugar na escala das categorias de leitura do Escrutínio (sólida, provável, inclinada, renhida): Safe/Solid é sólida, Likely provável, Lean inclinada, Tossup renhida e Tilt fica a meio caminho entre inclinada e renhida. O consenso é a mediana desses lugares. Assinala-se uma divergência quando o favorito do Escrutínio e o do consenso são diferentes, ou quando há duas ou mais categorias de distância. Uma falha da Wikipedia não impede a publicação da previsão. A versão de 1 de novembro sai marcada como congelada e serve para avaliar todos pela mesma régua depois da eleição.
+
 ## 10. Congelamento
 
 A previsão congela com os dados até 31 de outubro: o corte é 1 de novembro de 2026, exclusive para as sondagens. Nesse dia:

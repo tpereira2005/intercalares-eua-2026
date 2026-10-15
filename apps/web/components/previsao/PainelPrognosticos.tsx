@@ -59,9 +59,12 @@ function textoDivergencia(c: ComparacaoCorrida): string | null {
 }
 
 function metodo(vista: VistaPrognosticos): string {
-  return t(vista.congelado ? "previsao.prognosticos.metodoCongelado" : "previsao.prognosticos.metodo", {
-    data: formatarDataCurta(new Date(vista.recolhidoEm)),
-  });
+  return t(
+    vista.congelado ? "previsao.prognosticos.metodoCongelado" : "previsao.prognosticos.metodo",
+    {
+      data: formatarDataCurta(new Date(vista.recolhidoEm)),
+    },
+  );
 }
 
 /** As classificações de uma corrida em quadrados, da mais democrata à mais republicana. */
@@ -99,7 +102,7 @@ function LinhaComparacao({ c }: { c: ComparacaoCorrida }) {
         {nota ? <span className="mt-1 block text-[12px] text-ink-2">{nota}</span> : null}
       </th>
       <td className="py-2 pl-2 text-right align-top">
-        <span className="flex items-center justify-end gap-1.5 text-[13px]">
+        <span className="flex items-center justify-end gap-1.5 text-[13px] whitespace-nowrap">
           <Amostra cor={c.nossa} />
           {t(`previsao.categorias.${c.nossa}`)}
         </span>
@@ -108,12 +111,9 @@ function LinhaComparacao({ c }: { c: ComparacaoCorrida }) {
         </span>
       </td>
       <td className="py-2 pl-2 text-right align-top">
-        <span className="flex items-center justify-end gap-1.5 text-[13px]">
+        <span className="flex items-center justify-end gap-1.5 text-right text-[13px]">
           <Amostra cor={corDe(c.consenso)} />
           {rotuloPosicao(c.consenso)}
-        </span>
-        <span className="block font-mono text-[11.5px] text-ink-3">
-          {t("previsao.prognosticos.n", { n: c.classificacoes.length })}
         </span>
       </td>
     </tr>
@@ -142,8 +142,7 @@ export function PainelPrognosticosCamara({
       : [...resumo.corridas]
           .filter((c) => c.divergencia !== null)
           .sort(
-            (a, b) =>
-              Number(b.divergencia === "favorito") - Number(a.divergencia === "favorito"),
+            (a, b) => Number(b.divergencia === "favorito") - Number(a.divergencia === "favorito"),
           );
   const nomes = resumo.prognosticadores.map((p) => p.nome).join(", ");
   return (
@@ -155,13 +154,15 @@ export function PainelPrognosticosCamara({
         iguais: resumo.mesmoFavorito,
         diferentes: resumo.favoritoDiferente,
       })}
-      acessorio={vista.congelado ? <Selo variante="solido">{t("previsao.prognosticos.congelado")}</Selo> : null}
-      fontes={vista.fontes}
+      acessorio={
+        vista.congelado ? (
+          <Selo variante="solido">{t("previsao.prognosticos.congelado")}</Selo>
+        ) : null
+      }
+      fontes={resumo.fontes}
       metodo={metodo(vista)}
     >
-      <p className="text-[12.5px] text-ink-2">
-        {t("previsao.prognosticos.quem", { nomes })}
-      </p>
+      <p className="text-[12.5px] text-ink-2">{t("previsao.prognosticos.quem", { nomes })}</p>
       {linhas.length > 0 ? (
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
@@ -215,15 +216,21 @@ export function PainelPrognosticosCorrida({
         consenso: rotuloPosicao(c.consenso),
         n: c.classificacoes.length,
       })}
-      acessorio={vista.congelado ? <Selo variante="solido">{t("previsao.prognosticos.congelado")}</Selo> : null}
-      fontes={vista.fontes}
+      acessorio={
+        vista.congelado ? (
+          <Selo variante="solido">{t("previsao.prognosticos.congelado")}</Selo>
+        ) : null
+      }
+      fontes={vista[c.corrida.camara].fontes}
       metodo={metodo(vista)}
     >
       {nota ? <p className="text-sm font-semibold">{nota}</p> : null}
       <ul className="flex flex-col text-sm">
         <li className="flex items-center gap-2 border-b border-ink-3 py-1.5">
-          <span className="min-w-0 flex-1 font-semibold">{t("previsao.prognosticos.escrutinio")}</span>
-          <span className="flex items-center gap-1.5">
+          <span className="min-w-0 flex-1 font-semibold">
+            {t("previsao.prognosticos.escrutinio")}
+          </span>
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
             <Amostra cor={c.nossa} />
             {t(`previsao.categorias.${c.nossa}`)}
           </span>
@@ -235,8 +242,8 @@ export function PainelPrognosticosCorrida({
           const dia = datas.get(x.chave);
           return (
             <li key={x.chave} className="flex items-center gap-2 border-b border-rule-2 py-1.5">
-              <span className="min-w-0 flex-1">{x.nome}</span>
-              <span className="flex items-center gap-1.5">
+              <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{x.nome}</span>
+              <span className="flex items-center gap-1.5 whitespace-nowrap">
                 <Amostra cor={x.cor} />
                 {rotuloClassificacao(x)}
               </span>

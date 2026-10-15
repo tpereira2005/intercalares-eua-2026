@@ -1,0 +1,172 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-10-15T16:00:00Z",
+    "fontes": [
+      {
+        "nome": "Wikipedia, 2026 United States Senate elections",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_Senate_elections",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-15T16:00:00Z"
+      },
+      {
+        "nome": "Wikipedia, 2026 United States House of Representatives election ratings",
+        "url": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_election_ratings",
+        "licenca": "CC BY-SA 4.0",
+        "obtida_em": "2026-10-15T16:00:00Z"
+      }
+    ]
+  },
+  "ano": 2026,
+  "recolhido_em": "2026-10-15T16:00:00Z",
+  "congelado": false,
+  "prognosticadores_senado": [
+    {
+      "chave": "cook",
+      "nome": "Cook Political Report",
+      "data": "2026-10-06",
+      "url": null
+    },
+    {
+      "chave": "sabato",
+      "nome": "Sabato's Crystal Ball",
+      "data": "2026-10-14",
+      "url": null
+    },
+    {
+      "chave": "ie",
+      "nome": "Inside Elections",
+      "data": null,
+      "url": null
+    }
+  ],
+  "prognosticadores_camara": [
+    {
+      "chave": "cook",
+      "nome": "Cook Political Report",
+      "data": "2026-10-06",
+      "url": null
+    },
+    {
+      "chave": "sabato",
+      "nome": "Sabato's Crystal Ball",
+      "data": "2026-10-14",
+      "url": null
+    },
+    {
+      "chave": "ie",
+      "nome": "Inside Elections",
+      "data": null,
+      "url": null
+    }
+  ],
+  "senado": [
+    {
+      "id": "TX-S",
+      "classificacoes": [
+        {
+          "prognosticador": "cook",
+          "categoria": "provavel",
+          "partido": "R"
+        },
+        {
+          "prognosticador": "sabato",
+          "categoria": "inclinado",
+          "partido": "R"
+        },
+        {
+          "prognosticador": "ie",
+          "categoria": "ligeiro",
+          "partido": "R"
+        }
+      ]
+    },
+    {
+      "id": "IA-S",
+      "classificacoes": [
+        {
+          "prognosticador": "cook",
+          "categoria": "empate",
+          "partido": null
+        },
+        {
+          "prognosticador": "sabato",
+          "categoria": "ligeiro",
+          "partido": "R"
+        },
+        {
+          "prognosticador": "ie",
+          "categoria": "empate",
+          "partido": null
+        }
+      ]
+    },
+    {
+      "id": "WY-S",
+      "classificacoes": [
+        {
+          "prognosticador": "cook",
+          "categoria": "seguro",
+          "partido": "R"
+        },
+        {
+          "prognosticador": "sabato",
+          "categoria": "seguro",
+          "partido": "R"
+        },
+        {
+          "prognosticador": "ie",
+          "categoria": "seguro",
+          "partido": "R"
+        }
+      ]
+    },
+    {
+      "id": "ZZ-S",
+      "classificacoes": [
+        {
+          "prognosticador": "cook",
+          "categoria": "seguro",
+          "partido": "R"
+        }
+      ]
+    }
+  ],
+  "camara": [
+    {
+      "id": "NC-01",
+      "classificacoes": [
+        {
+          "prognosticador": "cook",
+          "categoria": "empate",
+          "partido": null
+        },
+        {
+          "prognosticador": "sabato",
+          "categoria": "inclinado",
+          "partido": "D"
+        },
+        {
+          "prognosticador": "ie",
+          "categoria": "empate",
+          "partido": null
+        }
+      ]
+    },
+    {
+      "id": "AK-00",
+      "classificacoes": [
+        {
+          "prognosticador": "cook",
+          "categoria": "provavel",
+          "partido": "R"
+        },
+        {
+          "prognosticador": "sabato",
+          "categoria": "provavel",
+          "partido": "R"
+        }
+      ]
+    }
+  ]
+}

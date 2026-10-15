@@ -68,6 +68,8 @@ export interface ComparacaoCorrida {
 
 export interface ResumoComparacao {
   camara: Camara;
+  /** Fontes desta câmara (a página da Wikipedia de onde vêm as classificações). */
+  fontes: { nome: string; url: string }[];
   prognosticadores: PrognosticadorVista[];
   /** Corridas classificadas por pelo menos um prognosticador, da mais renhida à menos. */
   corridas: ComparacaoCorrida[];
@@ -176,8 +178,13 @@ function resumir(
       .filter((c): c is ClassificacaoVista => c !== null);
     if (vistas.length > 0) corridas.push(compararCorrida(corrida, vistas));
   }
+  // A página da Wikipedia de cada câmara; sem a distinguir, citam-se as duas.
+  const todas = dados.metadados.fontes.map((f) => ({ nome: f.nome, url: f.url }));
+  const marca = camara === "senado" ? "Senate" : "House";
+  const proprias = todas.filter((f) => f.nome.includes(marca));
   return {
     camara,
+    fontes: proprias.length > 0 ? proprias : todas,
     prognosticadores: lista.map((p) => ({ chave: p.chave, nome: p.nome, data: p.data ?? null })),
     corridas,
     mesmoFavorito: corridas.filter((c) => c.divergencia !== "favorito").length,

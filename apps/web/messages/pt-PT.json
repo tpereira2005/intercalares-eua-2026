@@ -802,7 +802,6 @@
       "escrutinio": "Escrutínio",
       "consenso": "Consenso",
       "probD": "{p} D",
-      "n": "{n} classificações",
       "faixaAria": "Classificações, da mais democrata à mais republicana: {lista}",
       "empate": "Empate",
       "categorias": {
@@ -813,8 +812,8 @@
       },
       "entre": "Entre {a} e {b}",
       "divergeFavorito": "Favorito diferente do consenso.",
-      "divergeMais": "Mesmo favorito, com mais certeza do que o consenso.",
-      "divergeMenos": "Mesmo favorito, com menos certeza do que o consenso.",
+      "divergeMais": "Mais certeza do que o consenso.",
+      "divergeMenos": "Menos certeza do que o consenso.",
       "semDivergencias": "Em nenhum distrito o Escrutínio fica a duas ou mais categorias do consenso.",
       "congelado": "Versão de 1 de novembro",
       "metodo": "Classificações lidas nas tabelas da Wikipedia a {data}, com a data de cada prognosticador. Para comparar, cada classificação ocupa um lugar na escala das categorias do Escrutínio (Safe/Solid é sólida, Likely provável, Lean inclinada, Tossup renhida; Tilt fica entre inclinada e renhida), e o consenso é a mediana desses lugares. Diverge quando o favorito é outro ou há duas ou mais categorias de distância.",
