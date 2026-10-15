@@ -232,6 +232,7 @@ def montar(
             margem=previsao.ambiente.margem,
             desvio_padrao=previsao.ambiente.sd,
             fonte=FONTES_AMBIENTE[previsao.fonte_ambiente],
+            correcao_vies=round(previsao.correcao_vies, 2),
             agregadores=tuple(
                 AgregadorVotoGenerico(nome=nome, margem=margem) for nome, margem in agregadores
             ),

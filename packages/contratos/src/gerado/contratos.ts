@@ -170,6 +170,12 @@ export interface Fonte {
 export interface AmbienteNacional {
   agregadores: AgregadorVotoGenerico[];
   /**
+   * Pontos (D-R) já descontados em ``margem`` pelo erro médio das médias do voto
+   * genérico nos anos anteriores. Positivo quando as sondagens sobrestimaram os democratas.
+   * Ausente nos ficheiros anteriores a 15 de outubro de 2026.
+   */
+  correcao_vies?: number;
+  /**
    * Erro histórico (raiz do erro quadrático médio) das médias do voto genérico.
    */
   desvio_padrao: number;

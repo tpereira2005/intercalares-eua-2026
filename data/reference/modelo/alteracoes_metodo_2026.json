@@ -47,5 +47,12 @@
   "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/84",
   "camara": {"antes": 0.96445, "depois": 0.9456},
   "senado": {"antes": 0.72045, "depois": 0.71245}
+ },
+ {
+  "data": "2026-10-15",
+  "descricao": "Por decisão do Tomás, o ambiente nacional passa a descontar o erro médio das médias do voto genérico nos anos anteriores (sobrestimaram os democratas em 10 de 13 ciclos), encolhido para zero e simétrico entre partidos. No corte de 15 de outubro, os agregadores passam de D+8,2 para D+5,7. Fora da amostra, o erro do ambiente desce de 3,1 para 2,4 pontos; nos backtests das corridas o efeito é pequeno e piora 2018.",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/91",
+  "camara": {"antes": 0.9456, "depois": 0.85315},
+  "senado": {"antes": 0.71245, "depois": 0.65585}
  }
 ]

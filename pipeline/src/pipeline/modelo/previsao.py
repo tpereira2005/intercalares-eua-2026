@@ -106,9 +106,10 @@ class Ajustes:
     sem_sondagens_senado: bool = False
     """Ignora as sondagens de cada corrida ao Senado (fica só com os fundamentos)."""
 
-    vies_generico: bool = False
+    vies_generico: bool = True
     """Desconta ao voto genérico o erro médio das médias dos anos anteriores
-    (``vies_voto_generico``)."""
+    (``vies_voto_generico``). Adotado a 15 de outubro de 2026: ver a secção 3 da
+    metodologia."""
 
     incumbentes_sondagens: bool = False
     """Corrige a média de sondagens de cada incumbente do Senado pelo desvio médio dos
@@ -133,6 +134,8 @@ class Previsao:
     composicao: ComposicaoSenado
     anos_treino: tuple[int, ...]
     semente: int
+    correcao_vies: float = 0.0
+    """Pontos descontados à média do voto genérico pelo viés histórico (D-R)."""
 
 
 def _linhas(dados: Dados, ano: int, camara: str) -> list[LinhaModelo]:
@@ -402,8 +405,10 @@ def prever(
         # das sondagens do Senado ao erro do voto genérico.
         margem, fonte = implicito, "sondagens_senado"
         sd = math.sqrt(sd_nacional**2 + erro.sd_ano**2)
+    correcao = 0.0
     if aj.vies_generico and fonte != "sondagens_senado":
-        margem -= vies_voto_generico(erros_dia)
+        correcao = vies_voto_generico(erros_dia)
+        margem -= correcao
     ambiente = Ambiente(margem=margem + aj.desvio_ambiente, sd=sd)
 
     rng = np.random.default_rng(semente)
@@ -442,4 +447,5 @@ def prever(
         composicao=composicao,
         anos_treino=tuple(sorted(a for a in linhas_c if a < ano)),
         semente=semente,
+        correcao_vies=correcao,
     )
