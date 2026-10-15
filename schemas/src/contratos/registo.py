@@ -16,6 +16,12 @@ from contratos.previsao import (
     HistoricoPrevisao,
     PrevisaoCongresso,
 )
+from contratos.prognosticos import (
+    Classificacao,
+    CorridaPrognosticos,
+    Prognosticador,
+    PrognosticosExternos,
+)
 from contratos.resultados import ResultadosEstado, ResultadosNacional, ResultadosParciais
 from contratos.sensibilidade import (
     ResumoSensibilidade,
@@ -48,4 +54,8 @@ MODELOS: tuple[type[BaseModel], ...] = (
     ResumoSensibilidade,
     VarianteSensibilidade,
     SensibilidadePrevisao,
+    Prognosticador,
+    Classificacao,
+    CorridaPrognosticos,
+    PrognosticosExternos,
 )

@@ -6,6 +6,7 @@ import { faseEm } from "@/lib/fases.ts";
 import { metadadosPagina } from "@/lib/metadados.ts";
 import { t } from "@/lib/mensagens.ts";
 import { carregarPrevisao } from "@/lib/previsao/carregar.ts";
+import { comparacaoDaCorrida } from "@/lib/previsao/prognosticos.ts";
 import { carregarSondagens } from "@/lib/sondagens/carregar.ts";
 import { carregarTodas } from "@/lib/voto-antecipado/carregar.ts";
 import { resumirTodos } from "@/lib/voto-antecipado/resumo.ts";
@@ -56,6 +57,9 @@ export default async function Pagina({ params }: { params: Promise<{ corrida: st
   }
   const { dados, corrida } = encontrada;
   const sondagens = carregarSondagens()?.corridas ?? [];
+  const comparacao = dados.prognosticos ? comparacaoDaCorrida(dados.prognosticos, corrida) : null;
+  const prognosticos =
+    dados.prognosticos && comparacao ? { vista: dados.prognosticos, comparacao } : null;
   const estadosVotoAntecipado = resumirTodos(carregarTodas()).map((r) => r.estado);
   return (
     <PaginaCorrida
@@ -65,6 +69,7 @@ export default async function Pagina({ params }: { params: Promise<{ corrida: st
       comSondagens={sondagens.some((s) => s.id === corrida.id)}
       comVotoAntecipado={estadosVotoAntecipado.includes(corrida.estado)}
       faseBuild={faseEm(new Date())}
+      prognosticos={prognosticos}
     />
   );
 }

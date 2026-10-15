@@ -18,6 +18,7 @@ export type NomeContrato =
   | "HistoricoPrevisao"
   | "CenariosPrevisao"
   | "SensibilidadePrevisao"
+  | "PrognosticosExternos"
   | "AlteracoesPrevisao"
   | "ResultadosParciais"
   | "ChamadasRedacoes"

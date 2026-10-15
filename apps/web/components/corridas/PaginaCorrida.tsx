@@ -1,5 +1,7 @@
 import { CorridaAoVivo } from "./CorridaAoVivo.tsx";
 import { VersaoPrevisao } from "@/components/previsao/PaginaPrevisao.tsx";
+import { PainelPrognosticosCorrida } from "@/components/previsao/PainelPrognosticos.tsx";
+import type { ComparacaoCorrida, VistaPrognosticos } from "@/lib/previsao/prognosticos.ts";
 import type { Fase } from "@/lib/fases.ts";
 import Link from "next/link";
 import { EvolucaoControlo, OrigemMargem } from "@/components/previsao/graficos.tsx";
@@ -276,6 +278,7 @@ export function PaginaCorrida({
   comSondagens,
   comVotoAntecipado,
   faseBuild,
+  prognosticos = null,
 }: {
   corrida: CorridaVista;
   vista: VistaPrevisao;
@@ -283,6 +286,8 @@ export function PaginaCorrida({
   comSondagens: boolean;
   comVotoAntecipado: boolean;
   faseBuild: Fase;
+  /** Classificações de outros prognosticadores para esta corrida; `null` sem elas. */
+  prognosticos?: { vista: VistaPrognosticos; comparacao: ComparacaoCorrida } | null;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -321,6 +326,12 @@ export function PaginaCorrida({
         <PainelOrigem c={c} vista={vista} />
         <PainelEvolucao pontos={evolucao} vista={vista} />
       </div>
+      {prognosticos ? (
+        <PainelPrognosticosCorrida
+          vista={prognosticos.vista}
+          comparacao={prognosticos.comparacao}
+        />
+      ) : null}
       <Seguir c={c} comSondagens={comSondagens} comVotoAntecipado={comVotoAntecipado} />
     </div>
   );

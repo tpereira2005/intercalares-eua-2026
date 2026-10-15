@@ -959,6 +959,52 @@
       "title": "CicloVotoAntecipado",
       "type": "object"
     },
+    "Classificacao": {
+      "additionalProperties": false,
+      "description": "Classificação de uma corrida por um prognosticador.",
+      "properties": {
+        "categoria": {
+          "enum": [
+            "seguro",
+            "provavel",
+            "inclinado",
+            "ligeiro",
+            "empate"
+          ],
+          "title": "Categoria",
+          "type": "string"
+        },
+        "partido": {
+          "anyOf": [
+            {
+              "enum": [
+                "D",
+                "R",
+                "I"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Lado favorecido; ``None`` só no empate.",
+          "title": "Partido"
+        },
+        "prognosticador": {
+          "pattern": "^[a-z0-9-]+$",
+          "title": "Prognosticador",
+          "type": "string"
+        }
+      },
+      "required": [
+        "prognosticador",
+        "categoria",
+        "partido"
+      ],
+      "title": "Classificacao",
+      "type": "object"
+    },
     "CoberturaParcial": {
       "additionalProperties": false,
       "description": "Estado de que só se acompanham alguns condados.",
@@ -1258,6 +1304,31 @@
         "notas"
       ],
       "title": "Corrida",
+      "type": "object"
+    },
+    "CorridaPrognosticos": {
+      "additionalProperties": false,
+      "description": "Classificações de uma corrida, com o mesmo ``id`` da ``PrevisaoCongresso``.",
+      "properties": {
+        "classificacoes": {
+          "items": {
+            "$ref": "#/$defs/Classificacao"
+          },
+          "minItems": 1,
+          "title": "Classificacoes",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^[A-Z]{2}-(\\d{2}|S|S-especial)$",
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "classificacoes"
+      ],
+      "title": "CorridaPrognosticos",
       "type": "object"
     },
     "DesvioNacionalNoite": {
@@ -3675,6 +3746,125 @@
         "prob_d"
       ],
       "title": "ProbCorridaCenario",
+      "type": "object"
+    },
+    "Prognosticador": {
+      "additionalProperties": false,
+      "description": "Quem publica as classificações e a data da versão que a tabela cita.",
+      "properties": {
+        "chave": {
+          "description": "Identificador estável, por exemplo ``cook`` ou ``sabato``.",
+          "pattern": "^[a-z0-9-]+$",
+          "title": "Chave",
+          "type": "string"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Data da versão das classificações, como a tabela da Wikipedia a indica.",
+          "title": "Data"
+        },
+        "nome": {
+          "minLength": 1,
+          "title": "Nome",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Url"
+        }
+      },
+      "required": [
+        "chave",
+        "nome",
+        "data",
+        "url"
+      ],
+      "title": "Prognosticador",
+      "type": "object"
+    },
+    "PrognosticosExternos": {
+      "additionalProperties": false,
+      "description": "Classificações publicadas por outros prognosticadores para o Senado e a Câmara.\n\nNa Câmara só aparecem os distritos que pelo menos um prognosticador não dá como\nseguros, como na tabela de origem.",
+      "properties": {
+        "ano": {
+          "title": "Ano",
+          "type": "integer"
+        },
+        "camara": {
+          "items": {
+            "$ref": "#/$defs/CorridaPrognosticos"
+          },
+          "minItems": 1,
+          "title": "Camara",
+          "type": "array"
+        },
+        "congelado": {
+          "description": "Verdadeiro na versão de 1 de novembro, que serve para a avaliação.",
+          "title": "Congelado",
+          "type": "boolean"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        },
+        "prognosticadores_camara": {
+          "items": {
+            "$ref": "#/$defs/Prognosticador"
+          },
+          "minItems": 1,
+          "title": "Prognosticadores Camara",
+          "type": "array"
+        },
+        "prognosticadores_senado": {
+          "items": {
+            "$ref": "#/$defs/Prognosticador"
+          },
+          "minItems": 1,
+          "title": "Prognosticadores Senado",
+          "type": "array"
+        },
+        "recolhido_em": {
+          "format": "date-time",
+          "title": "Recolhido Em",
+          "type": "string"
+        },
+        "senado": {
+          "items": {
+            "$ref": "#/$defs/CorridaPrognosticos"
+          },
+          "minItems": 1,
+          "title": "Senado",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metadados",
+        "ano",
+        "recolhido_em",
+        "congelado",
+        "prognosticadores_senado",
+        "prognosticadores_camara",
+        "senado",
+        "camara"
+      ],
+      "title": "PrognosticosExternos",
       "type": "object"
     },
     "ProjecaoCorridaNoite": {

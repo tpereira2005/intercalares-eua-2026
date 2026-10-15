@@ -98,6 +98,14 @@ jobs:
           --cenarios data/publicado/previsao/cenarios-2026.json
           --sensibilidade data/publicado/previsao/sensibilidade-2026.json
           --alteracoes data/publicado/previsao/alteracoes-2026.json
+      # As classificações de outros prognosticadores congelam com a previsão. Uma falha da
+      # Wikipedia não impede a publicação da previsão: o site mantém a versão anterior.
+      - name: Recolher as classificações de outros prognosticadores
+        if: steps.janela.outputs.modo == 'previsao'
+        continue-on-error: true
+        run: >-
+          uv run python -m pipeline.jobs.prognosticos_externos
+          --saida data/publicado/previsao/prognosticos-2026.json
       - name: Atualizar só as sondagens
         if: steps.janela.outputs.modo == 'sondagens'
         run: >-
@@ -114,7 +122,7 @@ jobs:
   # Publica os JSON em assets de uma Release fixa, substituídos a cada execução, como no
   # voto antecipado. Job separado para que só ele tenha permissão de escrita.
   publicar:
-    name: Publicar a previsão, o histórico, as sondagens, os cenários, a sensibilidade e as alterações
+    name: Publicar a previsão, o histórico, as sondagens, os cenários, a sensibilidade, as alterações e os outros prognósticos
     needs: calcular
     if: github.ref == 'refs/heads/main' && needs.calcular.outputs.modo != 'nada'
     runs-on: ubuntu-latest
@@ -144,6 +152,10 @@ jobs:
             jq -e '.ano == 2026 and (.variantes | length) >= 10 and .variantes[0].nome == "Modelo publicado"' \
               resultado/sensibilidade-2026.json
             jq -e '.ano == 2026 and (.alteracoes | length) > 0' resultado/alteracoes-2026.json
+            if [[ -f resultado/prognosticos-2026.json ]]; then
+              jq -e '.ano == 2026 and (.senado | length) > 10 and (.camara | length) > 10' \
+                resultado/prognosticos-2026.json
+            fi
             if [[ ! "$(date -u +%F)" < "$ULTIMO_DIA" ]]; then
               jq -e --arg dia "$ULTIMO_DIA" '.congelada and .corte == $dia' resultado/2026.json
               jq -e --arg dia "$ULTIMO_DIA" '.congelada and .corte == $dia' resultado/cenarios-2026.json
@@ -162,6 +174,9 @@ jobs:
               resultado/historico-previsao-2026.json resultado/sondagens-2026.json \
               resultado/cenarios-2026.json resultado/sensibilidade-2026.json \
               resultado/alteracoes-2026.json --clobber
+            if [[ -f resultado/prognosticos-2026.json ]]; then
+              gh release upload "$ETIQUETA" resultado/prognosticos-2026.json --clobber
+            fi
           else
             gh release upload "$ETIQUETA" resultado/sondagens-2026.json --clobber
           fi
