@@ -50,7 +50,8 @@
       "ilustrativo": "Ilustrativo",
       "estimativa": "Estimativa",
       "oficial": "Oficial",
-      "aoVivo": "Ao vivo"
+      "aoVivo": "Ao vivo",
+      "manual": "Introduzido à mão"
     },
     "atualizadoEm": "Atualizado a {data}",
     "semDados": "n.d."
@@ -883,9 +884,10 @@
       "comDadosSemHora": "{n} corridas",
       "aEspera": "à espera de dados",
       "soTotal": "só o total, sem condados",
-      "fora": "Pensilvânia, Arizona, Ohio, Michigan e Nevada recusam pedidos automáticos, e a Carolina do Sul e o Iowa bloqueiam-nos a partir do GitHub Actions; não contornamos esses bloqueios.",
+      "fora": "Pensilvânia, Ohio, Michigan e Nevada recusam pedidos automáticos, e a Carolina do Sul e o Iowa bloqueiam-nos a partir do GitHub Actions; não contornamos esses bloqueios. Nesses estados, e no resto do Texas e do Arizona, os totais podem ser copiados à mão da página oficial e aparecem com o selo «Introduzido à mão».",
       "documentacao": "Fontes, definições e limites dos resultados",
-      "parcial": "só alguns condados"
+      "parcial": "só alguns condados",
+      "manuais": "{n} com totais copiados à mão da página oficial"
     },
     "previsaoNota": "Previsão de {data}, congelada a 1 de novembro.",
     "previsaoNotaProvisoria": "Previsão de {data}; congela a 1 de novembro.",

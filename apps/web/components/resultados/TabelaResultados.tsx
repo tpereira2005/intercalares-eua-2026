@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import type { ChamadaVista } from "@/lib/resultados/chamadas.ts";
+import { Selo } from "@/components/ui/Selo.tsx";
 import { nomeEstado } from "@/lib/estados.ts";
 import {
   formatarHora,
@@ -89,6 +90,11 @@ function Contagem({ c }: { c: ContagemCorrida }) {
       <span className="block text-[11px] text-ink-3">
         <Apuramento c={c} />
       </span>
+      {c.manual ? (
+        <span className="mt-1 block">
+          <Selo variante="solido">{t("comum.selos.manual")}</Selo>
+        </span>
+      ) : null}
     </>
   );
 }
