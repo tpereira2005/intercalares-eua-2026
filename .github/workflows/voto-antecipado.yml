@@ -134,6 +134,45 @@ jobs:
           path: data/publicado/voto-antecipado
           retention-days: 30
 
+  # Arizona: fonte NÃO oficial (Stealth Analytics), porque o Secretary of State e Maricopa
+  # bloqueiam robôs. Só publica o retrato do dia: o arquivo diário vive na Release, ao lado do JSON.
+  arizona:
+    name: Arizona
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ARQUIVO: data/publicado/voto-antecipado/historico-az-2026.csv
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Restaurar a página da fonte
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/brutos/az
+          key: az-brutos-${{ github.run_id }}
+          restore-keys: az-brutos-
+      - name: Obter o arquivo publicado
+        run: |
+          mkdir -p "$(dirname "$ARQUIVO")"
+          url="https://github.com/${{ github.repository }}/releases/download/dados-voto-antecipado/historico-az-2026.csv"
+          curl -fsSL -o "$ARQUIVO" "$url" || echo "Ainda não há arquivo publicado; começa hoje."
+      - name: Recolher e calcular
+        run: >-
+          uv run python -m pipeline.jobs.voto_antecipado_az
+          --saida data/publicado/voto-antecipado/az.json
+          --arquivo "$ARQUIVO"
+      - name: Guardar o resultado
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: voto-antecipado-az
+          path: data/publicado/voto-antecipado
+          retention-days: 30
+
   # Resumo para a página inicial. Corre mesmo que um estado falhe: esse estado entra com o
   # último ficheiro já publicado (com a sua data), nunca com dados por validar.
   # Iowa: PDF diários do Secretary of State (a partir de 14 de outubro de 2026). Antes do
@@ -203,7 +242,7 @@ jobs:
 
   nacional:
     name: Resumo nacional
-    needs: [carolina-do-norte, estados, florida, iowa, colorado]
+    needs: [carolina-do-norte, estados, florida, arizona, iowa, colorado]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 10

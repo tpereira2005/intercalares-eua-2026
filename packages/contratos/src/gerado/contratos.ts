@@ -157,6 +157,11 @@ export interface Fonte {
    */
   obtida_em: string;
   /**
+   * ``False`` quando a fonte não é a administração eleitoral (um agregador académico ou
+   * independente, por exemplo). O site mostra esses números com o selo "não oficial".
+   */
+  oficial?: boolean;
+  /**
    * Endereço exato de onde os dados foram obtidos.
    */
   url: string;

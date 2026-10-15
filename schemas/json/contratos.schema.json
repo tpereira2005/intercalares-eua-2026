@@ -1630,6 +1630,12 @@
           "title": "Obtida Em",
           "type": "string"
         },
+        "oficial": {
+          "default": true,
+          "description": "``False`` quando a fonte não é a administração eleitoral (um agregador académico ou\nindependente, por exemplo). O site mostra esses números com o selo \"não oficial\".",
+          "title": "Oficial",
+          "type": "boolean"
+        },
         "url": {
           "description": "Endereço exato de onde os dados foram obtidos.",
           "format": "uri",

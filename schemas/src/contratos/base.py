@@ -44,6 +44,8 @@ def opcionais_no_esquema(*campos: str) -> Callable[[dict[str, Any]], None]:
 class Fonte(ModeloContrato):
     """Origem de um conjunto de dados, citada em cada número publicado."""
 
+    model_config = ConfigDict(json_schema_extra=opcionais_no_esquema("oficial"))
+
     nome: str = Field(min_length=1)
     """Nome legível da fonte, por exemplo "North Carolina State Board of Elections"."""
 
@@ -55,6 +57,10 @@ class Fonte(ModeloContrato):
 
     obtida_em: AwareDatetime
     """Momento da recolha, sempre com fuso horário."""
+
+    oficial: bool = True
+    """``False`` quando a fonte não é a administração eleitoral (um agregador académico ou
+    independente, por exemplo). O site mostra esses números com o selo "não oficial"."""
 
 
 class Metadados(ModeloContrato):

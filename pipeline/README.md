@@ -42,6 +42,7 @@ src/pipeline/
     ├── voto_antecipado_estado.py          # Pensilvânia e Maine
     ├── referencia_voto_antecipado_estado.py
     ├── voto_antecipado_fl.py              # Florida (arquivo diário próprio)
+    ├── voto_antecipado_az.py              # Arizona (fonte não oficial; arquivo diário próprio)
     ├── voto_antecipado_ia.py              # Iowa (PDF diários; --referencia para 2022 e 2024)
     ├── voto_antecipado_co.py              # Colorado (folhas diárias; --referencia para 2022 e 2024)
     └── voto_antecipado_nacional.py        # resumo para a página inicial
@@ -67,6 +68,8 @@ uv run python -m pipeline.jobs.referencia_voto_antecipado_estado --estado PA   #
 uv run python -m pipeline.jobs.voto_antecipado_estado --estado PA --saida data/publicado/voto-antecipado/pa.json
 uv run python -m pipeline.jobs.voto_antecipado_fl --saida data/publicado/voto-antecipado/fl.json \
   --arquivo data/publicado/voto-antecipado/historico-fl-2026.csv
+uv run python -m pipeline.jobs.voto_antecipado_az --saida data/publicado/voto-antecipado/az.json \
+  --arquivo data/publicado/voto-antecipado/historico-az-2026.csv
 uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/voto-antecipado
 ```
 
