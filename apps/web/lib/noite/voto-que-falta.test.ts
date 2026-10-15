@@ -17,6 +17,7 @@ function contagem(d: number, r: number, porModo: ContagemCorrida["porModo"] = []
     soTotal: false,
     atualizadoEm: null,
     porModo,
+    manual: false,
   } satisfies ContagemCorrida;
 }
 

@@ -76,6 +76,12 @@ describe("contarCorridas", () => {
     expect(ga?.seccoes).toEqual({ reportadas: 0, totais: 159 });
   });
 
+  it("marca as corridas com totais introduzidos à mão", () => {
+    const corridas = contarCorridas({ ...exemplo(), corridas_manuais: ["IA-S"] });
+    expect(corridas.find((c) => c.id === "IA-S")?.manual).toBe(true);
+    expect(corridas.find((c) => c.id === "NC-01")?.manual).toBe(false);
+  });
+
   it("trocar os rótulos dos partidos troca a margem e nada mais", () => {
     const original = exemplo();
     const trocado: ResultadosParciais = {
@@ -143,6 +149,49 @@ describe("construirVistaResultados", () => {
       previsao(),
     );
     expect(vista.cobertura.find((c) => c.estado === "TX")?.nota).toBe(nota);
+  });
+
+  it("num estado parcial só com corridas manuais, a nota dos condados não se aplica", () => {
+    const base = exemplo();
+    const unidade = base.unidades.find((u) => u.corrida === "GA-S");
+    if (!unidade) throw new Error("falta GA-S no exemplo");
+    const dados: ResultadosParciais = {
+      ...base,
+      unidades: [...base.unidades, { ...unidade, corrida: "TX-S", unidade: "total" }],
+      corridas_manuais: ["TX-S"],
+      cobertura_parcial: [{ estado: "TX", condados: ["48201"], nota: "Só o condado de Harris." }],
+    };
+    const tx = construirVistaResultados(dados, previsao()).cobertura.find((c) => c.estado === "TX");
+    expect(tx).toMatchObject({ corridas: 1, manuais: 1, parcial: false, nota: null });
+    // Com Harris automático ao lado da corrida manual, a nota volta a valer para o resto.
+    const harris = base.unidades.find((u) => u.corrida === "NC-01");
+    if (!harris) throw new Error("falta NC-01 no exemplo");
+    const misto = construirVistaResultados(
+      { ...dados, unidades: [...dados.unidades, { ...harris, corrida: "TX-07" }] },
+      previsao(),
+    ).cobertura.find((c) => c.estado === "TX");
+    expect(misto).toMatchObject({ corridas: 2, manuais: 1, parcial: true });
+    expect(misto?.nota).toBe("Só o condado de Harris.");
+  });
+
+  it("um estado bloqueado com totais manuais aparece na cobertura", () => {
+    const base = exemplo();
+    const unidade = base.unidades.find((u) => u.corrida === "GA-S");
+    if (!unidade) throw new Error("falta GA-S no exemplo");
+    const vista = construirVistaResultados(
+      {
+        ...base,
+        unidades: [...base.unidades, { ...unidade, corrida: "PA-07", unidade: "total" }],
+        corridas_manuais: ["PA-07"],
+      },
+      previsao(),
+    );
+    expect(vista.cobertura.find((c) => c.estado === "PA")).toMatchObject({
+      corridas: 1,
+      manuais: 1,
+      soTotal: true,
+    });
+    expect(vista.aoVivo.find((l) => l.id === "PA-07")?.contagem?.manual).toBe(true);
   });
 
   it("a previsão reduzida para o browser dá a mesma vista que a completa", () => {

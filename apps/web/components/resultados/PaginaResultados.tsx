@@ -108,6 +108,11 @@ function Cobertura({ vista }: { vista: VistaResultados }) {
                     : (c.nota ?? t("resultados.cobertura.parcial"))}
                 </span>
               ) : null}
+              {c.manuais > 0 ? (
+                <span className="block text-[12px] text-ink-3">
+                  {t("resultados.cobertura.manuais", { n: c.manuais })}
+                </span>
+              ) : null}
             </dd>
           </div>
         ))}

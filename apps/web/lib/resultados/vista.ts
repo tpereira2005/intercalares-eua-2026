@@ -82,6 +82,8 @@ export interface ContagemCorrida {
    * Unidades sem separação ficam de fora, por isso a soma pode ser menor do que `total`.
    */
   porModo: ModoContado[];
+  /** Totais copiados à mão da página oficial (`corridas_manuais` da fonte). */
+  manual: boolean;
 }
 
 export interface LinhaResultados {
@@ -99,10 +101,15 @@ export interface LinhaResultados {
 export interface EstadoCobertura {
   estado: CodigoEstado;
   soTotal: boolean;
-  /** Só alguns condados; `nota` explica quais, quando a fonte a dá. */
+  /**
+   * Só alguns condados; `nota` explica quais, quando a fonte a dá. Fica falso quando
+   * todas as corridas com dados do estado são manuais: aí o total é do estado inteiro.
+   */
   parcial: boolean;
   nota: string | null;
   corridas: number;
+  /** Corridas do estado com totais introduzidos à mão. */
+  manuais: number;
   atualizadoEm: string | null;
 }
 
@@ -126,6 +133,7 @@ export interface VistaResultados {
 
 /** Soma as unidades de cada corrida, pela ordem em que aparecem no ficheiro. */
 export function contarCorridas(parciais: ResultadosParciais): ContagemCorrida[] {
+  const manuais = new Set(parciais.corridas_manuais ?? []);
   const grupos = new Map<string, ResultadosParciais["unidades"]>();
   for (const u of parciais.unidades) {
     const lista = grupos.get(u.corrida);
@@ -187,6 +195,7 @@ export function contarCorridas(parciais: ResultadosParciais): ContagemCorrida[] 
         const contado = modos.get(m);
         return contado && contado.total > 0 ? [contado] : [];
       }),
+      manual: manuais.has(id),
     };
   });
 }
@@ -279,16 +288,26 @@ export function construirVistaResultados(
   // Um estado com contagem fora da lista (num ensaio, por exemplo) também aparece.
   const extra = [...new Set(contagens.map((c) => c.estado))]
     .filter((e) => !ESTADOS_AO_VIVO.has(e))
-    .map((estado) => ({ estado, soTotal: false, parcial: false }));
+    .map((estado) => ({
+      estado,
+      soTotal: contagens.filter((c) => c.estado === estado).every((c) => c.soTotal),
+      parcial: false,
+    }));
   const cobertura = [...COBERTURA_AO_VIVO, ...extra].map(({ estado, soTotal, parcial }) => {
     const doEstado = contagens.filter((c) => c.estado === estado);
     const horas = doEstado.flatMap((c) => (c.atualizadoEm ? [c.atualizadoEm] : []));
+    const manuais = doEstado.filter((c) => c.manual).length;
+    // Uma corrida manual traz o total do estado inteiro: a nota dos condados não se lhe aplica.
+    const soManuais = manuais > 0 && manuais === doEstado.length;
     return {
       estado,
       soTotal,
-      parcial,
-      nota: (parciais.cobertura_parcial ?? []).find((p) => p.estado === estado)?.nota ?? null,
+      parcial: parcial && !soManuais,
+      nota: soManuais
+        ? null
+        : ((parciais.cobertura_parcial ?? []).find((p) => p.estado === estado)?.nota ?? null),
       corridas: doEstado.length,
+      manuais,
       atualizadoEm: horas.reduce<string | null>(
         (max, h) => (max === null || Date.parse(h) > Date.parse(max) ? h : max),
         null,
