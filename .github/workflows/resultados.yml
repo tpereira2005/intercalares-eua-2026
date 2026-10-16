@@ -8,6 +8,9 @@ name: Resultados
 # - noite (à mão, ou pelo Worker da Cloudflare): recolhe a cada 30 s durante quase 6 h e
 #   publica na Release "resultados-2026". Antes de acabar, volta a lançar-se enquanto não
 #   chegar a hora indicada em "ate", para cobrir a noite com 2 ou 3 jobs encadeados.
+# - ensaio-publicado (à mão): corre a recolha real contra o espelho local com os ficheiros
+#   de 2024 e publica a cada ciclo na Release "resultados-ensaio", que o ensaio de carga
+#   (ensaio-carga.yml) lê. Nunca escreve em "resultados-2026".
 on:
   schedule:
     - cron: "41 6 * * 1"
@@ -15,13 +18,13 @@ on:
     inputs:
       modo:
         type: choice
-        options: [ensaio, noite]
+        options: [ensaio, noite, ensaio-publicado]
         default: ensaio
       data:
         description: Data da eleição (AAAA-MM-DD)
         default: "2026-11-03"
       duracao:
-        description: Segundos de recolha neste job (máximo de um job, 6 h, menos margem)
+        description: Segundos de recolha neste job (máximo de um job, 6 h, menos margem; no ensaio-publicado, 3600 se ficar o valor por omissão; máximo 4800)
         default: "20700"
       ate:
         description: Hora UTC (AAAA-MM-DDTHH:MM) até à qual a recolha se volta a lançar
@@ -43,7 +46,7 @@ env:
 jobs:
   ensaio:
     name: Ensaio ${{ matrix.estado }} ${{ matrix.data }}
-    if: ${{ inputs.modo != 'noite' }}
+    if: ${{ inputs.modo != 'noite' && inputs.modo != 'ensaio-publicado' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # Os sites Clarity (SC, IA) respondem ao Actions com um desafio do AWS WAF, que não
@@ -92,7 +95,7 @@ jobs:
   # de as páginas da eleição existirem, os estados sem página só deixam um aviso.
   sondagem:
     name: Fontes de 2026
-    if: ${{ inputs.modo != 'noite' }}
+    if: ${{ inputs.modo != 'noite' && inputs.modo != 'ensaio-publicado' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -167,3 +170,46 @@ jobs:
               -f modo=noite -f data="$DATA" -f duracao="$DURACAO" -f ate="$ATE" \
               -f estados="$ESTADOS"
           fi
+
+  # Ensaio da noite com dados a sério: o ciclo real da recolha contra o espelho local (ficheiros
+  # de 2024), a enviar os ficheiros a cada ciclo para uma Release de ensaio. A etiqueta de
+  # produção é recusada pelo próprio ensaio. A duração (por omissão 3600 s) mais a descarga
+  # dos ficheiros e a margem têm de caber nos 90 minutos do job.
+  ensaio-publicado:
+    name: Ensaio publicado
+    if: ${{ inputs.modo == 'ensaio-publicado' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    env:
+      ETIQUETA: resultados-ensaio
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      DURACAO: ${{ inputs.duracao == '20700' && '3600' || inputs.duracao || '3600' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - name: Garantir a Release de ensaio
+        run: |
+          gh release view "$ETIQUETA" > /dev/null 2>&1 || gh release create "$ETIQUETA" \
+            --title "Resultados do ensaio da noite eleitoral" --prerelease --latest=false \
+            --notes "Ensaio com os ficheiros de 2024; não são resultados de 2026. Substituídos a cada ciclo."
+      - name: Correr o ensaio e publicar
+        run: |
+          if [ "${DURACAO%.*}" -gt 4800 ]; then
+            echo "Duração de $DURACAO s não cabe nos 90 minutos do job (máximo 4800 s)." >&2
+            exit 1
+          fi
+          uv run python -m pipeline.jobs.ensaio_noite \
+            --data 2024-11-05 --manual --duracao "$DURACAO" \
+            --publicar "$ETIQUETA" --relatorio ensaio.md
+      - name: Relatório
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -f ensaio.md ]; then cat ensaio.md >> "$GITHUB_STEP_SUMMARY"; fi

@@ -150,6 +150,8 @@ class Recolha:
     orcamento: float = ORCAMENTO_CICLO
     manual: str | None = None
     """URL do ``manual.json`` (resultados introduzidos à mão); ``None`` para não o ler."""
+    reconstruido: bool = False
+    """Marca os parciais como reconstruídos (ensaio com ficheiros antigos); em produção é falso."""
     _executor: ThreadPoolExecutor = field(
         default_factory=lambda: ThreadPoolExecutor(max_workers=16, thread_name_prefix="estado"),
         repr=False,
@@ -384,6 +386,7 @@ class Recolha:
             ano=self.data.year,
             instante=agora,
             fontes=[f for r in prontos if r.ultimo for f in r.ultimo.metadados.fontes],
+            reconstruido=self.reconstruido,
             gerado_em=agora,
         )
         texto = parciais.model_dump_json()

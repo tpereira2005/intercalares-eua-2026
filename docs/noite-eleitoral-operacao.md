@@ -77,6 +77,8 @@ uv run python -m pipeline.jobs.ensaio_noite --data 2024-11-05 --manual --relator
 uv run python -m pipeline.jobs.ensaio_noite --data 2022-11-08 --estados NC,GA,TX --duracao 180
 ```
 
+**Ensaio publicado (para o ensaio de carga).** Com `--publicar ETIQUETA`, cada ciclo envia os ficheiros alterados para essa Release com `gh release upload --clobber`, como a recolha da noite (incluindo o `saude.json` a cada `SAUDE_CICLOS` ciclos ou quando um alerta muda). A etiqueta `resultados-2026` é recusada no arranque. No GitHub, lança o workflow **Resultados** com `modo=ensaio-publicado` (`duracao` por omissão 3600 s): cria a Release de pré-lançamento `resultados-ensaio` se não existir e corre `uv run python -m pipeline.jobs.ensaio_noite --data 2024-11-05 --manual --duracao 3600 --publicar resultados-ensaio --relatorio ensaio.md`. O relatório fica no resumo da execução. É essa Release que o workflow `ensaio-carga.yml` lê.
+
 A 14 de outubro de 2026, a primeira volta encontrou quatro defeitos, todos corrigidos:
 
 - **Fonte lenta prendia todos os estados.** Os estados eram recolhidos em série, e uma fonte lenta atrasava os outros até 22 s. Agora correm em paralelo, e o ciclo espera no máximo 10 s (`ORCAMENTO_CICLO`). Um estado mais lento continua em fundo e entra no ciclo em que acabar.
