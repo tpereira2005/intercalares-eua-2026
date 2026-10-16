@@ -136,12 +136,12 @@ As fontes só guardam o resultado final, por isso a ordem da noite é reconstru�
 - **ensaio**: a do ensaio da recolha, em que os condados chegam inteiros por ordem aleatória;
 - **modos**: em cada condado chega primeiro o voto antecipado e por correspondência, depois o dia da eleição aos poucos e no fim os provisórios. É a mais exigente, porque cada condado passa por estados parciais com a inclinação real do voto antecipado.
 
-Nenhuma é a sequência real da noite, por isso estes números medem a coerência do modelo e não a sua calibração temporal exata. O ponto de partida é a previsão do backtest de cada ano. As reconstruções foram refeitas a 14 de outubro, depois da correção dos modos da Carolina do Norte (ver abaixo), já com a ordem de contagem:
+Nenhuma é a sequência real da noite, por isso estes números medem a coerência do modelo e não a sua calibração temporal exata. O ponto de partida é a previsão do backtest de cada ano. As reconstruções foram refeitas a 14 de outubro, depois da correção dos modos da Carolina do Norte (ver abaixo), já com a ordem de contagem, e de novo a 16 de outubro, com as classificações dos especialistas na previsão de partida (só 2022 mudou, e pouco):
 
 | Repetição    | Brier no 1.º passo | Brier a 50–60% contado | Cobertura 80% (mín.–máx.) | Maior probabilidade dada a quem perdeu | Chamadas erradas (≥ 99%) |
 | ------------ | -----------------: | ---------------------: | ------------------------: | -------------------------------------- | -----------------------: |
-| 2022, ensaio |         0,023 (7%) |                  0,008 |                 0,89–0,97 | NC-13 0,67; GA-S 0,52                  |                        0 |
-| 2022, modos  |         0,021 (4%) |                  0,006 |                 0,94–1,00 | NC-13 0,65; GA-S 0,61                  |                        0 |
+| 2022, ensaio |         0,027 (7%) |                  0,008 |                 0,89–0,97 | NC-13 0,73; GA-S 0,51                  |                        0 |
+| 2022, modos  |         0,026 (4%) |                  0,007 |                 0,94–1,00 | NC-13 0,71; GA-S 0,60                  |                        0 |
 | 2024, ensaio |        0,002 (10%) |                  0,002 |                 0,78–1,00 | IA-01 0,60; NC-01 0,44                 |                        0 |
 | 2024, modos  |        0,002 (22%) |                  0,002 |                 0,88–1,00 | IA-01 0,51; NC-01 0,32                 |                        0 |
 
@@ -149,7 +149,7 @@ Leitura:
 
 - **Nenhuma chamada errada.** Em nenhuma repetição o modelo chegou a dar 99% a quem acabou por perder.
 - **NC-S 2022, a corrida onde a ordem de contagem pesa.** O voto antecipado de Beasley (D) chega primeiro e o dia da eleição, mais republicano, depois. Sem a ordem de contagem, o modelo geral começava em D+2,6 com 75% para Beasley e só passava para o lado de Budd (R) a meio da contagem. Com ela, começa em R+4,9 (intervalo de 80% de R+8 a R+1, 4% para Beasley); o resultado foi R+3,2. Até cerca de metade contada a projeção fica 1 a 2,5 pontos demasiado republicana, dentro do intervalo ou na sua borda. Na Carolina do Sul de 2022, tratada como se estivesse na lista só para este teste, o SC-S arranca em R+25,5 contra R+17,8 sem os modos, para um resultado de R+25,9, sempre dentro do intervalo.
-- **GA-S 2022.** O voto antecipado de Warnock (D+7) seguido do dia da eleição de Walker (R+15) fez a projeção oscilar, como seria de esperar. A Geórgia só dá os modos no total, por isso fica no modelo geral. O pico de 61% para Walker vem da NC-S, que agora puxa mais cedo o desvio nacional para o lado republicano.
+- **GA-S 2022.** O voto antecipado de Warnock (D+7) seguido do dia da eleição de Walker (R+15) fez a projeção oscilar, como seria de esperar. A Geórgia só dá os modos no total, por isso fica no modelo geral. O pico de 60% para Walker vem da NC-S, que agora puxa mais cedo o desvio nacional para o lado republicano.
 - **2024.** Nenhuma corrida reúne as condições (a Carolina do Norte não teve Senado), por isso os números são os do modelo geral. A projeção afasta-se cedo da previsão (desvio nacional de cerca de 2,5 pontos para o lado republicano no fim), o que bate certo com o erro real da previsão desse ano.
 - **Intervalos largos.** Estão um pouco largos (cobertura acima de 80%), o que é preferível numa noite em que as fontes falham. Os parâmetros não foram afinados com estas repetições.
 
