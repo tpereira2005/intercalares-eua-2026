@@ -6,20 +6,20 @@ Guião curto para a noite de 3 para 4 de novembro de 2026: o que lançar, a que 
 
 A 3 de novembro, Lisboa está em UTC+0 (a hora de inverno começa a 25 de outubro) e a costa leste dos EUA em UTC−5 (a 1 de novembro). As horas de Lisboa são iguais às UTC.
 
-| Lisboa (= UTC)  | O que acontece                                                                                                                                                                                   |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 22:00 (dia 3)   | O vigia começa a correr sozinho, a cada 10 minutos                                                                                                                                               |
-| **22:30**       | **Lançar a recolha e a projeção** (abaixo)                                                                                                                                                       |
-| 23:00           | Primeiros fechos de urnas (partes do Indiana e do Kentucky; nenhum estado acompanhado)                                                                                                           |
-| 00:00 (dia 4)   | Fecham a Geórgia, a Virgínia e a maior parte da Florida; 00:30, a Carolina do Norte; 01:00, o oeste da Florida e o Texas (Harris); 02:00, o Nebraska e o Arizona (Maricopa); 04:00, a Califórnia |
-| 05:00           | Fecha o Alasca                                                                                                                                                                                   |
-| ~04:15 e ~10:00 | A recolha e a projeção relançam-se sozinhas (jobs de 5h45 encadeados)                                                                                                                            |
-| 16:00           | Fim da cadeia (`ate`); a contagem por correspondência continua nos dias seguintes                                                                                                                |
+| Lisboa (= UTC)  | O que acontece                                                                                                                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 22:00 (dia 3)   | O vigia começa a correr sozinho, a cada 10 minutos                                                                                                                                                            |
+| **22:30**       | **Lançar a recolha e a projeção** (abaixo)                                                                                                                                                                    |
+| 23:00           | Primeiros fechos de urnas (partes do Indiana e do Kentucky; nenhum estado acompanhado)                                                                                                                        |
+| 00:00 (dia 4)   | Fecham a Geórgia, a Virgínia e a maior parte da Florida; 00:30, a Carolina do Norte; 01:00, o oeste da Florida e o Texas (Harris); 02:00, o Nebraska e o Arizona (Maricopa); 04:00, a Califórnia e Washington |
+| 05:00           | Fecha o Alasca                                                                                                                                                                                                |
+| ~04:15 e ~10:00 | A recolha e a projeção relançam-se sozinhas (jobs de 5h45 encadeados)                                                                                                                                         |
+| 16:00           | Fim da cadeia (`ate`); a contagem por correspondência continua nos dias seguintes                                                                                                                             |
 
 ## Antes da noite (de 26 de outubro a 2 de novembro)
 
-1. O workflow **Resultados** (ensaio semanal) está verde em NC, FL, GA, AK, TX e VA (o Nebraska, a Califórnia e Maricopa não têm ensaio: as fontes só mostram a eleição em curso ou não ligam os ficheiros antigos). SC e IA falham com o desafio do AWS WAF; se passarem, o bloqueio acabou e podem entrar na lista de estados.
-2. O job **Fontes de 2026** desse workflow mostra os endereços de 2026: NCSBE (`er.ncsbe.gov/enr/20261103`), Florida, Geórgia (`2026NovGen`), Virgínia (`2026-November-General`), Nebraska (`resultsCSV.aspx?type=SW` e `type=CG`), Alasca (`enr26/results/GA_ENR_Precinct_State_of_Alaska.csv`) Harris (`Data/1126`), Califórnia (`media.sos.ca.gov/media/us-rep.json` e `governor.json`) e Maricopa (a ligação `2026 November General Election Results.txt` em `elections.maricopa.gov/results-and-data/election-results.html`; o ficheiro tem cerca de 30 MB). Um 404 antes da noite é normal; um desafio anti-robô não é (o `elections.maricopa.gov` já mostrou um na página inicial, mas não na de resultados nem no ficheiro).
+1. O workflow **Resultados** (ensaio semanal) está verde em NC, FL, GA, AK, TX, VA e WA (o Nebraska, a Califórnia e Maricopa não têm ensaio: as fontes só mostram a eleição em curso ou não ligam os ficheiros antigos). SC e IA falham com o desafio do AWS WAF; se passarem, o bloqueio acabou e podem entrar na lista de estados.
+2. O job **Fontes de 2026** desse workflow mostra os endereços de 2026: NCSBE (`er.ncsbe.gov/enr/20261103`), Florida, Geórgia (`2026NovGen`), Virgínia (`2026-November-General`), Nebraska (`resultsCSV.aspx?type=SW` e `type=CG`), Alasca (`enr26/results/GA_ENR_Precinct_State_of_Alaska.csv`) Harris (`Data/1126`), Califórnia (`media.sos.ca.gov/media/us-rep.json` e `governor.json`), Washington (`results.vote.wa.gov/results/20261103/export/20261103_congressional.csv`) e Maricopa (a ligação `2026 November General Election Results.txt` em `elections.maricopa.gov/results-and-data/election-results.html`; o ficheiro tem cerca de 30 MB). Um 404 antes da noite é normal; um desafio anti-robô não é (o `elections.maricopa.gov` já mostrou um na página inicial, mas não na de resultados nem no ficheiro).
 3. A previsão está **congelada** (1 de novembro) na Release `dados-previsao`: a projeção recusa uma previsão por congelar.
 4. A API ao vivo responde: `/api/resultados` e `/api/noite` no site (ver `docs/api-ao-vivo.md`). Antes da noite, um `404` é normal. É por aí que o site mostra resultados novos sem nova implantação.
 
@@ -29,7 +29,7 @@ Em _Actions_ no GitHub, ou com o `gh`:
 
 ```sh
 gh workflow run resultados.yml -f modo=noite -f data=2026-11-03 \
-  -f ate=2026-11-04T16:00 -f estados=NC,FL,GA,AK,TX,VA,NE,AZ,CA
+  -f ate=2026-11-04T16:00 -f estados=NC,FL,GA,AK,TX,VA,NE,AZ,CA,WA
 gh workflow run noite.yml -f modo=noite -f ate=2026-11-04T16:00
 ```
 
@@ -66,7 +66,7 @@ No GitHub (site ou aplicação do telemóvel): **Actions → Resultado manual �
 
 O workflow valida tudo antes de escrever (um erro deixa o ficheiro como estava) e atualiza `manual.json` na Release `resultados-2026`. A recolha lê-o a cada ciclo: a corrida aparece no `nacional.json` e no `parciais.json` no ciclo seguinte (`manual: true` e `corridas_manuais`), e o site mostra o selo "introduzido manualmente". Para atualizar uma corrida, volta-se a lançar com os números novos; um total que desce dá um aviso no resumo do workflow (pode ser uma correção da página oficial).
 
-Estados com fonte estadual automática (NC, FL, GA, AK, VA, NE e CA) são recusados: aí os números vêm da fonte aberta. O Texas e o Arizona aceitam entradas manuais, porque a recolha automática só tem Harris e Maricopa. Aí a entrada fica sobreposta: publica-se em `tx-manual.json` (ou `az-manual.json`) e, nessa corrida, o total do estado substitui os condados no resumo nacional e nos parciais. As outras corridas continuam a vir dos condados. Exemplo: `TX-S` à mão, `TX-07` de Harris.
+Estados com fonte estadual automática (NC, FL, GA, AK, VA, NE, CA e WA) são recusados: aí os números vêm da fonte aberta. O Texas e o Arizona aceitam entradas manuais, porque a recolha automática só tem Harris e Maricopa. Aí a entrada fica sobreposta: publica-se em `tx-manual.json` (ou `az-manual.json`) e, nessa corrida, o total do estado substitui os condados no resumo nacional e nos parciais. As outras corridas continuam a vir dos condados. Exemplo: `TX-S` à mão, `TX-07` de Harris.
 
 ## Ensaio com falhas
 

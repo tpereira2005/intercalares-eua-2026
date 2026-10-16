@@ -10,7 +10,9 @@ cubos dos anos de referência em ``data/reference/<estado>`` (ver
 """
 
 import argparse
+import json
 import logging
+import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import cast
@@ -20,6 +22,7 @@ import httpx
 from contratos.base import Fonte
 from contratos.estados import CodigoEstado
 from pipeline.comum.descarga import Descarga, descarregar
+from pipeline.comum.erros import ErroDescarga
 from pipeline.connectors.early_vote.agregados import (
     CONECTORES,
     ConectorAgregado,
@@ -49,6 +52,52 @@ def obter(
     return descarga
 
 
+def copia_anterior(conector: ConectorAgregado, ano: int, raiz: Path) -> Descarga | None:
+    """A última descarga bem-sucedida (restaurada da cache do Actions), se existir."""
+    destino = conector.pasta(raiz, "brutos") / f"boletins_{ano}.txt"
+    meta = destino.with_name(destino.name + ".meta.json")
+    if not (destino.exists() and meta.exists()):
+        return None
+    dados = json.loads(meta.read_text(encoding="utf-8"))
+    return Descarga(
+        str(dados["url"]),
+        destino,
+        False,
+        dados.get("etag"),
+        dados.get("last_modified"),
+        datetime.fromisoformat(str(dados["obtido_em"])),
+    )
+
+
+def recolher(
+    conector: ConectorAgregado, raiz: Path, cliente: httpx.Client
+) -> tuple[Descarga, str | None]:
+    """Descarrega o ficheiro de 2026. Quando a fonte recusa o pedido ou está em baixo (403,
+    5xx, rede, desafio anti-robô), usa a cópia da última recolha e devolve um aviso para o
+    ficheiro publicado: os números ficam como estavam, com a data certa, e a recolha não
+    insiste nem tenta contornar o bloqueio. Sem cópia anterior, o erro sobe."""
+    try:
+        url = conector.url_atual(cliente)
+        return obter(conector, url, ANO, raiz, cliente), None
+    except (httpx.HTTPError, ErroDescarga) as erro:
+        anterior = copia_anterior(conector, ANO, raiz)
+        if anterior is None:
+            raise
+        registo.warning("%s: fonte indisponível (%s); uso a última recolha", conector.estado, erro)
+        quando = anterior.obtido_em.astimezone(UTC)
+        anotacao = (
+            f"::warning title=Voto antecipado {conector.estado}::Fonte indisponível ({erro}); "
+            f"publicados os números da recolha de {quando:%d/%m %H:%M} UTC."
+        )
+        # Fica visível no resumo do workflow, sem pôr a execução a vermelho.
+        print(anotacao, file=sys.stderr)  # noqa: T201
+        aviso = (
+            f"A fonte oficial não respondeu ao último pedido; os números são da recolha de "
+            f"{quando.day}/{quando.month} às {quando:%H:%M} UTC."
+        )
+        return anterior, aviso
+
+
 def gerado_em_local(caminho: Path) -> datetime:
     return datetime.fromtimestamp(caminho.stat().st_mtime, tz=UTC)
 
@@ -67,9 +116,14 @@ def fonte(conector: ConectorAgregado, descarga: Descarga) -> Fonte:
 def executar(estado: CodigoEstado, raiz: Path, saida: Path, *, descarregar_: bool) -> None:
     conector = CONECTORES[estado]
     eleicao = conector.eleicao(ANO)
-    with httpx.Client(timeout=httpx.Timeout(60.0, read=600.0), follow_redirects=True) as cliente:
-        url = conector.url_atual(cliente) if descarregar_ else "https://exemplo.invalid/local"
-        descarga = obter(conector, url, ANO, raiz, cliente if descarregar_ else None)
+    aviso_fonte: str | None = None
+    if descarregar_:
+        with httpx.Client(
+            timeout=httpx.Timeout(60.0, read=600.0), follow_redirects=True
+        ) as cliente:
+            descarga, aviso_fonte = recolher(conector, raiz, cliente)
+    else:
+        descarga = obter(conector, "https://exemplo.invalid/local", ANO, raiz, None)
     boletins, relatorio = conector.ler(descarga.caminho, eleicao)
     if relatorio.linhas_invalidas:
         registo.warning("%s: %s linhas inválidas ignoradas", estado, relatorio.linhas_invalidas)
@@ -87,6 +141,8 @@ def executar(estado: CodigoEstado, raiz: Path, saida: Path, *, descarregar_: boo
     ]
     em_falta = [ano for ano in conector.anos_base if not persistir.existe(referencia, ano)]
     avisos = list(conector.avisos)
+    if aviso_fonte:
+        avisos.append(aviso_fonte)
     if em_falta:
         avisos.append(
             f"Sem comparação com {', '.join(map(str, em_falta))}: cubos de referência em falta."

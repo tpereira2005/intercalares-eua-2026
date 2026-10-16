@@ -21,6 +21,7 @@ from pipeline.connectors.results.ga.conector import ConectorGA
 from pipeline.connectors.results.nc.conector import ConectorNC
 from pipeline.connectors.results.ne.conector import ConectorNE
 from pipeline.connectors.results.va.conector import ConectorVA
+from pipeline.connectors.results.wa.conector import ConectorWA
 
 CONECTORES: dict[CodigoEstado, ConectorResultados] = {
     CodigoEstado.NC: ConectorNC(),
@@ -34,6 +35,7 @@ CONECTORES: dict[CodigoEstado, ConectorResultados] = {
     CodigoEstado.NE: ConectorNE(),
     CodigoEstado.AZ: ConectorCondados(CodigoEstado.AZ, (FonteMaricopa(),)),
     CodigoEstado.CA: ConectorCA(),
+    CodigoEstado.WA: ConectorWA(),
 }
 
 DISTRITOS: dict[CodigoEstado, int] = {
@@ -48,6 +50,7 @@ DISTRITOS: dict[CodigoEstado, int] = {
     CodigoEstado.NE: 3,
     CodigoEstado.AZ: 9,
     CodigoEstado.CA: 52,
+    CodigoEstado.WA: 10,
 }
 """Distritos da Câmara em 2026. Uma corrida sem oposição pode não aparecer no feed (na
 Florida, os candidatos sem adversário não vão a votos)."""
