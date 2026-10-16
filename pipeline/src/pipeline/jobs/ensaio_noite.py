@@ -5,6 +5,9 @@ Uso::
     uv run python -m pipeline.jobs.ensaio_noite --estados NC,FL,GA,AK,TX --data 2024-11-05 \\
         --duracao 300 --intervalo 5 --relatorio /tmp/ensaio-noite-2024.md
 
+Com ``--publicar ETIQUETA`` cada ciclo envia os ficheiros alterados para essa Release (com
+``gh release upload --clobber``, como a recolha de produção); ``resultados-2026`` é recusada.
+
 Ao contrário de ``ensaio_resultados`` (que reconstrói retratos em memória) e dos testes de
 ``test_robustez_noite`` (que simulam o HTTP com ``MockTransport``), aqui corre o ciclo REAL de
 ``pipeline.jobs.resultados`` (``Recolha`` + ``executar``, com o cliente ``httpx`` verdadeiro,
@@ -1211,6 +1214,20 @@ def _fechar(  # noqa: PLR0912, PLR0917
     return [Invariante(k, INVARIANTES[k], v[k]) for k in INVARIANTES]
 
 
+ETIQUETA_PRODUCAO = "resultados-2026"
+"""Release da noite real: o ensaio nunca publica para aí."""
+
+
+def validar_etiqueta(publicar: str | None) -> None:
+    """Recusa publicar o ensaio na Release de produção."""
+    if publicar is not None and publicar.strip() == ETIQUETA_PRODUCAO:
+        msg = (
+            f"o ensaio não pode publicar na Release de produção {ETIQUETA_PRODUCAO!r}; "
+            "usa outra etiqueta (por exemplo resultados-ensaio)"
+        )
+        raise ValueError(msg)
+
+
 def executar(
     estados: list[CodigoEstado],
     data: date,
@@ -1226,8 +1243,14 @@ def executar(
     retry_after: int = 5,
     latencia_maxima: float | None = None,
     manual: bool = False,
+    publicar: str | None = None,
 ) -> Relatorio:
-    """Corre o ensaio e devolve o relatório (não termina o processo)."""
+    """Corre o ensaio e devolve o relatório (não termina o processo).
+
+    Com ``publicar``, cada ciclo envia os ficheiros alterados para essa Release, como a
+    recolha de produção (``Recolha.enviar``).
+    """
+    validar_etiqueta(publicar)
     conectores = [CONECTORES[e] for e in estados]
     ignorar = frozenset(MANUAIS) if manual else frozenset()
     preparar_espelho(raiz, conectores, data, descarga=descarga)
@@ -1278,6 +1301,8 @@ def executar(
         espelho.url,
         cliente=http,
         orcamento=min(ORCAMENTO_CICLO, intervalo / 3),
+        publicar=publicar,
+        reconstruido=True,  # o espelho repete os ficheiros finais de uma eleição passada
         manual=URL_MANUAL if manual else None,
         observador=observador,
     )
@@ -1338,7 +1363,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--manual", action="store_true", help="servir também entradas manuais (PA-S, TX-S)"
     )
+    parser.add_argument(
+        "--publicar",
+        metavar="ETIQUETA",
+        help="Release de ensaio para onde enviar os ficheiros a cada ciclo (nunca resultados-2026)",
+    )
     args = parser.parse_args(argv)
+    try:
+        validar_etiqueta(args.publicar)
+    except ValueError as erro:
+        parser.error(str(erro))
     logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s %(message)s")
     estados = [CodigoEstado(e.strip().upper()) for e in args.estados.split(",")]
     relatorio = executar(
@@ -1352,6 +1386,7 @@ def main(argv: list[str] | None = None) -> int:
         lento_s=args.lento,
         latencia_maxima=args.latencia_maxima,
         manual=args.manual,
+        publicar=args.publicar,
     )
     texto = para_markdown(relatorio)
     if args.relatorio:
