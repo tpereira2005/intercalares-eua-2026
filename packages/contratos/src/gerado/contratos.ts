@@ -1666,6 +1666,48 @@ export interface ResumoSensibilidade {
   prob_controlo_d: number;
 }
 /**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "SaudeEstado".
+ *
+ * This interface was referenced by `undefined`'s JSON-Schema definition
+ * via the `patternProperty` "^[A-Z]{2}(-manual)?$".
+ */
+export interface SaudeEstado {
+  /**
+   * Motivo curto quando o estado precisa de atenção (falhas seguidas, ou fonte parada com
+   * a contagem por acabar); ``None`` quando está tudo bem.
+   */
+  alerta: string | null;
+  /**
+   * Todas as corridas do estado com todas as unidades apuradas.
+   */
+  apurado: boolean;
+  falhas_seguidas: number;
+  /**
+   * Último ciclo em que a fonte trouxe dados novos.
+   */
+  ultima_alteracao: string | null;
+  /**
+   * Mensagem técnica da última falha, para quem acompanha a recolha.
+   */
+  ultimo_erro: string | null;
+  /**
+   * Último ciclo em que a fonte respondeu com um ficheiro válido (novo ou igual).
+   */
+  ultimo_sucesso: string | null;
+}
+/**
+ * This interface was referenced by `Contratos`'s JSON-Schema
+ * via the `definition` "SaudeRecolha".
+ */
+export interface SaudeRecolha {
+  data_eleicao: string;
+  estados: {
+    [k: string]: SaudeEstado | undefined;
+  };
+  metadados: Metadados;
+}
+/**
  * Sensibilidade da previsão, calculada com os mesmos dados e o mesmo corte da
  * ``PrevisaoCongresso`` do dia. A primeira variante é o modelo publicado.
  *

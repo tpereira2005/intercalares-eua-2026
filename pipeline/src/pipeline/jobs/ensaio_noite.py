@@ -58,6 +58,7 @@ from contratos.resultados import (
     ResultadosNacional,
     ResultadosParciais,
 )
+from contratos.saude import SaudeRecolha
 from pipeline.comum.descarga import USER_AGENT, contexto_tls, descarregar, obter_texto
 from pipeline.comum.erros import ErroPipeline
 from pipeline.connectors.results.comum import ConectorResultados
@@ -881,10 +882,7 @@ class Observador:
         self, nome: str, texto: bytes
     ) -> ResultadosEstado | ResultadosNacional | ResultadosParciais | None:
         if nome == SAUDE:
-            dados = json.loads(texto)
-            if not isinstance(dados.get("estados"), dict) or "gerado_em" not in dados:
-                msg = "saude.json sem estados ou gerado_em"
-                raise ValueError(msg)
+            SaudeRecolha.model_validate_json(texto)
             return None
         if nome == NACIONAL:
             return ResultadosNacional.model_validate_json(texto)
