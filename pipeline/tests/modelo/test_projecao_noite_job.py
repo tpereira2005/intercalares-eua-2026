@@ -15,6 +15,7 @@ from pipeline.jobs.projecao_noite import (
     ProjecaoIncoerente,
     ano_referencia,
     executar,
+    main,
     verificar,
 )
 from pipeline.modelo.noite.historico import HistoricoIncompativel, acrescentar, ponto
@@ -176,3 +177,16 @@ def test_ciclo_que_falha_nao_apaga_o_ultimo_ficheiro(
     projecao_json, historico_json = noite.caminhos
     assert projecao_json.exists()
     assert len(HistoricoNoite.model_validate_json(historico_json.read_bytes()).pontos) == 1
+
+
+@pytest.mark.parametrize(
+    "argumentos",
+    [
+        ["--parciais", "parciais.json"],
+        ["--parciais", "parciais.json", "--backtest", "2024", "--previsao", "p.json"],
+        ["--parciais", "parciais.json", "--backtest", "2026"],
+    ],
+)
+def test_parciais_exigem_uma_so_previsao_de_partida(argumentos: list[str]) -> None:
+    with pytest.raises(SystemExit):
+        main(argumentos)
