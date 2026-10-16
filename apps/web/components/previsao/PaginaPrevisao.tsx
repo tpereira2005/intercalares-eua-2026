@@ -578,6 +578,11 @@ function PainelBacktests({ vista }: { vista: VistaPrevisao }) {
           })}
         </tbody>
       </table>
+      <p className="text-sm">
+        <Link href="/previsao/avaliacao/" className={LIGACAO}>
+          {t("previsao.backtests.avaliacao2026")}
+        </Link>
+      </p>
     </Painel>
   );
 }
