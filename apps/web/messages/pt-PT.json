@@ -1307,5 +1307,46 @@
       "texto": "O código do pipeline, dos modelos e do site é público, tal como os ficheiros de dados publicados. Cada alteração passa por testes automáticos antes de entrar.",
       "ligacao": "Ver o repositório no GitHub"
     }
+  },
+  "guia": {
+    "titulo": "O que seguir na noite eleitoral",
+    "descricao": "Hora a hora, em hora de Lisboa, as corridas em jogo em cada estado que fecha as urnas, com a previsão congelada e o consenso de outros prognosticadores.",
+    "sobrelinha": "Noite eleitoral · 3 para 4 de novembro",
+    "lede": "Quando fecham as urnas de cada estado, que corridas convém seguir e como se contam os votos. São {total} corridas em jogo, ordenadas pela hora de fecho e, dentro de cada estado, da mais renhida para a menos.",
+    "decisivas": {
+      "sobrelinha": "Caminho para a maioria",
+      "titulo": "As corridas decisivas",
+      "texto": "A corrida que dá a cada partido o lugar da maioria, se ganhar também todas as que tem mais probabilidade de ganhar. Os dois lados leem-se com a mesma regra.",
+      "metodo": "leitura direta da previsão congelada: as corridas ordenam-se pela probabilidade de vitória de cada partido e conta-se quantas cada um precisa de ganhar.",
+      "linha": "{prob} para os {partido}",
+      "fecho": "fecha às {hora}",
+      "semFecho": "sem horário",
+      "camaras": {
+        "senado": "Senado",
+        "camara": "Câmara dos Representantes"
+      },
+      "ambos": "decisiva para os dois partidos, D {prob}"
+    },
+    "hora": {
+      "sobrelinha": "Hora a hora · hora de Lisboa",
+      "titulo": "Estado a estado, pela hora de fecho",
+      "texto": "Mostram-se as corridas que a previsão dá como inclinadas ou renhidas, as que ficam perto da linha da maioria e as que outros prognosticadores dão como inclinadas ou renhidas. Os primeiros números de um estado podem não se parecer com o resultado final.",
+      "metodo": "horários de fecho compilados pela fonte e confirmados na lei de cada estado; categorias da previsão congelada a 1 de novembro; consenso: mediana das classificações dos prognosticadores recolhidas na Wikipedia; ordem de contagem do Modelo C da noite eleitoral.",
+      "metodoSemConsenso": "horários de fecho compilados pela fonte e confirmados na lei de cada estado; categorias da previsão congelada a 1 de novembro; ordem de contagem do Modelo C da noite eleitoral.",
+      "semCorridas": "Também fecham, sem corridas em jogo: {estados}.",
+      "nenhuma": "Nenhuma corrida em jogo.",
+      "probD": "D {p}",
+      "consenso": "consenso: {categoria}",
+      "decisivaD": "decisiva D",
+      "decisivaR": "decisiva R",
+      "decisivaAmbos": "decisiva D e R",
+      "contagem": {
+        "antecipadoPrimeiro": "Primeiro chega o voto antecipado de cada condado, depois o do dia: a vantagem inicial pode mudar de lado.",
+        "correioDepois": "O correio conta-se depois do voto do dia, por vezes durante dias: a vantagem inicial pode mudar de lado."
+      },
+      "senado": "Senado",
+      "senadoEspecial": "Senado (especial)"
+    },
+    "ligacao": "O que seguir a cada hora"
   }
 }

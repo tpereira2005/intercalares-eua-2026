@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Painel } from "@/components/ui/Painel.tsx";
 import { nomeEstado } from "@/lib/estados.ts";
 import { FONTE_FECHO, gruposFecho } from "@/lib/fecho.ts";
@@ -78,6 +79,17 @@ export function HorariosFecho({ previsao }: { previsao: VistaPrevisao | null }) 
           </li>
         ))}
       </ol>
+      {previsao ? (
+        <p className="text-sm">
+          <Link
+            href="/resultados/guia/"
+            prefetch={false}
+            className="text-ink underline decoration-rule underline-offset-[3px]"
+          >
+            {t("guia.ligacao")}
+          </Link>
+        </p>
+      ) : null}
     </Painel>
   );
 }
