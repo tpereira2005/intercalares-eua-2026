@@ -28,7 +28,7 @@ on:
         default: ""
       estados:
         description: Estados a recolher na noite (os bloqueados no Actions ficam de fora)
-        default: "NC,FL,GA,AK,TX,VA,NE,AZ,CA"
+        default: "NC,FL,GA,AK,TX,VA,NE,AZ,CA,WA"
 
 permissions:
   contents: read
@@ -66,6 +66,8 @@ jobs:
           - { estado: AK, data: "2024-11-05" }
           - { estado: TX, data: "2022-11-08" }
           - { estado: TX, data: "2024-11-05" }
+          - { estado: WA, data: "2022-11-08" }
+          - { estado: WA, data: "2024-11-05" }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
