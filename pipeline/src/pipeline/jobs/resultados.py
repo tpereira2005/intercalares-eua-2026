@@ -26,7 +26,6 @@ um servidor local, para o ensaio geral.
 """
 
 import argparse
-import json
 import logging
 import shutil
 import subprocess
@@ -40,9 +39,10 @@ from urllib.parse import urlsplit
 
 import httpx
 
-from contratos.base import Fonte
+from contratos.base import Fonte, Metadados
 from contratos.estados import CodigoEstado
 from contratos.resultados import ResultadosEstado
+from contratos.saude import SaudeEstado, SaudeRecolha
 from pipeline.comum.descarga import (
     USER_AGENT,
     Descarga,
@@ -64,6 +64,10 @@ registo = logging.getLogger(__name__)
 NACIONAL = "nacional.json"
 PARCIAIS = "parciais.json"
 SAUDE = "saude.json"
+NOME_RECOLHA = "Escrutínio, recolha de resultados da noite eleitoral"
+URL_RECOLHA = (
+    "https://github.com/tpereira2005/intercalares-eua-2026/actions/workflows/resultados.yml"
+)
 FALHAS_ALERTA = 6
 """Falhas seguidas (3 minutos com o intervalo de 30 s) que tornam o estado um alerta."""
 
@@ -266,32 +270,31 @@ class Recolha:
             estado.ultima_alteracao = agora
         return caminho
 
-    def saude(self, agora: datetime | None = None) -> dict[str, object]:
-        """Estado da recolha para o vigia (não é um contrato do site)."""
+    def saude(self, agora: datetime | None = None) -> SaudeRecolha:
+        """Estado da recolha, por estado, para o vigia, o Worker e o site."""
         agora = agora or datetime.now(UTC)
-
-        def hora(valor: datetime | None) -> str | None:
-            return valor.isoformat() if valor else None
-
-        return {
-            "gerado_em": agora.isoformat(),
-            "data_eleicao": self.data.isoformat(),
-            "estados": {
-                chave: {
-                    "ultimo_sucesso": hora(e.ultimo_sucesso),
-                    "ultima_alteracao": hora(e.ultima_alteracao),
-                    "falhas_seguidas": e.falhas_seguidas,
-                    "ultimo_erro": e.ultimo_erro,
-                    "apurado": e.apurado(),
-                    "alerta": e.alerta(agora),
-                }
+        fonte = Fonte.model_validate(
+            {"nome": NOME_RECOLHA, "url": URL_RECOLHA, "licenca": None, "obtida_em": agora}
+        )
+        return SaudeRecolha(
+            metadados=Metadados(gerado_em=agora, fontes=(fonte,)),
+            data_eleicao=self.data,
+            estados={
+                chave: SaudeEstado(
+                    ultimo_sucesso=e.ultimo_sucesso,
+                    ultima_alteracao=e.ultima_alteracao,
+                    falhas_seguidas=e.falhas_seguidas,
+                    ultimo_erro=e.ultimo_erro,
+                    apurado=e.apurado(),
+                    alerta=e.alerta(agora),
+                )
                 for chave, e in self._registos()
             },
-        }
+        )
 
     def escrever_saude(self) -> Path:
         saida = self.saida / SAUDE
-        _escrever(saida, json.dumps(self.saude(), ensure_ascii=False, indent=2))
+        _escrever(saida, self.saude().model_dump_json(indent=2))
         return saida
 
     def _registos(self) -> list[tuple[str, EstadoRecolha]]:

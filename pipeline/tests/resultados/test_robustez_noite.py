@@ -15,8 +15,10 @@ from pathlib import Path
 
 import httpx
 import pytest
+from pydantic import ValidationError
 
 from contratos.resultados import ResultadosEstado
+from contratos.saude import SaudeRecolha
 from pipeline.connectors.results.ak.conector import ConectorAK
 from pipeline.connectors.results.comum import ConectorResultados
 from pipeline.connectors.results.fl.conector import ConectorFL
@@ -81,11 +83,10 @@ def test_um_estado_corrompido_ou_bloqueado_nao_para_os_outros(
     alterados = recolha.ciclo(CONECTORES)
     assert {p.name for p in alterados} == {"fl.json", "nacional.json", "parciais.json"}
     assert _publicados(recolha) == {"fl.json", "nacional.json", "parciais.json"}
-    saude = recolha.saude()["estados"]
-    assert isinstance(saude, dict)
-    assert saude["FL"]["falhas_seguidas"] == 0
-    assert saude["GA"]["falhas_seguidas"] == 1
-    assert "403" in saude["AK"]["ultimo_erro"]
+    saude = recolha.saude().estados
+    assert saude["FL"].falhas_seguidas == 0
+    assert saude["GA"].falhas_seguidas == 1
+    assert "403" in (saude["AK"].ultimo_erro or "")
 
 
 def test_429_com_retry_after_volta_a_tentar_e_publica(fontes: Fontes, recolha: Recolha) -> None:
@@ -150,7 +151,7 @@ def test_alerta_depois_de_falhas_seguidas_e_vigia_avisa(
     saude = json.loads((recolha.saida / "saude.json").read_text(encoding="utf-8"))
     assert saude["estados"]["GA"]["alerta"].startswith(f"{FALHAS_ALERTA} falhas seguidas")
     assert saude["estados"]["FL"]["alerta"] is None
-    agora = datetime.fromisoformat(saude["gerado_em"])
+    agora = datetime.fromisoformat(saude["metadados"]["gerado_em"])
     lista = vigia.alertas(saude, agora, maximo_minutos=12)
     assert len(lista) == 1
     assert lista[0].startswith("GA:")
@@ -236,3 +237,34 @@ def test_leitura_falhada_volta_a_descarregar_sem_pedido_condicional(
     # Sem o ETag guardado, o 304 não pode fazer passar por bom um ficheiro que não se leu.
     assert condicionais == [None, None]
     assert recolha.estados[ConectorGA().estado].falhas_seguidas == 2
+
+
+def test_saude_segue_o_contrato_e_o_vigia_le_o_formato_antigo() -> None:
+    gerado = datetime(2026, 11, 4, 2, 0, tzinfo=UTC)
+    saude = SaudeRecolha.model_validate(
+        {
+            "metadados": {
+                "gerado_em": gerado.isoformat(),
+                "fontes": [{"nome": "Recolha", "url": "https://exemplo.org/", "obtida_em": gerado}],
+            },
+            "data_eleicao": "2026-11-03",
+            "estados": {
+                "TX-manual": {
+                    "ultimo_sucesso": None,
+                    "ultima_alteracao": None,
+                    "falhas_seguidas": 0,
+                    "ultimo_erro": None,
+                    "apurado": False,
+                    "alerta": None,
+                }
+            },
+        }
+    )
+    novo = saude.model_dump(mode="json")
+    assert vigia.alertas(novo, gerado + timedelta(minutes=5), 12) == []
+    antigo = {"gerado_em": gerado.isoformat(), "estados": {}}
+    assert vigia.alertas(antigo, gerado + timedelta(minutes=5), 12) == [
+        "A recolha não tem nenhum estado."
+    ]
+    with pytest.raises(ValidationError):
+        SaudeRecolha.model_validate({**novo, "estados": {"Texas": novo["estados"]["TX-manual"]}})

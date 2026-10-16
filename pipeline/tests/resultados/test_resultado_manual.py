@@ -188,7 +188,7 @@ def test_no_texas_a_entrada_manual_substitui_os_condados_da_corrida(tmp_path: Pa
     alterados = {p.name for p in recolha.ciclo([texas])}
     assert {"tx.json", "tx-manual.json", "nacional.json", "parciais.json"} <= alterados
     assert set(recolha.sobrepostos) == {CodigoEstado.TX}
-    assert "TX-manual" in recolha.saude()["estados"]  # type: ignore[operator]
+    assert "TX-manual" in recolha.saude().estados
 
     nacional = ResultadosNacional.model_validate_json(
         (tmp_path / "pub" / "nacional.json").read_bytes()

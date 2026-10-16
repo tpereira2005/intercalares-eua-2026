@@ -48,10 +48,19 @@ def ler(origem: str) -> dict[str, Any]:
     return dados
 
 
+def _gerado_em(saude: dict[str, Any]) -> object:
+    """Hora de geração: em ``metadados`` desde o contrato ``SaudeRecolha``; no topo nos
+    ficheiros anteriores."""
+    metadados = saude.get("metadados")
+    if isinstance(metadados, dict) and "gerado_em" in metadados:
+        return metadados["gerado_em"]
+    return saude.get("gerado_em")
+
+
 def alertas(saude: dict[str, Any], agora: datetime, maximo_minutos: float) -> list[str]:
     resultado: list[str] = []
     try:
-        gerado = datetime.fromisoformat(str(saude.get("gerado_em")))
+        gerado = datetime.fromisoformat(str(_gerado_em(saude)))
     except ValueError:
         return ["saude.json sem hora de geração válida."]
     idade = (agora - gerado).total_seconds() / 60
@@ -75,7 +84,7 @@ def resumo(saude: dict[str, Any], lista: list[str]) -> str:
     linhas = [
         "## Vigia da noite eleitoral",
         "",
-        f"saude.json gerado em {saude.get('gerado_em')}.",
+        f"saude.json gerado em {_gerado_em(saude)}.",
         "",
         *(f"- {a}" for a in lista),
         "",

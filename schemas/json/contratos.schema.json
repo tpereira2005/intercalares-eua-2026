@@ -4594,6 +4594,110 @@
       "title": "ResumoSensibilidade",
       "type": "object"
     },
+    "SaudeEstado": {
+      "additionalProperties": false,
+      "properties": {
+        "alerta": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Motivo curto quando o estado precisa de atenção (falhas seguidas, ou fonte parada com\na contagem por acabar); ``None`` quando está tudo bem.",
+          "title": "Alerta"
+        },
+        "apurado": {
+          "description": "Todas as corridas do estado com todas as unidades apuradas.",
+          "title": "Apurado",
+          "type": "boolean"
+        },
+        "falhas_seguidas": {
+          "minimum": 0,
+          "title": "Falhas Seguidas",
+          "type": "integer"
+        },
+        "ultima_alteracao": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Último ciclo em que a fonte trouxe dados novos.",
+          "title": "Ultima Alteracao"
+        },
+        "ultimo_erro": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Mensagem técnica da última falha, para quem acompanha a recolha.",
+          "title": "Ultimo Erro"
+        },
+        "ultimo_sucesso": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Último ciclo em que a fonte respondeu com um ficheiro válido (novo ou igual).",
+          "title": "Ultimo Sucesso"
+        }
+      },
+      "required": [
+        "ultimo_sucesso",
+        "ultima_alteracao",
+        "falhas_seguidas",
+        "ultimo_erro",
+        "apurado",
+        "alerta"
+      ],
+      "title": "SaudeEstado",
+      "type": "object"
+    },
+    "SaudeRecolha": {
+      "additionalProperties": false,
+      "properties": {
+        "data_eleicao": {
+          "format": "date",
+          "title": "Data Eleicao",
+          "type": "string"
+        },
+        "estados": {
+          "patternProperties": {
+            "^[A-Z]{2}(-manual)?$": {
+              "$ref": "#/$defs/SaudeEstado"
+            }
+          },
+          "title": "Estados",
+          "type": "object"
+        },
+        "metadados": {
+          "$ref": "#/$defs/Metadados"
+        }
+      },
+      "required": [
+        "metadados",
+        "data_eleicao",
+        "estados"
+      ],
+      "title": "SaudeRecolha",
+      "type": "object"
+    },
     "SensibilidadePrevisao": {
       "additionalProperties": false,
       "description": "Sensibilidade da previsão, calculada com os mesmos dados e o mesmo corte da\n``PrevisaoCongresso`` do dia. A primeira variante é o modelo publicado.",
