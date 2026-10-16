@@ -54,5 +54,12 @@
   "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/91",
   "camara": {"antes": 0.9456, "depois": 0.85315},
   "senado": {"antes": 0.71245, "depois": 0.65585}
+ },
+ {
+  "data": "2026-10-16",
+  "descricao": "As classificações de Cook, Sabato e Inside Elections entram em cada corrida das duas câmaras: a pontuação média traduz-se numa margem estimada com os anos anteriores e junta-se ao modelo pela precisão, de forma simétrica entre partidos. Melhorou o Brier das corridas em todos os backtests (Câmara 2018 de 0,049 para 0,031, 2022 de 0,030 para 0,024, 2024 de 0,018 para 0,014). Testadas e não adotadas: aprovação presidencial e eleições especiais.",
+  "pr_url": "https://github.com/tpereira2005/intercalares-eua-2026/pull/98",
+  "camara": {"antes": 0.85725, "depois": 0.7035},
+  "senado": {"antes": 0.65675, "depois": 0.63855}
  }
 ]

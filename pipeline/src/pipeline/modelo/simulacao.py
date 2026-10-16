@@ -13,6 +13,7 @@ inversamente proporcionais às respetivas variâncias. Tudo é simétrico: troca
 em todas as entradas troca exatamente os resultados.
 """
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -123,12 +124,27 @@ def sortear_choques(
     )
 
 
+def combinar_especialistas(
+    centro: float, variancia: float, especialistas: tuple[float, float] | None
+) -> tuple[float, float]:
+    """Centro e variância própria depois de juntar a margem implícita nas classificações
+    dos especialistas (margem, desvio-padrão), pela precisão."""
+    if especialistas is None:
+        return centro, variancia
+    margem, sd = especialistas
+    var_e = sd**2
+    peso = variancia / (variancia + var_e)
+    return (1 - peso) * centro + peso * margem, variancia * var_e / (variancia + var_e)
+
+
 def simular_camara(
     linhas: list[LinhaModelo],
     fundamentos: Fundamentos,
     ambiente: Ambiente,
     choques: Choques,
     rng: np.random.Generator,
+    *,
+    especialistas: Mapping[str, tuple[float, float]] | None = None,
 ) -> ResultadoCamara:
     n = len(choques.nacional)
     erro_ano = rng.normal(0.0, fundamentos.sd_ano, n)
@@ -141,12 +157,15 @@ def simular_camara(
             vence = np.full(n, linha.certo in {"D", "I"})
             margens = np.full(n, 100.0 if linha.certo in {"D", "I"} else -100.0)
         else:
+            centro, var_propria = combinar_especialistas(
+                esperado, fundamentos.sd_corrida**2, (especialistas or {}).get(linha.id)
+            )
             margens = (
-                esperado
+                centro
                 + choques.nacional
                 + erro_ano
                 + choques.regioes[linha.regiao]
-                + rng.normal(0.0, fundamentos.sd_corrida, n)
+                + rng.normal(0.0, float(np.sqrt(var_propria)), n)
             )
             vence = margens > 0
         lugares += vence
@@ -177,6 +196,7 @@ def simular_senado(
     composicao: ComposicaoSenado,
     choques: Choques,
     rng: np.random.Generator,
+    especialistas: Mapping[str, tuple[float, float]] | None = None,
 ) -> ResultadoCamara:
     n = len(choques.nacional)
     erro_ano = rng.normal(0.0, fundamentos.sd_ano, n)
@@ -201,6 +221,9 @@ def simular_senado(
             peso = float(var_f / (var_f + var_p)) if sond else 0.0
             centro = (1 - peso) * esperado + peso * (sond.margem if sond else 0.0)
             var_propria = var_f * var_p / (var_f + var_p) if sond else var_f
+            centro, var_propria = combinar_especialistas(
+                centro, var_propria, (especialistas or {}).get(linha.id)
+            )
             comum = (1 - peso) * (choques.nacional + erro_ano) + peso * (
                 erro.ligacao_nacional * choques.nacional + erro_sondagens_ano
             )

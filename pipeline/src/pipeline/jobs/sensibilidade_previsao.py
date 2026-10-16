@@ -141,6 +141,12 @@ VARIANTES: tuple[Variante, ...] = (
         "Ignora as sondagens do Senado e usa só os fundamentos de cada corrida.",
     ),
     Variante(
+        "Sem as classificações dos especialistas",
+        Ajustes(especialistas=False),
+        "Ignora as classificações de Cook, Sabato e Inside Elections, como antes de 16 de "
+        "outubro de 2026.",
+    ),
+    Variante(
         "Incumbentes corrigidos face às sondagens",
         Ajustes(incumbentes_sondagens=True),
         "Corrige a média das sondagens de cada incumbente pelo desvio histórico. "
@@ -299,7 +305,13 @@ def main() -> None:
         corridas, sondagens, redesenhados, (generico, agregadores) = carga.dados_2026(
             cliente, atualizar=not args.sem_descarga
         )
-    dados = carga.carregar(atual=corridas, sondagens_atuais=sondagens, redesenho_atual=redesenhados)
+        classificacoes = carga.classificacoes_2026(cliente, atualizar=not args.sem_descarga)
+    dados = carga.carregar(
+        atual=corridas,
+        sondagens_atuais=sondagens,
+        redesenho_atual=redesenhados,
+        classificacoes_atuais=classificacoes,
+    )
     publicado = (generico, "agregadores") if agregadores else None
     linhas = analisar(dados, corte, publicado)
     args.saida.parent.mkdir(parents=True, exist_ok=True)
