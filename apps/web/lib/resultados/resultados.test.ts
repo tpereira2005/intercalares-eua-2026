@@ -132,6 +132,7 @@ describe("construirVistaResultados", () => {
       ["NE", 0],
       ["AZ", 0],
       ["CA", 0],
+      ["WA", 0],
       ["IA", 1],
     ]);
     expect(vista.cobertura.find((c) => c.estado === "GA")?.soTotal).toBe(true);
