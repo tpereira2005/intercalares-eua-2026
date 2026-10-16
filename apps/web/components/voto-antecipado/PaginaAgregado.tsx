@@ -11,7 +11,7 @@ import {
   formatarPontos,
   formatarVariacao,
 } from "@/lib/formatacao.ts";
-import { t } from "@/lib/mensagens.ts";
+import { type ChaveMensagem, t } from "@/lib/mensagens.ts";
 import type { VistaAgregada } from "@/lib/voto-antecipado/agregado.ts";
 import { PARTIDOS } from "@/lib/voto-antecipado/vista.ts";
 import { resumirAgregado } from "@/lib/voto-antecipado/resumo.ts";
@@ -211,9 +211,24 @@ export function PaginaAgregado({
       )
     : [];
 
-  const partidos = (principal?.partidos ?? []).filter((p) => p.quota !== null);
+  // Sem ano de referência, mostra-se só a composição de 2026, sem traço nem ritmo.
+  const partidos = (principal?.partidos ?? vista.composicao.partidos).filter(
+    (p) => p.quota !== null,
+  );
   const pedidos = vista.pedidos.partidos;
-  const modalidades = (principal?.modalidades ?? []).filter((m) => m.votos > 0);
+  const modalidades = (principal?.modalidades ?? vista.composicao.modalidades).filter(
+    (m) => m.votos > 0,
+  );
+  // Uma fonte "por condado" que ainda não trouxe nenhum condado só tem o total do estado.
+  const semGeografia =
+    vista.granularidade === "condado" && vista.geografia.length === 0 && vista.condados.length <= 1;
+  const lede: ChaveMensagem = semGeografia
+    ? vista.semPartido
+      ? "agregado.lede.totalEstadoSemPartido"
+      : "agregado.lede.totalEstado"
+    : vista.semPartido && vista.granularidade === "condado"
+      ? "agregado.lede.condadoSemPartido"
+      : `agregado.lede.${vista.granularidade}`;
 
   return (
     <div className="flex flex-col gap-4">
@@ -223,13 +238,7 @@ export function PaginaAgregado({
           <h1 className="font-display text-[clamp(30px,5vw,40px)] leading-[1.02] font-bold">
             {t("agregado.titulo", { estado })}
           </h1>
-          <p className="mt-1.5 max-w-[68ch] text-[15.5px] text-ink-2">
-            {t(
-              vista.semPartido && vista.granularidade === "condado"
-                ? "agregado.lede.condadoSemPartido"
-                : `agregado.lede.${vista.granularidade}`,
-            )}
-          </p>
+          <p className="mt-1.5 max-w-[68ch] text-[15.5px] text-ink-2">{t(lede)}</p>
         </div>
         <div className="flex flex-col items-start gap-1.5 sm:items-end">
           <QualidadeDados nivel={qualidade} naoOficial={vista.naoOficial} comTexto />
@@ -254,7 +263,7 @@ export function PaginaAgregado({
       )}
 
       <div className="grid gap-4 min-[860px]:grid-cols-2">
-        {curvaAtual && vista.curvas.length > 1 ? (
+        {curvaAtual ? (
           <Painel
             sobrelinha={t("agregado.ritmo.sobrelinha")}
             titulo={t("agregado.ritmo.titulo")}
@@ -322,13 +331,21 @@ export function PaginaAgregado({
           </Painel>
         ) : null}
 
-        {principal && partidos.length > 0 ? (
+        {partidos.length > 0 ? (
           <Painel
             sobrelinha={t("agregado.partido.sobrelinha")}
             titulo={t("agregado.partido.titulo")}
-            descricao={t("agregado.partido.texto", { ano: principal.anoBase })}
+            descricao={
+              principal
+                ? t("agregado.partido.texto", { ano: principal.anoBase })
+                : t("agregado.partido.textoSemBase")
+            }
             fontes={fontes}
-            metodo={t("agregado.partido.metodo", { ano: principal.anoBase })}
+            metodo={
+              principal
+                ? t("agregado.partido.metodo", { ano: principal.anoBase })
+                : t("agregado.partido.metodoSemBase")
+            }
           >
             <BarrasReserva
               titulo={t("agregado.partido.aria")}
@@ -341,7 +358,7 @@ export function PaginaAgregado({
                 mobilizacaoBase: p.quotaBase,
               }))}
               detalhes={partidos.map((p) =>
-                p.ritmo === null
+                p.ritmo === null || !principal
                   ? formatarNumero(p.votos)
                   : t("agregado.partido.ritmo", {
                       valor: formatarVariacao(p.ritmo),
@@ -350,7 +367,7 @@ export function PaginaAgregado({
               )}
               anoAtual={ano}
               comparacoes={vista.comparacoes}
-              anoBase={principal.anoBase}
+              anoBase={principal?.anoBase ?? null}
             />
           </Painel>
         ) : null}
@@ -434,12 +451,16 @@ export function PaginaAgregado({
           </Painel>
         ) : null}
 
-        {principal && modalidades.length > 1 ? (
+        {modalidades.length > 1 ? (
           <Painel
             sobrelinha={t("agregado.modalidade.sobrelinha")}
             titulo={t("agregado.modalidade.titulo")}
             fontes={fontes}
-            metodo={t("agregado.modalidade.metodo", { ano: principal.anoBase })}
+            metodo={
+              principal
+                ? t("agregado.modalidade.metodo", { ano: principal.anoBase })
+                : t("agregado.modalidade.metodoSemBase")
+            }
           >
             <table className="w-full text-sm">
               <caption className="sr-only">{t("agregado.modalidade.titulo")}</caption>
@@ -451,9 +472,11 @@ export function PaginaAgregado({
                   <th scope="col" className="rotulo pb-1.5 pl-4 text-right">
                     {t("agregado.modalidade.quota", { ano })}
                   </th>
-                  <th scope="col" className="rotulo pb-1.5 pl-4 text-right">
-                    {t("agregado.modalidade.ritmo", { ano: principal.anoBase })}
-                  </th>
+                  {principal ? (
+                    <th scope="col" className="rotulo pb-1.5 pl-4 text-right">
+                      {t("agregado.modalidade.ritmo", { ano: principal.anoBase })}
+                    </th>
+                  ) : null}
                 </tr>
               </thead>
               <tbody>
@@ -465,9 +488,11 @@ export function PaginaAgregado({
                     <td className="py-0.5 pl-4 text-right font-semibold">
                       {m.quota === null ? t("comum.semDados") : formatarPercentagem(m.quota)}
                     </td>
-                    <td className="py-0.5 pl-4 text-right font-semibold">
-                      {m.ritmo === null ? t("comum.semDados") : formatarVariacao(m.ritmo)}
-                    </td>
+                    {principal ? (
+                      <td className="py-0.5 pl-4 text-right font-semibold">
+                        {m.ritmo === null ? t("comum.semDados") : formatarVariacao(m.ritmo)}
+                      </td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>
