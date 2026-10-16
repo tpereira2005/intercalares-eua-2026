@@ -892,7 +892,9 @@
     "lede": {
       "boletim": "Um registo por boletim, sem nomes. Sem os recenseados de cada grupo não há taxas de participação: comparamos votos com votos no mesmo dia do ciclo.",
       "condado": "Só os totais por condado e partido que a fonte publica. Comparamos votos com votos no mesmo dia do ciclo, sem taxas de participação.",
-      "condadoSemPartido": "Só os totais por condado que a fonte publica, sem partido nem idade. Mostramos o ritmo diário e de onde vêm os votos."
+      "condadoSemPartido": "Só os totais por condado que a fonte publica, sem partido nem idade. Mostramos o ritmo diário e de onde vêm os votos.",
+      "totalEstado": "Só os totais do estado que a fonte publica, por modalidade e partido. Comparamos votos com votos no mesmo dia do ciclo, sem taxas de participação.",
+      "totalEstadoSemPartido": "Só os totais do estado que a fonte publica, sem partido nem idade. Mostramos o ritmo diário à medida que as recolhas se acumulam."
     },
     "kpis": {
       "votos": "Votos antecipados até {data}",
@@ -924,7 +926,9 @@
       "texto": "Quota de cada partido de registo nos votos até hoje; o traço é a mesma quota no mesmo dia de {ano}. Registo não é voto.",
       "aria": "Quota de cada partido de registo nos votos antecipados",
       "ritmo": "ritmo {valor} face a {ano}",
-      "metodo": "quota nos votos antecipados até ao dia; ritmo = votos do partido / votos do partido no mesmo dia de {ano} − 1."
+      "metodo": "quota nos votos antecipados até ao dia; ritmo = votos do partido / votos do partido no mesmo dia de {ano} − 1.",
+      "textoSemBase": "Quota de cada partido de registo nos votos de 2026 até hoje. Ainda não há ano de referência para comparar. Registo não é voto.",
+      "metodoSemBase": "quota nos votos antecipados até ao dia, entre os votos com partido de registo conhecido."
     },
     "pedidos": {
       "sobrelinha": "Boletins pedidos",
@@ -939,7 +943,8 @@
       "titulo": "Correio e presencial",
       "quota": "Quota em {ano}",
       "ritmo": "Ritmo face a {ano}",
-      "metodo": "quota nos votos antecipados até ao dia e ritmo face ao mesmo dia de {ano}."
+      "metodo": "quota nos votos antecipados até ao dia e ritmo face ao mesmo dia de {ano}.",
+      "metodoSemBase": "quota nos votos antecipados até ao dia; sem ano de referência, não há ritmo."
     },
     "semComparacao": "Ainda não há ano de referência para este estado: a série começa com as nossas próprias recolhas.",
     "documentacao": "Metodologia dos estados sem ficheiro de eleitores",

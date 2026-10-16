@@ -117,6 +117,14 @@ export interface VistaAgregada {
   pedidosTotal: { pedidos: number; devolvidos: number } | null;
   /** Votos de 2026 por condado, do maior para o menor, com a quota do estado. */
   condados: { codigo: string; nome: string; votos: number; quota: number }[];
+  /**
+   * Quotas de 2026 no dia do ficheiro, para os estados ainda sem ano de referência (as
+   * fontes não oficiais da Geórgia, do Michigan, do Ohio e do Nevada). Sem base nem ritmo.
+   */
+  composicao: {
+    partidos: LinhaCategoria<PartidoRegisto>[];
+    modalidades: LinhaCategoria<Modalidade>[];
+  };
 }
 
 /** Janela das curvas, igual à da Carolina do Norte. */
@@ -256,6 +264,37 @@ function condados(dados: VotoAntecipadoAgregado): VistaAgregada["condados"] {
 
 type PontoDia = PontoSerieAgregado;
 
+/** Quotas de cada categoria nos votos do ano, no dia do ficheiro, sem ano de referência. */
+function composicao(dados: VotoAntecipadoAgregado): VistaAgregada["composicao"] {
+  const doDia = dados.serie.filter(
+    (p) => p.ano === dados.ano && p.dias_antes === dados.dias_antes && p.faixa === "total",
+  );
+  function quotas<C extends string>(
+    ordem: readonly C[],
+    votosDe: (categoria: C) => number,
+  ): LinhaCategoria<C>[] {
+    const votos = ordem.map((categoria) => ({ categoria, votos: votosDe(categoria) }));
+    const total = votos.reduce((s, v) => s + v.votos, 0);
+    return votos
+      .filter((v) => v.votos > 0)
+      .map((v) => ({
+        ...v,
+        votosBase: 0,
+        quota: razao(v.votos, total),
+        quotaBase: null,
+        ritmo: null,
+      }));
+  }
+  const soma = (filtro: (p: PontoDia) => boolean) =>
+    doDia.filter(filtro).reduce((s, p) => s + p.votos, 0);
+  return {
+    partidos: quotas(PARTIDOS, (c) => soma((p) => p.partido === c && p.modalidade === "total")),
+    modalidades: quotas(["correio", "presencial"] as const, (c) =>
+      soma((p) => p.partido === "total" && p.modalidade === c),
+    ),
+  };
+}
+
 function quotasPartido(
   pontos: readonly PontoDia[],
   ano: number,
@@ -357,5 +396,6 @@ export function construirVistaAgregada(dados: VotoAntecipadoAgregado): VistaAgre
       return l ? { pedidos: l.pedidos, devolvidos: l.devolvidos } : null;
     })(),
     condados: condados(dados),
+    composicao: composicao(dados),
   };
 }
