@@ -18,5 +18,6 @@ export const PAGINAS_FIXAS = [
   "/previsao/cenarios/",
   "/sondagens/",
   "/resultados/",
+  "/resultados/guia/",
   "/metodologia/",
 ] as const;
