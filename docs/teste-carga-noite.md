@@ -108,3 +108,13 @@ Conclusão: com as regras atuais cabem **cerca de 200 leitores simultâneos dura
 7. **Confirmar em produção**, antes da noite, no painel da Cloudflare, que um carregamento de página não conta como pedido do Worker e que a Release responde 304 a `If-None-Match`.
 
 Subir para o plano pago está fora de questão (ver "Custo zero" em `AGENTS.md`).
+
+## Ensaio na Cloudflare
+
+O ensaio local não mede a rede nem a cache reais. Para isso há o workflow manual **Ensaio de carga** (`.github/workflows/ensaio-carga.yml`), marcado para 28 de outubro com a thread de Dados, que publica a noite de 2024 numa Release de ensaio (`pipeline.jobs.ensaio_noite --manual`).
+
+1. **implantar**: publica um segundo Worker, `intercalares-eua-2026-ensaio`, no mesmo subdomínio workers.dev e no plano gratuito. É o mesmo código e o mesmo site, mas sem cron nem D1, com `AMBIENTE=ensaio`, e lê `parciais.json` e `chamadas-2026.json` da Release indicada (por omissão `resultados-ensaio`). A configuração é gerada por `apps/edge/scripts/configurar-ensaio.mjs`, que recusa a Release de produção.
+2. **carga**: `apps/edge/scripts/carga-remota.mjs` simula N leitores com a página da noite aberta, cada um a pedir `/api/ao-vivo` uma vez por minuto, com fase aleatória. Calcula o total antes de começar e recusa-se a passar de 30 000 pedidos, porque o limite de 100 000 pedidos diários é da conta inteira e partilhado com a produção. Só aceita o endereço do Worker de ensaio. O resumo (estados, mediana, p95, p99) fica no resumo do job. Falha com mais de 1% de erros ou com um p95 acima de 1,5 s.
+3. **remover**: apaga o Worker de ensaio.
+
+Exemplo: 400 leitores durante 60 minutos dão 24 000 pedidos, cerca de um quarto do orçamento diário. Não correr no dia da eleição nem na véspera.
