@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AvisoAtraso } from "@/components/resultados/AvisoAtraso.tsx";
 import { CorridaFalta } from "@/components/resultados/PainelFalta.tsx";
 import { EstadoLigacao } from "@/components/resultados/ResultadosAoVivo.tsx";
 import { TabelaResultados } from "@/components/resultados/TabelaResultados.tsx";
@@ -21,6 +22,13 @@ function Noite({ id, previsao }: { id: string; previsao: PrevisaoResultados }) {
   // Um ensaio nunca aparece na página da corrida: só a noite de 2026.
   const linha = vista && !vista.ensaio ? vista.aoVivo.find((l) => l.id === id) : undefined;
   const falta = linha ? votoQueFalta(linha) : null;
+  const estado =
+    linha?.estado ??
+    previsao.corridasSenado.concat(previsao.corridasCamara).find((c) => c.id === id)?.estado;
+  const atraso =
+    vista && !vista.ensaio && estado
+      ? (vista.cobertura.find((c) => c.estado === estado)?.atraso ?? null)
+      : null;
   return (
     <Painel
       sobrelinha={t("corrida.aoVivo.sobrelinha")}
@@ -33,6 +41,11 @@ function Noite({ id, previsao }: { id: string; previsao: PrevisaoResultados }) {
       <p className="text-[12px] text-ink-3">
         <EstadoLigacao ligacao={ligacao} instante={vista?.instante ?? null} />
       </p>
+      {atraso ? (
+        <p>
+          <AvisoAtraso atraso={atraso} />
+        </p>
+      ) : null}
       {falta ? (
         <ul className="flex flex-col">
           <CorridaFalta v={falta} />

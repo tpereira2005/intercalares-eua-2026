@@ -10,7 +10,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import type { ChamadasRedacoes, ResultadosParciais } from "@intercalares/contratos";
+import type { ChamadasRedacoes, ResultadosParciais, SaudeRecolha } from "@intercalares/contratos";
 import { carregarNoite } from "../noite/carregar.ts";
 import type { VistaNoite } from "../noite/vista.ts";
 import { carregarPrevisao } from "../previsao/carregar.ts";
@@ -21,6 +21,8 @@ export const CAMINHO_POR_OMISSAO = "dados/resultados/parciais.json";
 export const VARIAVEL_CAMINHO = "DADOS_RESULTADOS";
 /** Chamadas das redações, na mesma pasta do retrato. */
 export const FICHEIRO_CHAMADAS = "chamadas.json";
+/** Saúde da recolha, na mesma pasta do retrato. */
+export const FICHEIRO_SAUDE = "saude.json";
 
 /** Lê e valida o retrato; `null` quando não existe. */
 export function lerParciais(caminho: string): ResultadosParciais | null {
@@ -46,6 +48,22 @@ export function lerChamadas(caminho: string): ChamadasRedacoes | null {
   return dados as ChamadasRedacoes;
 }
 
+/**
+ * Lê a saúde da recolha; `null` quando não existe. Ao contrário da contagem, um ficheiro
+ * inválido não faz falhar o build: só serve para avisar que uma fonte está atrasada.
+ */
+export function lerSaude(caminho: string): SaudeRecolha | null {
+  const absoluto = path.resolve(process.cwd(), caminho);
+  if (!existsSync(absoluto)) return null;
+  const dados: unknown = JSON.parse(readFileSync(absoluto, "utf-8"));
+  const valido = obterValidador("SaudeRecolha");
+  if (!valido(dados)) {
+    console.warn(new DadosInvalidos(caminho, "SaudeRecolha", valido.errors?.slice(0, 5)).message);
+    return null;
+  }
+  return dados as SaudeRecolha;
+}
+
 export interface DadosNoiteEleitoral {
   /** Contagem por corrida; `null` sem parciais.json. */
   resultados: VistaResultados | null;
@@ -60,11 +78,18 @@ export function carregarResultados(caminho?: string): DadosNoiteEleitoral | null
   const chamadas = parciais
     ? lerChamadas(path.join(path.dirname(ficheiro), FICHEIRO_CHAMADAS))
     : null;
+  const saude = parciais ? lerSaude(path.join(path.dirname(ficheiro), FICHEIRO_SAUDE)) : null;
   const noite = carregarNoite();
   if (!parciais && !noite) return null;
   return {
     resultados: parciais
-      ? construirVistaResultados(parciais, carregarPrevisao()?.previsao ?? null, noite, chamadas)
+      ? construirVistaResultados(
+          parciais,
+          carregarPrevisao()?.previsao ?? null,
+          noite,
+          chamadas,
+          saude,
+        )
       : null,
     noite,
   };

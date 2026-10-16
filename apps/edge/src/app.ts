@@ -7,6 +7,7 @@ import {
   HistoricoNoite,
   ProjecaoNoite,
   ResultadosParciais,
+  SaudeRecolha,
 } from "./gerado/validadores.js";
 
 export const app = new Hono<{ Bindings: Env }>().basePath("/api");
@@ -81,11 +82,12 @@ function respostaGrupo(grupo: Grupo): Response {
 }
 
 async function lerResultados(env: Env, depois: EsperarDepois): Promise<Grupo> {
-  const [parciais, chamadas] = await Promise.all([
+  const [parciais, chamadas, saude] = await Promise.all([
     leitor.ler({ url: env.URL_PARCIAIS, validar: ResultadosParciais }, depois),
     leitor.ler({ url: env.URL_CHAMADAS, validar: ChamadasRedacoes }, depois),
+    leitor.ler({ url: env.URL_SAUDE, validar: SaudeRecolha }, depois),
   ]);
-  return { principal: parciais, campos: { parciais, chamadas } };
+  return { principal: parciais, campos: { parciais, chamadas, saude } };
 }
 
 async function lerNoite(env: Env, depois: EsperarDepois): Promise<Grupo> {
@@ -137,8 +139,10 @@ app.use("*", async (c, next) => {
 app.get("/saude", (c) => c.json({ estado: "ok", ambiente: c.env.AMBIENTE }));
 
 /**
- * Contagem oficial (contrato ResultadosParciais) e chamadas das redações
- * (ChamadasRedacoes, `null` sem nenhuma), da Release `resultados-2026`.
+ * Contagem oficial (contrato ResultadosParciais), chamadas das redações
+ * (ChamadasRedacoes, `null` sem nenhuma) e estado da recolha por estado (SaudeRecolha,
+ * `null` sem ficheiro), da Release `resultados-2026`. Não confundir com `/api/saude`,
+ * que é a verificação do próprio Worker.
  */
 app.get("/resultados", async (c) => respostaGrupo(await lerResultados(c.env, esperarDepoisDe(c))));
 

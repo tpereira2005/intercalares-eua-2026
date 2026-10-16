@@ -28,6 +28,7 @@ const VAZIO: EstadoAoVivo = {
   dados: null,
   parciais: null,
   chamadas: null,
+  saude: null,
   ligacao: { tipo: "build" },
 };
 const AUSENTE = { tipo: "ausente" } as const;

@@ -24,6 +24,7 @@ export const CONTRATOS = [
   "ProjecaoNoite",
   "HistoricoNoite",
   "ChamadasRedacoes",
+  "SaudeRecolha",
 ];
 
 /** Cópia de ajv/dist/runtime/ucs2length.js (comprimento em pontos de código). */

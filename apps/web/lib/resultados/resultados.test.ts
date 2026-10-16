@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import type { ResultadosParciais } from "@intercalares/contratos";
+import type { ResultadosParciais, SaudeRecolha } from "@intercalares/contratos";
 import { describe, expect, it } from "vitest";
 import { lerProjecao } from "../noite/carregar.ts";
 import { construirVistaNoite } from "../noite/vista.ts";
@@ -141,6 +141,17 @@ describe("construirVistaResultados", () => {
     expect(vista.cobertura.find((c) => c.estado === "AZ")?.parcial).toBe(true);
     expect(vista.cobertura.find((c) => c.estado === "CA")?.soTotal).toBe(true);
     expect(vista.cobertura.find((c) => c.estado === "TX")?.parcial).toBe(true);
+  });
+
+  it("marca na cobertura os estados com a fonte atrasada", () => {
+    const saude = JSON.parse(
+      readFileSync("test/fixtures/resultados/saude.json", "utf-8"),
+    ) as SaudeRecolha;
+    const vista = construirVistaResultados(exemplo(), previsao(), null, null, saude);
+    expect(vista.cobertura.filter((c) => c.atraso).map((c) => c.estado)).toEqual(["GA"]);
+    expect(construirVistaResultados(exemplo(), previsao()).cobertura.every((c) => !c.atraso)).toBe(
+      true,
+    );
   });
 
   it("mostra a nota da fonte sobre os estados com só alguns condados", () => {

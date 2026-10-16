@@ -12,16 +12,18 @@ const parciais = ler("test/fixtures/resultados/parciais.json") as ResultadosParc
 const projecao = ler("test/fixtures/noite/projecao.json");
 const historico = ler("test/fixtures/noite/historico.json");
 const chamadas = ler("test/fixtures/resultados/chamadas.json");
+const saude = ler("test/fixtures/resultados/saude.json");
 const AGORA = new Date("2026-11-04T02:00:00Z");
 
 describe("espelho de emergência", () => {
   it("embrulha os ficheiros válidos na forma das respostas da API", () => {
-    const e = montarEspelho({ parciais, projecao, historico, chamadas }, AGORA);
+    const e = montarEspelho({ parciais, projecao, historico, chamadas, saude }, AGORA);
     expect(e.resultados).toEqual({
       origem: "espelho",
       confirmadoEm: "2026-11-04T02:00:00.000Z",
       parciais,
       chamadas,
+      saude,
     });
     expect(e.noite?.historico).toEqual(historico);
     expect(e.rejeitados).toEqual([]);
@@ -35,6 +37,15 @@ describe("espelho de emergência", () => {
     expect(e.resultados).toBeNull();
     expect(e.noite).toBeNull();
     expect(e.rejeitados).toEqual(["ResultadosParciais", "ChamadasRedacoes"]);
+  });
+
+  it("uma saúde inválida fica de fora sem impedir a cópia", () => {
+    const e = montarEspelho(
+      { parciais, projecao: null, historico: null, chamadas: null, saude: { estados: 1 } },
+      AGORA,
+    );
+    expect(e.resultados?.saude).toBeNull();
+    expect(e.rejeitados).toEqual([]);
   });
 
   it("o browser vai ao espelho quando a API falha, mas não quando diz 404", async () => {
@@ -65,6 +76,7 @@ describe("espelho de emergência", () => {
       dados: null,
       parciais: null,
       chamadas: null,
+      saude: null,
       ligacao: { tipo: "build" },
     };
     const estado = atualizarEstado(vazio, consulta, { tipo: "ausente" }, null);

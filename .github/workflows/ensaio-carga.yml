@@ -13,11 +13,14 @@ on:
         options: [implantar, carga, remover]
         default: implantar
       etiqueta:
-        description: "Release com parciais.json e chamadas-2026.json do ensaio"
+        description: "Release com parciais.json, saude.json e chamadas-2026.json do ensaio"
         default: resultados-ensaio
       etiqueta_noite:
         description: "Release com a projeção e o histórico da noite"
-        default: dados-noite
+        default: resultados-ensaio
+      ano_noite:
+        description: "Ano nos nomes da projeção e do histórico (projecao-noite-<ano>.json)"
+        default: "2024"
       url:
         description: "Endereço do Worker de ensaio (só para a carga)"
         default: https://intercalares-eua-2026-ensaio.tomasmoraispereira-f5e.workers.dev
@@ -50,6 +53,7 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       ETIQUETA: ${{ inputs.etiqueta }}
       ETIQUETA_NOITE: ${{ inputs.etiqueta_noite }}
+      ANO_NOITE: ${{ inputs.ano_noite }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -68,7 +72,7 @@ jobs:
       - run: pnpm build
       - name: Configurar o Worker de ensaio
         working-directory: apps/edge
-        run: node scripts/configurar-ensaio.mjs --etiqueta "$ETIQUETA" --etiqueta-noite "$ETIQUETA_NOITE"
+        run: node scripts/configurar-ensaio.mjs --etiqueta "$ETIQUETA" --etiqueta-noite "$ETIQUETA_NOITE" --ano-noite "$ANO_NOITE"
       - name: Publicar o Worker de ensaio
         run: pnpm --filter @intercalares/edge exec wrangler deploy --config wrangler.ensaio.json
 

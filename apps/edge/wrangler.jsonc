@@ -43,6 +43,7 @@
     "URL_PROJECAO_NOITE": "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/dados-noite/projecao-noite-2026.json",
     "URL_HISTORICO_NOITE": "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/dados-noite/historico-noite-2026.json",
     "URL_CHAMADAS": "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/resultados-2026/chamadas-2026.json",
+    "URL_SAUDE": "https://github.com/tpereira2005/intercalares-eua-2026/releases/download/resultados-2026/saude.json",
   },
 
   "observability": {
