@@ -61,6 +61,7 @@ export function configuracaoEnsaio(base, { etiqueta, etiquetaNoite, intervalo })
       INTERVALO_S: String(intervalo),
       URL_PARCIAIS: url(etiqueta, "parciais.json"),
       URL_CHAMADAS: url(etiqueta, "chamadas-2026.json"),
+      URL_SAUDE: url(etiqueta, "saude.json"),
       URL_PROJECAO_NOITE: url(etiquetaNoite, "projecao-noite-2026.json"),
       URL_HISTORICO_NOITE: url(etiquetaNoite, "historico-noite-2026.json"),
     },

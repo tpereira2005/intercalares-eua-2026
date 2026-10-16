@@ -1017,7 +1017,14 @@
       "fora": "Pensilvânia, Ohio, Michigan e Nevada recusam pedidos automáticos, e a Carolina do Sul e o Iowa bloqueiam-nos a partir do GitHub Actions; não contornamos esses bloqueios. Nesses estados, e no resto do Texas e do Arizona, os totais podem ser copiados à mão da página oficial e aparecem com o selo «Introduzido à mão».",
       "documentacao": "Fontes, definições e limites dos resultados",
       "parcial": "só alguns condados",
-      "manuais": "{n} com totais copiados à mão da página oficial"
+      "manuais": "{n} com totais copiados à mão da página oficial",
+      "atraso": {
+        "selo": "Fonte atrasada",
+        "semResposta": "A fonte oficial não responde; os últimos dados novos são de {hora}.",
+        "semRespostaSemHora": "A fonte oficial não responde e ainda não trouxe dados.",
+        "parada": "Sem dados novos da fonte oficial desde {hora}, com a contagem por acabar.",
+        "paradaSemHora": "Sem dados novos da fonte oficial, com a contagem por acabar."
+      }
     },
     "previsaoNota": "Previsão de {data}, congelada a 1 de novembro.",
     "previsaoNotaProvisoria": "Previsão de {data}; congela a 1 de novembro.",

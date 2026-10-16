@@ -13,6 +13,7 @@ import type {
   HistoricoNoite,
   ProjecaoNoite,
   ResultadosParciais,
+  SaudeRecolha,
 } from "@intercalares/contratos";
 import { obterValidador } from "../validacao.ts";
 import type { RespostaNoite, RespostaResultados } from "./estado.ts";
@@ -25,6 +26,8 @@ export interface EntradaEspelho {
   projecao: unknown;
   historico: unknown;
   chamadas: unknown;
+  /** Opcional: um ficheiro inválido fica de fora sem impedir a cópia. */
+  saude?: unknown;
 }
 
 export interface Espelho {
@@ -47,8 +50,11 @@ export function montarEspelho(entrada: EntradaEspelho, agora: Date): Espelho {
   const projecao = valido(entrada.projecao, "ProjecaoNoite") as ProjecaoNoite | null;
   const historico = valido(entrada.historico, "HistoricoNoite") as HistoricoNoite | null;
   const chamadas = valido(entrada.chamadas, "ChamadasRedacoes") as ChamadasRedacoes | null;
+  const saude = obterValidador("SaudeRecolha")(entrada.saude ?? null)
+    ? (entrada.saude as SaudeRecolha)
+    : null;
   return {
-    resultados: parciais ? { origem: "espelho", confirmadoEm, parciais, chamadas } : null,
+    resultados: parciais ? { origem: "espelho", confirmadoEm, parciais, chamadas, saude } : null,
     noite: projecao ? { origem: "espelho", confirmadoEm, projecao, historico } : null,
     rejeitados,
   };

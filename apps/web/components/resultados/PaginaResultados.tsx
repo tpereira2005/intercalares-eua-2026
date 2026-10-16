@@ -7,6 +7,7 @@ import { formatarData, formatarDataHora } from "@/lib/formatacao.ts";
 import { t } from "@/lib/mensagens.ts";
 import type { DadosNoiteEleitoral } from "@/lib/resultados/carregar.ts";
 import type { VistaResultados } from "@/lib/resultados/vista.ts";
+import { AvisoAtraso } from "./AvisoAtraso.tsx";
 import { PainelFalta } from "./PainelFalta.tsx";
 import { PainelProjecao } from "./PainelProjecao.tsx";
 import { Chamada, TabelaResultados } from "./TabelaResultados.tsx";
@@ -113,6 +114,7 @@ function Cobertura({ vista }: { vista: VistaResultados }) {
                   {t("resultados.cobertura.manuais", { n: c.manuais })}
                 </span>
               ) : null}
+              {c.atraso ? <AvisoAtraso atraso={c.atraso} /> : null}
             </dd>
           </div>
         ))}

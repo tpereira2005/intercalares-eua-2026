@@ -20,6 +20,7 @@ describe("Worker de ensaio", () => {
     expect(c.vars.AMBIENTE).toBe("ensaio");
     expect(c.vars.URL_PARCIAIS).toContain("/download/resultados-ensaio/parciais.json");
     expect(c.vars.URL_CHAMADAS).toContain("/download/resultados-ensaio/chamadas-2026.json");
+    expect(c.vars.URL_SAUDE).toContain("/download/resultados-ensaio/saude.json");
     expect(c.assets).toEqual(base.assets);
   });
 

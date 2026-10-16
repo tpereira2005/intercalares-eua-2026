@@ -26,6 +26,7 @@ export function useAoVivo(
     dados: inicial,
     parciais: null,
     chamadas: null,
+    saude: null,
     ligacao: { tipo: "build" },
   });
 

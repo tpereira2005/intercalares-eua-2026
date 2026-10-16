@@ -14,3 +14,4 @@ export declare const ResultadosParciais: Validador;
 export declare const ProjecaoNoite: Validador;
 export declare const HistoricoNoite: Validador;
 export declare const ChamadasRedacoes: Validador;
+export declare const SaudeRecolha: Validador;

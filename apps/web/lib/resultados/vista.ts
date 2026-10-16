@@ -13,9 +13,11 @@ import type {
   CodigoEstado,
   ContagemModo,
   ResultadosParciais,
+  SaudeRecolha,
 } from "@intercalares/contratos";
 import type { CorridaNoite, VistaNoite } from "../noite/vista.ts";
 import { categoria, type CorridaVista, type VistaPrevisao } from "../previsao/vista.ts";
+import { atrasosDosEstados, type Atraso } from "./atrasos.ts";
 import { construirChamadas, type ChamadaVista } from "./chamadas.ts";
 
 /**
@@ -113,6 +115,8 @@ export interface EstadoCobertura {
   /** Corridas do estado com totais introduzidos à mão. */
   manuais: number;
   atualizadoEm: string | null;
+  /** A recolha deste estado está em alerta (saude.json); `null` quando está em dia. */
+  atraso: Atraso | null;
 }
 
 export interface VistaResultados {
@@ -245,8 +249,10 @@ export function construirVistaResultados(
   previsao: PrevisaoResultados | null,
   noite: VistaNoite | null = null,
   dadosChamadas: ChamadasRedacoes | null = null,
+  saude: SaudeRecolha | null = null,
 ): VistaResultados {
   const chamadas = construirChamadas(dadosChamadas, parciais.ano);
+  const atrasos = atrasosDosEstados(saude, parciais.ano);
   const chamadaDe = new Map(chamadas.map((c) => [c.corrida, c]));
   // A projeção só se junta à contagem do mesmo ano e da mesma natureza (real ou ensaio).
   const projecoes =
@@ -314,6 +320,7 @@ export function construirVistaResultados(
         (max, h) => (max === null || Date.parse(h) > Date.parse(max) ? h : max),
         null,
       ),
+      atraso: atrasos.get(estado) ?? null,
     };
   });
   return {

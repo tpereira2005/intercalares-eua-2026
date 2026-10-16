@@ -1,0 +1,57 @@
+{
+  "metadados": {
+    "versao_esquema": "0.1.0",
+    "gerado_em": "2026-11-04T02:30:00Z",
+    "fontes": [
+      {
+        "nome": "Escrutínio, recolha de resultados da noite eleitoral",
+        "url": "https://github.com/tpereira2005/intercalares-eua-2026/actions/workflows/resultados.yml",
+        "licenca": null,
+        "obtida_em": "2026-11-04T02:30:00Z"
+      }
+    ]
+  },
+  "data_eleicao": "2026-11-03",
+  "estados": {
+    "NC": {
+      "ultimo_sucesso": "2026-11-04T02:30:00Z",
+      "ultima_alteracao": "2026-11-04T02:29:30Z",
+      "falhas_seguidas": 0,
+      "ultimo_erro": null,
+      "apurado": false,
+      "alerta": null
+    },
+    "GA": {
+      "ultimo_sucesso": "2026-11-04T02:30:00Z",
+      "ultima_alteracao": "2026-11-04T01:40:00Z",
+      "falhas_seguidas": 0,
+      "ultimo_erro": null,
+      "apurado": false,
+      "alerta": "sem dados novos há 50 minutos, com a contagem por acabar"
+    },
+    "TX": {
+      "ultimo_sucesso": "2026-11-04T02:20:00Z",
+      "ultima_alteracao": "2026-11-04T02:15:00Z",
+      "falhas_seguidas": 20,
+      "ultimo_erro": "HTTP 503",
+      "apurado": false,
+      "alerta": "20 falhas seguidas: HTTP 503"
+    },
+    "TX-manual": {
+      "ultimo_sucesso": "2026-11-04T02:28:00Z",
+      "ultima_alteracao": "2026-11-04T02:28:00Z",
+      "falhas_seguidas": 0,
+      "ultimo_erro": null,
+      "apurado": false,
+      "alerta": null
+    },
+    "FL": {
+      "ultimo_sucesso": "2026-11-04T02:30:00Z",
+      "ultima_alteracao": "2026-11-04T02:30:00Z",
+      "falhas_seguidas": 0,
+      "ultimo_erro": null,
+      "apurado": true,
+      "alerta": null
+    }
+  }
+}

@@ -4,8 +4,8 @@
  *   node --experimental-strip-types scripts/espelho-noite.ts <entrada> <saida>
  *
  * <entrada> tem os ficheiros descarregados das Releases (parciais.json,
- * projecao-noite-2026.json, historico-noite-2026.json, chamadas-2026.json; os que
- * faltarem ficam de fora).
+ * projecao-noite-2026.json, historico-noite-2026.json, chamadas-2026.json, saude.json;
+ * os que faltarem ficam de fora).
  * <saida> recebe resultados.json e noite.json, na forma das respostas da API, e sempre
  * estado.json, com a hora da cópia e os ficheiros incluídos. Assim o Pages é publicado
  * mesmo antes da noite e dá para confirmar que o caminho funciona.
@@ -34,6 +34,7 @@ const espelho = montarEspelho(
     projecao: ler("projecao-noite-2026.json"),
     historico: ler("historico-noite-2026.json"),
     chamadas: ler("chamadas-2026.json"),
+    saude: ler("saude.json"),
   },
   new Date(),
 );

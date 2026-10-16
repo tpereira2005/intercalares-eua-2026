@@ -13,6 +13,7 @@ import type {
   HistoricoNoite,
   ProjecaoNoite,
   ResultadosParciais,
+  SaudeRecolha,
 } from "@intercalares/contratos";
 import { construirVistaNoite } from "../noite/vista.ts";
 import type { DadosNoiteEleitoral } from "../resultados/carregar.ts";
@@ -53,6 +54,8 @@ export interface RespostaResultados {
   parciais: ResultadosParciais;
   /** Ausente nas respostas anteriores às chamadas; `null` sem chamadas registadas. */
   chamadas?: ChamadasRedacoes | null;
+  /** Ausente nas respostas anteriores à saúde da recolha; `null` sem saude.json. */
+  saude?: SaudeRecolha | null;
 }
 
 export interface RespostaNoite {
@@ -83,6 +86,8 @@ export interface EstadoAoVivo {
   parciais: ResultadosParciais | null;
   /** Últimas chamadas das redações recebidas, para as manter quando só a projeção muda. */
   chamadas: ChamadasRedacoes | null;
+  /** Última saúde da recolha recebida, pela mesma razão. */
+  saude: SaudeRecolha | null;
   ligacao: Ligacao;
 }
 
@@ -263,8 +268,9 @@ export function atualizarEstado(
   const parciais = resultados.tipo === "dados" ? resultados.dados.parciais : atual.parciais;
   const chamadas =
     resultados.tipo === "dados" ? (resultados.dados.chamadas ?? null) : atual.chamadas;
+  const saude = resultados.tipo === "dados" ? (resultados.dados.saude ?? null) : atual.saude;
   const vistaResultados = parciais
-    ? construirVistaResultados(parciais, previsao, vistaNoite, chamadas)
+    ? construirVistaResultados(parciais, previsao, vistaNoite, chamadas, saude)
     : (atual.dados?.resultados ?? null);
   const confirmadoEm = respostas
     .map((r) => r.confirmadoEm)
@@ -273,6 +279,7 @@ export function atualizarEstado(
     dados: { resultados: vistaResultados, noite: vistaNoite },
     parciais,
     chamadas,
+    saude,
     ligacao: {
       tipo: "aoVivo",
       confirmadoEm,

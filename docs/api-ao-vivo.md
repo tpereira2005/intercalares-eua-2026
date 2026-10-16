@@ -4,13 +4,13 @@ Os workflows da noite (`resultados.yml` e `noite.yml`) publicam a contagem e a p
 
 ## Pontos de acesso
 
-| Caminho           | Ficheiros (variáveis em `apps/edge/wrangler.jsonc`)                                                                | Contrato                                 |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
-| `/api/resultados` | `URL_PARCIAIS` e `URL_CHAMADAS`: `resultados-2026/parciais.json` e `chamadas-2026.json`                            | `ResultadosParciais`, `ChamadasRedacoes` |
-| `/api/noite`      | `URL_PROJECAO_NOITE` e `URL_HISTORICO_NOITE`: `dados-noite/projecao-noite-2026.json` e `historico-noite-2026.json` | `ProjecaoNoite`, `HistoricoNoite`        |
-| `/api/ao-vivo`    | os quatro ficheiros anteriores, num só pedido (o que o site usa)                                                   | os quatro                                |
+| Caminho           | Ficheiros (variáveis em `apps/edge/wrangler.jsonc`)                                                                | Contrato                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
+| `/api/resultados` | `URL_PARCIAIS`, `URL_CHAMADAS` e `URL_SAUDE`: `resultados-2026/parciais.json`, `chamadas-2026.json` e `saude.json` | `ResultadosParciais`, `ChamadasRedacoes`, `SaudeRecolha` |
+| `/api/noite`      | `URL_PROJECAO_NOITE` e `URL_HISTORICO_NOITE`: `dados-noite/projecao-noite-2026.json` e `historico-noite-2026.json` | `ProjecaoNoite`, `HistoricoNoite`                        |
+| `/api/ao-vivo`    | os cinco ficheiros anteriores, num só pedido (o que o site usa)                                                    | os cinco                                                 |
 
-Resposta `200`: `{"origem", "confirmadoEm", "parciais", "chamadas"}` ou `{"origem", "confirmadoEm", "projecao", "historico"}`, com os ficheiros tal como a fonte os publicou. `historico` e `chamadas` são `null` quando faltam. `origem` (também no cabeçalho `X-Origem`) é `fonte` (acabado de confirmar), `memoria` (confirmado há menos de 20 s) ou `copia-antiga` (a fonte falhou; serve-se a última cópia válida). `confirmadoEm` é a última vez que a fonte confirmou o ficheiro.
+Resposta `200`: `{"origem", "confirmadoEm", "parciais", "chamadas", "saude"}` ou `{"origem", "confirmadoEm", "projecao", "historico"}`, com os ficheiros tal como a fonte os publicou. `historico`, `chamadas` e `saude` são `null` quando faltam. `saude` é o estado da recolha por estado, publicado por Dados; o site usa-o para dizer que a fonte de um estado está atrasada (só a hora da última alteração, nunca o erro técnico). Não confundir com `/api/saude`, a verificação do próprio Worker. `origem` (também no cabeçalho `X-Origem`) é `fonte` (acabado de confirmar), `memoria` (confirmado há menos de 20 s) ou `copia-antiga` (a fonte falhou; serve-se a última cópia válida). `confirmadoEm` é a última vez que a fonte confirmou o ficheiro.
 
 Sem ficheiro publicado: `404`. Fonte em baixo e nenhuma cópia: `503`.
 

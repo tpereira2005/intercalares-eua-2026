@@ -179,6 +179,15 @@ async function obterResultados() {
   } catch (erro) {
     console.warn(`Sem chamadas-2026.json (${String(erro)}).`);
   }
+  const saude =
+    process.env.URL_SAUDE ??
+    `https://github.com/${REPOSITORIO}/releases/download/${ETIQUETA_RESULTADOS}/saude.json`;
+  try {
+    const gravado = await gravar(saude, path.join(PASTA_RESULTADOS, "saude.json"));
+    console.log(`Saúde da recolha em ${path.relative(process.cwd(), gravado)}`);
+  } catch (erro) {
+    console.warn(`Sem saude.json (${String(erro)}).`);
+  }
 }
 
 async function obterIdade() {

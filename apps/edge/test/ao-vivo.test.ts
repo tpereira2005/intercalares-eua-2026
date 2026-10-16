@@ -15,6 +15,7 @@ const PARCIAIS = readFileSync(path.join(FIXTURES, "resultados/parciais.json"), "
 const PROJECAO = readFileSync(path.join(FIXTURES, "noite/projecao.json"), "utf-8");
 const HISTORICO = readFileSync(path.join(FIXTURES, "noite/historico.json"), "utf-8");
 const CHAMADAS = readFileSync(path.join(FIXTURES, "resultados/chamadas.json"), "utf-8");
+const SAUDE = readFileSync(path.join(FIXTURES, "resultados/saude.json"), "utf-8");
 
 const env = {
   AMBIENTE: "teste",
@@ -22,6 +23,7 @@ const env = {
   URL_PROJECAO_NOITE: "https://fonte.test/projecao.json",
   URL_HISTORICO_NOITE: "https://fonte.test/historico.json",
   URL_CHAMADAS: "https://fonte.test/chamadas.json",
+  URL_SAUDE: "https://fonte.test/saude.json",
 } as Env;
 
 type Resposta = () => Response;
@@ -84,6 +86,20 @@ describe("/api/resultados", () => {
     fonte.respostas.set(env.URL_CHAMADAS, ficheiro(CHAMADAS));
     const com = await app.request("/api/resultados", {}, env);
     expect((await com.json<{ chamadas: unknown }>()).chamadas).toEqual(JSON.parse(CHAMADAS));
+  });
+
+  it("junta a saúde da recolha validada, ou null sem ela ou fora do contrato", async () => {
+    fonte.respostas.set(env.URL_PARCIAIS, ficheiro(PARCIAIS));
+    fonte.respostas.set(env.URL_SAUDE, ficheiro('{"estados": {"texas": {}}}'));
+    const invalida = await app.request("/api/resultados", {}, env);
+    expect(invalida.status).toBe(200);
+    expect((await invalida.json<{ saude: unknown }>()).saude).toBeNull();
+
+    agora += FRESCURA_MS;
+    fonte.respostas.set(env.URL_SAUDE, ficheiro(SAUDE));
+    const com = await app.request("/api/ao-vivo", {}, env);
+    const corpo = await com.json<{ resultados: { saude: unknown } }>();
+    expect(corpo.resultados.saude).toEqual(JSON.parse(SAUDE));
   });
 
   it("serve da memória dentro do prazo e depois pergunta com cabeçalhos condicionais", async () => {
