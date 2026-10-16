@@ -1,10 +1,10 @@
 """Classificações de especialistas: pontuação, tradução em margem e simetria."""
 
+from collections.abc import Callable
 from dataclasses import replace
 
 import numpy as np
 import pytest
-from conftest import espelhar
 
 from pipeline.modelo.previsao import Ajustes, Dados, estimar, prever
 from pipeline.modelo.prognosticos import NIVEIS, estimar_traducao, pontuacao, pontuacoes
@@ -57,7 +57,9 @@ def test_traducao_usa_so_anos_anteriores(com_classificacoes: Dados) -> None:
     assert t.corridas <= so_antes
 
 
-def test_classificacoes_mudam_as_corridas_e_sao_simetricas(com_classificacoes: Dados) -> None:
+def test_classificacoes_mudam_as_corridas_e_sao_simetricas(
+    com_classificacoes: Dados, espelhar_dados: Callable[[Dados], Dados]
+) -> None:
     com = prever(com_classificacoes, 2018)
     sem = prever(com_classificacoes, 2018, ajustes=Ajustes(especialistas=False))
     mudaram = [
@@ -66,7 +68,7 @@ def test_classificacoes_mudam_as_corridas_e_sao_simetricas(com_classificacoes: D
         if a.media != b.media
     ]
     assert len(mudaram) > 10
-    espelho = prever(espelhar(com_classificacoes), 2018)
+    espelho = prever(espelhar_dados(com_classificacoes), 2018)
     for a, b in zip(com.camara.corridas, espelho.camara.corridas, strict=True):
         assert b.media == pytest.approx(-a.media, abs=0.6)
     assert espelho.camara.prob_controlo_d == pytest.approx(com.camara.prob_controlo_r, abs=0.02)

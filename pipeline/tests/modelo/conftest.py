@@ -5,6 +5,7 @@ uma semente fixa a partir de uma regra conhecida (margem = ambiente + PVI + incu
 ruído), o que permite verificar que o modelo recupera os parâmetros e é simétrico.
 """
 
+from collections.abc import Callable
 from dataclasses import replace
 from datetime import timedelta
 
@@ -184,3 +185,9 @@ def dados_sinteticos() -> Dados:
 @pytest.fixture(scope="session")
 def dados_espelhados(dados_sinteticos: Dados) -> Dados:
     return espelhar(dados_sinteticos)
+
+
+@pytest.fixture(scope="session")
+def espelhar_dados() -> Callable[[Dados], Dados]:
+    """``espelhar`` como fixture, para testes que espelham dados próprios."""
+    return espelhar
