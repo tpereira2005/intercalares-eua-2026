@@ -43,6 +43,7 @@ src/pipeline/
     ├── referencia_voto_antecipado_estado.py
     ├── voto_antecipado_fl.py              # Florida (arquivo diário próprio)
     ├── voto_antecipado_az.py              # Arizona (fonte não oficial; arquivo diário próprio)
+    ├── voto_antecipado_uf.py              # GA, MI, OH, NV, TX via UF Election Lab (não oficial; arquivo diário próprio)
     ├── voto_antecipado_ia.py              # Iowa (PDF diários; --referencia para 2022 e 2024)
     ├── voto_antecipado_co.py              # Colorado (folhas diárias; --referencia para 2022 e 2024)
     └── voto_antecipado_nacional.py        # resumo para a página inicial
@@ -63,6 +64,8 @@ uv run python -m pipeline.jobs.voto_antecipado_nc --saida data/publicado/voto-an
 
 Pensilvânia e Maine publicam um registo por boletim (sem ficheiro de eleitores), a Florida só totais diários por condado o Iowa relatórios diários em PDF por distrito e condado e o Colorado folhas de cálculo diárias por idade, partido e condado. Usam o contrato `VotoAntecipadoAgregado` e o mesmo fluxo de cubos (`transform/early_vote/agregado.py`); o resumo da página inicial (`VotoAntecipadoNacional`) cita os ficheiros de cada estado. Detalhes e limites em `docs/metodologia/voto-antecipado-estados.md`.
 
+A Geórgia, o Michigan, o Ohio, o Nevada e o Texas, cujos servidores oficiais bloqueiam pedidos automáticos, vêm do UF Election Lab (Universidade da Florida, Michael McDonald), uma fonte **não oficial** com atribuição: um só pedido por execução ao `US.csv` que as páginas do próprio laboratório usam (`connectors/early_vote/uf/`). O job escreve `<estado>.json` só para os estados que já têm votos e nunca para os que têm fonte própria (NC, PA, ME, FL, IA, CO, AZ). Cita a atribuição em `connectors/early_vote/uf/fontes.py`.
+
 ```sh
 uv run python -m pipeline.jobs.referencia_voto_antecipado_estado --estado PA   # cubos de referência
 uv run python -m pipeline.jobs.voto_antecipado_estado --estado PA --saida data/publicado/voto-antecipado/pa.json
@@ -70,6 +73,8 @@ uv run python -m pipeline.jobs.voto_antecipado_fl --saida data/publicado/voto-an
   --arquivo data/publicado/voto-antecipado/historico-fl-2026.csv
 uv run python -m pipeline.jobs.voto_antecipado_az --saida data/publicado/voto-antecipado/az.json \
   --arquivo data/publicado/voto-antecipado/historico-az-2026.csv
+uv run python -m pipeline.jobs.voto_antecipado_uf --pasta data/publicado/voto-antecipado \
+  --arquivo data/publicado/voto-antecipado/historico-uf-2026.csv
 uv run python -m pipeline.jobs.voto_antecipado_nacional --pasta data/publicado/voto-antecipado
 ```
 
