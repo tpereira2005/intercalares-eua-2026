@@ -14,6 +14,13 @@ da noite (``HistoricoNoite``), verifica os dois ficheiros e só então os escrev
 (fonte em baixo, ficheiro inválido) não apaga nada: fica publicado o último ficheiro
 válido.
 
+Ensaio ao vivo com uma noite antiga publicada pela recolha (por exemplo, a Release
+``resultados-ensaio`` com a noite de 2024), a partir da previsão do backtest desse ano::
+
+    uv run python -m pipeline.jobs.projecao_noite --backtest 2024 \\
+        --parciais https://github.com/<repo>/releases/download/resultados-ensaio/parciais.json \\
+        --duracao 3600 --publicar resultados-ensaio
+
 Ensaio com noites reconstruídas pelo ensaio da recolha de resultados (o ponto de partida
 é então a previsão do backtest desse ano, como em ``repeticao_noite``)::
 
@@ -230,6 +237,17 @@ def preparar(
     )
 
 
+def previsao_backtest(ano: int) -> PrevisaoCongresso:
+    """A previsão do backtest de ``ano``, a mesma que estaria congelada nesse ano."""
+    agora = datetime.now(UTC)
+    fonte = Fonte(
+        nome="Referência do modelo (backtest)",
+        url="https://github.com/tpereira2005/intercalares-eua-2026",
+        obtida_em=agora,
+    )
+    return montar(prever(carga.carregar(), ano), fontes=[fonte], gerado_em=agora)
+
+
 def ensaio(
     pastas: Sequence[Path],
     saida: Path,
@@ -240,14 +258,7 @@ def ensaio(
 ) -> Noite:
     """Corre a noite reconstruída pelo ensaio da recolha, passo a passo."""
     sequencias = [sequencia(p, "ensaio", passos, 0) for p in pastas]
-    ano = sequencias[0][-1].ano
-    agora = datetime.now(UTC)
-    fonte = Fonte(
-        nome="Referência do modelo (backtest)",
-        url="https://github.com/tpereira2005/intercalares-eua-2026",
-        obtida_em=agora,
-    )
-    previsao = montar(prever(carga.carregar(), ano), fontes=[fonte], gerado_em=agora)
+    previsao = previsao_backtest(sequencias[0][-1].ano)
     noite = preparar(previsao, saida, backtest=True, publicar=publicar, simulacoes=simulacoes)
     for i in range(max(len(s) for s in sequencias)):
         noite.processar(juntar([s[min(i, len(s) - 1)] for s in sequencias]))
@@ -300,7 +311,14 @@ def main(argv: list[str] | None = None) -> None:
     entrada = parser.add_mutually_exclusive_group(required=True)
     entrada.add_argument("--parciais", help="endereço ou ficheiro do parciais.json")
     entrada.add_argument("--ensaio", type=Path, nargs="+", help="pastas do ensaio da recolha")
-    parser.add_argument("--previsao", type=Path, help="ficheiro PrevisaoCongresso de partida")
+    partida = parser.add_mutually_exclusive_group()
+    partida.add_argument("--previsao", type=Path, help="ficheiro PrevisaoCongresso de partida")
+    partida.add_argument(
+        "--backtest",
+        type=int,
+        choices=[a for a in sorted(DESEMPATE) if a < carga.ANO_ATUAL],
+        help="parte da previsão do backtest deste ano (ensaio ao vivo com uma noite antiga)",
+    )
     parser.add_argument(
         "--aceitar-provisoria",
         action="store_true",
@@ -326,14 +344,18 @@ def main(argv: list[str] | None = None) -> None:
             publicar=args.publicar,
         )
         return
-    if args.previsao is None:
-        parser.error("--previsao é obrigatório com --parciais")
-    previsao = PrevisaoCongresso.model_validate_json(args.previsao.read_text(encoding="utf-8"))
-    if not previsao.congelada and not args.aceitar_provisoria:
-        parser.error(f"a previsão de partida (corte {previsao.corte}) não está congelada")
+    if args.backtest is not None:
+        previsao = previsao_backtest(args.backtest)
+    elif args.previsao is not None:
+        previsao = PrevisaoCongresso.model_validate_json(args.previsao.read_text(encoding="utf-8"))
+        if not previsao.congelada and not args.aceitar_provisoria:
+            parser.error(f"a previsão de partida (corte {previsao.corte}) não está congelada")
+    else:
+        parser.error("--previsao ou --backtest é obrigatório com --parciais")
     noite = preparar(
         previsao,
         args.saida,
+        backtest=args.backtest is not None,
         historico=args.historico,
         publicar=args.publicar,
         simulacoes=args.simulacoes,

@@ -181,6 +181,8 @@ Os dois ficheiros dizem ainda se partiram da previsão congelada (`prior_congela
 
 **Ensaio.** Todas as segundas-feiras, o mesmo workflow reconstrói a noite de 2024 na Carolina do Norte, na Geórgia, na Carolina do Sul, no Iowa e na Florida. Um estado cuja fonte recuse pedidos automáticos fica de fora, com um aviso, e o bloqueio nunca se contorna. Desde 13 de outubro, o Clarity da Carolina do Sul responde ao GitHub Actions com um desafio anti-robô. Depois corre o job passo a passo, a partir da previsão do backtest de 2024, e valida os ficheiros. À mão, com `publicar_ensaio`, os ficheiros de 2024 vão para a mesma Release (`projecao-noite-2024.json` e `historico-noite-2024.json`), o que permite desenvolver a página com dados reais antes da noite.
 
+**Ensaio ao vivo.** No ensaio com carga, a recolha serve a noite de 2024 na Release `resultados-ensaio`. O modo `ensaio-vivo` segue o `parciais.json` dessa Release como se fosse a noite, parte da previsão do backtest de 2024 (`--backtest 2024`) e publica `projecao-noite-2024.json` e `historico-noite-2024.json` na mesma Release. Aceita também a hora `ate`.
+
 **Na noite.** Lançar à mão os workflows Resultados e Projeção da noite, ambos em modo `noite` e com a mesma hora `ate` (por exemplo, `2026-11-04T12:00`).
 
 ## 7. Limitações
