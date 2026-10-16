@@ -5,7 +5,8 @@ mudam o ano e os dados disponíveis à data de corte.
 """
 
 import math
-from dataclasses import dataclass, replace
+from collections.abc import Mapping
+from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 
 import numpy as np
@@ -26,6 +27,7 @@ from pipeline.modelo.estimacao import (
 from pipeline.modelo.fontes.corridas import Corrida
 from pipeline.modelo.fontes.sondagens import Sondagem
 from pipeline.modelo.media import MEIA_VIDA_DIAS, Media, media
+from pipeline.modelo.prognosticos import Classificacoes, estimar_traducao, pontuacoes
 from pipeline.modelo.simulacao import (
     GRAUS_LIBERDADE,
     Ambiente,
@@ -75,6 +77,8 @@ class Dados:
     redesenhos: dict[int, frozenset[str]]
     independentes_d: frozenset[str] = frozenset()
     independentes_r: frozenset[str] = frozenset()
+    classificacoes: Mapping[tuple[int, str], Classificacoes] = field(default_factory=dict)
+    """Classificações de especialistas por (ano, corrida): ver ``modelo.prognosticos``."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,6 +113,11 @@ class Ajustes:
     vies_generico: bool = True
     """Desconta ao voto genérico o erro médio das médias dos anos anteriores
     (``vies_voto_generico``). Adotado a 15 de outubro de 2026: ver a secção 3 da
+    metodologia."""
+
+    especialistas: bool = True
+    """Junta as classificações de Cook, Sabato e Inside Elections a cada corrida
+    (``modelo.prognosticos``). Adotado a 16 de outubro de 2026: ver a secção 4 da
     metodologia."""
 
     incumbentes_sondagens: bool = False
@@ -337,6 +346,19 @@ def desvio_incumbentes(dados: Dados, ano: int, meia_vida: float = MEIA_VIDA_DIAS
     return sum(valores) / len(valores)
 
 
+def _especialistas(
+    dados: Dados, linhas: Mapping[int, list[LinhaModelo]], ano: int
+) -> dict[str, tuple[float, float]] | None:
+    """Margem implícita nas classificações de cada corrida de ``ano`` e o seu erro."""
+    traducao = estimar_traducao(linhas, dados.classificacoes, ano)
+    if traducao is None:
+        return None
+    return {
+        id_: (traducao.pontos_por_nivel * p, traducao.sd)
+        for id_, p in pontuacoes(linhas.get(ano, []), dados.classificacoes).items()
+    }
+
+
 def composicao_senado(dados: Dados, ano: int) -> ComposicaoSenado:
     bancada_d, bancada_r, desempate = dados.composicao[ano]
     em_jogo_d = em_jogo_r = 0
@@ -413,7 +435,12 @@ def prever(
 
     rng = np.random.default_rng(semente)
     choques = sortear_choques(rng, SIMULACOES, ambiente, fund_c.sd_regiao, aj.graus_liberdade)
-    camara = simular_camara(linhas_c[ano], fund_c, ambiente, choques, rng)
+    esp_c, esp_s = (
+        (_especialistas(dados, linhas_c, ano), _especialistas(dados, linhas_s, ano))
+        if aj.especialistas
+        else (None, None)
+    )
+    camara = simular_camara(linhas_c[ano], fund_c, ambiente, choques, rng, especialistas=esp_c)
     composicao = composicao_senado(dados, ano)
     if aj.incumbentes_sondagens:
         vies = desvio_incumbentes(dados, ano, aj.meia_vida_dias)
@@ -433,6 +460,7 @@ def prever(
         composicao=composicao,
         choques=choques,
         rng=rng,
+        especialistas=esp_s,
     )
     return Previsao(
         ano=ano,

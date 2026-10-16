@@ -169,6 +169,10 @@ def espelhar(dados: Dados) -> Dados:
         redesenhos=dados.redesenhos,
         independentes_d=dados.independentes_r,
         independentes_r=dados.independentes_d,
+        classificacoes={
+            k: tuple((p, c, _trocar_partido(x)) for p, c, x in v)
+            for k, v in dados.classificacoes.items()
+        },
     )
 
 

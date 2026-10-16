@@ -2,11 +2,12 @@
 
 import logging
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 
 import httpx
 
+from pipeline.connectors.prognosticos import PAGINA_CAMARA, PAGINA_SENADO, ler_camara, ler_senado
 from pipeline.modelo import referencia
 from pipeline.modelo.dados import (
     REDESENHOS,
@@ -26,6 +27,7 @@ from pipeline.modelo.fontes.sondagens import (
     seccao_distrito,
 )
 from pipeline.modelo.previsao import Dados
+from pipeline.modelo.prognosticos import Classificacoes
 
 registo = logging.getLogger(__name__)
 
@@ -210,6 +212,7 @@ def carregar(
     atual: list[Corrida] | None = None,
     sondagens_atuais: list[Sondagem] | None = None,
     redesenho_atual: frozenset[str] = frozenset(),
+    classificacoes_atuais: Mapping[str, Classificacoes] | None = None,
 ) -> Dados:
     """Lê a referência versionada e junta-lhe (opcionalmente) os dados de 2026."""
     corridas = {
@@ -238,7 +241,24 @@ def carregar(
         redesenhos=redesenhos,
         independentes_d=INDEPENDENTES_D,
         independentes_r=INDEPENDENTES_R,
+        classificacoes=classificacoes_especialistas(pasta, classificacoes_atuais),
     )
+
+
+def classificacoes_especialistas(
+    pasta: Path, atuais: Mapping[str, Classificacoes] | None = None
+) -> dict[tuple[int, str], Classificacoes]:
+    """Classificações finais de 2012 a 2024 (versionadas) e, opcionalmente, as de 2026."""
+    por_corrida: dict[tuple[int, str], list[tuple[str, str, str]]] = {}
+    for r in referencia.ler_tabela(pasta / "classificacoes_especialistas.csv"):
+        chave = (int(r["ano"]), r["id"])
+        por_corrida.setdefault(chave, []).append(
+            (r["prognosticador"], r["categoria"], r["partido"])
+        )
+    resultado = {k: tuple(v) for k, v in por_corrida.items()}
+    for id_, c in (atuais or {}).items():
+        resultado[(ANO_ATUAL, id_)] = c
+    return resultado
 
 
 def dados_2026(
@@ -249,3 +269,15 @@ def dados_2026(
     casa = wikipedia.obter(titulo_casa(ANO_ATUAL), CACHE, cliente=cliente)
     sondagens = sondagens_wikipedia(corridas, cliente, atualizar)
     return corridas, sondagens, redesenhados_2026(casa), voto_generico_agregadores(casa)
+
+
+def classificacoes_2026(cliente: httpx.Client, atualizar: bool = True) -> dict[str, Classificacoes]:
+    """Classificações atuais dos especialistas, das mesmas tabelas da Wikipédia que o site
+    mostra. Uma tabela que não se reconheça faz falhar a leitura (``ErroFormatoFonte``)."""
+    senado = ler_senado(wikipedia.obter(PAGINA_SENADO, CACHE, atualizar=atualizar, cliente=cliente))
+    camara = ler_camara(wikipedia.obter(PAGINA_CAMARA, CACHE, atualizar=atualizar, cliente=cliente))
+    return {
+        c.id: tuple((x.prognosticador, x.categoria, x.partido or "") for x in c.classificacoes)
+        for tabela in (senado, camara)
+        for c in tabela.corridas
+    }

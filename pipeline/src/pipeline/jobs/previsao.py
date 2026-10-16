@@ -77,6 +77,24 @@ def fontes(agora: datetime) -> list[Fonte]:
     return resultado
 
 
+def _dados(*, atualizar: bool) -> tuple[Dados, float, list[tuple[str, float]]]:
+    """Referência versionada mais os dados de 2026 (corridas, sondagens, classificações)."""
+    with httpx.Client(
+        headers={"User-Agent": wikipedia.USER_AGENT}, timeout=60.0, follow_redirects=True
+    ) as cliente:
+        corridas, sondagens, redesenhados, (generico, agregadores) = carga.dados_2026(
+            cliente, atualizar=atualizar
+        )
+        classificacoes = carga.classificacoes_2026(cliente, atualizar=atualizar)
+    dados = carga.carregar(
+        atual=corridas,
+        sondagens_atuais=sondagens,
+        redesenho_atual=redesenhados,
+        classificacoes_atuais=classificacoes,
+    )
+    return dados, generico, agregadores
+
+
 def executar(
     saida: Path,
     *,
@@ -90,13 +108,7 @@ def executar(
 ) -> None:
     final = corte_final(carga.ANO_ATUAL)
     corte = min(corte or datetime.now(UTC).date(), final)
-    with httpx.Client(
-        headers={"User-Agent": wikipedia.USER_AGENT}, timeout=60.0, follow_redirects=True
-    ) as cliente:
-        corridas, sondagens, redesenhados, (generico, agregadores) = carga.dados_2026(
-            cliente, atualizar=atualizar
-        )
-    dados = carga.carregar(atual=corridas, sondagens_atuais=sondagens, redesenho_atual=redesenhados)
+    dados, generico, agregadores = _dados(atualizar=atualizar)
     backtests = []
     for ano in ANOS_BACKTEST:
         backtests.extend(avaliar(prever(dados, ano), dados, DESEMPATE_REAL[ano]))
@@ -112,7 +124,7 @@ def executar(
         backtests=backtests,
         codigo_commit=commit,
     )
-    exigir_coerencia(ficheiro, corridas)
+    exigir_coerencia(ficheiro, dados.corridas[carga.ANO_ATUAL])
     saida.parent.mkdir(parents=True, exist_ok=True)
     saida.write_text(ficheiro.model_dump_json(indent=1), encoding="utf-8")
     registo.info(

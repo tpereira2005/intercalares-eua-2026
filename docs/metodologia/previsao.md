@@ -98,7 +98,7 @@ Testada fora da amostra em 10 ciclos (2004 a 2022), a regra:
 
 Entrou pela primeira razão: é a medida direta do erro que a regra corrige, com mais ciclos do que os backtests das corridas. A secção 8 mostra o efeito de a desligar.
 
-## 4. Sondagens do Senado
+## 4. Sondagens do Senado e classificações de especialistas
 
 A média de cada corrida usa os mesmos pesos para todas as corridas e para o voto genérico:
 
@@ -112,6 +112,31 @@ A média de cada corrida usa os mesmos pesos para todas as corridas e para o vot
 O erro de uma média estima-se com as corridas de 1998 até ao ciclo anterior: `erro² ≈ base² + por_instituto² / institutos`, mais um erro comum a todas as corridas do ano, ligado em parte ao erro do voto genérico (coeficiente `ligacao_nacional`, 0,49 para 2026).
 
 Fundamentos e sondagens combinam-se com pesos inversamente proporcionais às respetivas variâncias. Com os erros estimados para 2026, as sondagens pesam cerca de 42% numa corrida com um só instituto, 65% com três e 82% com quinze. Sem sondagens, fica só a previsão por fundamentos.
+
+### Classificações de especialistas
+
+Desde 16 de outubro de 2026, as classificações de Cook Political Report, Sabato's Crystal Ball e Inside Elections entram em cada corrida das duas câmaras (`modelo/prognosticos.py`). As de 2026 leem-se das mesmas tabelas da Wikipédia que o site mostra; as finais de 2012 a 2024 (exceto 2020) estão em `data/reference/modelo/classificacoes_especialistas.csv`.
+
+- **Pontuação.** Seguro 3, provável 2, inclinado 1, ligeiro 0,5 e empate 0, com sinal positivo para o lado democrata e negativo para o republicano. A corrida fica com a média dos três.
+- **Margem implícita.** A pontuação multiplica-se por `k` pontos de margem, estimado sem constante nos anos anteriores, por câmara. Para 2026: 5,5 pontos por nível na Câmara e 8,6 no Senado. O erro dessa margem mede-se dentro de cada ano (5,4 e 8,6 pontos), porque a parte comum ao ano já está no erro nacional da simulação.
+- **Combinação.** A margem implícita junta-se ao centro do modelo (fundamentos e, no Senado, sondagens) pela precisão, como as sondagens. Os erros comuns (nacional, regional, do ano) mantêm-se. A Câmara só tem classificações nas corridas competitivas (144 em 2026); as outras ficam como estavam.
+- **Simetria.** Não há constantes por partido: trocar os partidos troca o sinal da pontuação e da margem. `test_classificacoes_especialistas.py` verifica-o com classificações sintéticas.
+
+Entrou porque melhorou todos os backtests das corridas. Brier (todas as corridas) sem e com as classificações:
+
+| Ano  | Câmara        | Senado        | Corridas erradas na Câmara |
+| ---- | ------------- | ------------- | -------------------------- |
+| 2016 | 0,026 → 0,014 | 0,052 → 0,052 | 9 → 6                      |
+| 2018 | 0,049 → 0,031 | 0,050 → 0,045 | 28 → 20                    |
+| 2022 | 0,030 → 0,024 | 0,032 → 0,032 | 19 → 13                    |
+| 2024 | 0,018 → 0,014 | 0,033 → 0,030 | 9 → 6                      |
+
+Em 2016 o Senado não muda, porque só havia classificações de um ano anterior (2014) e o mínimo são 40 corridas. O efeito no controlo das câmaras é menor e misto: em 2018, a Câmara passa de 49% para 61% (os democratas ganharam); em 2022 e 2024 muda menos de dois pontos.
+
+Testados e não adotados por falta de histórico gratuito comparável:
+
+- **Aprovação presidencial (Gallup, 1998 a 2024).** Há os 14 valores, mas o ambiente já vem do voto genérico no próprio dia; com 14 ciclos, um segundo indicador nacional não se distingue do ruído e o Gallup passou a sondagens mensais em 2020, longe da eleição.
+- **Eleições especiais.** Não há uma série gratuita com o mesmo método em pelo menos quatro ciclos.
 
 ## 5. Simulação
 
@@ -138,19 +163,19 @@ O mesmo código, com o corte dois dias antes de cada eleição e parâmetros est
 
 | Ano  | Câmara | Ambiente previsto / real | P(controlo D) | Lugares D: mediana [p10, p90] | Reais | Corridas erradas | Brier | Viés nas competitivas | Cobertura 80% |
 | ---- | ------ | ------------------------ | ------------: | ----------------------------- | ----: | ---------------: | ----: | --------------------: | ------------: |
-| 2018 | Câmara | D+5,5 / D+8,6            |           49% | 217 [205, 232]                |   235 |        28 de 412 | 0,049 |                  −5,6 |           88% |
-| 2018 | Senado | D+5,5 / D+8,6            |            8% | 48 [44, 50]                   |    47 |          2 de 34 | 0,050 |                  +1,3 |           91% |
-| 2022 | Câmara | D−2,8 / R+2,7            |           17% | 207 [192, 221]                |   213 |        19 de 412 | 0,030 |                  −0,7 |           91% |
-| 2022 | Senado | D−2,8 / R+2,7            |           45% | 49 [46, 52]                   |    51 |          3 de 33 | 0,032 |                  −1,8 |           82% |
-| 2024 | Câmara | D+2,0 / R+2,6            |           49% | 217 [201, 234]                |   215 |         9 de 406 | 0,017 |                  +2,4 |           92% |
-| 2024 | Senado | D+2,0 / R+2,6            |           13% | 48 [45, 51]                   |    47 |          1 de 33 | 0,033 |                  +2,7 |           97% |
+| 2018 | Câmara | D+5,5 / D+8,6            |           61% | 221 [206, 239]                |   235 |        20 de 412 | 0,031 |                  −3,7 |           89% |
+| 2018 | Senado | D+5,5 / D+8,6            |            7% | 48 [44, 50]                   |    47 |          2 de 34 | 0,045 |                  +1,5 |           88% |
+| 2022 | Câmara | D−2,8 / R+2,7            |           18% | 206 [188, 222]                |   213 |        13 de 412 | 0,024 |                  −1,2 |           89% |
+| 2022 | Senado | D−2,8 / R+2,7            |           44% | 49 [47, 52]                   |    51 |          2 de 33 | 0,032 |                  −2,1 |           82% |
+| 2024 | Câmara | D+2,0 / R+2,6            |           50% | 218 [200, 234]                |   215 |         6 de 406 | 0,014 |                  +2,3 |           91% |
+| 2024 | Senado | D+2,0 / R+2,6            |            8% | 48 [46, 50]                   |    47 |          1 de 33 | 0,030 |                  +2,3 |           91% |
 
 Notas de leitura:
 
-- O viés é a média de (previsto − real) nas corridas com margem prevista abaixo de 15 pontos. Mudou de sinal entre ciclos (−5,6 a favor do lado republicano em 2018, +2,4 e +2,7 a favor do lado democrata em 2024), por isso não se corrige corrida a corrida.
-- Com a correção do viés do voto genérico (secção 3), 2018 piora: a média das sondagens já subestimava os democratas nesse ano e a correção afastou-a mais (D+5,5 contra D+8,6), e a Câmara passa de 72% para 49%. 2022 melhora (D−2,8 contra R+2,7; 34% para 17%). Em 2024 não se aplica, porque o ambiente vem do Senado.
+- O viés é a média de (previsto − real) nas corridas com margem prevista abaixo de 15 pontos. Mudou de sinal entre ciclos (−3,7 a favor do lado republicano em 2018, +2,3 a favor do lado democrata em 2024), por isso não se corrige corrida a corrida.
+- Com a correção do viés do voto genérico (secção 3), 2018 piora: a média das sondagens já subestimava os democratas nesse ano e a correção afastou-a mais (D+5,5 contra D+8,6), e a Câmara passou de 72% para 49% (61% depois de entrarem as classificações dos especialistas, secção 4). 2022 melhora (D−2,8 contra R+2,7; 34% para 17%). Em 2024 não se aplica, porque o ambiente vem do Senado.
 - Em 2024 o ambiente vem das sondagens do Senado, que erraram para o lado democrata; o modelo ficou praticamente empatado na Câmara e deu 73% aos Republicanos no Senado (P(D) + P(R) < 1 nesse ano porque o desempate dependia da eleição presidencial do mesmo dia).
-- A cobertura do intervalo de 80% fica entre 82% e 97%: a incerteza está bem calibrada na Câmara e algo larga no Senado.
+- A cobertura do intervalo de 80% fica entre 82% e 91%: a incerteza está bem calibrada na Câmara e algo larga no Senado.
 
 ## 8. Sensibilidade
 
@@ -161,48 +186,50 @@ Notas de leitura:
 - **Colunas dos backtests.** O Brier e a cobertura são médias de 2018, 2022 e 2024.
 - **Publicação diária.** A mesma tabela publica-se todos os dias em `sensibilidade-2026.json` (contrato `SensibilidadePrevisao`), com os mesmos dados e o mesmo corte da previsão, mas sem as colunas dos backtests, que são lentos. O job confirma que a variante "Modelo publicado" reproduz a previsão do dia e falha se não reproduzir.
 
-Corte de 15 de outubro de 2026 (19 dias antes da eleição, com o erro do ambiente a essa distância):
+Corte de 16 de outubro de 2026 (18 dias antes da eleição, com o erro do ambiente a essa distância):
 
 | Variante                                   | Câmara P(D) | Lugares D (p10–p90) | Senado P(D) | Lugares D (p10–p90) | Brier Câmara | Brier Senado | Cobertura 80% Câmara | Cobertura 80% Senado |
 | ------------------------------------------ | ----------: | ------------------: | ----------: | ------------------: | -----------: | -----------: | -------------------: | -------------------: |
-| Modelo publicado                           |         85% |       231 (215–252) |         66% |          52 (48–55) |        0,032 |        0,039 |                  90% |                  90% |
-| Ambiente −3 pontos                         |         63% |       221 (206–239) |         58% |          51 (47–55) |            — |            — |                    — |                    — |
-| Ambiente −2 pontos                         |         71% |       225 (209–243) |         60% |          51 (47–55) |            — |            — |                    — |                    — |
-| Ambiente −1 ponto                          |         79% |       228 (212–248) |         63% |          51 (47–55) |            — |            — |                    — |                    — |
-| Ambiente +1 ponto                          |         90% |       235 (218–257) |         68% |          52 (48–55) |            — |            — |                    — |                    — |
-| Ambiente +2 pontos                         |         94% |       239 (221–262) |         70% |          52 (48–56) |            — |            — |                    — |                    — |
-| Ambiente +3 pontos                         |         96% |       243 (224–267) |         72% |          52 (48–56) |            — |            — |                    — |                    — |
-| Ambiente sem os agregadores                |         87% |       236 (215–264) |         68% |          52 (48–56) |            — |            — |                    — |                    — |
-| Erro do ambiente × 0,75                    |         90% |       231 (217–248) |         66% |          52 (48–55) |        0,032 |        0,038 |                  90% |                  90% |
-| Erro do ambiente × 1,25                    |         82% |       231 (212–257) |         65% |          52 (48–56) |        0,032 |        0,039 |                  92% |                  90% |
-| Erro do ambiente × 1,5                     |         78% |       231 (209–262) |         64% |          52 (47–56) |        0,032 |        0,039 |                  92% |                  92% |
-| t com 3 graus de liberdade                 |         88% |       231 (216–249) |         66% |          52 (48–55) |        0,032 |        0,038 |                  90% |                  90% |
-| t com 30 graus de liberdade (quase normal) |         84% |       232 (214–254) |         65% |          52 (48–55) |        0,032 |        0,039 |                  91% |                  90% |
-| Erro de cada corrida × 0,75                |         83% |       229 (214–249) |         59% |          51 (48–54) |        0,032 |        0,040 |                  84% |                  85% |
-| Erro de cada corrida × 1,25                |         87% |       234 (216–256) |         68% |          52 (48–56) |        0,033 |        0,038 |                  95% |                  87% |
-| Erro das sondagens × 0,75                  |         85% |       231 (215–252) |         73% |          52 (48–55) |        0,032 |        0,037 |                  90% |                  78% |
-| Erro das sondagens × 1,5                   |         85% |       231 (215–252) |         56% |          51 (47–55) |        0,032 |        0,043 |                  91% |                  96% |
-| Meia-vida das sondagens de 7 dias          |         85% |       232 (215–253) |         66% |          52 (48–55) |        0,032 |        0,040 |                  90% |                  87% |
-| Meia-vida das sondagens de 28 dias         |         85% |       231 (215–252) |         65% |          52 (48–55) |        0,032 |        0,038 |                  91% |                  89% |
-| Sem sondagens do Senado (só fundamentos)   |         85% |       231 (215–252) |         39% |          50 (47–53) |        0,032 |        0,060 |                  90% |                  89% |
-| Incumbentes corrigidos face às sondagens   |         85% |       231 (215–252) |         57% |          51 (47–54) |        0,032 |        0,043 |                  90% |                  87% |
-| Sem correção do viés do voto genérico      |         95% |       241 (222–264) |         71% |          52 (48–56) |        0,030 |        0,038 |                  90% |                  88% |
+| Modelo publicado                           |         70% |       224 (208–242) |         64% |          51 (48–54) |        0,023 |        0,036 |                  90% |                  87% |
+| Ambiente −3 pontos                         |         60% |       220 (204–237) |         58% |          51 (47–54) |            — |            — |                    — |                    — |
+| Ambiente −2 pontos                         |         63% |       222 (206–238) |         60% |          51 (48–54) |            — |            — |                    — |                    — |
+| Ambiente −1 ponto                          |         67% |       223 (207–240) |         62% |          51 (48–54) |            — |            — |                    — |                    — |
+| Ambiente +1 ponto                          |         73% |       225 (209–243) |         66% |          52 (48–54) |            — |            — |                    — |                    — |
+| Ambiente +2 pontos                         |         77% |       227 (211–245) |         68% |          52 (48–55) |            — |            — |                    — |                    — |
+| Ambiente +3 pontos                         |         79% |       228 (212–247) |         70% |          52 (48–55) |            — |            — |                    — |                    — |
+| Ambiente sem os agregadores                |         70% |       226 (206–249) |         66% |          52 (48–55) |            — |            — |                    — |                    — |
+| Erro do ambiente × 0,75                    |         74% |       224 (211–238) |         64% |          51 (48–54) |        0,023 |        0,035 |                  88% |                  87% |
+| Erro do ambiente × 1,25                    |         67% |       224 (206–245) |         63% |          51 (48–55) |        0,023 |        0,036 |                  91% |                  87% |
+| Erro do ambiente × 1,5                     |         65% |       224 (203–249) |         63% |          51 (48–55) |        0,023 |        0,036 |                  92% |                  89% |
+| t com 3 graus de liberdade                 |         73% |       224 (210–239) |         64% |          51 (48–54) |        0,023 |        0,035 |                  89% |                  86% |
+| t com 30 graus de liberdade (quase normal) |         69% |       224 (207–243) |         64% |          51 (48–54) |        0,023 |        0,036 |                  90% |                  87% |
+| Erro de cada corrida × 0,75                |         72% |       224 (210–241) |         58% |          51 (48–54) |        0,024 |        0,038 |                  84% |                  81% |
+| Erro de cada corrida × 1,25                |         69% |       224 (207–243) |         67% |          52 (48–55) |        0,023 |        0,035 |                  93% |                  85% |
+| Erro das sondagens × 0,75                  |         70% |       224 (208–242) |         72% |          52 (48–55) |        0,023 |        0,035 |                  89% |                  74% |
+| Erro das sondagens × 1,5                   |         70% |       224 (208–242) |         55% |          51 (47–54) |        0,023 |        0,038 |                  90% |                  90% |
+| Meia-vida das sondagens de 7 dias          |         70% |       224 (208–242) |         64% |          52 (48–54) |        0,023 |        0,037 |                  89% |                  85% |
+| Meia-vida das sondagens de 28 dias         |         70% |       224 (208–241) |         64% |          51 (48–54) |        0,023 |        0,035 |                  90% |                  85% |
+| Sem sondagens do Senado (só fundamentos)   |         70% |       224 (208–242) |         39% |          50 (47–53) |        0,023 |        0,044 |                  90% |                  81% |
+| Sem as classificações dos especialistas    |         86% |       232 (215–252) |         66% |          52 (48–55) |        0,032 |        0,039 |                  90% |                  90% |
+| Incumbentes corrigidos face às sondagens   |         70% |       224 (208–242) |         56% |          51 (48–54) |        0,023 |        0,039 |                  90% |                  82% |
+| Sem correção do viés do voto genérico      |         78% |       227 (211–246) |         68% |          52 (48–55) |        0,022 |        0,035 |                  89% |                  86% |
 
 Leitura:
 
-- **A Câmara depende quase só do ambiente nacional.** Cada ponto no voto genérico vale cerca de 4 lugares na mediana. O ambiente atual é D+5,7 (agregadores D+8,2 menos a correção do viés). Com um ambiente 3 pontos pior a probabilidade desce para 63%; com um erro nacional 50% maior, para 78%.
-- **O Senado depende sobretudo das sondagens de cada corrida.** Sem elas, só com fundamentos, a probabilidade cai de 66% para 39%. Dar-lhes mais confiança (erro × 0,75) sobe-a para 73%; dar-lhes menos (× 1,5) desce-a para 56%.
-- **A fonte do ambiente é a escolha que mais pesa na Câmara.** Os agregadores dão D+8,2 (D+5,7 depois da correção). A Wikipédia de 2026 não lista sondagens individuais do voto genérico, por isso, sem os agregadores, o ambiente ler-se-ia nas sondagens do Senado (D+7,0, como no backtest de 2024, sem correção do viés): 87% na Câmara e 68% no Senado. Os agregadores ficam, por serem a medida direta do voto genérico. A leitura pelo Senado erra mais (secção 3) e, em 2024, errou para o lado democrata.
+- **A Câmara depende do ambiente nacional e das classificações dos especialistas.** Cada ponto a mais no ambiente estimado vale pouco mais de 1 lugar na mediana (eram 4 antes das classificações, que pesam muito nas corridas competitivas e não se mexem com o ambiente). O ambiente atual é D+5,7 (agregadores D+8,2 menos a correção do viés). Com um ambiente 3 pontos pior a probabilidade desce de 70% para 60%; com um erro nacional 50% maior, para 65%. Sem as classificações, sobe para 86%.
+- **O Senado depende sobretudo das sondagens de cada corrida.** Sem elas, a probabilidade cai de 64% para 39%. Dar-lhes mais confiança (erro × 0,75) sobe-a para 72%; dar-lhes menos (× 1,5) desce-a para 55%. As classificações dos especialistas mexem pouco no Senado (66% sem elas).
+- **A fonte do ambiente pesa menos desde que entraram as classificações.** Os agregadores dão D+8,2 (D+5,7 depois da correção). A Wikipédia de 2026 não lista sondagens individuais do voto genérico, por isso, sem os agregadores, o ambiente ler-se-ia nas sondagens do Senado (como no backtest de 2024, sem correção do viés): 70% na Câmara e 66% no Senado. Os agregadores ficam, por serem a medida direta do voto genérico. A leitura pelo Senado erra mais (secção 3) e, em 2024, errou para o lado democrata.
 - **As caudas e a recência pesam pouco.** A t de Student com 3 ou 30 graus de liberdade e a meia-vida de 7 ou 28 dias mudam as probabilidades no máximo 1 ponto.
 - **Incumbentes face às sondagens (testado e não adotado).** De 2012 a 2024, as médias de sondagens do Senado subestimaram o incumbente recandidato em 2,1 pontos, em média (erro padrão 0,4), já descontado o erro comum de cada ano. A regra simétrica corrige a média de cada incumbente, democrata ou republicano, pelo desvio estimado só com os anos anteriores (`Ajustes.incumbentes_sondagens`, função `desvio_incumbentes`). Não entra no modelo por três motivos:
   - quase todo o efeito vem das corridas desequilibradas: as sondagens comprimem as margens largas (cerca de 9% da margem) e os incumbentes ganham muitas vezes por muito. Com a compressão na mesma regressão, o efeito do incumbente desce para 0,8 pontos (erro padrão 0,5); nas corridas com a média abaixo de 10 pontos é de 0,9 pontos (erro padrão 0,6) e muda de sinal entre ciclos (−5,7 em 2022, +2,1 em 2018);
   - nos backtests publicados piora o Brier do Senado (0,042 contra 0,038). Num teste mais longo (2016 a 2024, 147 corridas) o Brier melhora pouco (0,048 contra 0,049), mas piora em 2018 e 2024 e piora o erro das corridas competitivas (4,4 contra 4,3 pontos);
   - um efeito pessoal (o desvio de cada incumbente na eleição anterior) também não se aguenta: a correlação com o desvio seguinte é 0,12 e não melhora os backtests. É o caso de Susan Collins no Maine: em 2020 superou as sondagens em 8 pontos, mas o padrão não se repete de forma fiável.
 
-  Se fosse adotada, o Senado desceria de 66% para 57%, porque a maioria das corridas renhidas de 2026 tem um incumbente republicano (Maine, Alasca, Kansas, Ohio). A variante fica na tabela para mostrar esse efeito.
+  Se fosse adotada, o Senado desceria de 64% para 56%, porque a maioria das corridas renhidas de 2026 tem um incumbente republicano (Maine, Alasca, Kansas, Ohio). A variante fica na tabela para mostrar esse efeito.
 
-- **Viés histórico do voto genérico (adotado a 15 de outubro).** Sem a correção (secção 3), o ambiente volta a D+8,2: a Câmara sobe de 85% para 95% e o Senado de 66% para 71%. Nos backtests publicados o Brier fica um pouco melhor sem ela (Câmara 0,030 contra 0,032, Senado 0,038 contra 0,039), sobretudo por causa de 2018; a regra entrou pela melhoria do erro do ambiente em 10 ciclos fora da amostra.
-- **Os parâmetros publicados não se afinam com estes números.** Nenhuma variante melhora o Brier dos backtests de forma consistente nas duas câmaras. As diferenças (0,037 a 0,043 no Senado) cabem no ruído de três eleições. Escolher a variante com o melhor Brier seria ajustar o modelo a 2018, 2022 e 2024. A cobertura de 87% a 92% confirma que os intervalos já são, se algo, um pouco largos.
+- **Viés histórico do voto genérico (adotado a 15 de outubro).** Sem a correção (secção 3), o ambiente volta a D+8,2: a Câmara sobe de 70% para 78% e o Senado de 64% para 68%. Nos backtests publicados o Brier fica um pouco melhor sem ela (Câmara 0,022 contra 0,023, Senado 0,035 contra 0,036), sobretudo por causa de 2018; a regra entrou pela melhoria do erro do ambiente em 10 ciclos fora da amostra.
+- **Classificações dos especialistas (adotadas a 16 de outubro).** Sem elas o Brier dos backtests piora nas duas câmaras (Câmara 0,032 contra 0,023, Senado 0,039 contra 0,036), a diferença maior desta tabela. Ver a secção 4.
+- **Os parâmetros publicados não se afinam com estes números.** Fora as classificações, nenhuma variante melhora o Brier dos backtests de forma consistente nas duas câmaras. As diferenças (0,035 a 0,039 no Senado) cabem no ruído de três eleições. Escolher a variante com o melhor Brier seria ajustar o modelo a 2018, 2022 e 2024. A cobertura de 81% a 93% confirma que os intervalos já são, se algo, um pouco largos.
 
 ## 9. Histórico diário e ficheiros para o site
 
