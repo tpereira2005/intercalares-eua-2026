@@ -290,6 +290,8 @@ Depois da eleição, `pipeline.jobs.avaliacao_previsao` avalia o ficheiro congel
 
 Só entram as corridas disputadas (as decididas à partida não dizem nada sobre o modelo). Durante a contagem lenta, as corridas sem vencedor ficam listadas como por decidir e fora das métricas, e os lugares reais só aparecem quando todas estiverem decididas.
 
+No site, a página `/previsao/avaliacao/` começa antes de haver resultados oficiais: usa as chamadas das redações registadas na noite (`chamadas.json`), com as mesmas regras (só corridas disputadas, Brier, calibração pelo favorito com as mesmas faixas). Sem margens finais, ainda não tem log-loss nem erro de margem. Compara também os outros prognosticadores, na versão congelada, nas corridas chamadas que cada um classificou: acerta quem dava o vencedor como favorito, um Toss-up não acerta nem falha, e a previsão do Escrutínio é contada nas mesmas corridas.
+
 O mesmo código avalia os backtests (`--backtest 2018`, `2022` ou `2024`):
 
 | Ano  | Câmara: Brier / log-loss | Câmara: lugares D previstos / reais | Senado: Brier / log-loss | Senado: lugares D previstos / reais |

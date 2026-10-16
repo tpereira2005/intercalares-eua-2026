@@ -297,11 +297,11 @@ export default function Inicio() {
   const previsao = carregarPrevisao()?.previsao ?? null;
   const noite = carregarResultados();
   const previsaoNoite = previsao ? previsaoParaResultados(previsao) : null;
+  // Só as corridas em jogo: as decididas antes da eleição não avaliam a previsão.
   const probD = Object.fromEntries(
-    (previsao ? [...previsao.corridasSenado, ...previsao.corridasCamara] : []).map((c) => [
-      c.id,
-      c.probD,
-    ]),
+    (previsao ? [...previsao.corridasSenado, ...previsao.corridasCamara] : [])
+      .filter((c) => c.decidida === null)
+      .map((c) => [c.id, c.probD]),
   );
 
   const contagem = (

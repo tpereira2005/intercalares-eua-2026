@@ -69,3 +69,9 @@ export function carregarResultados(caminho?: string): DadosNoiteEleitoral | null
     noite,
   };
 }
+
+/** Chamadas das redações, mesmo sem retrato da contagem; `null` quando não existem. */
+export function carregarChamadas(caminho?: string): ChamadasRedacoes | null {
+  const ficheiro = caminho ?? process.env[VARIAVEL_CAMINHO] ?? CAMINHO_POR_OMISSAO;
+  return lerChamadas(path.join(path.dirname(ficheiro), FICHEIRO_CHAMADAS));
+}

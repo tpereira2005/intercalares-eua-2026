@@ -672,7 +672,8 @@
       "cobertura": "Cobertura 80%",
       "metodo": "Brier: erro quadrático médio das probabilidades por corrida (0 é perfeito). Cobertura: fração das margens reais dentro do intervalo de 80%; o ideal é 80%.",
       "lugares": "Lugares D: mediana [80%] · reais",
-      "lugaresValor": "{mediana} [{de}, {ate}] · {reais}"
+      "lugaresValor": "{mediana} [{de}, {ate}] · {reais}",
+      "avaliacao2026": "Avaliação da previsão de 2026, corrida a corrida"
     },
     "notas": "Notas do modelo",
     "documentacao": "Ler a metodologia completa da previsão",
@@ -820,6 +821,70 @@
       "congelado": "Versão de 1 de novembro",
       "metodo": "Classificações lidas nas tabelas da Wikipedia a {data}, com a data de cada prognosticador. Para comparar, cada classificação ocupa um lugar na escala das categorias do Escrutínio (Safe/Solid é sólida, Likely provável, Lean inclinada, Tossup renhida; Tilt fica entre inclinada e renhida), e o consenso é a mediana desses lugares. Diverge quando o favorito é outro ou há duas ou mais categorias de distância.",
       "metodoCongelado": "Versão congelada a {data}, com a previsão, para avaliar todos pela mesma régua depois da eleição. Para comparar, cada classificação ocupa um lugar na escala das categorias do Escrutínio (Safe/Solid é sólida, Likely provável, Lean inclinada, Tossup renhida; Tilt fica entre inclinada e renhida), e o consenso é a mediana desses lugares."
+    },
+    "avaliacao": {
+      "titulo": "Avaliação da previsão",
+      "descricao": "A previsão congelada a 1 de novembro comparada, corrida a corrida, com as chamadas das redações, e os outros prognosticadores avaliados com as mesmas regras.",
+      "sobrelinha": "Previsão {ano} · avaliação",
+      "lede": "Quando uma redação chama uma corrida, ela entra aqui. Acerta quem dava o vencedor como favorito, seja qual for o partido. A lista cresce com a contagem dos dias seguintes à eleição.",
+      "provisoria": "A previsão ainda não está congelada: esta avaliação usa a versão de {data} e muda até 1 de novembro.",
+      "prognosticosProvisorios": "As classificações dos outros prognosticadores ainda não estão congeladas (versão de {data}).",
+      "aguarda": {
+        "titulo": "A avaliação começa com as primeiras chamadas",
+        "texto": "Ainda nenhuma redação chamou uma corrida que a previsão cubra. Na noite de 3 para 4 de novembro, cada chamada registada entra nesta página. Até lá, os testes retrospetivos de 2018, 2022 e 2024 mostram como o modelo se teria saído nessas eleições.",
+        "ligacao": "Ver os testes retrospetivos"
+      },
+      "kpis": {
+        "acertos": "Chamadas para o favorito da previsão",
+        "acertosValor": "{acertos} de {n}",
+        "brier": "Pontuação de Brier",
+        "brierDetalhe": "0 é perfeito; 0,25 é dar 50% a todas",
+        "pendentes": "Corridas em jogo por chamar",
+        "pendentesDetalhe": "de {total} em jogo"
+      },
+      "calibracao": {
+        "sobrelinha": "Calibração",
+        "titulo": "Os favoritos ganharam tantas vezes como se esperava?",
+        "texto": "As corridas chamadas agrupadas pela probabilidade que a previsão dava ao favorito. Numa previsão bem calibrada, os favoritos a 70% ganham cerca de 7 em cada 10.",
+        "metodo": "para cada grupo, a média da probabilidade do favorito é a fração de vitórias esperada; compara-se com a fração observada. Com poucas corridas num grupo, a diferença diz pouco.",
+        "grupo": "Favorito com",
+        "intervalo": "{de} a {ate}",
+        "corridas": "Corridas",
+        "esperado": "Esperado",
+        "observado": "Ganhou o favorito",
+        "vazio": "—",
+        "legenda": "Calibração da previsão por grupo de probabilidade"
+      },
+      "prognosticadores": {
+        "sobrelinha": "Outros prognósticos",
+        "titulo": "Comparação com os outros prognosticadores",
+        "texto": "Cada prognosticador é avaliado só nas corridas chamadas que classificou, e a coluna do Escrutínio conta os acertos da previsão nessas mesmas corridas, para comparar como iguais. Um empate (Toss-up) não acerta nem falha.",
+        "metodo": "classificações recolhidas da Wikipedia na versão congelada a 1 de novembro; acerto quando o lado favorecido pela classificação é o do vencedor chamado.",
+        "nome": "Nome",
+        "classificadas": "Corridas",
+        "acertos": "Acertos",
+        "empates": "Empates",
+        "escrutinio": "Escrutínio",
+        "legenda": "Acertos de cada prognosticador e do Escrutínio nas mesmas corridas",
+        "vazio": "Ainda não há corridas chamadas que outros prognosticadores tenham classificado.",
+        "n": "{n} corridas"
+      },
+      "corridas": {
+        "sobrelinha": "Corrida a corrida",
+        "titulo": "Corridas chamadas",
+        "texto": "As que o favorito da previsão perdeu e as que dava a menos de 80%, da maior surpresa para a menor. As restantes ficam recolhidas.",
+        "metodo": "probabilidade da previsão congelada para o vencedor chamado; consenso: mediana das classificações dos outros prognosticadores.",
+        "corrida": "Corrida",
+        "vencedor": "Vencedor",
+        "prob": "Previsão dava",
+        "consenso": "Consenso",
+        "falhou": "favorito perdeu",
+        "legenda": "Corridas chamadas, com a probabilidade que a previsão dava ao vencedor",
+        "outro": "Ganhas por outros candidatos, fora da avaliação: {corridas}.",
+        "mais": "Ver as outras {n} corridas chamadas, todas ganhas por um favorito a 80% ou mais"
+      },
+      "fonteChamadas": "Chamadas das redações registadas no Escrutínio",
+      "ligacao": "Ver a avaliação completa"
     }
   },
   "agregado": {

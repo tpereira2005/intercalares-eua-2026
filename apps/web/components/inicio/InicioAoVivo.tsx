@@ -119,6 +119,11 @@ function Avaliacao({
               </div>
             )}
           </dl>
+          <p className="text-sm">
+            <Link href="/previsao/avaliacao/" prefetch={false} className={LIGACAO}>
+              {t("previsao.avaliacao.ligacao")}
+            </Link>
+          </p>
           {a.surpresas.length === 0 ? (
             <p className="text-sm text-ink-2">{t("inicio.avaliacao.semSurpresas")}</p>
           ) : (

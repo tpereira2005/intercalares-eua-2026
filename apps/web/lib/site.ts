@@ -16,6 +16,7 @@ export const PAGINAS_FIXAS = [
   "/previsao/camara/",
   "/previsao/senado/",
   "/previsao/cenarios/",
+  "/previsao/avaliacao/",
   "/sondagens/",
   "/resultados/",
   "/resultados/guia/",
