@@ -4,7 +4,12 @@ import { MAXIMO_PEDIDOS, percentil, planear } from "../scripts/carga-remota.mjs"
 import { NOME_ENSAIO, configuracaoEnsaio, lerJsonc } from "../scripts/configurar-ensaio.mjs";
 
 const base = lerJsonc(readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf-8"));
-const opcoes = { etiqueta: "resultados-ensaio", etiquetaNoite: "dados-noite", intervalo: 60 };
+const opcoes = {
+  etiqueta: "resultados-ensaio",
+  etiquetaNoite: "resultados-ensaio",
+  anoNoite: "2024",
+  intervalo: 60,
+};
 
 describe("Worker de ensaio", () => {
   it("lê o wrangler.jsonc com comentários sem estragar os URLs", () => {
@@ -21,12 +26,19 @@ describe("Worker de ensaio", () => {
     expect(c.vars.URL_PARCIAIS).toContain("/download/resultados-ensaio/parciais.json");
     expect(c.vars.URL_CHAMADAS).toContain("/download/resultados-ensaio/chamadas-2026.json");
     expect(c.vars.URL_SAUDE).toContain("/download/resultados-ensaio/saude.json");
+    expect(c.vars.URL_PROJECAO_NOITE).toContain(
+      "/download/resultados-ensaio/projecao-noite-2024.json",
+    );
+    expect(c.vars.URL_HISTORICO_NOITE).toContain(
+      "/download/resultados-ensaio/historico-noite-2024.json",
+    );
     expect(c.assets).toEqual(base.assets);
   });
 
   it("recusa a Release de produção e etiquetas estranhas", () => {
     expect(() => configuracaoEnsaio(base, { ...opcoes, etiqueta: "resultados-2026" })).toThrow();
     expect(() => configuracaoEnsaio(base, { ...opcoes, etiqueta: "../x" })).toThrow();
+    expect(() => configuracaoEnsaio(base, { ...opcoes, anoNoite: "24/../x" })).toThrow();
   });
 });
 

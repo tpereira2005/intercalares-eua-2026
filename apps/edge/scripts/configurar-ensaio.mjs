@@ -7,7 +7,10 @@
  * ficheiros de uma Release de ensaio. Assim nada do ensaio toca no Worker de produção.
  *
  * Uso: node scripts/configurar-ensaio.mjs --etiqueta resultados-ensaio
- *   [--etiqueta-noite dados-noite] [--intervalo 60]
+ *   [--etiqueta-noite resultados-ensaio] [--ano-noite 2024] [--intervalo 60]
+ *
+ * O Modelo publica a projeção de ensaio na mesma Release, com o ano da noite reconstruída
+ * no nome (`projecao-noite-2024.json`, `historico-noite-2024.json`).
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -43,10 +46,11 @@ export function lerJsonc(texto) {
 
 const ETIQUETA = /^[A-Za-z0-9._-]{1,64}$/;
 
-export function configuracaoEnsaio(base, { etiqueta, etiquetaNoite, intervalo }) {
+export function configuracaoEnsaio(base, { etiqueta, etiquetaNoite, anoNoite, intervalo }) {
   for (const e of [etiqueta, etiquetaNoite]) {
     if (!ETIQUETA.test(e)) throw new Error(`Etiqueta inválida: ${e}`);
   }
+  if (!/^20\d\d$/.test(String(anoNoite))) throw new Error(`Ano da noite inválido: ${anoNoite}`);
   if (etiqueta === "resultados-2026") throw new Error("O ensaio não lê a Release de produção");
   const url = (tag, ficheiro) => `${REPOSITORIO}/releases/download/${tag}/${ficheiro}`;
   const resto = { ...base };
@@ -62,8 +66,8 @@ export function configuracaoEnsaio(base, { etiqueta, etiquetaNoite, intervalo })
       URL_PARCIAIS: url(etiqueta, "parciais.json"),
       URL_CHAMADAS: url(etiqueta, "chamadas-2026.json"),
       URL_SAUDE: url(etiqueta, "saude.json"),
-      URL_PROJECAO_NOITE: url(etiquetaNoite, "projecao-noite-2026.json"),
-      URL_HISTORICO_NOITE: url(etiquetaNoite, "historico-noite-2026.json"),
+      URL_PROJECAO_NOITE: url(etiquetaNoite, `projecao-noite-${anoNoite}.json`),
+      URL_HISTORICO_NOITE: url(etiquetaNoite, `historico-noite-${anoNoite}.json`),
     },
   };
 }
@@ -77,7 +81,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const base = lerJsonc(readFileSync(path.join(RAIZ_EDGE, "wrangler.jsonc"), "utf-8"));
   const config = configuracaoEnsaio(base, {
     etiqueta: argumento("etiqueta", "resultados-ensaio"),
-    etiquetaNoite: argumento("etiqueta-noite", "dados-noite"),
+    etiquetaNoite: argumento("etiqueta-noite", "resultados-ensaio"),
+    anoNoite: argumento("ano-noite", "2024"),
     intervalo: Number(argumento("intervalo", "60")),
   });
   const destino = path.join(RAIZ_EDGE, "wrangler.ensaio.json");
