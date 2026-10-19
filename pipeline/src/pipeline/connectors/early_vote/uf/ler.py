@@ -45,6 +45,11 @@ COLUNAS = (
 
 _INTEIRO = re.compile(r"\d+")
 
+TOLERANCIA_MODALIDADES = 0.005
+"""Diferença máxima, em fração dos votos, entre correio mais presencial e o total. A fonte
+compila contagens que o estado publica em separado e às vezes não batem por poucas dezenas
+(a Geórgia, a 18/10/2026, por 293 em 857 054); acima disto, o formato mudou."""
+
 
 @dataclass(frozen=True, slots=True)
 class Retrato:
@@ -97,7 +102,7 @@ def _retrato(linha: dict[str, str], estado: CodigoEstado, ano: int) -> Retrato |
     if dia.year != ano:
         msg = f"UF Election Lab, {nome}: last_update {dia} não é de {ano}"
         raise ErroFormatoFonte(msg)
-    if correio + presencial != votos:
+    if abs(correio + presencial - votos) > TOLERANCIA_MODALIDADES * votos:
         msg = (
             f"UF Election Lab, {nome}: correio ({correio}) e presencial ({presencial}) "
             f"não somam os votos ({votos})"
@@ -126,7 +131,8 @@ def ler_csv(texto: str, estados: Collection[CodigoEstado], ano: int = 2026) -> l
 
     Valida o esquema da fonte: as colunas esperadas, uma só linha por estado e todos os
     estados pedidos presentes, números inteiros não negativos, datas M/D/AAAA do ano da
-    eleição, correio mais presencial igual aos votos, devolvidos não superiores aos pedidos
+    eleição, correio mais presencial igual aos votos (com
+    :data:`TOLERANCIA_MODALIDADES`), devolvidos não superiores aos pedidos
     e partidos a somar os votos. Um estado sem votos fica de fora; qualquer falha levanta
     ``ErroFormatoFonte``.
     """

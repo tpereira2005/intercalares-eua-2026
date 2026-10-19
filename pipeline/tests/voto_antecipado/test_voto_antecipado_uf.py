@@ -97,7 +97,7 @@ def test_recusa_numero_invalido_e_data_invalida() -> None:
 
 def test_recusa_somas_que_nao_batem() -> None:
     with pytest.raises(ErroFormatoFonte, match="não somam"):
-        ler_csv(_alterar("OH", "voted_all", "452070"), ESTADOS_LIDOS)
+        ler_csv(_alterar("OH", "voted_all", "460000"), ESTADOS_LIDOS)
     with pytest.raises(ErroFormatoFonte, match="superam"):
         ler_csv(_alterar("OH", "request_all", "1000"), ESTADOS_LIDOS)
     with pytest.raises(ErroFormatoFonte, match="partidos somam"):
@@ -227,9 +227,32 @@ def test_recusa_publicar_estado_com_fonte_propria(
 
 
 def test_formato_que_muda_nao_publica_nada(tmp_path: Path) -> None:
-    raiz = _preparar(tmp_path, _alterar("GA", "voted_all", "552097"))
+    raiz = _preparar(tmp_path, _texto().replace("voted_all", "votos_todos"))
     pasta = tmp_path / "publicado"
     with pytest.raises(ErroFormatoFonte):
         job.executar(raiz, pasta, tmp_path / "h.csv", descarregar_=False)
     assert not pasta.exists()
     assert not (tmp_path / "h.csv").exists()
+
+
+def test_estado_que_falha_nao_impede_os_outros(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    raiz = _preparar(tmp_path, _alterar("GA", "voted_all", "600000"))
+    pasta = tmp_path / "publicado"
+    totais = job.executar(raiz, pasta, tmp_path / "h.csv", descarregar_=False)
+    assert sorted(totais) == ["MI", "NV", "OH"]
+    assert not (pasta / "ga.json").exists()
+    assert "::warning::UF Election Lab, GA" in capsys.readouterr().err
+
+
+def test_modalidades_com_pequena_diferenca_publicam_com_aviso(tmp_path: Path) -> None:
+    # Como a Geórgia a 18/10/2026: correio e presencial somam 293 votos a mais do que o total.
+    raiz = _preparar(tmp_path, _alterar("GA", "voted_all", "551803"))
+    pasta = tmp_path / "publicado"
+    job.executar(raiz, pasta, tmp_path / "h.csv", descarregar_=False)
+    ga = VotoAntecipadoAgregado.model_validate_json((pasta / "ga.json").read_text("utf-8"))
+    assert ga.ciclos[0].votos == 551_803
+    assert any("somam 552\u00a0096" in a for a in ga.avisos)
+    oh = VotoAntecipadoAgregado.model_validate_json((pasta / "oh.json").read_text("utf-8"))
+    assert not any("somam" in a for a in oh.avisos)

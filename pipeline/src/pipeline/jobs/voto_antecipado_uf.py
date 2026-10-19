@@ -19,6 +19,7 @@ aviso com a contagem oficial; se falhar, publica-se como antes, só com um aviso
 
 import argparse
 import logging
+import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -35,6 +36,7 @@ from contratos.voto_antecipado_agregado import (
 )
 from pipeline.comum.calendario import eleicao_geral
 from pipeline.comum.descarga import descarregar
+from pipeline.comum.erros import ErroFormatoFonte
 from pipeline.connectors.early_vote.clark import fontes as fontes_clark
 from pipeline.connectors.early_vote.clark.ler import ler_afluencia
 from pipeline.connectors.early_vote.uf import fontes
@@ -106,6 +108,12 @@ def montar(
         dimensoes.append("partido")
 
     avisos = list(AVISOS) + list(cfg.avisos)
+    soma = atual["correio"] + atual["presencial"]
+    if soma != atual["votos"]:
+        avisos.append(
+            f"A fonte dá {_milhares(atual['votos'])} votos no total, mas o correio e o "
+            f"presencial somam {_milhares(soma)}; mostramos os números tal como vêm."
+        )
     if origem:
         avisos.append(f"Origem indicada pela fonte: {origem}.")
     avisos.extend(avisos_extra)
@@ -203,7 +211,20 @@ def executar(raiz: Path, pasta: Path, arquivo: Path, *, descarregar_: bool) -> d
     if descarregar_:
         descarga = descarregar(fontes.CSV, caminho)
         obtida_em = descarga.obtido_em
-    retratos = ler_csv(caminho.read_text(encoding="utf-8"), ESTADOS.keys(), ANO)
+    texto = caminho.read_text(encoding="utf-8")
+    retratos: list[Retrato] = []
+    erros: list[ErroFormatoFonte] = []
+    # Cada estado valida-se sozinho: um estado que falha fica com o último ficheiro publicado
+    # e não impede os outros. Se todos falharem, o formato mudou e nada se publica.
+    for estado in sorted(ESTADOS, key=lambda e: e.value):
+        try:
+            retratos.extend(ler_csv(texto, [estado], ANO))
+        except ErroFormatoFonte as erro:
+            erros.append(erro)
+            aviso = f"::warning::{erro}; {estado.value} fica com o último ficheiro publicado"
+            print(aviso, file=sys.stderr)  # noqa: T201
+    if erros and len(erros) == len(ESTADOS):
+        raise erros[0]
     if not retratos:
         registo.warning("Nenhum estado com votos no ficheiro do UF Election Lab")
         return {}
