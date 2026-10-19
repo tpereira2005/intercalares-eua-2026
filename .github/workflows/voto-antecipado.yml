@@ -176,7 +176,8 @@ jobs:
   # Geórgia, Michigan, Ohio, Nevada e Texas: os servidores oficiais bloqueiam robôs, por isso
   # usamos o UF Election Lab (Universidade da Florida), fonte NÃO oficial, com atribuição.
   # Um só pedido (US.csv) por execução; só publica os estados que já têm votos. Só guarda o
-  # retrato do momento: o arquivo diário vive na Release, ao lado dos JSON.
+  # retrato do momento: o arquivo diário vive na Release, ao lado dos JSON. Confere o Nevada
+  # com a página agregada de afluência presencial de Clark County (oficial, só totais).
   uf-election-lab:
     name: UF Election Lab (GA, MI, OH, NV, TX)
     runs-on: ubuntu-latest
@@ -194,7 +195,9 @@ jobs:
       - name: Restaurar o ficheiro da fonte
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: data/brutos/uf
+          path: |
+            data/brutos/uf
+            data/brutos/clark
           key: uf-brutos-${{ github.run_id }}
           restore-keys: uf-brutos-
       - name: Obter o arquivo publicado

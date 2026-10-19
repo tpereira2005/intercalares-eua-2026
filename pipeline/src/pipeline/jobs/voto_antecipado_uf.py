@@ -11,6 +11,10 @@ cada estado de :data:`pipeline.connectors.early_vote.uf.estados.ESTADOS` que já
 os outros ficam sem ficheiro. A fonte só publica o retrato do momento: cada execução
 acrescenta-o ao ``--arquivo`` (CSV com uma linha por estado e dia), que o workflow guarda na
 Release ao lado dos JSON; é desse arquivo que sai a série diária. Fonte não oficial.
+
+O Nevada é conferido com a página agregada de afluência presencial do Clark County (Las Vegas,
+fonte oficial, só totais por dia): se estiver acessível, o ``nv.json`` ganha essa fonte e um
+aviso com a contagem oficial; se falhar, publica-se como antes, só com um aviso no registo.
 """
 
 import argparse
@@ -21,6 +25,7 @@ from pathlib import Path
 import polars as pl
 
 from contratos.base import Fonte, Metadados
+from contratos.estados import CodigoEstado
 from contratos.voto_antecipado_agregado import (
     CicloAgregado,
     DimensaoAgregada,
@@ -30,9 +35,12 @@ from contratos.voto_antecipado_agregado import (
 )
 from pipeline.comum.calendario import eleicao_geral
 from pipeline.comum.descarga import descarregar
+from pipeline.connectors.early_vote.clark import fontes as fontes_clark
+from pipeline.connectors.early_vote.clark.ler import ler_afluencia
 from pipeline.connectors.early_vote.uf import fontes
 from pipeline.connectors.early_vote.uf.estados import ESTADOS, OFICIAIS, EstadoUF
 from pipeline.connectors.early_vote.uf.ler import (
+    Retrato,
     juntar_arquivo,
     ler_arquivo,
     ler_csv,
@@ -81,7 +89,11 @@ def serie(arquivo: pl.DataFrame, cfg: EstadoUF, data_eleicao: date) -> list[Pont
 
 
 def montar(
-    arquivo: pl.DataFrame, cfg: EstadoUF, origem: str, fontes_: list[Fonte]
+    arquivo: pl.DataFrame,
+    cfg: EstadoUF,
+    origem: str,
+    fontes_: list[Fonte],
+    avisos_extra: tuple[str, ...] = (),
 ) -> VotoAntecipadoAgregado:
     """Ficheiro publicado de um estado a partir do seu arquivo de retratos (não vazio)."""
     eleicao = eleicao_geral(cfg.estado.value, ANO)
@@ -96,6 +108,7 @@ def montar(
     avisos = list(AVISOS) + list(cfg.avisos)
     if origem:
         avisos.append(f"Origem indicada pela fonte: {origem}.")
+    avisos.extend(avisos_extra)
     return VotoAntecipadoAgregado(
         metadados=Metadados(gerado_em=datetime.now(UTC), fontes=tuple(fontes_)),
         estado=cfg.estado,
@@ -136,6 +149,49 @@ def montar(
     )
 
 
+def _milhares(valor: int) -> str:
+    """Milhares com espaço sem quebra, como o ``Intl`` em ``pt-PT`` (23 183)."""
+    return f"{valor:,}".replace(",", "\u00a0")
+
+
+def conferir_nevada(
+    raiz: Path, nevada: Retrato, *, descarregar_: bool
+) -> tuple[Fonte, tuple[str, ...]] | None:
+    """Fonte oficial e avisos do Nevada a partir da página agregada de Clark County.
+
+    Nunca levanta: se a descarga ou a leitura falhar, regista um aviso e devolve ``None``
+    (sem descarga, lê a cópia local se existir). Só se leem totais agregados.
+    """
+    caminho = raiz / "data" / "brutos" / "clark" / "evturnout.html"
+    obtida_em = datetime.now(UTC)
+    try:
+        if descarregar_:
+            obtida_em = descarregar(fontes_clark.URL, caminho).obtido_em
+        elif not caminho.exists():
+            return None
+        afluencia = ler_afluencia(caminho.read_text(encoding="utf-8"))
+    except Exception as erro:  # a conferência nunca pode travar o job
+        registo.warning("Clark County: conferência do Nevada indisponível (%s)", erro)
+        return None
+    dia = afluencia.ultimo_dia
+    aviso = (
+        f"Conferência oficial: o Clark County (Las Vegas) conta {_milhares(afluencia.acumulado)} "
+        f"votos presenciais até {dia.day}/{dia.month}, segundo a página oficial do condado."
+    )
+    if afluencia.acumulado > nevada.presencial:
+        aviso += (
+            " O total presencial do estado ainda não os inclui todos, por isso fica abaixo do real."
+        )
+    fonte = Fonte(
+        nome=fontes_clark.NOME_FONTE,
+        url=fontes_clark.URL,
+        licenca=fontes_clark.LICENCA,
+        obtida_em=obtida_em,
+        oficial=True,
+    )
+    return fonte, (aviso,)
+
+
 def executar(raiz: Path, pasta: Path, arquivo: Path, *, descarregar_: bool) -> dict[str, int]:
     """Escreve ``<estado>.json`` para cada estado com votos e devolve os votos de cada um."""
     sobrepostos = OFICIAIS & ESTADOS.keys()
@@ -165,7 +221,16 @@ def executar(raiz: Path, pasta: Path, arquivo: Path, *, descarregar_: bool) -> d
     totais: dict[str, int] = {}
     for retrato in retratos:
         do_estado = completo.filter(pl.col("estado") == retrato.estado.value)
-        publicado = montar(do_estado, ESTADOS[retrato.estado], retrato.origem, [fonte])
+        fontes_estado = [fonte]
+        avisos_extra: tuple[str, ...] = ()
+        if retrato.estado is CodigoEstado.NV:
+            conferencia = conferir_nevada(raiz, retrato, descarregar_=descarregar_)
+            if conferencia is not None:
+                fontes_estado.append(conferencia[0])
+                avisos_extra = conferencia[1]
+        publicado = montar(
+            do_estado, ESTADOS[retrato.estado], retrato.origem, fontes_estado, avisos_extra
+        )
         saida = pasta / f"{retrato.estado.value.lower()}.json"
         saida.write_text(publicado.model_dump_json(), encoding="utf-8")
         totais[retrato.estado.value] = publicado.ciclos[0].votos
