@@ -12,3 +12,5 @@ schemas/json/
 apps/web/test/fixtures/*.json
 # Tabelas de referência do modelo, geradas pelo pipeline.
 data/reference/modelo/
+# Amostras de fontes em HTML: ficam como a fonte as publica.
+pipeline/tests/**/dados/*.html
